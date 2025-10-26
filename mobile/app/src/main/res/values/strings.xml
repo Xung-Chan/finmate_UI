@@ -1,0 +1,80 @@
+<resources>
+    <string name="app_name">IBanking_KLTN</string>
+
+    <string name="Continue">Tiếp tục</string>
+    <string name="BackToHome">Về trang chủ</string>
+    <string name="BackToLogin">Về trang đăng nhập</string>
+    <string name="Home">Trang chủ</string>
+    <string name="Login">Đăng nhập</string>
+
+    <!-- Đăng nhập -->
+    <string name="LoginScreen_Welcome">Chào mừng trở lại!</string>
+    <string name="LoginScreen_Text">Đăng nhập để quản lý tiền mọi lúc, mọi nơi</string>
+    <string name="LoginScreen_UsernameLabel">Tài khoản</string>
+    <string name="LoginScreen_PasswordLabel">Mật khẩu</string>
+    <string name="LoginScreen_ButtonText">Đăng nhập</string>
+    <string name="LoginScreen_ForgotPassword">Quên mật khẩu?</string>
+    <string name="LoginScreen_SignupLabel">Đăng ký</string>
+    <!--    Quên mật khẩu-->
+    <string name="ForgotPassword_Title">Quên mật khẩu"</string>
+    <string name="ForgotPassword_OTP_Label">Nhập OTP</string>
+    <string name="ForgotPassword_OTP">OTP</string>
+    <string name="ForgotPassword_OTP_Resend">Gửi lại</string>
+    <string name="ForgotPassword_Notify">Chúng tôi đã gửi một OTP đến email của bạn</string>
+    <string name="ForgotPassword_OTP_Timeout">OTP sẽ hết hạn sau 10 phút</string>
+    <string name="ForgotPassword_Change_Email">Thay đổi email</string>
+    <string name="ForgotPassword_Email_Label">Nhập email của bạn</string>
+    <string name="ForgotPassword_Email">Email</string>
+    <string name="ForgotPassword_Notify_2">Chúng tôi sẽ gửi một email đến email của bạn</string>
+    <!-- Đổi mật khẩu -->
+    <string name="ChangePassword_Title">Đổi mật khẩu</string>
+    <string name="ChangePassword_Success_Title">Đổi mật khẩu thành công</string>
+    <string name="ChangePassword_Notify">Bạn đã đổi mật khẩu thành công. Vui lòng sử dụng mật khẩu
+        mới để đăng nhập vào tài khoản của bạn.
+    </string>
+    <string name="ChangePassword_NewPassword">Nhập mật khẩu mới </string>
+    <string name="ChangePassword_ConfirmNewPassword">Xác nhận mật khẩu mới </string>
+    <!--Chuyển
+    tiền-->
+    <string name="Transfer_Title">Chuyển tiền</string>
+    <string name="Transfer_Success_Title">Chuyển tiền thành công</string>
+    <!-- Home -->
+    <string name="Home_Section1">Dịch vụ</string>
+    <string name="Home_Section2">Dịch vụ ưu thích</string>
+
+    <!-- Người nhận đã lưu -->
+    <string name="SavedReceiver_Title">Người nhận đã lưu</string>
+    <string name="SavedReceiver_SearchHint">Tìm kiếm người nhận đã lưu</string>
+    <!-- Thanh toán hóa đơn -->
+    <string name="PayBill_Title">Thanh toán hóa đơn</string>
+    <string name="PayBill_ElectricityBill">Hóa đơn điện</string>
+    <string name="ElectricBill_Description">Thanh toán hóa đơn tiền điện tháng này</string>
+    <string name="PayBill_InternetBill">Hóa đơn internet</string>
+    <string name="InternetBill_Description">Thanh toán hóa đơn tiền internet tháng này</string>
+    <string name="PayBill_WaterBill">Hóa đơn nước</string>
+    <string name="WaterBill_Description">Thanh toán hóa đơn tiền nước tháng này</string>
+    <!-- Hóa đơn -->
+    <string name="BillProvider">Nhà cung cấp</string>
+    <string name="BillProviderDescription">Chọn nhà cung cấp</string>
+    <string name="BillCode">Mã hóa đơn</string>
+    <string name="BillCodeDescription">Nhập mã hóa đơn</string>
+    <string name="BillDescription">Vui lòng nhập mã hóa đơn để kiểm tra thông tin</string>
+    <string name="BillCheckButton">Kiểm tra</string>
+    <string name="Transaction_Success">Thanh toán thành công</string>
+    <string name="Transaction_Failed">Thanh toán thất bại</string>
+    <string name="Transaction_Success_Message">Bạn đã thanh toán hóa đơn thành công. Vui lòng kiểm
+        tra lại thông tin giao dịch của bạn.</string>
+    <!-- Lịch sử giao dịch -->
+    <string name="TransactionHistory_Title">Lịch sử giao dịch</string>
+    <string name="TransactionHistory_SearchHint">Tìm kiếm giao dịch</string>
+    <!-- Chi tiết giao dịch -->
+    <string name="TransactionDetail_Title">Chi tiết giao dịch</string>
+    <string name="TransactionDetail_Name">Tên người thụ hưởng</string>
+    <string name="TransactionDetail_AccountNumber">Số tài khoản</string>
+    <string name="TransactionDetail_BankName">Ngân hàng</string>
+    <string name="TransactionDetail_Content">Nội dung chuyển tiền</string>
+    <string name="TransactionDetail_TransactionID">Mã giao dịch</string>
+    <string name="TransactionDetail_Date">Ngày giao dịch</string>
+    <string name="TransactionDetail_Amount">Số tiền</string>
+    <string></string>
+</resources>
