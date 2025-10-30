@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.auth
+package com.example.ibanking_kltn.ui.uistates
 
 import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
 

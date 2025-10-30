@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.auth
+package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
 import android.widget.Toast
@@ -8,6 +8,8 @@ import androidx.navigation.NavController
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.ui.Screens
+import com.example.ibanking_kltn.ui.uistates.AuthUiState
+import com.example.ibanking_kltn.ui.uistates.LoginState
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -43,7 +45,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun onLoginClick(context: Context,navControler: NavController) {
+    fun onLoginClick(context: Context, navControler: NavController) {
         _uiState.update {
             it.copy(loginState = LoginState.LOGGING)
         }

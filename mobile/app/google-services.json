@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "331407805761",
+    "project_id": "finmate-dd33c",
+    "storage_bucket": "finmate-dd33c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331407805761:android:5b484ad54519fb50e565c0",
+        "android_client_info": {
+          "package_name": "com.example.ibanking_kltn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzx1HcpkTTOM_yeTXrCprucUWYhsQqSow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

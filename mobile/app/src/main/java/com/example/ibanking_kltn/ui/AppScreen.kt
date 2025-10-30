@@ -11,11 +11,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.ibanking_kltn.ui.screens.TransferScreen
-import com.example.ibanking_kltn.ui.screens.auth.AuthViewModel
-import com.example.ibanking_kltn.ui.screens.auth.ChangePasswordScreen
-import com.example.ibanking_kltn.ui.screens.auth.ForgotPasswordScreen
-import com.example.ibanking_kltn.ui.screens.auth.SignInScreen
-import com.example.ibanking_kltn.ui.screens.auth.SignUpScreen
+import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
+import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
+import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
+import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.SignUpScreen
 import com.example.ibanking_kltn.ui.screens.home.HomeScreen
 
 enum class Screens {

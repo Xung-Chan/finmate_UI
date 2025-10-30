@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.payBill
+package com.example.ibanking_kltn.ui.screens
 
 
 

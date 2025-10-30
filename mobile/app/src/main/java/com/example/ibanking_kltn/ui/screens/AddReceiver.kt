@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.savedReceiver
+package com.example.ibanking_kltn.ui.screens
 
 
 import androidx.compose.foundation.background

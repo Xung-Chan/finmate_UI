@@ -10,10 +10,11 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthApi {
-    @POST("/auth/login")
 
+    @POST("/auth/login")
     suspend fun login(
     @Header("X-App-Token")appToken: String = "android_app_secret_key",
         @Body request: LoginRequest
     ): Response<LoginResponse>
+    
 }

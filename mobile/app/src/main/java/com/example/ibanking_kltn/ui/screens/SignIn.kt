@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.auth
+package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -40,9 +40,10 @@ import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.AuthUiState
+import com.example.ibanking_kltn.ui.uistates.LoginState
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
-
 @Composable
 fun SignInScreen(uiState: AuthUiState,
                  onLoginClick:()-> Unit,
