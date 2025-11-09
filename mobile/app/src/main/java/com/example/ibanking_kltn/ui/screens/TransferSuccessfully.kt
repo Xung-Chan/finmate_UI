@@ -39,10 +39,15 @@ import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.CustomTextButton
+import com.example.ibanking_kltn.utils.formatterVND
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransferSuccessfullyScreen() {
+fun TransferSuccessfullyScreen(
+    onBackToHomeClick: () -> Unit ,
+    amount:Long,
+    toMerchantName:String
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -112,7 +117,7 @@ fun TransferSuccessfullyScreen() {
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("1.000.000 VND")
+                            append("${formatterVND(amount)} VND")
                         }
 
                         append(" đến ")
@@ -123,8 +128,7 @@ fun TransferSuccessfullyScreen() {
                                 fontWeight = FontWeight.Bold
                             )
                         ) {
-                            append("XungChan")
-                        }
+                            append(toMerchantName)                        }
                     },
                     style = CustomTypography.bodyMedium,
                     color = Black1,
@@ -140,7 +144,9 @@ fun TransferSuccessfullyScreen() {
                         .padding(horizontal = 10.dp)
                 ) {
                     CustomTextButton(
-                        onClick = {},
+                        onClick = {
+                            onBackToHomeClick()
+                        },
                         modifier = Modifier
                             .fillMaxWidth(),
                         style = CustomTypography.titleMedium,
@@ -156,12 +162,16 @@ fun TransferSuccessfullyScreen() {
 }
 
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-
-)
-@Composable
-fun TransferSuccessfullyPreview() {
-    TransferSuccessfullyScreen()
-}
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//
+//)
+//@Composable
+//fun TransferSuccessfullyPreview() {
+//    TransferSuccessfullyScreen(
+//        onBackToHomeClick = TODO(),
+//        amount = TODO(),
+//        toMerchantName = TODO()
+//    )
+//}

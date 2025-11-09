@@ -34,10 +34,8 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
-import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -129,18 +127,6 @@ fun AddReceiverScreen() {
                                 color = Gray1
                             )
                         }
-                         CustomDropdownField(
-                        modifier = Modifier.fillMaxWidth(),
-                        options = listOf("asbja","absgakb"),
-                        onOptionSelected = {}
-                    ) {
-                        Text(
-                            "Chọn ngân hàng",
-                            style = CustomTypography.titleMedium,
-                            color = Gray2,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
                     }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -153,7 +139,7 @@ fun AddReceiverScreen() {
                                 color = Gray1
                             )
                         }
-                          CustomTextField(
+                        CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = "",
                             keyboardOptions = KeyboardOptions(
@@ -175,7 +161,7 @@ fun AddReceiverScreen() {
                                 color = Gray1
                             )
                         }
-                          CustomTextField(
+                        CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = "",
                             keyboardOptions = KeyboardOptions(

@@ -31,7 +31,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -41,21 +40,25 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AuthUiState
-import com.example.ibanking_kltn.ui.uistates.LoginState
+import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
+
 @Composable
-fun SignInScreen(uiState: AuthUiState,
-                 onLoginClick:()-> Unit,
-                 onEmailChange: (String) -> Unit,
-                 onPasswordChange: (String) -> Unit,
-                 onChangeVisiblePassword: () -> Unit,
-                 checkEnableLogin: () -> Boolean) {
+fun SignInScreen(
+    uiState: AuthUiState,
+    onLoginClick: () -> Unit,
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onChangeVisiblePassword: () -> Unit,
+    checkEnableLogin: () -> Boolean,
+) {
     val scrollState = rememberScrollState()
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         containerColor = White3
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -219,7 +222,7 @@ fun SignInScreen(uiState: AuthUiState,
                         onClick = {
                             onLoginClick()
                         },
-                        isLoading = uiState.loginState is LoginState.LOGGING,
+                        isLoading = uiState.loginState is StateType.LOADING,
                         modifier = Modifier
                             .fillMaxWidth(),
                         text = stringResource(R.string.LoginScreen_ButtonText),
@@ -284,19 +287,20 @@ fun SignInScreen(uiState: AuthUiState,
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
-@Composable
-fun PreviewLogin() {
-    SignInScreen(
-        uiState = AuthUiState(),
-        onLoginClick = { },
-        onEmailChange = { },
-        onPasswordChange = { },
-        onChangeVisiblePassword = {  },
-        checkEnableLogin = {
-             false}
-    )
-}
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//)
+//@Composable
+//fun PreviewLogin() {
+//    SignInScreen(
+//        uiState = AuthUiState(),
+//        onLoginClick = { },
+//        onEmailChange = { },
+//        onPasswordChange = { },
+//        onChangeVisiblePassword = { },
+//        checkEnableLogin = {
+//            false
+//        }
+//    )
+//}

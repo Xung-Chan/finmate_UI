@@ -1,0 +1,55 @@
+package com.example.ibanking_kltn.data.api
+
+import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.data.dtos.requests.RefreshTokenRequest
+import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
+import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
+import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
+import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
+import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
+import com.example.ibanking_kltn.data.dtos.responses.RequestOtpResponse
+import com.example.ibanking_kltn.data.dtos.responses.VerifyOtpResponse
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.Header
+import retrofit2.http.POST
+
+
+interface NonAuthApi {
+    @POST("/auth/login")
+    suspend fun login(
+        @Header("X-App-Token") appToken: String = "android_app_secret_key",
+        @Body request: LoginRequest
+    ): Response<LoginResponse>
+
+    @POST("/auth/refresh")
+    fun refreshToken(
+        @Header("X-App-Token") appToken: String = "android_app_secret_key",
+        @Body request: RefreshTokenRequest
+    ): Call<LoginResponse>
+
+
+    @POST("/api/v1/accounts/reset-password")
+    suspend fun resetPassword(
+        @Body request: ResetPasswordRequest
+    ): Response<Unit>
+
+    @POST("/api/v1/accounts/send-otp")
+    suspend fun sendOtp(
+        @Body request: SendOtpRequest
+    ): Response<Unit>
+
+    @POST("/api/v1/accounts/request-otp")
+    suspend fun requestOtp(
+        @Body request: RequestOtpRequest
+    ): Response<RequestOtpResponse>
+
+
+
+    @POST("/api/v1/accounts/verify-otp")
+    suspend fun verifyOtp(
+        @Body request: VerifyOtpRequest
+    ): Response<VerifyOtpResponse>
+
+}

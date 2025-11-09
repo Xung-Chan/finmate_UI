@@ -44,7 +44,8 @@ import com.example.ibanking_kltn.utils.CustomTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChangePasswordScreen() {
+fun ChangePasswordScreen(
+) {
     Scaffold(
         topBar = {
             TopAppBar(

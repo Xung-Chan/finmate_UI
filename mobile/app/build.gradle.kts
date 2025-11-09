@@ -1,3 +1,9 @@
+apply {
+    from("../secret.gradle")
+}
+val devConfig =
+    (project.extra["devConfig"] as Map<*, *>).map { it.key.toString() to it.value.toString() }
+        .toMap()
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -13,12 +19,16 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ibanking_kltn"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildFeatures {
+        viewBinding = true
+        buildConfig = true
     }
 
     buildTypes {
@@ -28,6 +38,17 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            //noinspection WrongGradleMethod
+            devConfig.forEach { (key, value) ->
+                buildConfigField("String", key, "\"${value}\"")
+            }
+        }
+        debug {
+            isMinifyEnabled = false
+            //noinspection WrongGradleMethod
+            devConfig.forEach { (key, value) ->
+                buildConfigField("String", key, "\"${value}\"")
+            }
         }
     }
     compileOptions {

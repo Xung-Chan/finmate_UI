@@ -98,15 +98,10 @@ fun ElectricScreen() {
                     CustomDropdownField(
                         modifier = Modifier.fillMaxWidth(),
                         options = listOf("asbja", "absgakb"),
-                        onOptionSelected = {}
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.BillProviderDescription),
-                            style = CustomTypography.titleMedium,
-                            color = Gray2,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                        onOptionSelected = {},
+                        selectedOption = "",
+                        placeholder = stringResource(id = R.string.BillProviderDescription)
+                    )
                 }
 
 
