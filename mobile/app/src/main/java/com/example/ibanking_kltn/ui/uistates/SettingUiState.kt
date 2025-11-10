@@ -1,14 +1,9 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
+import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
 
 data class SettingUiState(
-    val settingState: SettingState = SettingState.NONE,
+    val state: StateType = StateType.NONE,
+    val myWallet: WalletResponse? = null,
+    val isBalanceShow: Boolean = false
 )
-
-sealed class SettingState {
-    object SUCCESS : SettingState()
-    data class FAILED(val message: String) : SettingState()
-    object NONE : SettingState()
-    object LOADING : SettingState()
-}

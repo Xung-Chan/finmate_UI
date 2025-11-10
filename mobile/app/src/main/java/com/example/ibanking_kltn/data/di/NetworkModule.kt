@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.ibanking_kltn.BuildConfig
 import com.example.ibanking_kltn.data.api.AuthApi
+import com.example.ibanking_kltn.data.api.BillApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
 import com.example.ibanking_kltn.data.api.TransactionApi
@@ -140,6 +141,16 @@ object NetworkModule {
         retrofit: Retrofit
     ): PayLaterApi {
         return retrofit.create(PayLaterApi::class.java)
+
+    }
+
+    @Singleton
+    @Provides
+    fun provideBillApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): BillApi {
+        return retrofit.create(BillApi::class.java)
 
     }
 

@@ -1,15 +1,16 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.dtos.Service
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
+import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
-import com.example.ibanking_kltn.data.repositories.PayLaterRepository
+import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
-import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.uistates.ConfirmUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -26,10 +27,8 @@ import kotlinx.coroutines.launch
 class ConfirmViewModel @Inject constructor(
 
     private val transactionRepository: TransactionRepository,
-    private val walletRepository: WalletRepository,
-    private val payLaterRepository: PayLaterRepository,
+    private val billRepository: BillRepository,
 
-    private val sharedPreferences: SharedPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel(), IViewModel {
     private val _uiState = MutableStateFlow(ConfirmUiState())
@@ -52,8 +51,9 @@ class ConfirmViewModel @Inject constructor(
         toWalletNumber: String,
         description: String,
         toMerchantName: String,
-        expenseType: String,
-        service: String
+        expenseType: String?=null,
+        billCode: String?=null,
+        service: Service
     ) {
         loadPaymentInfo(
             accountType = accountType,
@@ -62,6 +62,7 @@ class ConfirmViewModel @Inject constructor(
             description = description,
             toMerchantName = toMerchantName,
             expenseType = expenseType,
+            billCode= billCode,
             service = service
         )
     }
@@ -76,20 +77,21 @@ class ConfirmViewModel @Inject constructor(
         toWalletNumber: String,
         description: String,
         toMerchantName: String,
-        expenseType: String,
-        service: String
+        expenseType: String?=null,
+        billCode: String?=null,
+        service: Service
     ) {
         _uiState.update {
             it.copy(
-                prepareTransactionRequest = PrepareTransferRequest(
-                    accountType = accountType,
-                    amount = amount,
-                    toWalletNumber = toWalletNumber,
-                    description = description
-                ),
+
+                accountType = accountType,
+                amount = amount,
+                toWalletNumber = toWalletNumber,
+                description = description,
                 toMerchantName = toMerchantName,
                 expenseType = expenseType,
-                service = service
+                service = service,
+                billCode = billCode
 
             )
         }
@@ -105,7 +107,7 @@ class ConfirmViewModel @Inject constructor(
                 val apiResult = transactionRepository.confirmTransfer(
                     request = ConfirmTransferRequest(
                         otp = otp,
-                        transactionId = uiState.value.prepareTransactionResponse!!.transactionId
+                        transactionId = uiState.value.prepareResponse!!.transactionId
                     )
                 )
                 when (apiResult) {
@@ -150,17 +152,43 @@ class ConfirmViewModel @Inject constructor(
             it.copy(confirmState = StateType.LOADING)
         }
         viewModelScope.launch {
-            val apiResult = transactionRepository.prepareTransfer(
-                request = uiState.value.prepareTransactionRequest!!
-            )
+            var apiResult: ApiResult<Any>
+
+            when (uiState.value.service) {
+                Service.TRANSFER -> {
+                    apiResult = transactionRepository.prepareTransfer(
+                        request = PrepareTransferRequest(
+                            accountType = uiState.value.accountType,
+                            amount = uiState.value.amount,
+                            description = uiState.value.description,
+                            toWalletNumber = uiState.value.toWalletNumber
+                        )
+                    )
+                }
+
+                Service.PAY_BILL -> {
+                    apiResult = billRepository.preparePayBill(
+                        request = PreparePayBillRequest(
+                            accountType = uiState.value.accountType,
+                            billerCode = uiState.value.billCode!!,
+                        )
+                    )
+                }
+
+                else -> {
+                    error("Dịch vụ không hợp lệ")
+                    return@launch
+                }
+            }
+
             when (apiResult) {
                 is ApiResult.Success -> {
-                    val prepareTransferResponse = apiResult.data
+                    val prepareTransferResponse = apiResult.data as PrepareTransactionResponse
                     _uiState.update {
                         it.copy(
                             confirmState = StateType.NONE,
                             isOtpShow = true,
-                            prepareTransactionResponse = prepareTransferResponse
+                            prepareResponse = prepareTransferResponse
                         )
                     }
                     Toast.makeText(context, "Đã gửi OTP đến email của bạn", Toast.LENGTH_SHORT)

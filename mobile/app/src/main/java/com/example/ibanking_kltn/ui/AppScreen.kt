@@ -14,25 +14,27 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.ibanking_kltn.data.dtos.Service
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.HomeScreen
+import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
-import com.example.ibanking_kltn.ui.screens.SignUpScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.screens.TransferSuccessfullyScreen
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
+import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
 
 enum class Screens {
-    SignIn, SignUp, ChangePassword, ForgotPassword, Home,
+    SignIn, ChangePassword, ForgotPassword, Home,
     TransferSuccess, Transfer, ConfirmPayment,
-    Settings,
+    Settings, PayBill
 }
 
 @Composable
@@ -44,9 +46,9 @@ fun AppScreen(
     val homeViewModel: HomeViewModel = hiltViewModel()
     val transferViewModel: TransferViewModel = hiltViewModel()
     val confirmViewModel: ConfirmViewModel = hiltViewModel()
+    val payBillViewModel: BillViewModel = hiltViewModel()
 
-
-    var service by remember { mutableStateOf("") }
+    var service by remember { mutableStateOf(Service.TRANSFER) }
     NavHost(
         navController = navController,
         startDestination = Screens.SignIn.name
@@ -71,18 +73,6 @@ fun AppScreen(
                 },
             )
         }
-        composable(route = Screens.SignUp.name) {
-            SignUpScreen()
-        }
-        composable(route = Screens.SignUp.name) {
-            SettingScreen()
-        }
-        composable(route = Screens.ForgotPassword.name) {
-            ForgotPasswordScreen()
-        }
-        composable(route = Screens.ChangePassword.name) {
-            ChangePasswordScreen()
-        }
         composable(route = Screens.TransferSuccess.name) {
             val confirmUiState by confirmViewModel.uiState.collectAsState()
             TransferSuccessfullyScreen(
@@ -93,7 +83,7 @@ fun AppScreen(
                         }
                     }
                 },
-                amount = confirmUiState.prepareTransactionRequest?.amount ?: 0L,
+                amount = confirmUiState.amount ,
                 toMerchantName = confirmUiState.toMerchantName
             )
         }
@@ -117,11 +107,15 @@ fun AppScreen(
                 onNavigateToSettingScreen = {
                     navController.navigate(Screens.Settings.name)
                 },
+                onNavigateToPayBillScreen = {
+                    payBillViewModel.clearState()
+                    navController.navigate(Screens.PayBill.name)
+                }
             )
         }
         composable(route = Screens.Transfer.name) {
             val transferUiState by transferViewModel.uiState.collectAsState()
-            service = "Chuyển tiền"
+            service = Service.TRANSFER
             LaunchedEffect(Unit) {
                 transferViewModel.init()
             }
@@ -176,6 +170,57 @@ fun AppScreen(
                     confirmViewModel.onOtpDismiss()
                 },
             )
+        }
+
+
+        composable(route = Screens.PayBill.name) {
+            val uiState by payBillViewModel.uiState.collectAsState()
+            service = Service.PAY_BILL
+            LaunchedEffect(Unit) {
+                payBillViewModel.init()
+            }
+
+            PayBillScreen(
+                uiState = uiState,
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onCheckingBill = {
+                    payBillViewModel.onCheckingBill()
+                },
+                onConfirmPayBill = {
+                    confirmViewModel.clearState()
+                    val billData=payBillViewModel.uiState.value
+                    confirmViewModel.init(
+                        accountType = billData.accountType,
+                        amount = billData.amount,
+                        toWalletNumber = billData.toWalletNumber,
+                        description = if (billData.description.isNotEmpty()) removeVietnameseAccents(
+                            billData.description
+                        ) else "Chuyen tien den ${billData.toMerchantName}",
+                        toMerchantName = billData.toMerchantName,
+                        billCode = billData.billCode,
+                        service = service
+                    )
+                    navController.navigate(Screens.ConfirmPayment.name)
+
+                },
+                onChangeBillCode ={
+                    payBillViewModel.onChangeBillCode(it)
+                },
+                onChangeAccountType = {
+                    payBillViewModel.onChangeAccountType(it)
+                }
+            )
+        }
+        composable(route = Screens.Settings.name) {
+            SettingScreen()
+        }
+        composable(route = Screens.ForgotPassword.name) {
+            ForgotPasswordScreen()
+        }
+        composable(route = Screens.ChangePassword.name) {
+            ChangePasswordScreen()
         }
 
     }

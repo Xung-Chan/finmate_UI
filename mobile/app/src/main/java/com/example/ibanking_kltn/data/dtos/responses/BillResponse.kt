@@ -1,0 +1,27 @@
+package com.example.ibanking_kltn.data.dtos.responses
+data class BillResponse(
+    val amount: Long,
+    val billStatus: String,
+    val description: String,
+    val dueDate: String,
+    val merchantName: String,
+    val metadata: Any,
+    val qrIdentifier: String
+)
+
+
+
+data class BillingCycleResponse(
+    val code: String,
+    val dueDate: String,
+    val endDate: String,
+    val lateInterestRate: Double,
+    val minimumPayment: Double,
+    val paidInterest: Double,
+    val paidPrincipal: Double,
+    val penaltyApplied: Boolean,
+    val penaltyFee: Double,
+    val startDate: String,
+    val totalInterest: Double,
+    val totalSpent: Double
+)

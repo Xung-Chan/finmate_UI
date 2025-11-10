@@ -4,3 +4,9 @@ enum class  AccountType {
     WALLET,
     PAY_LATER
 }
+
+enum class Service(serviceName: String) {
+    NONE("Không có"),
+    TRANSFER("Chuyển tiền"),
+    PAY_BILL("Thanh toán hóa đơn"),
+}

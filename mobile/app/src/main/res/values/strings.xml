@@ -55,10 +55,12 @@
     <string name="PayBill_WaterBill">Hóa đơn nước</string>
     <string name="WaterBill_Description">Thanh toán hóa đơn tiền nước tháng này</string>
     <!-- Hóa đơn -->
-    <string name="BillProvider">Nhà cung cấp</string>
-    <string name="BillProviderDescription">Chọn nhà cung cấp</string>
     <string name="BillCode">Mã hóa đơn</string>
     <string name="BillCodeDescription">Nhập mã hóa đơn</string>
+    <string name="MerchantName">Tên người thụ hưởng</string>
+    <string name="Amount">Số tiền</string>
+    <string name="Description">Nội dung</string>
+    <string name="DueDate">Ngày hết hạn</string>
     <string name="BillDescription">Vui lòng nhập mã hóa đơn để kiểm tra thông tin</string>
     <string name="BillCheckButton">Kiểm tra</string>
     <string name="Transaction_Success">Thanh toán thành công</string>

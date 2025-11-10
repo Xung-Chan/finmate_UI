@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -58,7 +59,6 @@ fun ConfirmPaymentScreen(
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING
     ) {
-
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -110,7 +110,7 @@ fun ConfirmPaymentScreen(
                         }
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = uiState.service,
+                            value = uiState.service.name,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -132,7 +132,7 @@ fun ConfirmPaymentScreen(
                         }
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = uiState.prepareTransactionRequest?.accountType ?: "Unknown",
+                            value = uiState.accountType,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -205,8 +205,8 @@ fun ConfirmPaymentScreen(
                             }
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(),
-                                value = uiState.prepareTransactionRequest?.toWalletNumber
-                                    ?: "Unknown",
+                                value = uiState.toWalletNumber
+                                 ,
                                 keyboardOptions = KeyboardOptions(
                                     imeAction = ImeAction.Done,
                                     keyboardType = KeyboardType.Text
@@ -256,7 +256,7 @@ fun ConfirmPaymentScreen(
                             }
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(),
-                                value = "${formatterVND(uiState.prepareTransactionRequest?.amount ?: 0L)} VND",
+                                value = "${formatterVND(uiState.amount )} VND",
                                 keyboardOptions = KeyboardOptions(
                                     imeAction = ImeAction.Done,
                                     keyboardType = KeyboardType.Text
@@ -304,7 +304,7 @@ fun ConfirmPaymentScreen(
                             }
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(),
-                                value = uiState.prepareTransactionRequest?.description ?: "",
+                                value = uiState.description ,
                                 keyboardOptions = KeyboardOptions(
                                     imeAction = ImeAction.Done,
                                     keyboardType = KeyboardType.Text
@@ -313,12 +313,15 @@ fun ConfirmPaymentScreen(
                                 onValueChange = {}
                             )
                         }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        if(!uiState.expenseType.isNullOrEmpty()){
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 10.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
+
+                        }
                             Row {
                                 Text(
                                     text = "Phân loại",
@@ -337,6 +340,7 @@ fun ConfirmPaymentScreen(
                                 onValueChange = {}
                             )
                         }
+
                     }
 
                 }
@@ -387,31 +391,32 @@ fun ConfirmPaymentScreen(
 
             }
 
-            if (uiState.isOtpShow) {
-                OtpDialogCustom(
-                    otpLength = 6,
-                    otpValue = uiState.otp,
-                    onOtpChange = { onOtpChange(it) },
-                    onDismiss = { onOtpDismiss() }
-                )
-            }
+
+
         }
     }
-
+    if (uiState.isOtpShow) {
+        OtpDialogCustom(
+            otpLength = 6,
+            otpValue = uiState.otp,
+            onOtpChange = { onOtpChange(it) },
+            onDismiss = { onOtpDismiss() }
+        )
+    }
 }
 
-//@Preview(
-//    showBackground = true,
-//    showSystemUi = true
-//
-//)
-//@Composable
-//fun ConfirmPreview() {
-//    ConfirmPaymentScreen(
-//        uiState = ConfirmUiState(),
-//        onBackClick = { },
-//        onConfirmClick = { },
-//        onOtpChange = { },
-//        onOtpDismiss = {}
-//    )
-//}
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+
+)
+@Composable
+fun ConfirmPreview() {
+    ConfirmPaymentScreen(
+        uiState = ConfirmUiState(),
+        onBackClick = { },
+        onConfirmClick = { },
+        onOtpChange = { },
+        onOtpDismiss = {}
+    )
+}

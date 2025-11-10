@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -348,23 +349,23 @@ fun TransferScreen(
 
 }
 
-//@Preview(
-//    showBackground = true,
-//    showSystemUi = true
-//
-//)
-//@Composable
-//fun TransferPreview() {
-//    TransferScreen(
-//        uiState = TODO(),
-//        onDoneWalletNumber = TODO(),
-//        onBackClick = TODO(),
-//        onAccountTypeChange = TODO(),
-//        onConfirmClick = TODO(),
-//        onChangeReceiveWalletNumber = TODO(),
-//        onChangeAmount = TODO(),
-//        onChangeDescription = TODO(),
-//        onOtpChange = TODO(),
-//        onOtpDismiss = TODO()
-//    )
-//}
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+
+)
+@Composable
+fun TransferPreview() {
+    TransferScreen(
+        uiState = TransferUiState(),
+        onDoneWalletNumber = {},
+        onBackClick = {},
+        onAccountTypeChange = {},
+        onExpenseTypeChange = {},
+        onConfirmClick = {},
+        onChangeReceiveWalletNumber = {},
+        onChangeAmount = {},
+        onChangeDescription = {},
+        isEnableContinue = false,
+    )
+}

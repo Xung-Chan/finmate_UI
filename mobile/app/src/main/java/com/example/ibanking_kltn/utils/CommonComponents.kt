@@ -57,6 +57,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
@@ -70,10 +71,9 @@ import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Gray4
 import com.example.ibanking_kltn.ui.theme.LabelColor
-import com.example.ibanking_kltn.ui.theme.PrimaryColor
-import com.example.ibanking_kltn.ui.theme.SecondaryColor
 import com.example.ibanking_kltn.ui.theme.TextColor
 import com.example.ibanking_kltn.ui.theme.White1
+import com.example.ibanking_kltn.ui.theme.White3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -335,7 +335,7 @@ fun OtpDialogCustom(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
-                    color = SecondaryColor,
+                    color = White1,
                     shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                 )
                 .clickable(
@@ -352,7 +352,7 @@ fun OtpDialogCustom(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = PrimaryColor,
+                            color = Blue3,
                             shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                         )
                         .padding(10.dp)
@@ -360,7 +360,7 @@ fun OtpDialogCustom(
                     Text(
                         text = "Nhập mã OTP",
                         style = CustomTypography.titleMedium,
-                        color = BackgroundColor
+                        color = White1
                     )
                 }
             }
@@ -376,7 +376,7 @@ fun OtpDialogCustom(
                     modifier = modifier
                         .fillMaxWidth()
                         .clip(shape = RoundedCornerShape(20.dp))
-                        .background(color = BackgroundColor)
+                        .background(color = White3)
                         .padding(vertical = 10.dp)
                 ) {
                     BasicTextField(
@@ -431,6 +431,16 @@ fun OtpDialogCustom(
     }
 }
 
+@Preview
+@Composable
+fun pr(){
+    OtpDialogCustom(
+        otpLength = 6,
+        otpValue = "",
+        onOtpChange = {},
+        onDismiss = { }
+    )
+}
 @Composable
 fun LoadingScaffold(
     isLoading: Boolean,

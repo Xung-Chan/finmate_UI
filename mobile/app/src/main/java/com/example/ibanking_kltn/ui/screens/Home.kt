@@ -41,7 +41,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -69,9 +68,10 @@ import java.time.LocalDate
 @Composable
 fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
-    onChangeVisibleBalance: () -> Unit = {},
-    onNavigateToTransferScreen: () -> Unit = {},
-    onNavigateToSettingScreen: () -> Unit = {}
+    onChangeVisibleBalance: () -> Unit,
+    onNavigateToTransferScreen: () -> Unit,
+    onNavigateToSettingScreen: () -> Unit,
+    onNavigateToPayBillScreen: () -> Unit,
 ) {
 
 
@@ -265,7 +265,7 @@ fun HomeScreen(
                                                     text = "${formatterVND(homeUiState.myWallet?.balance?.toLong() ?: 0L)} VND",
                                                     color = White1,
                                                     style = CustomTypography.titleLarge,
-                                                    )
+                                                )
                                             }
                                             Row(
                                                 verticalAlignment = Alignment.CenterVertically,
@@ -376,7 +376,11 @@ fun HomeScreen(
                                 }
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.width(70.dp)
+                                    modifier = Modifier
+                                        .width(70.dp)
+                                        .clickable {
+                                            onNavigateToPayBillScreen()
+                                        }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -397,7 +401,7 @@ fun HomeScreen(
 
                                     Row(modifier = Modifier.fillMaxWidth()) {
                                         Text(
-                                            "Mobile Recharg",
+                                            text = stringResource(R.string.PayBill_Title),
                                             color = Black1,
                                             style = CustomTypography.titleSmall,
                                             textAlign = TextAlign.Center
@@ -763,12 +767,12 @@ fun HomeScreen(
 
 }
 
-@Preview(
-    showSystemUi = true,
-    showBackground = true
-
-)
-@Composable
-fun HomePreview() {
-    HomeScreen()
-}
+//@Preview(
+//    showSystemUi = true,
+//    showBackground = true
+//
+//)
+//@Composable
+//fun HomePreview() {
+//    HomeScreen()
+//}
