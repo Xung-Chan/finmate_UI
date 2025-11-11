@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -132,8 +133,13 @@ fun PayBillScreen(
                                     )
                                 },
                                 keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Number,
-                                    imeAction = ImeAction.Next
+                                    keyboardType = KeyboardType.Text,
+                                    imeAction = ImeAction.Done
+                                ),
+                                keyboardActions = KeyboardActions(
+                                    onDone = {
+                                        onCheckingBill()
+                                    }
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
                                 onValueChange = {
@@ -322,7 +328,7 @@ fun PayBillScreen(
                     }
 
                     CustomTextButton(
-                        enable = uiState.checkingState is StateType.SUCCESS && uiState.confirmState !is StateType.LOADING,
+                        enable = uiState.checkingState is StateType.SUCCESS && uiState.confirmState !is StateType.LOADING && uiState.accountType.isNotEmpty(),
                         onClick = {
                             onConfirmPayBill()
                         },

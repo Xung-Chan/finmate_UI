@@ -46,6 +46,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -57,7 +58,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
@@ -269,7 +269,7 @@ fun CustomTextButton(
         modifier = modifier,
         shape = RoundedCornerShape(30),
         colors = buttonColor,
-        enabled = enable&&!isLoading,
+        enabled = enable && !isLoading,
     ) {
         if (isLoading)
             CircularProgressIndicator(color = White1, modifier = Modifier.size(20.dp))
@@ -326,8 +326,7 @@ fun OtpDialogCustom(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
             )
-            .imePadding()
-        ,
+            .imePadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
         Column(
@@ -431,16 +430,6 @@ fun OtpDialogCustom(
     }
 }
 
-@Preview
-@Composable
-fun pr(){
-    OtpDialogCustom(
-        otpLength = 6,
-        otpValue = "",
-        onOtpChange = {},
-        onDismiss = { }
-    )
-}
 @Composable
 fun LoadingScaffold(
     isLoading: Boolean,
@@ -458,6 +447,7 @@ fun LoadingScaffold(
                     .background(
                         color = Gray3.copy(alpha = 0.5f),
                     )
+                    .pointerInput(Unit) {}
             ) {
                 CircularProgressIndicator(
                     color = Blue3,
