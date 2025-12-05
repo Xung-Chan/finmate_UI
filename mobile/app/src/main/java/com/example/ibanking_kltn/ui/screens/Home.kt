@@ -2,7 +2,6 @@ package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -46,11 +44,9 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue2
-import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.CustomTypography
-import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Orange2
 import com.example.ibanking_kltn.ui.theme.Red3
@@ -70,8 +66,9 @@ fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
     onChangeVisibleBalance: () -> Unit,
     onNavigateToTransferScreen: () -> Unit,
-    onNavigateToSettingScreen: () -> Unit,
+//    onNavigateToSettingScreen: () -> Unit,
     onNavigateToPayBillScreen: () -> Unit,
+    navigationBar: @Composable () -> Unit
 ) {
 
 
@@ -632,133 +629,137 @@ fun HomeScreen(
 
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(bottomBarHeight)
-                        .background(color = Color.Transparent)
-                ) {
-                    //nav
-                    Column(
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier
-                            .height(bottomBarHeight)
-                            .fillMaxWidth()
-//                        .background(White3)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                75.dp,
-                                alignment = Alignment.CenterHorizontally
-                            ),
-                            modifier = Modifier
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(bottomBarHeight)
+//                        .background(color = Color.Transparent)
+//                ) {
+//                    //nav
+//                    Column(
+//                        verticalArrangement = Arrangement.Bottom,
+//                        modifier = Modifier
+//                            .height(bottomBarHeight)
+//                            .fillMaxWidth()
+////                        .background(White3)
+//                    ) {
+//                        Row(
+//                            verticalAlignment = Alignment.CenterVertically,
+//                            horizontalArrangement = Arrangement.spacedBy(
+//                                75.dp,
+//                                alignment = Alignment.CenterHorizontally
+//                            ),
+//                            modifier = Modifier
+//
+//                                .height(bottomBarHeight * 5 / 8)
+//                                .fillMaxWidth()
+//                                .shadow(
+//                                    elevation = 30.dp,
+//                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f),
+//                                    ambientColor = Black1.copy(alpha = 0.9f),
+//                                    spotColor = Black1.copy(alpha = 0.9f),
+//                                )
+//                                .background(
+//                                    color = White1,
+//                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
+//                                )
+//
+//                        )
+//                        {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(
+//                                    30.dp,
+//                                    alignment = Alignment.CenterHorizontally
+//                                ),
+//                                modifier = Modifier
+//                                    .weight(1f)
+//                                    .padding(10.dp)
+//                            ) {
+//                                IconButton(onClick = {}) {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.category),
+//                                        contentDescription = null,
+//                                        tint = Blue3,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//
+//                                IconButton(onClick = {}) {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.wallet),
+//                                        contentDescription = null,
+//                                        tint = Gray1,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//
+//                            }
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(
+//                                    30.dp,
+//                                    alignment = Alignment.CenterHorizontally
+//                                ),
+//                                modifier = Modifier
+//                                    .weight(1f)
+//                                    .padding(10.dp)
+//                            ) {
+//                                IconButton(onClick = {}) {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.analytic),
+//                                        contentDescription = null,
+//                                        tint = Gray1,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//
+//                                IconButton(onClick = {
+//                                    onNavigateToSettingScreen()
+//                                }) {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.profile),
+//                                        contentDescription = null,
+//                                        tint = Gray1,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    Column(
+//                        verticalArrangement = Arrangement.Center,
+//                        horizontalAlignment = Alignment.CenterHorizontally,
+//                        modifier = Modifier
+//                            .height(bottomBarHeight)
+//                            .fillMaxWidth()
+//                    ) {
+//                        IconButton(
+//                            onClick = {},
+//                            modifier = Modifier
+//                                .shadow(
+//                                    elevation = 20.dp,
+//                                    shape = RoundedCornerShape(40)
+//                                )
+//                                .border(
+//                                    width = 5.dp, color = White1,
+//                                    shape = RoundedCornerShape(40)
+//                                )
+//                                .background(color = Blue3, shape = RoundedCornerShape(40))
+//                                .padding(5.dp)
+//                        ) {
+//                            Icon(
+//                                painter = painterResource(R.drawable.qr),
+//                                contentDescription = null,
+//                                tint = White1,
+//                                modifier = Modifier.size(35.dp)
+//                            )
+//                        }
+//                    }
+//                }
 
-                                .height(bottomBarHeight * 5 / 8)
-                                .fillMaxWidth()
-                                .shadow(
-                                    elevation = 30.dp,
-                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f),
-                                    ambientColor = Black1.copy(alpha = 0.9f),
-                                    spotColor = Black1.copy(alpha = 0.9f),
-                                )
-                                .background(
-                                    color = White1,
-                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
-                                )
-
-                        )
-                        {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    30.dp,
-                                    alignment = Alignment.CenterHorizontally
-                                ),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(10.dp)
-                            ) {
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.card),
-                                        contentDescription = null,
-                                        tint = Blue3,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.analytic),
-                                        contentDescription = null,
-                                        tint = Gray1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    30.dp,
-                                    alignment = Alignment.CenterHorizontally
-                                ),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(10.dp)
-                            ) {
-                                IconButton(onClick = {}) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.wallet),
-                                        contentDescription = null,
-                                        tint = Gray1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                                IconButton(onClick = {
-                                    onNavigateToSettingScreen()
-                                }) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.profile),
-                                        contentDescription = null,
-                                        tint = Gray1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Column(
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .height(bottomBarHeight)
-                            .fillMaxWidth()
-                    ) {
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier
-                                .shadow(
-                                    elevation = 20.dp,
-                                    shape = RoundedCornerShape(40)
-                                )
-                                .border(
-                                    width = 5.dp, color = White1,
-                                    shape = RoundedCornerShape(40)
-                                )
-                                .background(color = Blue3, shape = RoundedCornerShape(40))
-                                .padding(5.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.qr),
-                                contentDescription = null,
-                                tint = White1,
-                                modifier = Modifier.size(35.dp)
-                            )
-                        }
-                    }
-                }
-
+                navigationBar()
 
             }
         }
@@ -774,5 +775,11 @@ fun HomeScreen(
 //)
 //@Composable
 //fun HomePreview() {
-//    HomeScreen()
+//    HomeScreen(
+//        homeUiState = HomeUiState(),
+//        onChangeVisibleBalance = {},
+//        onNavigateToSettingScreen = {},
+//        onNavigateToTransferScreen = {},
+//        onNavigateToPayBillScreen = {}
+//    )
 //}

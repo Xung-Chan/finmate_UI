@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +28,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -84,7 +87,7 @@ fun CustomTextField(
     enable: Boolean = true,
     isError: Boolean = false,
     readOnly: Boolean = false,
-    textStyle: TextStyle = CustomTypography.titleMedium,
+    textStyle: TextStyle = CustomTypography.titleSmall,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         keyboardType = KeyboardType.Text,
         imeAction = ImeAction.Done
@@ -456,4 +459,154 @@ fun LoadingScaffold(
             }
         }
     }
+}
+
+
+
+@Composable
+fun NavigationBar(
+    bottomBarHeight: Dp ,
+    currentTab: TabNavigation,
+    onNavigateToSettingScreen: () -> Unit,
+    onNavigateToHomeScreen: () -> Unit,
+    onNavigateToWalletScreen: () -> Unit,
+    onNavigateToAnalyticsScreen: () -> Unit,
+){
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(bottomBarHeight)
+            .background(color = Color.Transparent)
+    ) {
+        //nav
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .height(bottomBarHeight)
+                .fillMaxWidth()
+//                        .background(White3)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(
+                    75.dp,
+                    alignment = Alignment.CenterHorizontally
+                ),
+                modifier = Modifier
+
+                    .height(bottomBarHeight * 5 / 8)
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 30.dp,
+                        shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f),
+                        ambientColor = Black1.copy(alpha = 0.9f),
+                        spotColor = Black1.copy(alpha = 0.9f),
+                    )
+                    .background(
+                        color = White1,
+                        shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
+                    )
+
+            )
+            {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        30.dp,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(10.dp)
+                ) {
+                    IconButton(onClick = {
+                        onNavigateToHomeScreen()
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.category),
+                            contentDescription = null,
+                            tint = if( currentTab == TabNavigation.HOME)  Blue3 else Gray1,
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {
+                        onNavigateToWalletScreen()
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.wallet),
+                            contentDescription = null,
+                            tint = if( currentTab == TabNavigation.WALLET)  Blue3 else Gray1,
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(
+                        30.dp,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(10.dp)
+                ) {
+                    IconButton(onClick = {
+                        onNavigateToAnalyticsScreen()
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.analytic),
+                            contentDescription = null,
+                            tint = if( currentTab == TabNavigation.ANALYTICS)  Blue3 else Gray1,
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+
+                    IconButton(onClick = {
+                        onNavigateToSettingScreen()
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.profile),
+                            contentDescription = null,
+                            tint = if( currentTab == TabNavigation.PROFILE)  Blue3 else Gray1,
+                            modifier = Modifier.size(35.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .height(bottomBarHeight)
+                .fillMaxWidth()
+        ) {
+            IconButton(
+                onClick = {},
+                modifier = Modifier
+                    .shadow(
+                        elevation = 20.dp,
+                        shape = RoundedCornerShape(40)
+                    )
+                    .border(
+                        width = 5.dp, color = White1,
+                        shape = RoundedCornerShape(40)
+                    )
+                    .background(color = Blue3, shape = RoundedCornerShape(40))
+                    .padding(5.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.qr),
+                    contentDescription = null,
+                    tint = White1,
+                    modifier = Modifier.size(35.dp)
+                )
+            }
+        }
+    }
+
 }

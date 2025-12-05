@@ -16,29 +16,43 @@
     <string name="LoginScreen_ButtonText">Đăng nhập</string>
     <string name="LoginScreen_ForgotPassword">Quên mật khẩu?</string>
     <string name="LoginScreen_SignupLabel">Đăng ký</string>
+
+
     <!--    Quên mật khẩu-->
     <string name="ForgotPassword_Title">Quên mật khẩu"</string>
     <string name="ForgotPassword_OTP_Label">Nhập OTP</string>
     <string name="ForgotPassword_OTP">OTP</string>
     <string name="ForgotPassword_OTP_Resend">Gửi lại</string>
     <string name="ForgotPassword_Notify">Chúng tôi đã gửi một OTP đến email của bạn</string>
-    <string name="ForgotPassword_OTP_Timeout">OTP sẽ hết hạn sau 10 phút</string>
+    <string name="ForgotPassword_OTP_Timeout">OTP sẽ hết hạn sau ✌️ phút</string>
     <string name="ForgotPassword_Change_Email">Thay đổi email</string>
     <string name="ForgotPassword_Email_Label">Nhập email của bạn</string>
+    <string name="ForgotPassword_Username_Label">Nhập tên đăng nhập</string>
     <string name="ForgotPassword_Email">Email</string>
-    <string name="ForgotPassword_Notify_2">Chúng tôi sẽ gửi một email đến email của bạn</string>
+    <string name="ForgotPassword_Notify_2">Chúng tôi sẽ gửi một otp đến email của bạn</string>
+    <string name="ForgotPassword_Notify_3">Mật khẩu mới sẽ được sử dụng trong lần đăng nhập kế</string>
+
+
     <!-- Đổi mật khẩu -->
+
     <string name="ChangePassword_Title">Đổi mật khẩu</string>
     <string name="ChangePassword_Success_Title">Đổi mật khẩu thành công</string>
     <string name="ChangePassword_Notify">Bạn đã đổi mật khẩu thành công. Vui lòng sử dụng mật khẩu
         mới để đăng nhập vào tài khoản của bạn.
     </string>
+    <string name="ChangePassword_ValidPassword">* Mật khẩu mới phải có từ 8 đến 16 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.
+    </string>
+    <string name="ChangePassword_OldPassword">Nhập mật khẩu cũ </string>
     <string name="ChangePassword_NewPassword">Nhập mật khẩu mới </string>
     <string name="ChangePassword_ConfirmNewPassword">Xác nhận mật khẩu mới </string>
-    <!--Chuyển
-    tiền-->
+
+
+    <!--Chuyển tiền-->
+
     <string name="Transfer_Title">Chuyển tiền</string>
     <string name="Transfer_Success_Title">Chuyển tiền thành công</string>
+
+
     <!-- Home -->
     <string name="Home_Section1">Dịch vụ</string>
     <string name="Home_Section2">Dịch vụ ưu thích</string>
@@ -46,7 +60,10 @@
     <!-- Người nhận đã lưu -->
     <string name="SavedReceiver_Title">Người nhận đã lưu</string>
     <string name="SavedReceiver_SearchHint">Tìm kiếm người nhận đã lưu</string>
+
+
     <!-- Thanh toán hóa đơn -->
+
     <string name="PayBill_Title">Thanh toán hóa đơn</string>
     <string name="PayBill_ElectricityBill">Hóa đơn điện</string>
     <string name="ElectricBill_Description">Thanh toán hóa đơn tiền điện tháng này</string>
@@ -79,5 +96,4 @@
     <string name="TransactionDetail_TransactionID">Mã giao dịch</string>
     <string name="TransactionDetail_Date">Ngày giao dịch</string>
     <string name="TransactionDetail_Amount">Số tiền</string>
-    <string></string>
 </resources>

@@ -1,15 +1,12 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.widget.Toast
-import androidx.core.content.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
+import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
-import com.example.ibanking_kltn.ui.Screens
 import com.example.ibanking_kltn.ui.uistates.AuthUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -25,16 +22,22 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val sharedPreferences: SharedPreferences,
+    private val tokenManager: TokenManager,
     @ApplicationContext private val context: Context
-) : ViewModel() {
+) : ViewModel(), IViewModel {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
+    override fun error(message: String) {
+        _uiState.update {
+            it.copy(
+                loginState = StateType.FAILED(message = message)
+            )
+        }
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
 
 
-
-
-    fun clearState() {
+    override fun clearState() {
         _uiState.value = AuthUiState()
     }
 
@@ -59,7 +62,7 @@ class AuthViewModel @Inject constructor(
     }
 
     fun onLoginClick(
-        context: Context, navControler: NavController,
+        onSuccess: () -> Unit,
     ) {
         _uiState.update {
             it.copy(loginState = StateType.LOADING)
@@ -73,25 +76,17 @@ class AuthViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(loginState = StateType.SUCCESS)
                     }
-
-                    sharedPreferences.edit {
-                        putString("access", loginResponse.access_token)
-                        putString("refresh", loginResponse.refresh_token)
-                    }
+                    
+                    tokenManager.updateToken(
+                        access = loginResponse.access_token,
+                        refresh = loginResponse.refresh_token
+                    )
                     Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-                    navControler.navigate(Screens.Home.name)
+                    onSuccess()
                 }
 
                 is ApiResult.Error -> {
-                    _uiState.update {
-                        it.copy(loginState = StateType.FAILED(message = apiResult.message))
-                    }
-
-                    Toast.makeText(
-                        context,
-                        (uiState.value.loginState as StateType.FAILED).message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    error(apiResult.message)
                 }
             }
         }

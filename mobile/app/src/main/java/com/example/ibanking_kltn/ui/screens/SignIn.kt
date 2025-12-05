@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -52,6 +53,7 @@ fun SignInScreen(
     onPasswordChange: (String) -> Unit,
     onChangeVisiblePassword: () -> Unit,
     checkEnableLogin: () -> Boolean,
+    onForgotPasswordClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     Scaffold(
@@ -205,7 +207,7 @@ fun SignInScreen(
                         style = CustomTypography.titleSmall,
                         color = Gray2,
                         modifier = Modifier.clickable {
-
+                            onForgotPasswordClick()
                         }
                     )
 
@@ -254,53 +256,54 @@ fun SignInScreen(
                         )
                     }
                 }
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(
-                            10.dp,
-                            Alignment.CenterHorizontally
-                        ),
-                    ) {
-                        Text(
-                            text = "Bạn chưa có tài khoản?",
-                            style = CustomTypography.titleSmall,
-                            color = Black1
-                        )
-                        Text(
-                            text = stringResource(R.string.LoginScreen_SignupLabel),
-                            style = CustomTypography.titleSmall,
-                            color = Blue1,
-                            modifier = Modifier.clickable {}
-                        )
-                    }
-                }
+//                Row(
+//                    verticalAlignment = Alignment.CenterVertically,
+//                    horizontalArrangement = Arrangement.Center,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(10.dp)
+//                ) {
+//                    Row(
+//                        verticalAlignment = Alignment.CenterVertically,
+//                        horizontalArrangement = Arrangement.spacedBy(
+//                            10.dp,
+//                            Alignment.CenterHorizontally
+//                        ),
+//                    ) {
+//                        Text(
+//                            text = "Bạn chưa có tài khoản?",
+//                            style = CustomTypography.titleSmall,
+//                            color = Black1
+//                        )
+//                        Text(
+//                            text = stringResource(R.string.LoginScreen_SignupLabel),
+//                            style = CustomTypography.titleSmall,
+//                            color = Blue1,
+//                            modifier = Modifier.clickable {}
+//                        )
+//                    }
+//                }
 
             }
         }
     }
 }
 
-//@Preview(
-//    showBackground = true,
-//    showSystemUi = true
-//)
-//@Composable
-//fun PreviewLogin() {
-//    SignInScreen(
-//        uiState = AuthUiState(),
-//        onLoginClick = { },
-//        onEmailChange = { },
-//        onPasswordChange = { },
-//        onChangeVisiblePassword = { },
-//        checkEnableLogin = {
-//            false
-//        }
-//    )
-//}
+@Preview(
+    showBackground = true,
+    showSystemUi = true
+)
+@Composable
+fun PreviewLogin() {
+    SignInScreen(
+        uiState = AuthUiState(),
+        onLoginClick = { },
+        onEmailChange = { },
+        onPasswordChange = { },
+        onChangeVisiblePassword = { },
+        checkEnableLogin = {
+            false
+        },
+        onForgotPasswordClick = { }
+    )
+}

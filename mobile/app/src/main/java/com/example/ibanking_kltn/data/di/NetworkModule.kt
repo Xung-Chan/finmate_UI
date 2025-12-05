@@ -66,8 +66,6 @@ object NetworkModule {
     @Provides
     @Named("AuthRetrofit")
     fun provideAuthRetrofit(
-        @ApplicationContext context: Context,
-        sharedPreferences: SharedPreferences,
         okHttpClient: OkHttpClient
     ): Retrofit {
 
@@ -83,8 +81,6 @@ object NetworkModule {
     @Provides
     @Named("NonAuthRetrofit")
     fun provideNonAuthRetrofit(
-        @ApplicationContext context: Context,
-        sharedPreferences: SharedPreferences
     ): Retrofit {
 
         return Retrofit.Builder()

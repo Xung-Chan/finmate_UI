@@ -3,14 +3,13 @@ package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -29,15 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
@@ -49,9 +45,10 @@ import com.example.ibanking_kltn.ui.uistates.SettingUiState
 @Composable
 fun SettingScreen(
     uiState: SettingUiState = SettingUiState(),
-    clickMyProfile: () -> Unit = {},
-    clickChangePassword: () -> Unit = {},
+    onViewProfileClick: () -> Unit = {},
+    onChangePasswordClick: () -> Unit = {},
     clickBiometric: () -> Unit = {},
+    navigationBar : @Composable () -> Unit = {}
 ) {
     val bottomBarHeight = 100.dp
     val scrollState = rememberScrollState(0)
@@ -190,7 +187,10 @@ fun SettingScreen(
                     ){
 
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable{
+                                    onViewProfileClick()
+                                },
                         ){
                             Text(
                                 text = "Thông tin của tôi",
@@ -202,15 +202,20 @@ fun SettingScreen(
                             modifier = Modifier.padding(bottom = 10.dp)
                         )
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .clickable{
+                                    onChangePasswordClick()
+                                },
                         ){
                             Text(
-                                text = "Mật khẩu",
+                                text = "Đổi mật khẩu",
                                 style = CustomTypography.titleMedium,
                                 color = Gray1
                             )
                         }
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                         ){
@@ -220,134 +225,15 @@ fun SettingScreen(
                                 color = Gray1
                             )
                         }
-                    }
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(bottomBarHeight)
-                    .background(color = Color.Transparent)
-            ) {
-                //nav
-                Column(
-                    verticalArrangement = Arrangement.Bottom,
-                    modifier = Modifier
-                        .height(bottomBarHeight)
-                        .fillMaxWidth()
-//                        .background(White3)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(
-                            75.dp,
-                            alignment = Alignment.CenterHorizontally
-                        ),
-                        modifier = Modifier
-
-                            .height(bottomBarHeight * 5 / 8)
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f),
-                                ambientColor = Black1.copy(alpha = 0.9f),
-                                spotColor = Black1.copy(alpha = 0.9f),
-                            )
-                            .background(
-                                color = White1,
-                                shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
-                            )
-
-                    )
-                    {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                30.dp,
-                                alignment = Alignment.CenterHorizontally
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(10.dp)
-                        ) {
-                            IconButton(onClick = {}) {
-                                Icon(
-                                    painter = painterResource(R.drawable.card),
-                                    contentDescription = null,
-                                    tint = Blue3,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                            IconButton(onClick = {}) {
-                                Icon(
-                                    painter = painterResource(R.drawable.analytic),
-                                    contentDescription = null,
-                                    tint = Gray1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                30.dp,
-                                alignment = Alignment.CenterHorizontally
-                            ),
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(10.dp)
-                        ) {
-                            IconButton(onClick = {}) {
-                                Icon(
-                                    painter = painterResource(R.drawable.wallet),
-                                    contentDescription = null,
-                                    tint = Gray1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                            IconButton(onClick = {}) {
-                                Icon(
-                                    painter = painterResource(R.drawable.profile),
-                                    contentDescription = null,
-                                    tint = Gray1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .height(bottomBarHeight)
-                        .fillMaxWidth()
-                ) {
-                    IconButton(
-                        onClick = {},
-                        modifier = Modifier
-                            .shadow(
-                                elevation = 20.dp,
-                                shape = RoundedCornerShape(40)
-                            )
-                            .border(
-                                width = 5.dp, color = White1,
-                                shape = RoundedCornerShape(40)
-                            )
-                            .background(color = Blue3, shape = RoundedCornerShape(40))
-                            .padding(5.dp)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.qr),
-                            contentDescription = null,
-                            tint = White1,
-                            modifier = Modifier.size(35.dp)
+                        HorizontalDivider(
+                            modifier = Modifier.padding(bottom = 10.dp)
                         )
                     }
                 }
             }
-        }
+
+            navigationBar()
+         }
     }
 }
 

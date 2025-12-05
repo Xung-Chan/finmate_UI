@@ -27,7 +27,7 @@ data class RequestOtpRequest(
     val username: String
 )
 data class ChangePasswordRequest(
-    val logoutAllDevices: Boolean,
+    val logoutAllDevices: Boolean=false,
     val newPassword: String,
     val oldPassword: String
 )

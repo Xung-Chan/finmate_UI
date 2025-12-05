@@ -7,7 +7,7 @@ data class ErrorResponse(
     val message: String,
     val settingCookie: Boolean,
     val status: Int,
-    val timestamp: String
+//    val timestamp: String
 )
 data class PaginationResponse<T>(
     val contents: List<T>,

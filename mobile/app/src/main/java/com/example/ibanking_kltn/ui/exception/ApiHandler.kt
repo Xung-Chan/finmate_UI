@@ -1,6 +1,5 @@
 package com.example.ibanking_kltn.ui.exception
 
-import android.util.Log
 import com.example.ibanking_kltn.data.dtos.responses.ErrorResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 import com.google.gson.Gson
@@ -21,19 +20,13 @@ suspend fun <T> safeApiCall(
             }
             return ApiResult.Error(message = "Response body is null")
         }
-        if (response.errorBody() != null) {
-            val errorResponse =
-                Gson().fromJson(response.errorBody()!!.string(), ErrorResponse::class.java)
-            Log.e("err", errorResponse.message)
+        val errorBody = response.errorBody()?.string()
+        if (!errorBody.isNullOrEmpty()) {
+            val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
             return ApiResult.Error(errorResponse.message)
+        } else {
+            return ApiResult.Error("Unknown error occurred")
         }
-//        val code = response.code()
-//        val errorDetail = dictionary.fromCode(code)
-//        if (errorDetail == null) {
-//            return ApiResult.Error("Unexpected error: status: ${response.code()}, message: ${response.message()}")
-//        }
-//        return ApiResult.Error(errorDetail.message)
-        return ApiResult.Error("Unexpected error: ${response.code()} ${response.message()}")
     } catch (e: Exception) {
         e.printStackTrace()
         return ApiResult.Error("Unexpected error: ${e.message}")

@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -37,7 +36,9 @@ import com.example.ibanking_kltn.utils.CustomTextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChangePasswordSuccessfullyScreen() {
+fun ChangePasswordSuccessfullyScreen(
+    onBackToLogin: () -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -45,7 +46,9 @@ fun ChangePasswordSuccessfullyScreen() {
                     Text(text = stringResource(id = R.string.ChangePassword_Title))
                 },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        onBackToLogin()
+                    }) {
                         Icon(
                             Icons.Default.ArrowBackIosNew, contentDescription = null,
                             modifier = Modifier.size(25.dp)
@@ -111,7 +114,9 @@ fun ChangePasswordSuccessfullyScreen() {
                         .padding(horizontal = 10.dp)
                 ) {
                     CustomTextButton(
-                        onClick = {},
+                        onClick = {
+                            onBackToLogin()
+                        },
                         modifier = Modifier
                             .fillMaxWidth(),
                         style = CustomTypography.titleMedium,
@@ -125,12 +130,12 @@ fun ChangePasswordSuccessfullyScreen() {
 }
 
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-
-)
-@Composable
-fun ChangePasswordSuccessfullyPreview() {
-    ChangePasswordSuccessfullyScreen()
-}
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//
+//)
+//@Composable
+//fun ChangePasswordSuccessfullyPreview() {
+//    ChangePasswordSuccessfullyScreen()
+//}

@@ -10,3 +10,10 @@ enum class Service(serviceName: String) {
     TRANSFER("Chuyển tiền"),
     PAY_BILL("Thanh toán hóa đơn"),
 }
+
+enum class TabNavigation {
+    HOME,
+    WALLET,
+    ANALYTICS,
+    PROFILE
+}

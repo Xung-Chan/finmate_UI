@@ -1,6 +1,5 @@
 package com.example.ibanking_kltn.ui
 
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -8,14 +7,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.ibanking_kltn.data.dtos.Service
+import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
+import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.HomeScreen
@@ -24,15 +25,19 @@ import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.screens.TransferSuccessfullyScreen
+import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
+import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
+import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
+import com.example.ibanking_kltn.utils.NavigationBar
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
 
 enum class Screens {
-    SignIn, ChangePassword, ForgotPassword, Home,
+    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
     TransferSuccess, Transfer, ConfirmPayment,
     Settings, PayBill
 }
@@ -41,14 +46,34 @@ enum class Screens {
 fun AppScreen(
     navController: NavHostController = rememberNavController()
 ) {
-    val context: Context = LocalContext.current
     val authViewModel: AuthViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
     val transferViewModel: TransferViewModel = hiltViewModel()
     val confirmViewModel: ConfirmViewModel = hiltViewModel()
     val payBillViewModel: BillViewModel = hiltViewModel()
+    val changePasswordViewModel: ChangPasswordViewModel = hiltViewModel()
+    val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
+    var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
+
+
+    val navigationBar: @Composable () -> Unit = {
+        NavigationBar(
+            bottomBarHeight = 100.dp,
+            currentTab = tabNavigation,
+            onNavigateToSettingScreen = {
+                navController.navigate(Screens.Settings.name)
+            },
+            onNavigateToHomeScreen = {
+                navController.navigate(Screens.Home.name)
+            },
+            onNavigateToWalletScreen = {},
+            onNavigateToAnalyticsScreen = {}
+        )
+    }
+
+
     NavHost(
         navController = navController,
         startDestination = Screens.SignIn.name
@@ -58,10 +83,16 @@ fun AppScreen(
             SignInScreen(
                 uiState = authUiState,
                 onLoginClick = {
-                    authViewModel.onLoginClick(
-                        context = context,
-                        navControler = navController,
-                    )
+//                    authViewModel.onLoginClick(
+//                        onSuccess = {
+//                            navController.navigate(Screens.Home.name) {
+////                                popUpTo(Screens.SignIn.name) {
+////                                    inclusive = true
+////                                }
+//                            }
+//                        }
+//                    )
+                    navController.navigate(Screens.Home.name)
                 },
                 onEmailChange = { it -> authViewModel.onEmailChange(it) },
                 onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
@@ -71,6 +102,10 @@ fun AppScreen(
                 checkEnableLogin = {
                     authViewModel.checkEnableLogin()
                 },
+
+                onForgotPasswordClick = {
+                    navController.navigate(Screens.ForgotPassword.name)
+                }
             )
         }
         composable(route = Screens.TransferSuccess.name) {
@@ -83,34 +118,33 @@ fun AppScreen(
                         }
                     }
                 },
-                amount = confirmUiState.amount ,
+                amount = confirmUiState.amount,
                 toMerchantName = confirmUiState.toMerchantName
             )
         }
         composable(route = Screens.Home.name) {
             val homeUiState by homeViewModel.uiState.collectAsState()
-
+            tabNavigation = TabNavigation.HOME
             LaunchedEffect(Unit) {
-                homeViewModel.init()
-                authViewModel.clearState()
+//                homeViewModel.init()
+//                authViewModel.clearState()
             }
             HomeScreen(
                 homeUiState = homeUiState,
                 onChangeVisibleBalance = {
                     homeViewModel.onChangeVisibleBalance()
                 },
+
                 onNavigateToTransferScreen = {
                     transferViewModel.clearState()
                     navController.navigate(Screens.Transfer.name)
                 },
 
-                onNavigateToSettingScreen = {
-                    navController.navigate(Screens.Settings.name)
-                },
                 onNavigateToPayBillScreen = {
                     payBillViewModel.clearState()
                     navController.navigate(Screens.PayBill.name)
-                }
+                },
+                navigationBar = { navigationBar() },
             )
         }
         composable(route = Screens.Transfer.name) {
@@ -171,8 +205,6 @@ fun AppScreen(
                 },
             )
         }
-
-
         composable(route = Screens.PayBill.name) {
             val uiState by payBillViewModel.uiState.collectAsState()
             service = Service.PAY_BILL
@@ -190,7 +222,7 @@ fun AppScreen(
                 },
                 onConfirmPayBill = {
                     confirmViewModel.clearState()
-                    val billData=payBillViewModel.uiState.value
+                    val billData = payBillViewModel.uiState.value
                     confirmViewModel.init(
                         accountType = billData.accountType,
                         amount = billData.amount,
@@ -205,7 +237,7 @@ fun AppScreen(
                     navController.navigate(Screens.ConfirmPayment.name)
 
                 },
-                onChangeBillCode ={
+                onChangeBillCode = {
                     payBillViewModel.onChangeBillCode(it)
                 },
                 onChangeAccountType = {
@@ -213,14 +245,100 @@ fun AppScreen(
                 }
             )
         }
+        composable(route = Screens.ChangePassword.name) {
+            val uiState by changePasswordViewModel.uiState.collectAsState()
+            LaunchedEffect(Unit) {
+                changePasswordViewModel.clearState()
+            }
+            ChangePasswordScreen(
+                uiState = uiState,
+                onChangeOldPassword = {
+                    changePasswordViewModel.onChangeOldPassword(it)
+                },
+                onChangeNewPassword = { changePasswordViewModel.onChangeNewPassword(it) },
+
+                onConfirmChangePassword = {
+                    changePasswordViewModel.onConfirmChangePassword(
+                        onChangeSuccess = {
+                            navController.navigate(Screens.ChangePasswordSuccess.name)
+                        }
+                    )
+                },
+                onBackClick = { navController.popBackStack() },
+
+                isEnableConfirm = changePasswordViewModel.isEnableChangePassword()
+            )
+        }
+        composable(route = Screens.ChangePasswordSuccess.name) {
+            ChangePasswordSuccessfullyScreen(
+                onBackToLogin = {
+                    navController.navigate(Screens.SignIn.name) {
+                        popUpTo(Screens.SignIn.name) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
         composable(route = Screens.Settings.name) {
-            SettingScreen()
+            tabNavigation = TabNavigation.PROFILE
+            SettingScreen(
+                uiState = SettingUiState(),
+                onViewProfileClick = {},
+                onChangePasswordClick = {
+                    navController.navigate(Screens.ChangePassword.name)
+                },
+                clickBiometric = {},
+                navigationBar = { navigationBar() }
+
+            )
         }
         composable(route = Screens.ForgotPassword.name) {
-            ForgotPasswordScreen()
-        }
-        composable(route = Screens.ChangePassword.name) {
-            ChangePasswordScreen()
+            val uiState by forgotPasswordViewModel.uiState.collectAsState()
+            LaunchedEffect(Unit) {
+                forgotPasswordViewModel.clearState()
+            }
+            ForgotPasswordScreen(
+                uiState = uiState,
+                onFindUsernameClick = {
+                    forgotPasswordViewModel.onFindUsernameClick()
+                },
+                onUsernameChange = {
+                    forgotPasswordViewModel.onUsernameChange(it)
+                },
+                onSendOtpClick = {
+                    forgotPasswordViewModel.onSendOtpClick()
+                },
+                onEmailChange = {
+
+                    forgotPasswordViewModel.onEmailChange(it)
+                },
+                onConfirmOtpClick = {
+                    forgotPasswordViewModel.onConfirmOtpClick()
+                },
+                onOtpChange = {
+                    forgotPasswordViewModel.onOtpChange(it)
+                },
+                onResetPasswordClick = {
+                    forgotPasswordViewModel.onResetPasswordClick(
+                        onSuccess = {
+                            navController.navigate(Screens.SignIn.name)
+                        }
+                    )
+                },
+                onNewPasswordChange = {
+                    forgotPasswordViewModel.onNewPasswordChange(it)
+                },
+                onBackToEnterEmailClick = {
+                    forgotPasswordViewModel.onBackToEnterEmailClick()
+                },
+                onBackToEnterUsernameClick = {
+                    forgotPasswordViewModel.onBackToEnterUsernameClick()
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
 
     }

@@ -1,6 +1,7 @@
 package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -39,48 +46,136 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.ForgotPasswordStep
+import com.example.ibanking_kltn.ui.uistates.ForgotPasswordUiState
+import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.LoadingScaffold
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ForgotPasswordScreen() {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.ForgotPassword_Title))
-                },
-                navigationIcon = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            Icons.Default.ArrowBackIosNew, contentDescription = null,
-                            modifier = Modifier.size(25.dp)
+fun ForgotPasswordScreen(
+    uiState: ForgotPasswordUiState,
+    onFindUsernameClick: () -> Unit,
+    onUsernameChange: (String) -> Unit,
+    onSendOtpClick: () -> Unit,
+    onEmailChange: (String) -> Unit,
+    onConfirmOtpClick: () -> Unit,
+    onOtpChange: (String) -> Unit,
+    onResetPasswordClick: () -> Unit,
+    onNewPasswordChange: (String) -> Unit,
+    onBackToEnterUsernameClick: () -> Unit,
+    onBackToEnterEmailClick: () -> Unit,
+    onBackClick: () -> Unit,
+
+
+    ) {
+    LoadingScaffold(isLoading = uiState.screenState is StateType.LOADING)
+    {
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(text = stringResource(id = R.string.ForgotPassword_Title))
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            onBackClick()
+                        }) {
+                            Icon(
+                                Icons.Default.ArrowBackIosNew, contentDescription = null,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        titleContentColor = Black1,
+                        containerColor = White3
+                    ),
+                )
+            },
+            modifier = Modifier.systemBarsPadding(),
+            containerColor = White3
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(20.dp)
+            ) {
+                when (uiState.currentStep) {
+
+                    ForgotPasswordStep.ENTER_USERNAME -> {
+                        EnterUsername(
+                            uiState = uiState,
+                            onFindUsernameClick = onFindUsernameClick,
+                            onUsernameChange = onUsernameChange
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Black1,
-                    containerColor = White3
-                ),
-            )
-        },
-        modifier = Modifier.systemBarsPadding(),
-        containerColor = White3
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(20.dp)
-        ) {
-            EnterOTP()
+
+                    ForgotPasswordStep.CONFIRM_OTP -> {
+                        EnterOTP(
+                            uiState = uiState,
+                            onOtpChange = onOtpChange,
+                            onConfirmOtpClick = onConfirmOtpClick,
+                            onResendOtpClick = onSendOtpClick,
+                            onBackToEnterEmailClick = onBackToEnterEmailClick
+                        )
+                    }
+
+
+                    ForgotPasswordStep.ENTER_EMAIL -> {
+                        EnterEmail(
+                            uiState = uiState,
+                            onEmailChange = onEmailChange,
+                            onSendOtpClick = onSendOtpClick,
+                            onBackToEnterUsernameClick = onBackToEnterUsernameClick
+                        )
+
+                    }
+
+
+                    ForgotPasswordStep.RESET_PASSWORD -> {
+                        EnterNewPassword(
+                            uiState = uiState,
+                            onNewPasswordChange = onNewPasswordChange,
+                            onResetPasswordClick = onResetPasswordClick,
+                            onBackToEnterEmailClick = onBackToEnterEmailClick
+                        )
+                    }
+                }
+
+            }
         }
     }
+
 }
 
 @Composable
-fun EnterOTP() {
+fun EnterOTP(
+    uiState: ForgotPasswordUiState,
+    onOtpChange: (String) -> Unit,
+    onConfirmOtpClick: () -> Unit,
+    onResendOtpClick: () -> Unit,
+    onBackToEnterEmailClick: () -> Unit
+) {
+    var countdownTime by remember { mutableIntStateOf(60) }
+    var startCountDown by remember { mutableStateOf(false) }
+
+    LaunchedEffect(startCountDown) {
+        if(startCountDown){
+            while (countdownTime > 0) {
+                delay(1000L)
+                countdownTime--
+            }
+            startCountDown = false
+            countdownTime = 60
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -113,31 +208,39 @@ fun EnterOTP() {
                 .fillMaxWidth()
         ) {
             CustomTextField(
-                value = "",
+                value = uiState.otp,
                 placeholder = {
                     Text(
                         stringResource(id = R.string.ForgotPassword_OTP),
-                        style = CustomTypography.titleMedium,
+                        style = CustomTypography.titleSmall,
                         color = Gray2
                     )
                 },
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
+                    keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
-                modifier = Modifier.weight(1f).height(50.dp),
-                onValueChange = {}
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                onValueChange = {
+                    onOtpChange(it)
+                }
             )
             CustomTextButton(
-                text = stringResource(id = R.string.ForgotPassword_OTP_Resend),
-                onClick = {},
+                text = "Gửi lại ${if (startCountDown) "($countdownTime s)" else ""}",
+                onClick = {
+                    onResendOtpClick()
+                    startCountDown = true
+                },
                 modifier = Modifier
                     .width(150.dp)
                     .height(50.dp),
-                style = CustomTypography.titleSmall
+                style = CustomTypography.titleSmall,
+                enable = uiState.isEnableResendOtp && !startCountDown
             )
         }
-        Column (
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier
@@ -151,7 +254,7 @@ fun EnterOTP() {
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
-                text = stringResource(id = R.string.ForgotPassword_OTP_Timeout),
+                text = "OTP sẽ hết hạn sau 60 giây",
                 style = CustomTypography.titleMedium,
                 color = Black1,
                 modifier = Modifier.fillMaxWidth()
@@ -160,6 +263,9 @@ fun EnterOTP() {
                 text = stringResource(id = R.string.ForgotPassword_Change_Email),
                 style = CustomTypography.titleMedium,
                 color = Blue1,
+                modifier = Modifier.clickable {
+                    onBackToEnterEmailClick()
+                }
             )
 
         }
@@ -171,11 +277,13 @@ fun EnterOTP() {
                 .padding(horizontal = 10.dp)
         ) {
             CustomTextButton(
-                onClick = {},
+                onClick = {
+                    onConfirmOtpClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth(),
-                text = stringResource(R.string.ChangePassword_Title),
-                enable = false
+                text = stringResource(R.string.Continue),
+                enable = uiState.otp.isNotEmpty()
             )
 
 
@@ -184,7 +292,12 @@ fun EnterOTP() {
 }
 
 @Composable
-fun EnterEmail() {
+fun EnterEmail(
+    uiState: ForgotPasswordUiState,
+    onEmailChange: (String) -> Unit,
+    onSendOtpClick: () -> Unit,
+    onBackToEnterUsernameClick: () -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -216,11 +329,11 @@ fun EnterEmail() {
                 .fillMaxWidth()
         ) {
             CustomTextField(
-                value = "",
+                value = uiState.email,
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.ForgotPassword_Email),
-                        style = CustomTypography.titleMedium,
+                        style = CustomTypography.titleSmall,
                         color = Gray2
                     )
                 },
@@ -229,11 +342,14 @@ fun EnterEmail() {
                     imeAction = ImeAction.Done
                 ),
                 modifier = Modifier.fillMaxWidth(),
-                onValueChange = {}
+                onValueChange = {
+                    onEmailChange(it)
+                }
             )
         }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column (
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
@@ -242,6 +358,14 @@ fun EnterEmail() {
                 text = stringResource(id = R.string.ForgotPassword_Notify_2),
                 style = CustomTypography.titleMedium,
                 color = Black1
+            )
+            Text(
+                text = "Thay đổi username",
+                style = CustomTypography.titleMedium,
+                color = Blue1,
+                modifier = Modifier.clickable {
+                    onBackToEnterUsernameClick()
+                }
             )
         }
         Row(
@@ -252,17 +376,196 @@ fun EnterEmail() {
                 .padding(horizontal = 10.dp)
         ) {
             CustomTextButton(
-                onClick = {},
+                onClick = {
+                    onSendOtpClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth(),
                 text = stringResource(R.string.Continue),
-                enable = false
+                enable = uiState.email.isNotEmpty()
             )
 
 
         }
     }
 }
+
+@Composable
+fun EnterNewPassword(
+    uiState: ForgotPasswordUiState,
+    onNewPasswordChange: (String) -> Unit,
+    onResetPasswordClick: () -> Unit,
+    onBackToEnterEmailClick: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 30.dp,
+                shape = RoundedCornerShape(20.dp),
+                ambientColor = Black1.copy(alpha = 0.25f),
+                spotColor = Black1.copy(alpha = 0.25f)
+            )
+            .background(color = White1, shape = RoundedCornerShape(20.dp))
+            .padding(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(
+                text = "Nhập mật khẩu mới",
+                style = CustomTypography.titleMedium,
+                color = Gray1
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            CustomTextField(
+                value = uiState.newPassword,
+                placeholder = {
+                    Text(
+                        text = "Mật khẩu mới",
+                        style = CustomTypography.titleSmall,
+                        color = Gray2
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = {
+                    onNewPasswordChange(it)
+                }
+            )
+        }
+        Column (
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.ForgotPassword_Notify_3),
+                style = CustomTypography.titleMedium,
+                color = Black1
+            )
+            Text(
+                text = "Thay đổi email",
+                style = CustomTypography.titleMedium,
+                color = Blue1,
+                modifier = Modifier.clickable {
+                    onBackToEnterEmailClick()
+                }
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        ) {
+            CustomTextButton(
+                onClick = {
+                    onResetPasswordClick()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = stringResource(R.string.Continue),
+                enable = uiState.newPassword.isNotEmpty()
+            )
+
+
+        }
+    }
+}
+
+@Composable
+fun EnterUsername(
+    uiState: ForgotPasswordUiState,
+    onFindUsernameClick: () -> Unit,
+    onUsernameChange: (String) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 30.dp,
+                shape = RoundedCornerShape(20.dp),
+                ambientColor = Black1.copy(alpha = 0.25f),
+                spotColor = Black1.copy(alpha = 0.25f)
+            )
+            .background(color = White1, shape = RoundedCornerShape(20.dp))
+            .padding(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+        ) {
+            Text(
+                text = stringResource(id = R.string.ForgotPassword_Username_Label),
+                style = CustomTypography.titleMedium,
+                color = Gray1
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp)
+        ) {
+            CustomTextField(
+                value = uiState.username,
+                placeholder = {
+                    Text(
+                        text = "Username",
+                        style = CustomTypography.titleSmall,
+                        color = Gray2
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Done
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = {
+                    onUsernameChange(it)
+                }
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            CustomTextButton(
+                onClick = {
+                    onFindUsernameClick()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                text = stringResource(R.string.Continue),
+                enable = uiState.username.isNotEmpty()
+            )
+
+
+        }
+    }
+}
+
 
 @Preview(
     showBackground = true,
@@ -271,5 +574,21 @@ fun EnterEmail() {
 )
 @Composable
 fun ForgotPasswordPreview() {
-    ForgotPasswordScreen()
+    ForgotPasswordScreen(
+        uiState = ForgotPasswordUiState(
+            currentStep = ForgotPasswordStep.CONFIRM_OTP
+        ),
+        onFindUsernameClick = {},
+        onUsernameChange = {},
+        onSendOtpClick = {},
+        onEmailChange = {},
+        onConfirmOtpClick = {},
+        onOtpChange = {},
+        onResetPasswordClick = {},
+        onNewPasswordChange = {},
+        onBackToEnterEmailClick = {},
+        onBackToEnterUsernameClick = {},
+        onBackClick = {},
+
+        )
 }
