@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -69,10 +73,12 @@ fun ForgotPasswordScreen(
     onBackToEnterUsernameClick: () -> Unit,
     onBackToEnterEmailClick: () -> Unit,
     onBackClick: () -> Unit,
-
+    onChangeVisiblePassword:()-> Unit
 
     ) {
-    LoadingScaffold(isLoading = uiState.screenState is StateType.LOADING)
+    LoadingScaffold(
+        isLoading = uiState.screenState is StateType.LOADING,
+    )
     {
 
         Scaffold(
@@ -116,16 +122,6 @@ fun ForgotPasswordScreen(
                         )
                     }
 
-                    ForgotPasswordStep.CONFIRM_OTP -> {
-                        EnterOTP(
-                            uiState = uiState,
-                            onOtpChange = onOtpChange,
-                            onConfirmOtpClick = onConfirmOtpClick,
-                            onResendOtpClick = onSendOtpClick,
-                            onBackToEnterEmailClick = onBackToEnterEmailClick
-                        )
-                    }
-
 
                     ForgotPasswordStep.ENTER_EMAIL -> {
                         EnterEmail(
@@ -137,13 +133,26 @@ fun ForgotPasswordScreen(
 
                     }
 
+                    ForgotPasswordStep.CONFIRM_OTP -> {
+                        EnterOTP(
+                            uiState = uiState,
+                            onOtpChange = onOtpChange,
+                            onConfirmOtpClick = onConfirmOtpClick,
+                            onResendOtpClick = onSendOtpClick,
+                            onBackToEnterEmailClick = onBackToEnterEmailClick
+                        )
+                    }
+
+
+
 
                     ForgotPasswordStep.RESET_PASSWORD -> {
                         EnterNewPassword(
                             uiState = uiState,
                             onNewPasswordChange = onNewPasswordChange,
                             onResetPasswordClick = onResetPasswordClick,
-                            onBackToEnterEmailClick = onBackToEnterEmailClick
+                            onBackToEnterEmailClick = onBackToEnterEmailClick,
+                            onChangeVisiblePassword = onChangeVisiblePassword
                         )
                     }
                 }
@@ -164,9 +173,10 @@ fun EnterOTP(
 ) {
     var countdownTime by remember { mutableIntStateOf(60) }
     var startCountDown by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     LaunchedEffect(startCountDown) {
-        if(startCountDown){
+        if (startCountDown) {
             while (countdownTime > 0) {
                 delay(1000L)
                 countdownTime--
@@ -230,6 +240,7 @@ fun EnterOTP(
             CustomTextButton(
                 text = "Gửi lại ${if (startCountDown) "($countdownTime s)" else ""}",
                 onClick = {
+                    focusManager.clearFocus()
                     onResendOtpClick()
                     startCountDown = true
                 },
@@ -278,6 +289,7 @@ fun EnterOTP(
         ) {
             CustomTextButton(
                 onClick = {
+                    focusManager.clearFocus()
                     onConfirmOtpClick()
                 },
                 modifier = Modifier
@@ -311,11 +323,25 @@ fun EnterEmail(
             .background(color = White1, shape = RoundedCornerShape(20.dp))
             .padding(10.dp)
     ) {
+        val focusManager = LocalFocusManager.current
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
+        ) {
+            Text(
+                text = "Chúng tôi sẽ gửi một OTP đến email ${uiState.maskedEmail} của bạn.",
+                style = CustomTypography.titleMedium,
+                color = Black1
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Email_Label),
@@ -347,18 +373,14 @@ fun EnterEmail(
                 }
             )
         }
-        Column (
+        Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-            Text(
-                text = stringResource(id = R.string.ForgotPassword_Notify_2),
-                style = CustomTypography.titleMedium,
-                color = Black1
-            )
+
             Text(
                 text = "Thay đổi username",
                 style = CustomTypography.titleMedium,
@@ -377,6 +399,7 @@ fun EnterEmail(
         ) {
             CustomTextButton(
                 onClick = {
+                    focusManager.clearFocus()
                     onSendOtpClick()
                 },
                 modifier = Modifier
@@ -395,8 +418,11 @@ fun EnterNewPassword(
     uiState: ForgotPasswordUiState,
     onNewPasswordChange: (String) -> Unit,
     onResetPasswordClick: () -> Unit,
-    onBackToEnterEmailClick: () -> Unit
+    onBackToEnterEmailClick: () -> Unit,
+    onChangeVisiblePassword:()-> Unit
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -429,6 +455,8 @@ fun EnterNewPassword(
         ) {
             CustomTextField(
                 value = uiState.newPassword,
+                isPasswordField = true,
+                isPasswordShow = uiState.isShowPassword,
                 placeholder = {
                     Text(
                         text = "Mật khẩu mới",
@@ -443,10 +471,27 @@ fun EnterNewPassword(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {
                     onNewPasswordChange(it)
+                },
+                trailingIcon = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .shadow(
+                                elevation = 30.dp, shape = CircleShape
+                            )
+                            .clickable { onChangeVisiblePassword() }
+                    ) {
+                        Icon(
+                            imageVector = if (uiState.isShowPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = null,
+                            tint = Gray1,
+                        )
+                    }
                 }
             )
         }
-        Column (
+        Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -476,6 +521,7 @@ fun EnterNewPassword(
         ) {
             CustomTextButton(
                 onClick = {
+                    focusManager.clearFocus()
                     onResetPasswordClick()
                 },
                 modifier = Modifier
@@ -495,6 +541,7 @@ fun EnterUsername(
     onFindUsernameClick: () -> Unit,
     onUsernameChange: (String) -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -553,6 +600,7 @@ fun EnterUsername(
         ) {
             CustomTextButton(
                 onClick = {
+                    focusManager.clearFocus()
                     onFindUsernameClick()
                 },
                 modifier = Modifier
@@ -576,7 +624,7 @@ fun EnterUsername(
 fun ForgotPasswordPreview() {
     ForgotPasswordScreen(
         uiState = ForgotPasswordUiState(
-            currentStep = ForgotPasswordStep.CONFIRM_OTP
+            currentStep = ForgotPasswordStep.ENTER_EMAIL
         ),
         onFindUsernameClick = {},
         onUsernameChange = {},
@@ -589,6 +637,7 @@ fun ForgotPasswordPreview() {
         onBackToEnterEmailClick = {},
         onBackToEnterUsernameClick = {},
         onBackClick = {},
+        onChangeVisiblePassword = {}
 
         )
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -56,6 +58,8 @@ fun SignInScreen(
     onForgotPasswordClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
+
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         containerColor = White3
@@ -169,6 +173,12 @@ fun SignInScreen(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
+
+                        keyboardActions = KeyboardActions (
+                            onDone = {
+                                focusManager.clearFocus()
+                            }
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         onValueChange = {
                             onPasswordChange(it)
@@ -222,6 +232,7 @@ fun SignInScreen(
                     CustomTextButton(
                         enable = checkEnableLogin(),
                         onClick = {
+                            focusManager.clearFocus()
                             onLoginClick()
                         },
                         isLoading = uiState.loginState is StateType.LOADING,

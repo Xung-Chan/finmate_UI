@@ -10,13 +10,18 @@ enum class ForgotPasswordStep {
 
 data class ForgotPasswordUiState(
     val screenState: StateType = StateType.NONE,
-    val currentStep: ForgotPasswordStep = ForgotPasswordStep.CONFIRM_OTP,
+    val currentStep: ForgotPasswordStep = ForgotPasswordStep.ENTER_USERNAME,
+
+    val maskedEmail:String="",
+    val verifyKey:String="",
+    val token: String ="",
 
     val username: String="",
     val email: String="",
     val otp: String="",
     val newPassword: String="",
 
+    val isShowPassword:Boolean=false,
     val isEnableResendOtp: Boolean=true,
 )
 

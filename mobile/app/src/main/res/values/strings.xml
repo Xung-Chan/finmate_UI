@@ -26,7 +26,7 @@
     <string name="ForgotPassword_Notify">Chúng tôi đã gửi một OTP đến email của bạn</string>
     <string name="ForgotPassword_OTP_Timeout">OTP sẽ hết hạn sau ✌️ phút</string>
     <string name="ForgotPassword_Change_Email">Thay đổi email</string>
-    <string name="ForgotPassword_Email_Label">Nhập email của bạn</string>
+    <string name="ForgotPassword_Email_Label">Nhập email xác thực</string>
     <string name="ForgotPassword_Username_Label">Nhập tên đăng nhập</string>
     <string name="ForgotPassword_Email">Email</string>
     <string name="ForgotPassword_Notify_2">Chúng tôi sẽ gửi một otp đến email của bạn</string>

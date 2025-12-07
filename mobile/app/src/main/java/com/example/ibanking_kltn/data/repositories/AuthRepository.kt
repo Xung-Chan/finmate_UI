@@ -33,21 +33,40 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun requestOtp(request: RequestOtpRequest): ApiResult<RequestOtpResponse> {
-        return safeApiCall { nonAuthApi.requestOtp(request = request) }
+//        return safeApiCall { nonAuthApi.requestOtp(request = request) }
+        return ApiResult.Success(
+            RequestOtpResponse(
+                maskedMail = "nmd****@gmail.com",
+                verifyKeyDurationMinutes = 2000L,
+                verifyKey = "mocked-verify-key"
+            )
+        )
+//        return ApiResult.Error("Username koong ton tai")
     }
 
     suspend fun sendOtp(request: SendOtpRequest): ApiResult<Unit> {
-        return safeApiCall { nonAuthApi.sendOtp(request = request) }
+//        return safeApiCall { nonAuthApi.sendOtp(request = request) }
+        return ApiResult.Success(
+            data = Unit
+        )
     }
 
 
     suspend fun verifyOtp(request: VerifyOtpRequest): ApiResult<VerifyOtpResponse> {
-        return safeApiCall { nonAuthApi.verifyOtp(request = request) }
+//        return safeApiCall { nonAuthApi.verifyOtp(request = request) }
+        return ApiResult.Success(
+            data = VerifyOtpResponse(
+                maskedMail = "asvaksjas",
+                verifyKeyDurationMinutes = 30000L,
+                verifyKey = "mock-key"
+            )
+        )
     }
 
 
     suspend fun resetPassword(request: ResetPasswordRequest): ApiResult<Unit> {
-        return safeApiCall { nonAuthApi.resetPassword(request = request) }
+//        return safeApiCall { nonAuthApi.resetPassword(request = request) }
+        return ApiResult.Success(Unit)
     }
 
 }
