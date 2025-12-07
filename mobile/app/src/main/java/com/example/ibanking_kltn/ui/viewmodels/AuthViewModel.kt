@@ -2,11 +2,13 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
 import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
+import com.example.ibanking_kltn.ui.security.BiometricAuthenticator
 import com.example.ibanking_kltn.ui.uistates.AuthUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -23,7 +25,8 @@ import kotlinx.coroutines.launch
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val biometricAuthenticator: BiometricAuthenticator,
 ) : ViewModel(), IViewModel {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
@@ -63,6 +66,7 @@ class AuthViewModel @Inject constructor(
 
     fun onLoginClick(
         onSuccess: () -> Unit,
+        onError: (String) -> Unit
     ) {
         _uiState.update {
             it.copy(loginState = StateType.LOADING)
@@ -76,20 +80,50 @@ class AuthViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(loginState = StateType.SUCCESS)
                     }
-                    
+
                     tokenManager.updateToken(
                         access = loginResponse.access_token,
                         refresh = loginResponse.refresh_token
                     )
-                    Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
                     onSuccess()
                 }
 
                 is ApiResult.Error -> {
-                    error(apiResult.message)
+                    _uiState.update {
+                        it.copy(loginState = StateType.FAILED(apiResult.message))
+
+                    }
+                    onError(apiResult.message)
                 }
             }
         }
+    }
+
+    fun onBiometricClick(
+        fragmentActivity: FragmentActivity,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val isAllowBiometricAuthenticator = !tokenManager.getRefreshToken().isNullOrEmpty()
+        if (!isAllowBiometricAuthenticator) {
+            onError("Vui lòng đăng nhập bằng tài khoản và mật khẩu trước")
+            return
+        }
+        biometricAuthenticator.promptBiometricAuth(
+            title = "Đăng nhập bằng sinh trắc học",
+            negativeButtonText = "Cancel",
+            fragmentActivity = fragmentActivity,
+            onSucess = {
+                onSuccess()
+            },
+            onFailed = {
+                onError("Xác thực không thành công")
+
+            },
+            onError = { errorCode, errorString ->
+                onError("Error $errorCode: $errorString")
+            }
+        )
     }
 
 

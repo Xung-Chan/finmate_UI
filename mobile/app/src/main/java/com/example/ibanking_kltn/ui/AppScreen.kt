@@ -10,7 +10,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -66,6 +68,8 @@ fun AppScreen(
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
 
     val snackBarState by appViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
 
     val navigationBar: @Composable () -> Unit = {
         NavigationBar(
@@ -125,6 +129,30 @@ fun AppScreen(
 
                     onForgotPasswordClick = {
                         navController.navigate(Screens.ForgotPassword.name)
+                    },
+                    onBiometricClick = {
+                        authViewModel.onBiometricClick(
+                            fragmentActivity = context as FragmentActivity,
+                            onSuccess = {
+                                navController.navigate(Screens.Home.name)
+                                appViewModel.showSnackBarMessage(
+                                    message = "Đăng nhập thành công",
+                                    type = SnackBarType.SUCCESS,
+                                    actionLabel = "Đóng",
+                                    onAction = {
+                                        appViewModel.closeSnackBarMessage()
+                                    }
+                                )
+                            },
+                            onError = {
+                                message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            }
+                        )
+
                     }
                 )
 

@@ -100,4 +100,8 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // https://mvnrepository.com/artifact/com.google.firebase/firebase-messaging-ktx
     implementation("com.google.firebase:firebase-messaging-ktx:24.1.1")
+
+    //biometric
+    implementation("androidx.biometric:biometric:1.1.0")
+    implementation("androidx.biometric:biometric-ktx:1.2.0-alpha05")
 }

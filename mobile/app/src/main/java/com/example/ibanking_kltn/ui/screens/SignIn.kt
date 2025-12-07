@@ -56,10 +56,10 @@ fun SignInScreen(
     onChangeVisiblePassword: () -> Unit,
     checkEnableLogin: () -> Boolean,
     onForgotPasswordClick: () -> Unit,
+    onBiometricClick: () -> Unit
 ) {
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
-
     Scaffold(
         modifier = Modifier.systemBarsPadding(),
         containerColor = White3
@@ -257,7 +257,10 @@ fun SignInScreen(
                                 ambientColor = Black1.copy(alpha = 0.25f),
                                 spotColor = Black1.copy(alpha = 0.25f)
                             )
-                            .clickable {}
+                            .clickable {
+                                onBiometricClick()
+
+                            }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.fingerprint),
@@ -315,6 +318,7 @@ fun PreviewLogin() {
         checkEnableLogin = {
             false
         },
-        onForgotPasswordClick = { }
+        onForgotPasswordClick = { },
+        onBiometricClick = {}
     )
 }
