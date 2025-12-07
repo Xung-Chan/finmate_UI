@@ -1,7 +1,6 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.TokenManager
@@ -24,20 +23,12 @@ class ChangPasswordViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
     @ApplicationContext private val context: Context
-) : ViewModel(), IViewModel {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ChangePasswordUiState())
     val uiState: StateFlow<ChangePasswordUiState> = _uiState.asStateFlow()
-    override fun error(message: String) {
-        _uiState.update {
-            it.copy(
-                screenState = StateType.FAILED(message = message)
-            )
-        }
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
 
 
-    override fun clearState() {
+    fun clearState() {
         _uiState.value = ChangePasswordUiState()
     }
 
@@ -46,14 +37,23 @@ class ChangPasswordViewModel @Inject constructor(
     }
 
     fun onChangeNewPassword(newNewPassword: String) {
-        _uiState.update { it.copy(newPassword = newNewPassword) }
-        if (Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@\$!%*?&])[A-Za-z\\\\d@\$!%*?&]{8,16}\$").matches(
+        _uiState.update {
+            it.copy(newPassword = newNewPassword)
+        }
+
+        if (Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,16}\$").matches(
                 uiState.value.newPassword
             )
         ) {
             _uiState.update {
                 it.copy(
                     isValidNewPassword = true
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(
+                    isValidNewPassword = false
                 )
             }
         }
@@ -67,7 +67,8 @@ class ChangPasswordViewModel @Inject constructor(
     }
 
     fun onConfirmChangePassword(
-        onChangeSuccess: () -> Unit //log out
+        onChangeSuccess: () -> Unit, //log out
+        onError: (String) -> Unit
     ) {
 
         _uiState.update {
@@ -92,9 +93,26 @@ class ChangPasswordViewModel @Inject constructor(
                 }
 
                 is ApiResult.Error -> {
-                    error(apiResult.message)
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.FAILED(apiResult.message)
+                        )
+                    }
+                    onError(apiResult.message)
                 }
             }
+        }
+    }
+
+    fun onChangeVisibilityOldPassword() {
+        _uiState.update {
+            it.copy(isShowOldPassword = !it.isShowOldPassword)
+        }
+    }
+
+    fun onChangeVisibilityNewPassword() {
+        _uiState.update {
+            it.copy(isShowNewPassword = !it.isShowNewPassword)
         }
     }
 }

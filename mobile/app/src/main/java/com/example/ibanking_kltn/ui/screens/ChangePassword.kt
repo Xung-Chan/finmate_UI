@@ -1,6 +1,7 @@
 package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -42,6 +44,7 @@ import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
+import com.example.ibanking_kltn.ui.theme.Red2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.ChangePasswordUiState
@@ -58,8 +61,11 @@ fun ChangePasswordScreen(
     onChangeNewPassword: (String) -> Unit,
     onConfirmChangePassword: () -> Unit,
     onBackClick: () -> Unit,
-    isEnableConfirm: Boolean
+    isEnableConfirm: Boolean,
+    onChangeVisibleOldPassword: () -> Unit,
+    onChangeVisibleNewPassword: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING
     ) {
@@ -137,20 +143,21 @@ fun ChangePasswordScreen(
                                 )
                             },
                             isPasswordField = true,
-                            isPasswordShow = false,
+                            isPasswordShow = uiState.isShowOldPassword,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
                                 imeAction = ImeAction.Next
                             ),
                             trailingIcon = {
+
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     modifier = Modifier
                                         .padding(5.dp)
                                         .shadow(
                                             elevation = 30.dp, shape = CircleShape
                                         )
+                                        .clickable { onChangeVisibleOldPassword() }
                                 ) {
                                     Icon(
                                         imageVector = if (uiState.isShowOldPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -196,38 +203,57 @@ fun ChangePasswordScreen(
                                 )
                             },
                             isPasswordField = true,
-                            isPasswordShow = false,
+                            isPasswordShow = uiState.isShowNewPassword,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Done
                             ),
                             trailingIcon = {
+
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
                                     modifier = Modifier
-                                        .padding(5.dp)
-                                        .shadow(
-                                            elevation = 30.dp, shape = CircleShape
-                                        )
+                                        .padding(horizontal = 15.dp)
                                 ) {
-                                    if (uiState.isValidNewPassword) {
+                                    if (uiState.newPassword.isNotEmpty()) {
+
+
+                                        if (uiState.isValidNewPassword) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.ok_status),
+                                                contentDescription = null,
+                                                tint = Green1,
+                                            )
+                                        } else
+
+                                            Icon(
+                                                painter = painterResource(
+                                                    R.drawable.error
+                                                ),
+                                                contentDescription = null,
+                                                tint = Red2,
+                                            )
+
+
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .shadow(
+                                                elevation = 30.dp, shape = CircleShape
+                                            )
+                                            .clickable { onChangeVisibleNewPassword() }
+                                    ) {
                                         Icon(
-                                            painter = painterResource(R.drawable.ok_status),
+                                            imageVector = if (uiState.isShowNewPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                             contentDescription = null,
-                                            tint = Green1,
+                                            tint = Gray1,
                                         )
                                     }
-                                    Icon(
-                                        imageVector = if (uiState.isShowNewPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                        contentDescription = null,
-                                        tint = Gray1,
-                                    )
-
-
                                 }
-
                             },
+
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp),
@@ -256,6 +282,7 @@ fun ChangePasswordScreen(
                     ) {
                         CustomTextButton(
                             onClick = {
+                                focusManager.clearFocus()
                                 onConfirmChangePassword()
                             },
                             modifier = Modifier
@@ -285,12 +312,14 @@ fun ChangePasswordPreview() {
         uiState = ChangePasswordUiState(
             oldPassword = "oldpassword",
             newPassword = "newpassword",
-            isValidNewPassword = true
+            isValidNewPassword = false
         ),
         onChangeOldPassword = {},
         onChangeNewPassword = {},
         onConfirmChangePassword = {},
         onBackClick = {},
-        isEnableConfirm = true
+        isEnableConfirm = true,
+        onChangeVisibleOldPassword = {},
+        onChangeVisibleNewPassword = {}
     )
 }

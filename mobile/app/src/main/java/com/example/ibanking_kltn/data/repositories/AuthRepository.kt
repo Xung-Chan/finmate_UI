@@ -24,7 +24,8 @@ class AuthRepository @Inject constructor(
     suspend fun changePassword(
         request: ChangePasswordRequest
     ): ApiResult<Unit> {
-        return safeApiCall { authApi.changePassword(request = request) }
+//        return safeApiCall { authApi.changePassword(request = request) }
+        return ApiResult.Success(Unit)
     }
 
     suspend fun login(request: LoginRequest): ApiResult<LoginResponse> {

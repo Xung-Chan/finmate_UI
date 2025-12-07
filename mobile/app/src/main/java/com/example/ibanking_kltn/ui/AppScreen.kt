@@ -282,12 +282,24 @@ fun AppScreen(
                         changePasswordViewModel.onConfirmChangePassword(
                             onChangeSuccess = {
                                 navController.navigate(Screens.ChangePasswordSuccess.name)
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
                             }
                         )
                     },
                     onBackClick = { navController.popBackStack() },
 
-                    isEnableConfirm = changePasswordViewModel.isEnableChangePassword()
+                    isEnableConfirm = changePasswordViewModel.isEnableChangePassword(),
+                    onChangeVisibleOldPassword = {
+                        changePasswordViewModel.onChangeVisibilityOldPassword()
+                    },
+                    onChangeVisibleNewPassword = {
+                        changePasswordViewModel.onChangeVisibilityNewPassword()
+                    },
                 )
             }
             composable(route = Screens.ChangePasswordSuccess.name) {
