@@ -202,7 +202,9 @@ class TransferViewModel @Inject constructor(
     }
 
     fun onAmountChange(amount: String) {
-        val formatAmount = amount.replace(".", "")
+        val formatAmount = amount
+            .replace(".", "")
+            .replace(",", "")
         if (formatAmount == "") {
             _uiState.update {
                 it.copy(amount = 0L)

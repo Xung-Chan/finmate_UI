@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -73,6 +72,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -346,109 +346,125 @@ fun OtpDialogCustom(
                 onClick = onDismiss,
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
-            )
-            .imePadding(),
-        contentAlignment = Alignment.BottomCenter
+            ),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = White1,
-                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                )
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {}
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.BottomCenter
         ) {
-            Surface(
-                shadowElevation = 8.dp,
-                color = Color.Transparent
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            color = Blue3,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                        )
-                        .padding(10.dp)
-                ) {
-                    Text(
-                        text = "Nhập mã OTP",
-                        style = CustomTypography.titleMedium,
-                        color = White1
-                    )
-                }
-            }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .background(
+                        color = White1,
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                    )
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {}
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = modifier
-                        .fillMaxWidth()
-                        .clip(shape = RoundedCornerShape(20.dp))
-                        .background(color = White3)
-                        .padding(vertical = 10.dp)
+                Surface(
+                    shadowElevation = 8.dp,
+                    color = Color.Transparent
                 ) {
-                    BasicTextField(
-                        value = otpValue,
-                        onValueChange = {
-                            if (it.length <= otpLength && it.all { c -> c.isDigit() }) {
-                                onOtpChange(it)
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.NumberPassword
-                        ),
-                        decorationBox = {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(shape = RoundedCornerShape(20.dp))
-                                    .background(color = BackgroundColor)
-                            ) {
-                                repeat(otpLength) { index ->
-                                    val isFilled = index < otpValue.length
-                                    Box(
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .clip(CircleShape)
-                                            .background(if (isFilled) TextColor else LabelColor)
-                                            .border(
-                                                width = 2.dp,
-                                                color = if (isFilled) TextColor else LabelColor,
-                                                shape = CircleShape
-                                            )
-                                    )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                color = Blue3,
+                                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                            )
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Nhập mã OTP",
+                            style = CustomTypography.titleMedium,
+                            color = White1
+                        )
+                    }
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(20.dp))
+                            .background(color = White3)
+                            .padding(vertical = 10.dp)
+                    ) {
+                        BasicTextField(
+                            value = otpValue,
+                            onValueChange = {
+                                if (it.length <= otpLength && it.all { c -> c.isDigit() }) {
+                                    onOtpChange(it)
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.NumberPassword
+                            ),
+                            decorationBox = {
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(shape = RoundedCornerShape(20.dp))
+                                        .background(color = BackgroundColor)
+                                ) {
+                                    repeat(otpLength) { index ->
+                                        val isFilled = index < otpValue.length
+                                        Box(
+                                            modifier = Modifier
+                                                .size(30.dp)
+                                                .clip(CircleShape)
+                                                .background(if (isFilled) TextColor else LabelColor)
+                                                .border(
+                                                    width = 2.dp,
+                                                    color = if (isFilled) TextColor else LabelColor,
+                                                    shape = CircleShape
+                                                )
+                                        )
+                                    }
                                 }
                             }
-                        }
-                    )
-                }
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.padding(vertical = 10.dp)
-                ) {
-                    Text(
-                        text = "",
-                        style = CustomTypography.labelLarge,
-                        color = BackgroundColor
-                    )
+                        )
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(vertical = 10.dp)
+                    ) {
+                        Text(
+                            text = "",
+                            style = CustomTypography.labelLarge,
+                            color = BackgroundColor
+                        )
+                    }
                 }
             }
+
         }
+
     }
+}
+
+@Composable
+@Preview(showSystemUi = true)
+fun preview() {
+    OtpDialogCustom(
+        otpLength = 6,
+        otpValue = "1234",
+        onOtpChange = {},
+        onDismiss = {}
+    )
 }
 
 @Composable
@@ -629,7 +645,6 @@ fun NavigationBar(
 }
 
 
-
 @Composable
 private fun animateFadeAndScaleSnackBar(): Pair<Float, Float> {
     val alpha by animateFloatAsState(
@@ -674,98 +689,98 @@ enum class SnackBarType {
 
 @Composable
 fun GradientSnackBar(
-    type: SnackBarType ,
-    message: String ,
+    type: SnackBarType,
+    message: String,
     modifier: Modifier = Modifier,
     actionLabel: String? = "Đóng",
     onAction: () -> Unit = {},
 ) {
     val (alphaAnim, scaleAnim) = animateFadeAndScaleSnackBar()
-    Box(
-        modifier = Modifier.fillMaxSize()
+//    Box(
+//        modifier = Modifier.fillMaxSize()
+//    ) {
+//
+//        Box(
+//            modifier = Modifier
+//                .align(Alignment.BottomCenter)
+//                .padding(bottom = 16.dp)
+//        ) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth(0.9f)
+            .wrapContentHeight()
+            .alpha(alphaAnim)
+            .scale(scaleAnim)
+            .padding(SnackBarConstants.PADDING),
+        shape = RoundedCornerShape(SnackBarConstants.CORNER_RADIUS),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-
-        Box(
+        Row(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
+                .background(
+                    Brush.linearGradient(
+                        colors = when (type) {
+                            SnackBarType.SUCCESS -> SuccessGradient
+                            SnackBarType.ERROR -> ErrorGradient
+                            SnackBarType.WARNING -> WarningGradient
+                            SnackBarType.INFO -> InfoGradient
+                        }
+                    )
+                )
+                .padding(SnackBarConstants.CONTENT_PADDING)
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Card(
-                modifier = modifier
-                    .fillMaxWidth(0.9f)
-                    .wrapContentHeight()
-                    .alpha(alphaAnim)
-                    .scale(scaleAnim)
-                    .padding(SnackBarConstants.PADDING),
-                shape = RoundedCornerShape(SnackBarConstants.CORNER_RADIUS),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
             ) {
-                Row(
-                    modifier = Modifier
-                        .background(
-                            Brush.linearGradient(
-                                colors = when (type) {
-                                    SnackBarType.SUCCESS -> SuccessGradient
-                                    SnackBarType.ERROR -> ErrorGradient
-                                    SnackBarType.WARNING -> WarningGradient
-                                    SnackBarType.INFO -> InfoGradient
-                                }
-                            )
-                        )
-                        .padding(SnackBarConstants.CONTENT_PADDING)
-                        .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        when (type) {
-                            SnackBarType.SUCCESS -> Icon(
-                                painter = painterResource(R.drawable.success),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(SnackBarConstants.ICON_SIZE)
-                                    .padding(end = SnackBarConstants.ICON_PADDING)
-                            )
+                when (type) {
+                    SnackBarType.SUCCESS -> Icon(
+                        painter = painterResource(R.drawable.success),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(SnackBarConstants.ICON_SIZE)
+                            .padding(end = SnackBarConstants.ICON_PADDING)
+                    )
 
-                            else -> Icon(
-                                imageVector = Icons.Rounded.Info,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .size(SnackBarConstants.ICON_SIZE)
-                                    .padding(end = SnackBarConstants.ICON_PADDING)
-                            )
-                        }
-                        Text(
-                            text = message,
-                            color = Color.White,
-                            fontSize = SnackBarConstants.MESSAGE_FONT_SIZE,
-                            textAlign = TextAlign.Start,
-                            lineHeight = SnackBarConstants.MESSAGE_FONT_SIZE * 1.2f,
-                            modifier = Modifier.padding(end = SnackBarConstants.SPACING)
-                        )
-                    }
-                    actionLabel?.let {
-                        TextButton(
-                            onClick = onAction,
-                            modifier = Modifier.height(SnackBarConstants.BUTTON_HEIGHT)
-                        ) {
-                            Text(
-                                text = it,
-                                color = Color.White,
-                                fontSize = SnackBarConstants.ACTION_FONT_SIZE,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
-                    }
+                    else -> Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(SnackBarConstants.ICON_SIZE)
+                            .padding(end = SnackBarConstants.ICON_PADDING)
+                    )
+                }
+                Text(
+                    text = message,
+                    color = Color.White,
+                    fontSize = SnackBarConstants.MESSAGE_FONT_SIZE,
+                    textAlign = TextAlign.Start,
+                    lineHeight = SnackBarConstants.MESSAGE_FONT_SIZE * 1.2f,
+                    modifier = Modifier.padding(end = SnackBarConstants.SPACING)
+                )
+            }
+            actionLabel?.let {
+                TextButton(
+                    onClick = onAction,
+                    modifier = Modifier.height(SnackBarConstants.BUTTON_HEIGHT)
+                ) {
+                    Text(
+                        text = it,
+                        color = Color.White,
+                        fontSize = SnackBarConstants.ACTION_FONT_SIZE,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
     }
+//        }
+//    }
 }
 

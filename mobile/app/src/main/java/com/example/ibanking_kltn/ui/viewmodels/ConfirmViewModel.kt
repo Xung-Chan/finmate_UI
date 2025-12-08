@@ -51,8 +51,8 @@ class ConfirmViewModel @Inject constructor(
         toWalletNumber: String,
         description: String,
         toMerchantName: String,
-        expenseType: String?=null,
-        billCode: String?=null,
+        expenseType: String? = null,
+        billCode: String? = null,
         service: Service
     ) {
         loadPaymentInfo(
@@ -62,7 +62,7 @@ class ConfirmViewModel @Inject constructor(
             description = description,
             toMerchantName = toMerchantName,
             expenseType = expenseType,
-            billCode= billCode,
+            billCode = billCode,
             service = service
         )
     }
@@ -77,8 +77,8 @@ class ConfirmViewModel @Inject constructor(
         toWalletNumber: String,
         description: String,
         toMerchantName: String,
-        expenseType: String?=null,
-        billCode: String?=null,
+        expenseType: String? = null,
+        billCode: String? = null,
         service: Service
     ) {
         _uiState.update {
@@ -97,7 +97,11 @@ class ConfirmViewModel @Inject constructor(
         }
     }
 
-    fun onOtpChange(otp: String, onSuccess: () -> Unit) {
+    fun onOtpChange(
+        otp: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         _uiState.value = _uiState.value.copy(otp = otp)
         if (otp.length == 6) {
             _uiState.update {
@@ -116,11 +120,8 @@ class ConfirmViewModel @Inject constructor(
                             it.copy(
                                 screenState = StateType.NONE,
                                 isOtpShow = false,
-
-                                )
+                            )
                         }
-                        Toast.makeText(context, "Xác nhận giao dịch thành công", Toast.LENGTH_SHORT)
-                            .show()
                         onSuccess()
                     }
 
@@ -128,11 +129,7 @@ class ConfirmViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(screenState = StateType.NONE)
                         }
-                        Toast.makeText(
-                            context,
-                            "Có lỗi xảy ra khi xác nhận giao dịch: ${apiResult.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        onError(apiResult.message)
                     }
                 }
 
@@ -147,7 +144,10 @@ class ConfirmViewModel @Inject constructor(
         }
     }
 
-    fun onConfirmClick() {
+    fun onConfirmClick(
+        onSentOtp: () -> Unit,
+        onError: (String) -> Unit
+    ) {
         _uiState.update {
             it.copy(confirmState = StateType.LOADING)
         }
@@ -191,19 +191,15 @@ class ConfirmViewModel @Inject constructor(
                             prepareResponse = prepareTransferResponse
                         )
                     }
-                    Toast.makeText(context, "Đã gửi OTP đến email của bạn", Toast.LENGTH_SHORT)
-                        .show()
+                    onSentOtp()
                 }
 
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(confirmState = StateType.NONE)
                     }
-                    Toast.makeText(
-                        context,
-                        apiResult.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
+
+                    onError(apiResult.message)
                 }
             }
         }

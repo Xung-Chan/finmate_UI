@@ -61,12 +61,13 @@ fun SignInScreen(
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
     Scaffold(
-        modifier = Modifier.systemBarsPadding(),
+        modifier = Modifier,
         containerColor = White3
     ) { paddingValues ->
 
         Column(
             modifier = Modifier
+                .systemBarsPadding()
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
                 .verticalScroll(scrollState)
@@ -174,7 +175,7 @@ fun SignInScreen(
                             imeAction = ImeAction.Done
                         ),
 
-                        keyboardActions = KeyboardActions (
+                        keyboardActions = KeyboardActions(
                             onDone = {
                                 focusManager.clearFocus()
                             }

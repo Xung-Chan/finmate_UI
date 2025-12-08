@@ -23,7 +23,13 @@ class BillRepository @Inject constructor(
     }
 
     suspend fun preparePayBill(request: PreparePayBillRequest): ApiResult<PrepareTransactionResponse> {
-        return safeApiCall { billApi.preparePayBill(request) }
+//        return safeApiCall { billApi.preparePayBill(request) }
+        return ApiResult.Success(
+            data = PrepareTransactionResponse(
+                retryTokenOtp = "mocked-retry-token-otp",
+                transactionId = "mocked-transaction-id"
+            )
+        )
     }
 
     suspend fun preparePrepayment(request: PreparePrePaymentRequest): ApiResult<PrepareTransactionResponse> {

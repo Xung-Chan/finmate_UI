@@ -2,6 +2,8 @@ package com.example.ibanking_kltn.ui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -9,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -87,9 +90,10 @@ fun AppScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
     ) {
-
         NavHost(
             navController = navController,
             startDestination = Screens.SignIn.name
@@ -144,8 +148,7 @@ fun AppScreen(
                                     }
                                 )
                             },
-                            onError = {
-                                message ->
+                            onError = { message ->
                                 appViewModel.showSnackBarMessage(
                                     message = message,
                                     type = SnackBarType.ERROR
@@ -243,11 +246,34 @@ fun AppScreen(
                 ConfirmPaymentScreen(
                     uiState = confirmUiState,
                     onBackClick = { navController.popBackStack() },
-                    onConfirmClick = { confirmViewModel.onConfirmClick() },
+                    onConfirmClick = {
+                        confirmViewModel.onConfirmClick(
+                            onSentOtp = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Đã gửi mã OTP đến email của bạn",
+                                    type = SnackBarType.INFO,
+
+                                )
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            }
+                        )
+                    },
                     onOtpChange = {
-                        confirmViewModel.onOtpChange(it, onSuccess = {
-                            navController.navigate(Screens.TransferSuccess.name)
-                        })
+                        confirmViewModel.onOtpChange(
+                            it, onSuccess = {
+                                navController.navigate(Screens.TransferSuccess.name)
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            })
                     },
                     onOtpDismiss = {
                         confirmViewModel.onOtpDismiss()
@@ -436,13 +462,22 @@ fun AppScreen(
             }
 
         }
+
+
+
         if (snackBarState.isVisible) {
-            GradientSnackBar(
-                message = snackBarState.message,
-                type = snackBarState.type,
-                actionLabel = snackBarState.actionLabel,
-                onAction = snackBarState.onAction,
-            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+            ) {
+                GradientSnackBar(
+                    message = snackBarState.message,
+                    type = snackBarState.type,
+                    actionLabel = snackBarState.actionLabel,
+                    onAction = snackBarState.onAction,
+                )
+            }
         }
 
     }
