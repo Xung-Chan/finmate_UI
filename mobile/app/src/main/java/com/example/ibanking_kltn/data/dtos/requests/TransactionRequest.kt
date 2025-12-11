@@ -10,3 +10,7 @@ data class ConfirmTransferRequest(
     val otp: String,
     val transactionId: String
 )
+
+data class DepositTransactionRequest(
+    val amount: Long
+)

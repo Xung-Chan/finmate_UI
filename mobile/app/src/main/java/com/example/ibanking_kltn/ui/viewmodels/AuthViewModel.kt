@@ -104,7 +104,8 @@ class AuthViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val isAllowBiometricAuthenticator = !tokenManager.getRefreshToken().isNullOrEmpty()
+//        val isAllowBiometricAuthenticator = !tokenManager.getRefreshToken().isNullOrEmpty()
+        val isAllowBiometricAuthenticator = true
         if (!isAllowBiometricAuthenticator) {
             onError("Vui lòng đăng nhập bằng tài khoản và mật khẩu trước")
             return
@@ -118,10 +119,9 @@ class AuthViewModel @Inject constructor(
             },
             onFailed = {
                 onError("Xác thực không thành công")
-
             },
             onError = { errorCode, errorString ->
-                onError("Error $errorCode: $errorString")
+                onError(errorString)
             }
         )
     }

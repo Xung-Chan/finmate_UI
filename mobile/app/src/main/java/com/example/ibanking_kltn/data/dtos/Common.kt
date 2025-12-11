@@ -17,3 +17,11 @@ enum class TabNavigation {
     ANALYTICS,
     PROFILE
 }
+
+enum class TransactionStatus {
+    PENDING,
+    COMPLETED,
+    PROCESSING,
+    FAILED,
+    CANCELED
+}

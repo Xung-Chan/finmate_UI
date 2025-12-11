@@ -19,7 +19,18 @@ class BillRepository @Inject constructor(
     }
 
     suspend fun getBillInfo(qrCode: String): ApiResult<BillResponse> {
-        return safeApiCall { billApi.getBillInfo(qrCode) }
+//        return safeApiCall { billApi.getBillInfo(qrCode) }
+        return ApiResult.Success(
+            data = BillResponse(
+                merchantName = "Mocked Merchant",
+                amount = 250000,
+                dueDate = "2024-12-31",
+                billStatus = "UNPAID",
+                description = "Mocked bill description",
+                metadata = mapOf("orderId" to "ORD-123456"),
+                qrIdentifier = "MOCKED-QR-CODE-12345",
+            )
+        )
     }
 
     suspend fun preparePayBill(request: PreparePayBillRequest): ApiResult<PrepareTransactionResponse> {

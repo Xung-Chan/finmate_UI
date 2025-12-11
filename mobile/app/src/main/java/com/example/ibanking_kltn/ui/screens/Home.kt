@@ -67,6 +67,7 @@ fun HomeScreen(
     onChangeVisibleBalance: () -> Unit,
     onNavigateToTransferScreen: () -> Unit,
 //    onNavigateToSettingScreen: () -> Unit,
+    onNavigateTo1: () -> Unit,
     onNavigateToPayBillScreen: () -> Unit,
     navigationBar: @Composable () -> Unit
 ) {
@@ -343,6 +344,9 @@ fun HomeScreen(
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier.width(70.dp)
+                                        .clickable{
+                                            onNavigateTo1()
+                                        }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,

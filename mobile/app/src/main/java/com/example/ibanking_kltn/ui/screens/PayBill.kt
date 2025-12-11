@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -58,7 +61,8 @@ fun PayBillScreen(
     onChangeBillCode: (String) -> Unit = {},
     onChangeAccountType: (String) -> Unit = {},
 ) {
-
+    val verticalScrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING
     ) {
@@ -88,8 +92,6 @@ fun PayBillScreen(
             modifier = Modifier.systemBarsPadding(),
             containerColor = White3
         ) { paddingValues ->
-
-
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
@@ -100,6 +102,7 @@ fun PayBillScreen(
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
+                        .verticalScroll(verticalScrollState)
                 ) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -138,6 +141,7 @@ fun PayBillScreen(
                                 ),
                                 keyboardActions = KeyboardActions(
                                     onDone = {
+                                        focusManager.clearFocus()
                                         onCheckingBill()
                                     }
                                 ),
@@ -285,6 +289,7 @@ fun PayBillScreen(
                             ) {
                                 CustomTextButton(
                                     onClick = {
+                                        focusManager.clearFocus()
                                         onCheckingBill()
                                     },
                                     modifier = Modifier

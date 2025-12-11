@@ -18,15 +18,20 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.ibanking_kltn.data.dtos.Service
 import com.example.ibanking_kltn.data.dtos.TabNavigation
+import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
+import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
@@ -39,6 +44,7 @@ import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
+import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
@@ -50,7 +56,8 @@ import com.example.ibanking_kltn.utils.removeVietnameseAccents
 enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
     TransferSuccess, Transfer, ConfirmPayment,
-    Settings, PayBill
+    Settings, PayBill,
+    Deposit, HandleDepositResult
 }
 
 @Composable
@@ -66,6 +73,7 @@ fun AppScreen(
     val payBillViewModel: BillViewModel = hiltViewModel()
     val changePasswordViewModel: ChangPasswordViewModel = hiltViewModel()
     val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
+    val depositViewModel: DepositViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -103,6 +111,8 @@ fun AppScreen(
                 SignInScreen(
                     uiState = authUiState,
                     onLoginClick = {
+
+                        //api
 //                    authViewModel.onLoginClick(
 //                        onSuccess = {
 //                            navController.navigate(Screens.Home.name) {
@@ -112,6 +122,8 @@ fun AppScreen(
 //                            }
 //                        }
 //                    )
+
+                        //mock
                         navController.navigate(Screens.Home.name)
                         appViewModel.showSnackBarMessage(
                             message = "Đăng nhập thành công",
@@ -160,7 +172,10 @@ fun AppScreen(
                 )
 
             }
-            composable(route = Screens.TransferSuccess.name) {
+            composable(
+                route = Screens.TransferSuccess.name,
+
+                ) {
                 val confirmUiState by confirmViewModel.uiState.collectAsState()
                 TransferSuccessfullyScreen(
                     onBackToHomeClick = {
@@ -171,7 +186,10 @@ fun AppScreen(
                         }
                     },
                     amount = confirmUiState.amount,
-                    toMerchantName = confirmUiState.toMerchantName
+                    toMerchantName = confirmUiState.toMerchantName,
+                    service = "${service.name}",
+                    status = TransactionStatus.COMPLETED,
+                    onContactClick = {}
                 )
             }
             composable(route = Screens.Home.name) {
@@ -191,7 +209,9 @@ fun AppScreen(
                         transferViewModel.clearState()
                         navController.navigate(Screens.Transfer.name)
                     },
-
+                    onNavigateTo1 = {
+                        navController.navigate(Screens.Deposit.name)
+                    },
                     onNavigateToPayBillScreen = {
                         payBillViewModel.clearState()
                         navController.navigate(Screens.PayBill.name)
@@ -253,7 +273,7 @@ fun AppScreen(
                                     message = "Đã gửi mã OTP đến email của bạn",
                                     type = SnackBarType.INFO,
 
-                                )
+                                    )
                             },
                             onError = { message ->
                                 appViewModel.showSnackBarMessage(
@@ -356,7 +376,9 @@ fun AppScreen(
                     },
                 )
             }
-            composable(route = Screens.ChangePasswordSuccess.name) {
+            composable(
+                route = Screens.ChangePasswordSuccess.name
+            ) {
                 ChangePasswordSuccessfullyScreen(
                     onBackToLogin = {
                         navController.navigate(Screens.SignIn.name) {
@@ -459,6 +481,73 @@ fun AppScreen(
                         forgotPasswordViewModel.onChangeVisiblePassword()
                     }
                 )
+            }
+            composable(route = Screens.Deposit.name) {
+                val uiState by depositViewModel.uiState.collectAsState()
+                GatewayDeposit(
+                    onBackClick = {
+                        navController.navigate(Screens.Home.name)
+                    },
+                    onContinuePayment = {
+                        depositViewModel.onContinuePayment(
+                            context = context,
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            }
+                        )
+                    },
+                    uiState = uiState,
+                    onAccountTypeChange = {
+                        depositViewModel.onAccountTypeChange(it)
+                    },
+                    onChangeAmount = {
+                        depositViewModel.onAmountChange(it)
+                    },
+                )
+            }
+            composable(
+                route = Screens.HandleDepositResult.name,
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "ibanking://vnpay-return?vnp_TxnRef={vnp_TxnRef}&vnp_ResponseCode={vnp_ResponseCode"
+                    }
+                ),
+                arguments = listOf(
+                    navArgument("vnp_TxnRef") { type = NavType.StringType; nullable = true },
+                    navArgument("vnp_ResponseCode") { type = NavType.StringType; nullable = true }
+                )) { backStackEntry ->
+
+                LaunchedEffect(Unit) {
+                    val txnRef =
+                        backStackEntry.arguments?.getString("vnp_TxnRef") ?: ""
+                    val responseCode =
+                        backStackEntry.arguments?.getString("vnp_ResponseCode") ?: ""
+
+//                    depositViewModel.handleDepositResult(
+//                        txnRef = txnRef,
+//                        responseCode = responseCode,
+//                        onSuccess = {
+//                            navController.navigate(Screens.Home.name)
+//                            appViewModel.showSnackBarMessage(
+//                                message = "Nạp tiền thành công",
+//                                type = SnackBarType.SUCCESS
+//                            )
+//                        },
+//                        onError = { message ->
+//                            navController.navigate(Screens.Home.name)
+//                            appViewModel.showSnackBarMessage(
+//                                message = message,
+//                                type = SnackBarType.ERROR
+//                            )
+//                        }
+//                    )
+//
+                }
+
+
             }
 
         }
