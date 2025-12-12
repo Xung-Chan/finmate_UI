@@ -112,21 +112,9 @@ fun AddReceiverScreen() {
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
                             ),
-                            enable = false,
+                            enable = true,
                             onValueChange = {}
                         )
-                    }
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row {
-                            Text(
-                                text = "Ngân hàng thụ hưởng",
-                                style = CustomTypography.titleMedium,
-                                color = Gray1
-                            )
-                        }
                     }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
@@ -146,7 +134,7 @@ fun AddReceiverScreen() {
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
                             ),
-                            enable = false,
+                            enable = true,
                             onValueChange = {}
                         )
                     }

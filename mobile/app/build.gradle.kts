@@ -11,6 +11,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -105,4 +106,19 @@ dependencies {
     //biometric
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.biometric:biometric-ktx:1.2.0-alpha05")
+
+    //QR
+    implementation("com.google.zxing:core:3.5.1")
+
+    //CameraX
+    implementation("androidx.camera:camera-core:1.4.2")
+    implementation("androidx.camera:camera-camera2:1.4.2")
+    implementation("androidx.camera:camera-lifecycle:1.4.2")
+    implementation("androidx.camera:camera-view:1.4.2")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+
+    //Json to Object
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
+
 }

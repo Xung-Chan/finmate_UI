@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -59,7 +60,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -77,6 +81,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.QRPayload
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -95,6 +100,7 @@ import com.example.ibanking_kltn.ui.theme.TextColor
 import com.example.ibanking_kltn.ui.theme.WarningGradient
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -504,6 +510,7 @@ fun NavigationBar(
     onNavigateToHomeScreen: () -> Unit,
     onNavigateToWalletScreen: () -> Unit,
     onNavigateToAnalyticsScreen: () -> Unit,
+    onNavigateToQRScanner: () -> Unit,
 ) {
 
     Box(
@@ -619,7 +626,9 @@ fun NavigationBar(
                 .fillMaxWidth()
         ) {
             IconButton(
-                onClick = {},
+                onClick = {
+                    onNavigateToQRScanner()
+                },
                 modifier = Modifier
                     .shadow(
                         elevation = 20.dp,
@@ -784,3 +793,27 @@ fun GradientSnackBar(
 //    }
 }
 
+
+@Composable
+fun QrCodeImage(
+    modifier: Modifier = Modifier,
+    content: QRPayload,
+    size: Dp,
+) {
+    val payload = Json.encodeToString(content)
+    val bitmap = generateQrBitmap(payload, size = size.value.toInt())
+
+    Box(
+        modifier = modifier
+            .size(size)
+            .background(Color.White),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = remember(bitmap) { BitmapPainter(bitmap.asImageBitmap()) },
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.size(size),
+        )
+    }
+}

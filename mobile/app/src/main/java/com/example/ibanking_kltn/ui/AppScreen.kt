@@ -34,6 +34,7 @@ import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
+import com.example.ibanking_kltn.ui.screens.QRScannerScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
@@ -47,6 +48,7 @@ import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
 import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
+import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
 import com.example.ibanking_kltn.utils.GradientSnackBar
@@ -58,7 +60,8 @@ enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
     TransactionResult, Transfer, ConfirmPayment,
     Settings, PayBill,
-    Deposit, HandleDepositResult
+    Deposit, HandleDepositResult,
+    QRScanner
 }
 
 @Composable
@@ -76,6 +79,7 @@ fun AppScreen(
     val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
     val depositViewModel: DepositViewModel = hiltViewModel()
     val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
+    val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -95,7 +99,10 @@ fun AppScreen(
                 navController.navigate(Screens.Home.name)
             },
             onNavigateToWalletScreen = {},
-            onNavigateToAnalyticsScreen = {}
+            onNavigateToAnalyticsScreen = {},
+            onNavigateToQRScanner = {
+                navController.navigate(Screens.QRScanner.name)
+            }
         )
     }
 
@@ -205,7 +212,7 @@ fun AppScreen(
                         transferViewModel.clearState()
                         navController.navigate(Screens.Transfer.name)
                     },
-                    onNavigateTo1 = {
+                    onNavigateToDeposit = {
                         navController.navigate(Screens.Deposit.name)
                     },
                     onNavigateToPayBillScreen = {
@@ -551,6 +558,33 @@ fun AppScreen(
                 }
 
 
+            }
+            composable(route = Screens.QRScanner.name) {
+
+                QRScannerScreen(
+                    onBillDetecting = {
+                        qrScannerViewModel.onBillDetecting(
+                            payload = it,
+                            naigateToHome = {
+                                navController.navigate(Screens.Home.name)
+                                appViewModel.showSnackBarMessage(
+                                    message = "Quét mã QR thành công",
+                                    type = SnackBarType.SUCCESS,
+
+                                )
+                            }
+                        )
+                    },
+                    onTransferDetecting = {
+                        qrScannerViewModel.onTransferDetecting(it)
+                    },
+                    onError = { message ->
+                        appViewModel.showSnackBarMessage(
+                            message = message,
+                            type = SnackBarType.INFO
+                        )
+                    }
+                )
             }
 
         }

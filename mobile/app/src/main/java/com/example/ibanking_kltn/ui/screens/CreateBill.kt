@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.ui.screens
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,13 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,14 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.CreateBillUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
-import com.example.ibanking_kltn.ui.uistates.TransferUiState
 import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
@@ -53,17 +50,14 @@ import com.example.ibanking_kltn.utils.formatterVND
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransferScreen(
-    uiState: TransferUiState,
-    onDoneWalletNumber: () -> Unit,
-    onBackClick: () -> Unit,
-    onAccountTypeChange: (String) -> Unit,
-    onExpenseTypeChange: (String) -> Unit,
-    onConfirmClick: () -> Unit,
-    onChangeReceiveWalletNumber: (String) -> Unit,
-    onChangeAmount: (String) -> Unit,
-    onChangeDescription: (String) -> Unit,
-    isEnableContinue: Boolean,
+fun CreateBillScreen(
+    uiState: CreateBillUiState,
+    onBackClick: () -> Unit ,
+    isEnableContinue: Boolean ,
+    onContinueClick: () -> Unit ,
+    onChangeAmount: (String) -> Unit ,
+    onChangeDescription: (String) -> Unit ,
+    onExpenseTypeChange: (String) -> Unit ,
 ) {
     val scrollState = rememberScrollState(0)
     val focusManager = LocalFocusManager.current
@@ -106,56 +100,6 @@ fun TransferScreen(
                         .fillMaxWidth()
                         .verticalScroll(state = scrollState)
                 ) {
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomDropdownField(
-                            modifier = Modifier.fillMaxWidth(),
-                            options = uiState.availableAccount,
-                            onOptionSelected = {
-                                onAccountTypeChange(it)
-                            },
-                            selectedOption = uiState.accountType,
-                            placeholder = "Chọn tài khoản thanh toán"
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Số dư: ${formatterVND(uiState.balance)} VND",
-                            style = CustomTypography.titleMedium,
-                            color = Blue1
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.Center,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "Người thụ hưởng đã lưu",
-                                style = CustomTypography.titleMedium,
-                                color = Gray1
-                            )
-
-                        }
-                        IconButton(onClick = {}) {
-                            Icon(
-                                painter = painterResource(R.drawable.contact),
-                                contentDescription = null,
-                                tint = Gray1,
-                                modifier = Modifier.size(25.dp)
-                            )
-                        }
-                    }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -176,69 +120,68 @@ fun TransferScreen(
                     ) {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
-                                "Thông tin người nhận",
+                                "Tài khoản thụ hưởng",
                                 style = CustomTypography.titleMedium,
                                 color = Gray1
                             )
                         }
                         CustomTextField(
-                            value = uiState.toWalletNumber,
+                            value = formatterVND(uiState.amount),
                             placeholder = {
                                 Text(
-                                    "Số tài khoản",
-                                    style = CustomTypography.titleMedium,
+                                    "Số tiền", style = CustomTypography.titleMedium,
                                     color = Gray2
                                 )
                             },
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Done
+                                imeAction = ImeAction.Next
                             ),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    focusManager.clearFocus()
-                                    onDoneWalletNumber()
-                                },
-
-                                ),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.vnd),
+                                    contentDescription = null,
+                                    tint = Gray1,
+                                    modifier = Modifier.size(25.dp)
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
                             onValueChange = {
-                                onChangeReceiveWalletNumber(it)
+                                onChangeAmount(it)
                             }
                         )
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Text(
+                                "Người thụ hưởng",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1
+                            )
+                        }
                         CustomTextField(
-                            value = uiState.toMerchantName,
+                            value = formatterVND(uiState.amount),
                             placeholder = {
                                 Text(
-                                    "Tên người thụ hưởng", style = CustomTypography.titleMedium,
+                                    "Số tiền", style = CustomTypography.titleMedium,
                                     color = Gray2
                                 )
                             },
-                            enable = false,
-                            readOnly = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Next
+                            ),
+                            trailingIcon = {
+                                Icon(
+                                    painter = painterResource(R.drawable.vnd),
+                                    contentDescription = null,
+                                    tint = Gray1,
+                                    modifier = Modifier.size(25.dp)
+                                )
+                            },
                             modifier = Modifier.fillMaxWidth(),
-                            onValueChange = {},
-
-                            )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                ambientColor = Black1.copy(alpha = 0.25f),
-                                spotColor = Black1.copy(alpha = 0.25f)
-
-                            )
-                            .background(
-                                color = White1,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-                    ) {
+                            onValueChange = {
+                                onChangeAmount(it)
+                            }
+                        )
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Thông tin giao dịch",
@@ -271,6 +214,7 @@ fun TransferScreen(
                                 onChangeAmount(it)
                             }
                         )
+
                         CustomTextField(
                             value = uiState.description,
                             placeholder = {
@@ -299,6 +243,22 @@ fun TransferScreen(
                             selectedOption = uiState.expenseType,
                             placeholder = "Phân loại"
                         )
+                        CustomTextField(
+                            value = uiState.expiryDate,
+                            placeholder = {
+                                Text(
+                                    "Ngày hết hạn", style = CustomTypography.titleMedium,
+                                    color = Gray2
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            ),
+                            modifier = Modifier.fillMaxWidth(),
+                            onValueChange = {
+                            }
+                        )
                     }
                 }
 
@@ -309,32 +269,13 @@ fun TransferScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(
-                            5.dp,
-                            alignment = Alignment.Start
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Checkbox(
-                            checked = false,
-                            onCheckedChange = { },
-                            enabled = true,
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = Blue1,
-                                uncheckedColor = Gray1,
-                            ),
-                        )
-                        Text(text = "Lưu người nhận", style = CustomTypography.titleMedium)
-                    }
 
                     CustomTextButton(
                         enable = isEnableContinue,
                         onClick = {
-                            onConfirmClick()
+                            onContinueClick()
                         },
-                        isLoading = uiState.confirmState is StateType.LOADING,
+                        isLoading = uiState.screenState is StateType.LOADING,
                         modifier = Modifier
                             .fillMaxWidth(),
                         text = stringResource(R.string.Continue),
@@ -355,17 +296,14 @@ fun TransferScreen(
 
 )
 @Composable
-fun TransferPreview() {
-    TransferScreen(
-        uiState = TransferUiState(),
-        onDoneWalletNumber = {},
+fun CreateBillPreview() {
+    CreateBillScreen(
+        uiState = CreateBillUiState(),
         onBackClick = {},
-        onAccountTypeChange = {},
-        onExpenseTypeChange = {},
-        onConfirmClick = {},
-        onChangeReceiveWalletNumber = {},
+        isEnableContinue = false,
+        onContinueClick = {},
         onChangeAmount = {},
         onChangeDescription = {},
-        isEnableContinue = false,
+        onExpenseTypeChange = {}
     )
 }

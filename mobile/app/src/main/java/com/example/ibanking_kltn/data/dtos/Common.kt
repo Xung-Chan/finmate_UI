@@ -1,6 +1,9 @@
 package com.example.ibanking_kltn.data.dtos
 
-enum class  AccountType {
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+enum class AccountType {
     WALLET,
     PAY_LATER
 }
@@ -25,3 +28,29 @@ enum class TransactionStatus {
     FAILED,
     CANCELED
 }
+
+
+enum class QRType {
+    BILL,
+    TRANSFER
+}
+
+@Serializable
+sealed class QRPayload{
+    abstract  val  qrType: String
+}
+
+
+@Serializable
+data class BillPayload(
+    override val qrType: String = QRType.BILL.name,
+    val billCode: String
+) : QRPayload()
+@Serializable
+data class TransferPayload(
+    override val qrType: String = QRType.TRANSFER.name,
+    val toWalletNumber: String,
+    val amount: Long?,
+    val description: String?,
+    val expenseType: String?
+) : QRPayload()

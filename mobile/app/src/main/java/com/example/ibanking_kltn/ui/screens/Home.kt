@@ -67,7 +67,7 @@ fun HomeScreen(
     onChangeVisibleBalance: () -> Unit,
     onNavigateToTransferScreen: () -> Unit,
 //    onNavigateToSettingScreen: () -> Unit,
-    onNavigateTo1: () -> Unit,
+    onNavigateToDeposit: () -> Unit,
     onNavigateToPayBillScreen: () -> Unit,
     navigationBar: @Composable () -> Unit
 ) {
@@ -345,7 +345,7 @@ fun HomeScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier.width(70.dp)
                                         .clickable{
-                                            onNavigateTo1()
+                                            onNavigateToDeposit()
                                         }
                                 ) {
                                     Row(
@@ -367,7 +367,7 @@ fun HomeScreen(
 
                                     Row(modifier = Modifier.fillMaxWidth()) {
                                         Text(
-                                            "Mobile Recharg",
+                                            "Nạp tiền",
                                             color = Black1,
                                             style = CustomTypography.titleSmall,
                                             textAlign = TextAlign.Center
