@@ -36,8 +36,8 @@ import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
-import com.example.ibanking_kltn.ui.screens.TransferSuccessfullyScreen
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
@@ -47,6 +47,7 @@ import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
 import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
+import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
 import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
@@ -55,7 +56,7 @@ import com.example.ibanking_kltn.utils.removeVietnameseAccents
 
 enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
-    TransferSuccess, Transfer, ConfirmPayment,
+    TransactionResult, Transfer, ConfirmPayment,
     Settings, PayBill,
     Deposit, HandleDepositResult
 }
@@ -74,6 +75,7 @@ fun AppScreen(
     val changePasswordViewModel: ChangPasswordViewModel = hiltViewModel()
     val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
     val depositViewModel: DepositViewModel = hiltViewModel()
+    val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -172,12 +174,9 @@ fun AppScreen(
                 )
 
             }
-            composable(
-                route = Screens.TransferSuccess.name,
-
-                ) {
-                val confirmUiState by confirmViewModel.uiState.collectAsState()
-                TransferSuccessfullyScreen(
+            composable(route = Screens.TransactionResult.name) {
+                val transactionResultUiState by transactionResultViewModel.uiState.collectAsState()
+                TransactionResultScreen(
                     onBackToHomeClick = {
                         navController.navigate(Screens.Home.name) {
                             popUpTo(Screens.Home.name) {
@@ -185,10 +184,7 @@ fun AppScreen(
                             }
                         }
                     },
-                    amount = confirmUiState.amount,
-                    toMerchantName = confirmUiState.toMerchantName,
-                    service = "${service.name}",
-                    status = TransactionStatus.COMPLETED,
+                    uiState = transactionResultUiState,
                     onContactClick = {}
                 )
             }
@@ -285,8 +281,15 @@ fun AppScreen(
                     },
                     onOtpChange = {
                         confirmViewModel.onOtpChange(
-                            it, onSuccess = {
-                                navController.navigate(Screens.TransferSuccess.name)
+                            otp = it,
+                            onSuccess = {
+                                transactionResultViewModel.init(
+                                    status = TransactionStatus.COMPLETED,
+                                    service = service.name,
+                                    amount = confirmUiState.amount,
+                                    toMerchantName = confirmUiState.toMerchantName
+                                )
+                                navController.navigate(Screens.TransactionResult.name)
                             },
                             onError = { message ->
                                 appViewModel.showSnackBarMessage(
@@ -500,19 +503,18 @@ fun AppScreen(
                         )
                     },
                     uiState = uiState,
-                    onAccountTypeChange = {
-                        depositViewModel.onAccountTypeChange(it)
-                    },
                     onChangeAmount = {
                         depositViewModel.onAmountChange(it)
                     },
+                    isEnableContinue = depositViewModel.isEnableContinuePayment()
                 )
             }
             composable(
-                route = Screens.HandleDepositResult.name,
+                route = "${Screens.HandleDepositResult.name}?vnp_TxnRef={vnp_TxnRef}&vnp_ResponseCode={vnp_ResponseCode}",
                 deepLinks = listOf(
                     navDeepLink {
-                        uriPattern = "ibanking://vnpay-return?vnp_TxnRef={vnp_TxnRef}&vnp_ResponseCode={vnp_ResponseCode"
+                        uriPattern =
+                            "ibanking://vnpay-return?vnp_Amount={vnp_Amount}&vnp_BankCode={vnp_BankCode}&vnp_BankTranNo={vnp_BankTranNo}&vnp_CardType={vnp_CardType}&vnp_OrderInfo={vnp_OrderInfo}&vnp_PayDate={vnp_PayDate}&vnp_ResponseCode={vnp_ResponseCode}&vnp_TmnCode={vnp_TmnCode}&vnp_TransactionNo={vnp_TransactionNo}&vnp_TransactionStatus={vnp_TransactionStatus}&vnp_TxnRef={vnp_TxnRef}&vnp_SecureHash={vnp_SecureHash}"
                     }
                 ),
                 arguments = listOf(
@@ -526,25 +528,26 @@ fun AppScreen(
                     val responseCode =
                         backStackEntry.arguments?.getString("vnp_ResponseCode") ?: ""
 
-//                    depositViewModel.handleDepositResult(
-//                        txnRef = txnRef,
-//                        responseCode = responseCode,
-//                        onSuccess = {
-//                            navController.navigate(Screens.Home.name)
-//                            appViewModel.showSnackBarMessage(
-//                                message = "Nạp tiền thành công",
-//                                type = SnackBarType.SUCCESS
-//                            )
-//                        },
-//                        onError = { message ->
-//                            navController.navigate(Screens.Home.name)
-//                            appViewModel.showSnackBarMessage(
-//                                message = message,
-//                                type = SnackBarType.ERROR
-//                            )
-//                        }
-//                    )
-//
+                    depositViewModel.handleVNPayReturn(
+                        vnp_ResponseCode = responseCode,
+                        vnp_TxnRef = txnRef,
+                        onError = {
+                            appViewModel.showSnackBarMessage(
+                                message = it,
+                                type = SnackBarType.ERROR
+                            )
+                        },
+                        onNavigateToTransactionResult = {
+                            transactionResultViewModel.init(
+                                status = it.status,
+                                service = it.service,
+                                amount = it.amount,
+                                toMerchantName = homeViewModel.uiState.value.myWallet?.merchantName
+                                    ?: "UNKNOWN"
+                            )
+                            navController.navigate(Screens.TransactionResult.name)
+                        }
+                    )
                 }
 
 

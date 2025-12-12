@@ -43,13 +43,14 @@ import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.WarningColor
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.TransactionResultUiState
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.formatterVND
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionResultScreen(
-
+    uiState: TransactionResultUiState,
     onBackToHomeClick: () -> Unit,
     onContactClick: () -> Unit,
 ) {
@@ -143,7 +144,7 @@ fun TransactionResultScreen(
                     .fillMaxWidth()
                     .padding(10.dp)
             ) {
-                when (status) {
+                when (uiState.status) {
                     TransactionStatus.COMPLETED -> {
                         Icon(
                             painter = painterResource(id = R.drawable.completed),
@@ -172,7 +173,7 @@ fun TransactionResultScreen(
                     }
                 }
                 Text(
-                    text = when (status) {
+                    text = when (uiState.status) {
                         TransactionStatus.COMPLETED -> {
                             "Giao dịch thành công"
                         }
@@ -210,7 +211,7 @@ fun TransactionResultScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = service,
+                                text = uiState.service,
                                 style = CustomTypography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -230,7 +231,7 @@ fun TransactionResultScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = toMerchantName,
+                                text = uiState.toMerchantName,
                                 style = CustomTypography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -249,15 +250,16 @@ fun TransactionResultScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = "${formatterVND(amount)} VND",
+                                text = "${formatterVND(uiState.amount)} VND",
                                 style = CustomTypography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = when (status) {
+                                color = when (uiState.status) {
 
                                     TransactionStatus.COMPLETED -> {
                                         Green1
                                     }
+
                                     TransactionStatus.PROCESSING -> {
                                         WarningColor
                                     }
@@ -282,7 +284,7 @@ fun TransactionResultScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = when (status) {
+                                text = when (uiState.status) {
                                     TransactionStatus.COMPLETED -> {
                                         "Thành công"
                                     }
@@ -306,11 +308,12 @@ fun TransactionResultScreen(
                                 style = CustomTypography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = when (status) {
+                                color = when (uiState.status) {
 
                                     TransactionStatus.COMPLETED -> {
                                         Green1
                                     }
+
                                     TransactionStatus.PROCESSING -> {
                                         WarningColor
                                     }
@@ -358,12 +361,14 @@ fun TransactionResultScreen(
 )
 @Composable
 fun TransferSuccessfullyPreview() {
-    TransactionResultScreen (
+    TransactionResultScreen(
         onBackToHomeClick = {},
-        amount = 1000000L,
-        toMerchantName = "Nguyễn Văn A",
-        service = "Chuyển tiền",
-        status = TransactionStatus.COMPLETED,
+        uiState = TransactionResultUiState(
+            amount = 1000000L,
+            toMerchantName = "Nguyễn Văn A",
+            service = "Chuyển tiền",
+            status = TransactionStatus.COMPLETED
+        ),
         onContactClick = {}
     )
 }

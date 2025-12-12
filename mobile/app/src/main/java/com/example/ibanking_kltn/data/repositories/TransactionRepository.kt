@@ -111,7 +111,7 @@ class TransactionRepository @Inject constructor(
                 processedAt = "2024-06-01T12:00:00Z",
                 sourceAccountNumber = "123456789",
                 sourceBalanceUpdated = null,
-                status = "SUCCESS",
+                status = "COMPLETED",
                 toWalletNumber = null
             )
         )

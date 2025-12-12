@@ -11,6 +11,7 @@ import com.example.ibanking_kltn.data.dtos.requests.DepositTransactionRequest
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.ui.uistates.DepositUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.ui.uistates.TransactionResultUiState
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -52,11 +53,8 @@ class DepositViewModel @Inject constructor(
             it.copy(amount = formatAmount.toLong())
         }
     }
-
-    fun onAccountTypeChange(accountType: String) {
-        _uiState.update {
-            it.copy(accountType = accountType)
-        }
+    fun isEnableContinuePayment(): Boolean {
+        return uiState.value.amount >= 10000L && uiState.value.screenState!= StateType.LOADING
     }
 
     fun onContinuePayment(
@@ -97,7 +95,7 @@ class DepositViewModel @Inject constructor(
         vnp_ResponseCode: String,
         vnp_TxnRef: String,
         onError: (String) -> Unit,
-        onNavigateToTransactionResult: (String, Boolean) -> Unit
+        onNavigateToTransactionResult: (TransactionResultUiState) -> Unit
     ) {
         viewModelScope.launch {
             var transactionId = ""
@@ -126,13 +124,19 @@ class DepositViewModel @Inject constructor(
 
                 is ApiResult.Success -> {
                     val transactionHistory = statusResult.data
-
-                    if (transactionHistory.status == TransactionStatus.COMPLETED.name) {
-
-                    }
-                    else{
-
-                    }
+                    val transactionResultUiState = TransactionResultUiState(
+                        service = "Nạp tiền qua VNPAY",
+                        amount = transactionHistory.amount.toLong(),
+                        status = when(transactionHistory.status){
+                            "PENDING"-> TransactionStatus.PENDING
+                            "COMPLETED"-> TransactionStatus.COMPLETED
+                            "PROCESSING" -> TransactionStatus.PROCESSING
+                            "FAILED"-> TransactionStatus.FAILED
+                            "CANCELED"-> TransactionStatus.CANCELED
+                            else-> TransactionStatus.FAILED
+                        }
+                    )
+                    onNavigateToTransactionResult(transactionResultUiState)
                 }
 
 

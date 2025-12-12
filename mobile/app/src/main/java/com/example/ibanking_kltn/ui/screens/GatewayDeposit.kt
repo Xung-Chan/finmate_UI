@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
@@ -49,7 +48,6 @@ import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.DepositUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
-import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
@@ -62,8 +60,8 @@ fun GatewayDeposit(
     uiState: DepositUiState,
     onBackClick: () -> Unit,
     onContinuePayment: () -> Unit,
-    onAccountTypeChange: (String) -> Unit,
     onChangeAmount: (String) -> Unit,
+    isEnableContinue: Boolean,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -105,29 +103,6 @@ fun GatewayDeposit(
                         .fillMaxWidth()
                 ) {
 
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomDropdownField(
-                            modifier = Modifier.fillMaxWidth(),
-                            options = uiState.availableAccount,
-                            onOptionSelected = {
-                                onAccountTypeChange(it)
-                            },
-                            selectedOption = uiState.accountType,
-                            placeholder = "Chọn tài khoản thanh toán thụ hưởng"
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Số dư: ${formatterVND(uiState.balance)} VND",
-                            style = CustomTypography.titleMedium,
-                            color = Blue1
-                        )
-                    }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -216,7 +191,7 @@ fun GatewayDeposit(
                 ) {
 
                     CustomTextButton(
-                        enable = true,
+                        enable = isEnableContinue,
                         onClick = {
                             onContinuePayment()
                         },
@@ -289,14 +264,11 @@ fun PreviewDeposit() {
     GatewayDeposit(
         uiState = DepositUiState(
             screenState = StateType.NONE,
-            balance = 5000000L,
-            availableAccount = listOf("TK Thanh Toán 1", "TK Thanh Toán 2"),
             amount = 0L,
-            accountType = "TK Thanh Toán 1"
         ),
         onBackClick = {},
         onContinuePayment = {},
-        onAccountTypeChange = {},
-        onChangeAmount = {}
+        onChangeAmount = {},
+        isEnableContinue = false
     )
 }
