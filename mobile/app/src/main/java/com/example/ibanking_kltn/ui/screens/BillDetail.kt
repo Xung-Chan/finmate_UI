@@ -26,7 +26,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ibanking_kltn.data.dtos.BillPayload
+import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
@@ -85,10 +85,13 @@ fun BillDetailScreen() {
                 ) {
 
                     QrCodeImage(
-                        content = BillPayload(
-                            billCode = "Id1234567890",
+//                        content = BillPayload(
+//                            billCode = "Id1234567890",
+//                        ),
+                        content = TransferPayload(
+                            toWalletNumber = "0123346",
                         ),
-                        size = 200.dp
+                        size = 200.dp,
                     )
 
                 }

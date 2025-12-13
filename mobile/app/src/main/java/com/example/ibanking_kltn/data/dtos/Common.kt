@@ -1,6 +1,5 @@
 package com.example.ibanking_kltn.data.dtos
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 enum class AccountType {
@@ -50,7 +49,7 @@ data class BillPayload(
 data class TransferPayload(
     override val qrType: String = QRType.TRANSFER.name,
     val toWalletNumber: String,
-    val amount: Long?,
-    val description: String?,
-    val expenseType: String?
+    val amount: Long?=null,
+    val description: String?=null,
+    val expenseType: String?=null
 ) : QRPayload()

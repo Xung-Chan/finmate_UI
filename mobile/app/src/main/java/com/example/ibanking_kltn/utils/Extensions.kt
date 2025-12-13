@@ -48,7 +48,7 @@ fun generateQrBitmap(
 
 fun jsonInstance(): Json {
     return Json {
-        classDiscriminator = "type"
         ignoreUnknownKeys = true
+        explicitNulls = false
     }
 }

@@ -216,7 +216,7 @@ fun AppScreen(
                         navController.navigate(Screens.Deposit.name)
                     },
                     onNavigateToPayBillScreen = {
-                        payBillViewModel.clearState()
+                        payBillViewModel.init()
                         navController.navigate(Screens.PayBill.name)
                     },
                     navigationBar = { navigationBar() },
@@ -310,12 +310,13 @@ fun AppScreen(
                     },
                 )
             }
-            composable(route = Screens.PayBill.name) {
+            composable(route = Screens.PayBill.name) { backStackEntry ->
+
                 val uiState by payBillViewModel.uiState.collectAsState()
                 service = Service.PAY_BILL
-                LaunchedEffect(Unit) {
-                    payBillViewModel.init()
-                }
+//                LaunchedEffect(Unit) {
+//                    payBillViewModel.init()
+//                }
 
                 PayBillScreen(
                     uiState = uiState,
@@ -559,31 +560,44 @@ fun AppScreen(
 
 
             }
-            composable(route = Screens.QRScanner.name) {
-
+            composable(route = Screens.QRScanner.name) { backStackEntry ->
+                val uiState by qrScannerViewModel.uiState.collectAsState()
                 QRScannerScreen(
-                    onBillDetecting = {
-                        qrScannerViewModel.onBillDetecting(
-                            payload = it,
-                            naigateToHome = {
-                                navController.navigate(Screens.Home.name)
-                                appViewModel.showSnackBarMessage(
-                                    message = "Quét mã QR thành công",
-                                    type = SnackBarType.SUCCESS,
+                    uiState = uiState,
+                    detecting = {
+                        qrScannerViewModel.onDetecting(
+                            qrCode = it,
+                            onBillDetecting = {
+                                payBillViewModel.init()
+                                navController.navigate(Screens.PayBill.name) {
+                                    launchSingleTop = true
+                                    popUpTo(Screens.Home.name)
+                                }
+                                payBillViewModel.onChangeBillCode(it.billCode)
+                                payBillViewModel.onCheckingBill()
+                            },
+                            onTransferDetecting = { payload ->
+                                transferViewModel.init()
+                                transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
+                                payload.amount?.let { amount ->
+                                    transferViewModel.onAmountChange(amount.toString())
+                                }
+                                navController.navigate(Screens.Transfer.name) {
+                                    launchSingleTop = true
+                                    popUpTo(Screens.Home.name)
 
+                                }
+                                transferViewModel.onDoneWalletNumber()
+
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.INFO
                                 )
                             }
                         )
                     },
-                    onTransferDetecting = {
-                        qrScannerViewModel.onTransferDetecting(it)
-                    },
-                    onError = { message ->
-                        appViewModel.showSnackBarMessage(
-                            message = message,
-                            type = SnackBarType.INFO
-                        )
-                    }
                 )
             }
 

@@ -12,19 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.example.ibanking_kltn.data.dtos.BillPayload
-import com.example.ibanking_kltn.data.dtos.QRPayload
-import com.example.ibanking_kltn.data.dtos.QRType
-import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.ui.uistates.QRScannerUiState
+import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.QRCodeAnalyzer
-import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QRScannerScreen(
-    onBillDetecting: (BillPayload) -> Unit,
-    onTransferDetecting: (TransferPayload) -> Unit,
-    onError: (String) -> Unit
+    uiState: QRScannerUiState,
+//    onBillDetecting: (BillPayload) -> Unit,
+//    onTransferDetecting: (TransferPayload) -> Unit,
+    detecting: (String) -> Unit,
+//    onError: (String) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -42,24 +41,8 @@ fun QRScannerScreen(
                     it.setAnalyzer(
                         ContextCompat.getMainExecutor(ctx),
                         QRCodeAnalyzer { qrCode ->
-                            try {
-                                val payload = Json.decodeFromString<QRPayload>(qrCode)
-                                when (payload.qrType) {
-                                    QRType.BILL.name -> {
-                                        onBillDetecting(payload as BillPayload)
-                                    }
-
-                                    QRType.TRANSFER.name -> {
-                                        onTransferDetecting(payload as TransferPayload)
-                                    }
-                                    else -> {
-                                        onError("Mã QR không hợp lệ")
-                                    }
-                                }
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                                onError("Mã QR không hợp lệ")
-                            }
+                            if (uiState.state != StateType.LOADING && !uiState.isDetectSuccess)
+                                detecting(qrCode)
 
                         }
                     )

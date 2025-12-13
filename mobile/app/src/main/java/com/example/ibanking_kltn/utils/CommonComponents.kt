@@ -100,7 +100,6 @@ import com.example.ibanking_kltn.ui.theme.TextColor
 import com.example.ibanking_kltn.ui.theme.WarningGradient
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -800,7 +799,7 @@ fun QrCodeImage(
     content: QRPayload,
     size: Dp,
 ) {
-    val payload = Json.encodeToString(content)
+    val payload = jsonInstance().encodeToString(content)
     val bitmap = generateQrBitmap(payload, size = size.value.toInt())
 
     Box(
