@@ -38,7 +38,7 @@ import com.example.ibanking_kltn.utils.DashedDivider
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryDetailScreen() {
+fun TransactionDetailScreen() {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -319,6 +319,6 @@ fun HistoryDetailScreen() {
 
 )
 @Composable
-fun HistoryDetailPreview() {
-    HistoryDetailScreen()
+fun TransactionDetailPreview() {
+    TransactionDetailScreen()
 }

@@ -24,9 +24,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.data.dtos.Service
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
+import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
@@ -42,6 +44,7 @@ import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
+import com.example.ibanking_kltn.ui.viewmodels.BillHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
@@ -59,7 +62,8 @@ import com.example.ibanking_kltn.utils.removeVietnameseAccents
 enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
     TransactionResult, Transfer, ConfirmPayment,
-    Settings, PayBill,
+    Settings,
+    PayBill, CreateBill, BillHistory,
     Deposit, HandleDepositResult,
     QRScanner
 }
@@ -80,6 +84,7 @@ fun AppScreen(
     val depositViewModel: DepositViewModel = hiltViewModel()
     val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
     val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
+    val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -87,6 +92,12 @@ fun AppScreen(
     val snackBarState by appViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    val onError: (String) -> Unit = { message ->
+        appViewModel.showSnackBarMessage(
+            message = message,
+            type = SnackBarType.ERROR
+        )
+    }
 
     val navigationBar: @Composable () -> Unit = {
         NavigationBar(
@@ -113,7 +124,7 @@ fun AppScreen(
     ) {
         NavHost(
             navController = navController,
-            startDestination = Screens.SignIn.name
+            startDestination = Screens.BillHistory.name
         ) {
             composable(route = Screens.SignIn.name) {
                 val authUiState by authViewModel.uiState.collectAsState()
@@ -598,6 +609,80 @@ fun AppScreen(
                             }
                         )
                     },
+                )
+            }
+            composable(route = Screens.CreateBill.name) { backStackEntry ->
+                val uiState by qrScannerViewModel.uiState.collectAsState()
+                QRScannerScreen(
+                    uiState = uiState,
+                    detecting = {
+                        qrScannerViewModel.onDetecting(
+                            qrCode = it,
+                            onBillDetecting = {
+                                payBillViewModel.init()
+                                navController.navigate(Screens.PayBill.name) {
+                                    launchSingleTop = true
+                                    popUpTo(Screens.Home.name)
+                                }
+                                payBillViewModel.onChangeBillCode(it.billCode)
+                                payBillViewModel.onCheckingBill()
+                            },
+                            onTransferDetecting = { payload ->
+                                transferViewModel.init()
+                                transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
+                                payload.amount?.let { amount ->
+                                    transferViewModel.onAmountChange(amount.toString())
+                                }
+                                navController.navigate(Screens.Transfer.name) {
+                                    launchSingleTop = true
+                                    popUpTo(Screens.Home.name)
+
+                                }
+                                transferViewModel.onDoneWalletNumber()
+
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.INFO
+                                )
+                            }
+                        )
+                    },
+                )
+            }
+
+            composable(route = Screens.BillHistory.name) { backStackEntry ->
+                val uiState by billHistoryViewModel.uiState.collectAsState()
+                val bills = billHistoryViewModel.billPager.collectAsLazyPagingItems()
+                BillHistoryScreen(
+                    uiState = uiState,
+                    bills = bills,
+                    onClickFilter = {
+                        billHistoryViewModel.onClickFilter()
+                    },
+                    onResetAll = {
+                        billHistoryViewModel.onResetAll(
+                            onError = onError
+                        )
+                    },
+                    onApply = { selectedStatus, selectedSort ->
+                        billHistoryViewModel.onApply(
+                            onError = onError,
+                            selectedStatus = selectedStatus,
+                            selectedSort = selectedSort,
+                        )
+                    },
+                    onErrorLoading = {
+                        appViewModel.showSnackBarMessage(
+                            message = it,
+                            type = SnackBarType.ERROR
+                        )
+                    },
+                    onViewDetail = {
+                        bill->
+                        //TODO
+                    }
                 )
             }
 

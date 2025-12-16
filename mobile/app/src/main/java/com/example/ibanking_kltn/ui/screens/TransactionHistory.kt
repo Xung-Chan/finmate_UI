@@ -49,7 +49,7 @@ import com.example.ibanking_kltn.utils.CustomTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen() {
+fun TransactionHistoryScreen() {
     val scrollState = rememberScrollState(0)
     Scaffold(
         topBar = {
@@ -334,5 +334,5 @@ fun HistoryScreen() {
 )
 @Composable
 fun HistoryPreview() {
-    HistoryScreen()
+    TransactionHistoryScreen()
 }

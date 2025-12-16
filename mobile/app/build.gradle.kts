@@ -58,6 +58,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
+        freeCompilerArgs = listOf("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
     }
     buildFeatures {
         compose = true
@@ -120,5 +121,8 @@ dependencies {
     //Json to Object
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
+    //pagination
+    implementation("androidx.paging:paging-runtime:3.3.6")
+    implementation("androidx.paging:paging-compose:3.3.6")
 
 }

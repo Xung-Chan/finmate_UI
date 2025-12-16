@@ -23,12 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -39,7 +40,9 @@ import com.example.ibanking_kltn.utils.QrCodeImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BillDetailScreen() {
+fun BillDetailScreen(
+
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -99,6 +102,41 @@ fun BillDetailScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.image),
+                            contentDescription = "Bill Image",
+                            modifier = Modifier.size(25.dp)
+                        )
+                        Text(
+                            text = "Lưu ảnh QR",
+                            style = CustomTypography.titleMedium,
+                            color = Black1,
+                        )
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.export),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp)
+                        )
+                        Text(
+                            text = "Chia sẻ QR",
+                            style = CustomTypography.titleMedium,
+                            color = Black1,
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -121,6 +159,7 @@ fun BillDetailScreen() {
                         )
                     }
                 }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -247,7 +286,7 @@ fun BillDetailScreen() {
                         Text(
                             text = "Chưa thanh toán",
                             style = CustomTypography.titleSmall,
-                            color = Blue1,
+                            color = Red1,
                         )
                     }
                 }

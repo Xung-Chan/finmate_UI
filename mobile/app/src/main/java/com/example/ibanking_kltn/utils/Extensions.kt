@@ -1,11 +1,14 @@
 package com.example.ibanking_kltn.utils
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.io.FileOutputStream
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -51,4 +54,24 @@ fun jsonInstance(): Json {
         ignoreUnknownKeys = true
         explicitNulls = false
     }
+}
+
+
+fun saveBitmapToInternalStorage(
+    context: Context,
+    bitmap: Bitmap,
+    fileName: String
+): File {
+    val file = File(context.filesDir, fileName)
+
+    FileOutputStream(file).use { output ->
+        bitmap.compress(
+            Bitmap.CompressFormat.PNG, // QR code nên dùng PNG
+            100,
+            output
+        )
+        output.flush()
+    }
+
+    return file
 }

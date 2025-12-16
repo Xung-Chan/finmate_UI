@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -81,6 +83,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.QRPayload
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
@@ -112,8 +115,7 @@ fun CustomTextField(
     readOnly: Boolean = false,
     textStyle: TextStyle = CustomTypography.titleSmall,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
-        keyboardType = KeyboardType.Text,
-        imeAction = ImeAction.Done
+        keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
     ),
     keyboardActions: KeyboardActions = KeyboardActions(
 
@@ -137,8 +139,7 @@ fun CustomTextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val textFieldValue = TextFieldValue(
-        text = value,
-        selection = TextRange(value.length)
+        text = value, selection = TextRange(value.length)
     )
 
 
@@ -196,10 +197,9 @@ fun CustomDropdownField(
     var expanded by remember { mutableStateOf(false) }
     var boxWidth by remember { mutableIntStateOf(0) }
     Box(
-        modifier = modifier
-            .onGloballyPositioned { coordinates ->
-                boxWidth = coordinates.size.width
-            }) {
+        modifier = modifier.onGloballyPositioned { coordinates ->
+            boxWidth = coordinates.size.width
+        }) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -211,34 +211,24 @@ fun CustomDropdownField(
                     spotColor = Black1.copy(alpha = 0.25f)
                 )
                 .border(
-                    width = 1.dp, color = Gray2,
-                    shape = RoundedCornerShape(30)
+                    width = 1.dp, color = Gray2, shape = RoundedCornerShape(30)
                 )
                 .background(
-                    color = White1,
-                    shape = RoundedCornerShape(30)
+                    color = White1, shape = RoundedCornerShape(30)
                 )
                 .clickable {
                     expanded = true
                 }
-                .padding(15.dp)
-        ) {
+                .padding(15.dp)) {
             Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.weight(1f)
+                verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
             ) {
-                if (selectedOption == "")
-                    Text(
-                        text = placeholder,
-                        style = CustomTypography.titleMedium,
-                        color = Gray2
-                    )
-                else
-                    Text(
-                        text = selectedOption,
-                        style = CustomTypography.titleMedium,
-                        color = Black1
-                    )
+                if (selectedOption == "") Text(
+                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                )
+                else Text(
+                    text = selectedOption, style = CustomTypography.titleMedium, color = Black1
+                )
 
             }
             Icon(
@@ -255,8 +245,7 @@ fun CustomDropdownField(
                 expanded = false
             },
             containerColor = White1,
-            modifier = Modifier
-                .width(with(LocalDensity.current) { boxWidth.toDp() })
+            modifier = Modifier.width(with(LocalDensity.current) { boxWidth.toDp() })
 
         ) {
             options.forEach { option ->
@@ -297,16 +286,14 @@ fun CustomTextButton(
         colors = buttonColor,
         enabled = enable && !isLoading,
     ) {
-        if (isLoading)
-            CircularProgressIndicator(color = White1, modifier = Modifier.size(20.dp))
-        else
-            Text(
-                text = text,
-                style = style,
-                color = if (enable) buttonColor.contentColor else buttonColor.disabledContentColor,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
-            )
+        if (isLoading) CircularProgressIndicator(color = White1, modifier = Modifier.size(20.dp))
+        else Text(
+            text = text,
+            style = style,
+            color = if (enable) buttonColor.contentColor else buttonColor.disabledContentColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+        )
     }
 }
 
@@ -321,8 +308,7 @@ fun DashedDivider(
     Canvas(modifier) {
 
         val pathEffect = PathEffect.dashPathEffect(
-            intervals = floatArrayOf(dashWidth.toPx(), gapWidth.toPx()),
-            phase = 0f
+            intervals = floatArrayOf(dashWidth.toPx(), gapWidth.toPx()), phase = 0f
         )
 
         drawLine(
@@ -350,29 +336,24 @@ fun OtpDialogCustom(
             .clickable(
                 onClick = onDismiss,
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ),
+                interactionSource = remember { MutableInteractionSource() }),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        color = White1,
-                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                        color = White1, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                     )
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) {}
-            ) {
+                    ) {}) {
                 Surface(
-                    shadowElevation = 8.dp,
-                    color = Color.Transparent
+                    shadowElevation = 8.dp, color = Color.Transparent
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -407,16 +388,13 @@ fun OtpDialogCustom(
                             .padding(vertical = 10.dp)
                     ) {
                         BasicTextField(
-                            value = otpValue,
-                            onValueChange = {
+                            value = otpValue, onValueChange = {
                                 if (it.length <= otpLength && it.all { c -> c.isDigit() }) {
                                     onOtpChange(it)
                                 }
-                            },
-                            keyboardOptions = KeyboardOptions(
+                            }, keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.NumberPassword
-                            ),
-                            decorationBox = {
+                            ), decorationBox = {
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceEvenly,
                                     verticalAlignment = Alignment.CenterVertically,
@@ -440,17 +418,14 @@ fun OtpDialogCustom(
                                         )
                                     }
                                 }
-                            }
-                        )
+                            })
                     }
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.padding(vertical = 10.dp)
                     ) {
                         Text(
-                            text = "",
-                            style = CustomTypography.labelLarge,
-                            color = BackgroundColor
+                            text = "", style = CustomTypography.labelLarge, color = BackgroundColor
                         )
                     }
                 }
@@ -461,16 +436,6 @@ fun OtpDialogCustom(
     }
 }
 
-@Composable
-@Preview(showSystemUi = true)
-fun preview() {
-    OtpDialogCustom(
-        otpLength = 6,
-        otpValue = "1234",
-        onOtpChange = {},
-        onDismiss = {}
-    )
-}
 
 @Composable
 fun LoadingScaffold(
@@ -483,17 +448,14 @@ fun LoadingScaffold(
         content()
         if (isLoading) {
             Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
+                contentAlignment = Alignment.Center, modifier = Modifier
                     .fillMaxSize()
                     .background(
                         color = Gray3.copy(alpha = 0.5f),
                     )
-                    .pointerInput(Unit) {}
-            ) {
+                    .pointerInput(Unit) {}) {
                 CircularProgressIndicator(
-                    color = Blue3,
-                    modifier = Modifier.size(30.dp)
+                    color = Blue3, modifier = Modifier.size(30.dp)
                 )
             }
         }
@@ -529,8 +491,7 @@ fun NavigationBar(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(
-                    75.dp,
-                    alignment = Alignment.CenterHorizontally
+                    75.dp, alignment = Alignment.CenterHorizontally
                 ),
                 modifier = Modifier
 
@@ -543,17 +504,14 @@ fun NavigationBar(
                         spotColor = Black1.copy(alpha = 0.9f),
                     )
                     .background(
-                        color = White1,
-                        shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
+                        color = White1, shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
                     )
 
-            )
-            {
+            ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(
-                        30.dp,
-                        alignment = Alignment.CenterHorizontally
+                        30.dp, alignment = Alignment.CenterHorizontally
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -585,8 +543,7 @@ fun NavigationBar(
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(
-                        30.dp,
-                        alignment = Alignment.CenterHorizontally
+                        30.dp, alignment = Alignment.CenterHorizontally
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -627,15 +584,12 @@ fun NavigationBar(
             IconButton(
                 onClick = {
                     onNavigateToQRScanner()
-                },
-                modifier = Modifier
+                }, modifier = Modifier
                     .shadow(
-                        elevation = 20.dp,
-                        shape = RoundedCornerShape(40)
+                        elevation = 20.dp, shape = RoundedCornerShape(40)
                     )
                     .border(
-                        width = 5.dp, color = White1,
-                        shape = RoundedCornerShape(40)
+                        width = 5.dp, color = White1, shape = RoundedCornerShape(40)
                     )
                     .background(color = Blue3, shape = RoundedCornerShape(40))
                     .padding(5.dp)
@@ -656,20 +610,14 @@ fun NavigationBar(
 @Composable
 private fun animateFadeAndScaleSnackBar(): Pair<Float, Float> {
     val alpha by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(
-            durationMillis = SnackBarConstants.ALPHA_DURATION,
-            easing = FastOutSlowInEasing
-        ),
-        label = "alpha"
+        targetValue = 1f, animationSpec = tween(
+            durationMillis = SnackBarConstants.ALPHA_DURATION, easing = FastOutSlowInEasing
+        ), label = "alpha"
     )
     val scale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = tween(
-            durationMillis = SnackBarConstants.SCALE_DURATION,
-            easing = FastOutSlowInEasing
-        ),
-        label = "scale"
+        targetValue = 1f, animationSpec = tween(
+            durationMillis = SnackBarConstants.SCALE_DURATION, easing = FastOutSlowInEasing
+        ), label = "scale"
     )
     return alpha to scale
 }
@@ -689,10 +637,7 @@ private object SnackBarConstants {
 }
 
 enum class SnackBarType {
-    SUCCESS,
-    ERROR,
-    WARNING,
-    INFO
+    SUCCESS, ERROR, WARNING, INFO
 }
 
 @Composable
@@ -742,8 +687,7 @@ fun GradientSnackBar(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.weight(1f)
+                verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)
             ) {
                 when (type) {
                     SnackBarType.SUCCESS -> Icon(
@@ -775,8 +719,7 @@ fun GradientSnackBar(
             }
             actionLabel?.let {
                 TextButton(
-                    onClick = onAction,
-                    modifier = Modifier.height(SnackBarConstants.BUTTON_HEIGHT)
+                    onClick = onAction, modifier = Modifier.height(SnackBarConstants.BUTTON_HEIGHT)
                 ) {
                     Text(
                         text = it,
@@ -815,4 +758,191 @@ fun QrCodeImage(
             modifier = Modifier.size(size),
         )
     }
+}
+
+
+@Composable
+fun BillFilterDialog(
+    selectedStatus: String = "",
+    selectedSort: String = "",
+    onSelectStatus: (String) -> Unit = {},
+    onSelectSort: (String) -> Unit = {},
+    onResetStatusFilter: () -> Unit = {},
+    onResetSortFilter: () -> Unit = {},
+    onResetAll: () -> Unit = {},
+    onApply: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    val billStatusOptions = BillStatus.entries.map { status ->
+        when (status) {
+            BillStatus.ACTIVE -> {
+                return@map "Chưa thanh toán"
+            }
+
+            BillStatus.PAID -> {
+                return@map "Đã thanh toán"
+            }
+
+            BillStatus.OVERDUE -> {
+                return@map "Quá hạn"
+            }
+
+            BillStatus.CANCELED -> {
+                return@map "Đã hủy"
+            }
+        }
+    }
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = White1, shape = RoundedCornerShape(12.dp)
+            )
+            .padding(5.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.TopEnd,
+        ) {
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(15.dp)
+            ) {
+
+
+                Text(
+                    text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Trạng thái hóa đơn",
+                        style = CustomTypography.bodyMedium,
+                        color = Gray1
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Bỏ lọc",
+                        style = CustomTypography.bodyMedium,
+                        color = Blue1,
+                        modifier = Modifier.clickable {
+                            onResetStatusFilter()
+                        })
+                }
+
+                CustomDropdownField(
+                    options = billStatusOptions,
+                    selectedOption = selectedStatus,
+                    onOptionSelected = {
+                        onSelectStatus(it)
+                    },
+                    placeholder = "Trạng thái hóa đơn"
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Bỏ lọc",
+                        style = CustomTypography.bodyMedium,
+                        color = Blue1,
+                        modifier = Modifier.clickable {
+                            onResetSortFilter()
+                        })
+                }
+
+                CustomDropdownField(
+                    options = listOf("Mới nhất", "Cũ nhất"),
+                    selectedOption = selectedSort,
+                    onOptionSelected = {
+                        onSelectSort(it)
+                    },
+                    placeholder = "Sắp xếp theo"
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            onResetAll()
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray2
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "Đặt lại", style = CustomTypography.bodyMedium, color = Black1
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            onApply()
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Blue1
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "Áp dụng", style = CustomTypography.bodyMedium, color = White1
+                        )
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 0.dp, shape = RoundedCornerShape(10.dp)
+                    )
+                    .clickable {
+                        onDismiss()
+                    }
+            ) {
+
+                Icon(
+                    painter = painterResource(R.drawable.close),
+                    contentDescription = null,
+                    tint = Gray1,
+                    modifier = Modifier.size(35.dp)
+                )
+            }
+        }
+
+
+    }
+}
+
+
+@Composable
+@Preview()
+fun Preview() {
+    BillFilterDialog()
 }

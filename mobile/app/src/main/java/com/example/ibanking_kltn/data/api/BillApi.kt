@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.data.api
 
 import com.example.ibanking_kltn.data.dtos.requests.CancelBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.CreateBillRequest
+import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
@@ -38,6 +39,12 @@ interface BillApi {
     @POST("/api/bills/cancel")
     suspend fun cancelBill(
         @Body request: CancelBillRequest
+    ): Response<Unit>
+
+
+    @POST("/api/bills/filter")
+    suspend fun filterBill(
+        @Body request: FilterBillRequest
     ): Response<Unit>
 
 

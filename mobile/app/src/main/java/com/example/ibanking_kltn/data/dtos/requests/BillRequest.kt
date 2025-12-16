@@ -17,3 +17,11 @@ data class PreparePrePaymentRequest(
 data class CancelBillRequest(
     val qrIdentifier: String
 )
+
+data class FilterBillRequest(
+    val status: String?=null,
+    val page: Int?=0,
+    val size: Int?=10,
+    //TODO
+//    val sort????
+)

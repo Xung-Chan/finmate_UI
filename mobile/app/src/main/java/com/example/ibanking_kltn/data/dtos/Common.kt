@@ -53,3 +53,11 @@ data class TransferPayload(
     val description: String?=null,
     val expenseType: String?=null
 ) : QRPayload()
+
+
+enum class BillStatus {
+    ACTIVE,
+    PAID,
+    OVERDUE,
+    CANCELED
+}
