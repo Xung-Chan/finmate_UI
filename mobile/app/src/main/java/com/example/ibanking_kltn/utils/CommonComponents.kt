@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
@@ -83,9 +84,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.QRPayload
 import com.example.ibanking_kltn.data.dtos.TabNavigation
+import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -103,6 +106,7 @@ import com.example.ibanking_kltn.ui.theme.TextColor
 import com.example.ibanking_kltn.ui.theme.WarningGradient
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -741,22 +745,84 @@ fun QrCodeImage(
     modifier: Modifier = Modifier,
     content: QRPayload,
     size: Dp,
+    onSavedSuccess:()->Unit = {},
 ) {
     val payload = jsonInstance().encodeToString(content)
     val bitmap = generateQrBitmap(payload, size = size.value.toInt())
-
+    val context = LocalContext.current
+    val id = UUID.randomUUID()
     Box(
         modifier = modifier
-            .size(size)
             .background(Color.White),
         contentAlignment = Alignment.Center,
     ) {
-        Image(
-            painter = remember(bitmap) { BitmapPainter(bitmap.asImageBitmap()) },
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.size(size),
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = remember(bitmap) { BitmapPainter(bitmap.asImageBitmap()) },
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.size(size),
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            saveBitmapToInternalStorage(
+                                context = context,
+                                bitmap = bitmap,
+                                fileName = id.toString()
+                            )
+                            onSavedSuccess()
+                        }) {
+                    Icon(
+                        painter = painterResource(R.drawable.image),
+                        contentDescription = "Bill Image",
+                        modifier = Modifier.size(25.dp)
+                    )
+                    Text(
+                        text = "Lưu ảnh QR",
+                        style = CustomTypography.titleMedium,
+                        color = Black1,
+                    )
+                }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            shareText(
+                                context = context,
+                                text = when (content) {
+                                    is BillPayload -> content.billCode
+                                    is TransferPayload -> content.toWalletNumber
+                                }
+                            )
+                        }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.export),
+                        contentDescription = null,
+                        modifier = Modifier.size(25.dp)
+                    )
+                    Text(
+                        text = "Chia sẻ QR",
+                        style = CustomTypography.titleMedium,
+                        color = Black1,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -924,8 +990,7 @@ fun BillFilterDialog(
                     )
                     .clickable {
                         onDismiss()
-                    }
-            ) {
+                    }) {
 
                 Icon(
                     painter = painterResource(R.drawable.close),
@@ -944,5 +1009,10 @@ fun BillFilterDialog(
 @Composable
 @Preview()
 fun Preview() {
-    BillFilterDialog()
+    QrCodeImage(
+        content = BillPayload(
+            billCode = "1234567890",
+        ),
+        size = 200.dp,
+    )
 }

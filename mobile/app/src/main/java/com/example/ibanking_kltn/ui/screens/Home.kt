@@ -69,7 +69,8 @@ fun HomeScreen(
 //    onNavigateToSettingScreen: () -> Unit,
     onNavigateToDeposit: () -> Unit,
     onNavigateToPayBillScreen: () -> Unit,
-    navigationBar: @Composable () -> Unit
+    navigationBar: @Composable () -> Unit,
+    onNavigateToBillHistoryScreen: () -> Unit,
 ) {
 
 
@@ -343,8 +344,9 @@ fun HomeScreen(
                             ) {
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.width(70.dp)
-                                        .clickable{
+                                    modifier = Modifier
+                                        .width(70.dp)
+                                        .clickable {
                                             onNavigateToDeposit()
                                         }
                                 ) {
@@ -447,7 +449,11 @@ fun HomeScreen(
                                 }
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.width(70.dp)
+                                    modifier = Modifier
+                                        .width(70.dp)
+                                        .clickable {
+                                            onNavigateToBillHistoryScreen()
+                                        }
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,

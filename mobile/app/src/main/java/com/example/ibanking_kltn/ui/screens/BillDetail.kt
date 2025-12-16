@@ -23,25 +23,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.data.dtos.BillPayload
+import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
+import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.DashedDivider
 import com.example.ibanking_kltn.utils.QrCodeImage
+import com.example.ibanking_kltn.utils.formatterDateString
+import com.example.ibanking_kltn.utils.formatterVND
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BillDetailScreen(
-
+    bill: BillResponse?,
+    onSavedSuccess: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -50,7 +56,9 @@ fun BillDetailScreen(
                     Text(text = "Chi tiết hóa đơn")
                 },
                 navigationIcon = {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = {
+                        onBackClick()
+                    }) {
                         Icon(
                             Icons.Default.ArrowBackIosNew,
                             contentDescription = null,
@@ -64,275 +72,280 @@ fun BillDetailScreen(
             )
         }, modifier = Modifier.systemBarsPadding(), containerColor = White3
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = 20.dp)
-        ) {
+        if (bill == null) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .shadow(
-                        elevation = 30.dp,
-                        shape = RoundedCornerShape(20.dp),
-                        ambientColor = Black1.copy(alpha = 0.25f),
-                        spotColor = Black1.copy(alpha = 0.25f)
-                    )
-                    .background(color = White1, shape = RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                    .padding(paddingValues)
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
+                Text(
+                    text = "Không tìm thấy hóa đơn",
+                    style = CustomTypography.titleMedium,
+                    color = Gray1,
+                )
+            }
+        } else {
 
-                    QrCodeImage(
-//                        content = BillPayload(
-//                            billCode = "Id1234567890",
-//                        ),
-                        content = TransferPayload(
-                            toWalletNumber = "0123346",
-                        ),
-                        size = 200.dp,
-                    )
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(horizontal = 20.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(15.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(
+                            elevation = 30.dp,
+                            shape = RoundedCornerShape(20.dp),
+                            ambientColor = Black1.copy(alpha = 0.25f),
+                            spotColor = Black1.copy(alpha = 0.25f)
+                        )
+                        .background(color = White1, shape = RoundedCornerShape(20.dp))
+                        .padding(20.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
 
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.image),
-                            contentDescription = "Bill Image",
-                            modifier = Modifier.size(25.dp)
-                        )
-                        Text(
-                            text = "Lưu ảnh QR",
-                            style = CustomTypography.titleMedium,
-                            color = Black1,
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.export),
-                            contentDescription = null,
-                            modifier = Modifier.size(25.dp)
-                        )
-                        Text(
-                            text = "Chia sẻ QR",
-                            style = CustomTypography.titleMedium,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Mã hóa đơn",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Id1234567890",
-                            style = CustomTypography.titleSmall,
-                            color = Black1,
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Tên người thụ hưởng",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Nguyen Van A",
-                            style = CustomTypography.titleSmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Số tài khoản",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "0123456789",
-                            style = CustomTypography.titleSmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Nội dung",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Tiền điện tháng 9/2023",
-                            style = CustomTypography.titleSmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Ngày hết hạn",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "10/12/2025",
-                            style = CustomTypography.titleSmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Trạng thái",
-                            style = CustomTypography.titleMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Chưa thanh toán",
-                            style = CustomTypography.titleSmall,
-                            color = Red1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    DashedDivider(
-                        color = Gray1,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Số tiền",
-                            style = CustomTypography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
+                        QrCodeImage(
+                            content = BillPayload(
+                                billCode = bill.qrIdentifier,
                             ),
-                            color = Black1,
+                            size = 200.dp,
+                            onSavedSuccess = {
+                                onSavedSuccess()
+                            },
+                        )
+
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Mã hóa đơn",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+
+                                )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = bill.qrIdentifier,
+                                style = CustomTypography.titleSmall,
+                                color = Black1,
+                                textAlign = TextAlign.End
 
                             )
+                        }
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Tên người thụ hưởng",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+                                textAlign = TextAlign.End
+
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = bill.merchantName,
+                                style = CustomTypography.titleSmall,
+                                color = Black1,
+                            )
+                        }
                     }
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(
-                            text = "5.000 VND",
-                            style = CustomTypography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Red1,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Số tài khoản thụ hưởng",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+                                textAlign = TextAlign.End
+
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = bill.walletNumber,
+                                style = CustomTypography.titleSmall,
+                                color = Black1,
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Nội dung",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+
+                                )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = bill.description,
+                                style = CustomTypography.titleSmall,
+                                color = Black1,
+                                textAlign = TextAlign.End
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Ngày hết hạn",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+                                textAlign = TextAlign.End
+
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = formatterDateString(LocalDate.parse(bill.dueDate)),
+                                style = CustomTypography.titleSmall,
+                                color = Black1,
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Trạng thái",
+                                style = CustomTypography.titleMedium,
+                                color = Gray1,
+                                textAlign = TextAlign.End
+
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = when (bill.billStatus) {
+                                    "ACTIVE" -> "Chưa thanh toán"
+                                    "PAID" -> "Đã thanh toán"
+                                    "CANCELLED" -> "Đã hủy"
+                                    "OVERDUE" -> "Quá hạn"
+                                    else -> bill.billStatus
+                                },
+                                style = CustomTypography.titleMedium,
+                                color = when (bill.billStatus) {
+                                    "ACTIVE" -> Red1
+                                    "PAID" -> Green1
+                                    else -> Gray1
+                                },
+                            )
+                        }
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        DashedDivider(
+                            color = Gray1,
+                            modifier = Modifier
+                                .fillMaxWidth()
                         )
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Số tiền",
+                                style = CustomTypography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Black1,
+
+                                )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.End,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "${
+                                    formatterVND(bill.amount)
+                                } VND",
+                                style = CustomTypography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Black1,
+                            )
+                        }
+                    }
+
                 }
+
 
             }
-
 
         }
     }
@@ -344,5 +357,19 @@ fun BillDetailScreen(
 )
 @Composable
 fun BillDetailPreview() {
-    BillDetailScreen()
+    BillDetailScreen(
+        bill = BillResponse(
+            merchantName = "Công ty ABC",
+            amount = 250000,
+            dueDate = "2024-12-31",
+            billStatus = "PAID",
+            description = "Thanh toán dịch vụ Internet tháng 12",
+            metadata = mapOf("orderId" to "ORD-123456"),
+            qrIdentifier = "ABC-QR-CODE-12345",
+            walletNumber = "0987654321"
+        ),
+        onSavedSuccess = {},
+        onBackClick = {}
+
+    )
 }

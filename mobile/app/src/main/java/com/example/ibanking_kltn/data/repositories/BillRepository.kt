@@ -32,6 +32,7 @@ class BillRepository @Inject constructor(
                 description = "Mocked bill description",
                 metadata = mapOf("orderId" to "ORD-123456"),
                 qrIdentifier = "MOCKED-QR-CODE-12345",
+                walletNumber = "0987654321"
             )
         )
     }
@@ -72,6 +73,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -81,6 +83,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -90,6 +93,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -99,6 +103,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -108,6 +113,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -117,6 +123,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -126,6 +133,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -135,6 +143,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -144,6 +153,7 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                     BillResponse(
                         merchantName = "Mocked Merchant 1",
@@ -153,6 +163,27 @@ class BillRepository @Inject constructor(
                         description = "Mocked bill description 1",
                         metadata = mapOf("orderId" to "ORD-654321"),
                         qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
+                    ),
+                    BillResponse(
+                        merchantName = "Mocked Merchant 1",
+                        amount = 150000,
+                        dueDate = "2024-11-30",
+                        billStatus = "PAID",
+                        description = "Mocked bill description 1",
+                        metadata = mapOf("orderId" to "ORD-654321"),
+                        qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
+                    ),
+                    BillResponse(
+                        merchantName = "Mocked Merchant 1",
+                        amount = 150000,
+                        dueDate = "2024-11-30",
+                        billStatus = "PAID",
+                        description = "Mocked bill description 1",
+                        metadata = mapOf("orderId" to "ORD-654321"),
+                        qrIdentifier = "MOCKED-QR-CODE-67890",
+                        walletNumber = "1234567890"
                     ),
                 ),
                 totalPages = 10,

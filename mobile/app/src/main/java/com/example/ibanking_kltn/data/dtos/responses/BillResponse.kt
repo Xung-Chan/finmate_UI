@@ -6,7 +6,8 @@ data class BillResponse(
     val dueDate: String,
     val merchantName: String,
     val metadata: Any,
-    val qrIdentifier: String
+    val qrIdentifier: String,
+    val walletNumber: String
 )
 
 

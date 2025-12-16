@@ -1,14 +1,17 @@
 package com.example.ibanking_kltn.utils
 
+import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.serialization.json.Json
-import java.io.File
-import java.io.FileOutputStream
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -61,17 +64,44 @@ fun saveBitmapToInternalStorage(
     context: Context,
     bitmap: Bitmap,
     fileName: String
-): File {
-    val file = File(context.filesDir, fileName)
+): Uri? {
+    val resolver = context.contentResolver
 
-    FileOutputStream(file).use { output ->
-        bitmap.compress(
-            Bitmap.CompressFormat.PNG, // QR code nên dùng PNG
-            100,
-            output
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+        put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+        put(
+            MediaStore.Images.Media.RELATIVE_PATH,
+            Environment.DIRECTORY_PICTURES + "/MyApp"
         )
-        output.flush()
+        put(MediaStore.Images.Media.IS_PENDING, 1)
     }
 
-    return file
+    val imageUri = resolver.insert(
+        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+        contentValues
+    ) ?: return null
+
+    resolver.openOutputStream(imageUri).use { output ->
+        output?.let { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+    }
+
+    contentValues.clear()
+    contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+    resolver.update(imageUri, contentValues, null, null)
+
+    return imageUri
+}
+
+fun shareText(
+    context: Context,
+    text: String
+){
+    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT,text)
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, "Chia sẻ qua")
+    context.startActivity(shareIntent)
 }

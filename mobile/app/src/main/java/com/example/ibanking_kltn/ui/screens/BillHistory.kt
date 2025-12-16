@@ -66,7 +66,8 @@ fun BillHistoryScreen(
     onApply: (selectedStatus: String, selectedSort: String) -> Unit,
     onErrorLoading: (String) -> Unit,
     onClickFilter: () -> Unit,
-    onViewDetail:(BillResponse)->Unit
+    onViewDetail: (BillResponse) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     val refreshState = rememberPullToRefreshState()
     var selectedStatus by remember {
@@ -88,7 +89,9 @@ fun BillHistoryScreen(
                             Text(text = "Lịch sử hóa đơn")
                         },
                         navigationIcon = {
-                            IconButton(onClick = {}) {
+                            IconButton(onClick = {
+                                onBackClick()
+                            }) {
                                 Icon(
                                     Icons.Default.ArrowBackIosNew,
                                     contentDescription = null,
@@ -112,12 +115,14 @@ fun BillHistoryScreen(
                                         modifier = Modifier.size(40.dp)
                                     )
                                     if (uiState.filterCount > 0) {
+                                        Box(modifier = Modifier.padding(5.dp)) {
+                                            Text(
+                                                text = uiState.filterCount.toString(),
+                                                style = CustomTypography.labelLarge,
+                                                color = Blue1,
+                                            )
 
-                                        Text(
-                                            text = uiState.filterCount.toString(),
-                                            style = CustomTypography.labelLarge,
-                                            color = Blue1,
-                                        )
+                                        }
                                     }
 
                                 }
@@ -185,7 +190,7 @@ fun BillHistoryScreen(
                                             ambientColor = Black1.copy(alpha = 0.25f),
                                             spotColor = Black1.copy(alpha = 0.25f)
                                         )
-                                        .clickable{
+                                        .clickable {
                                             onViewDetail(bill)
                                         }
                                         .background(
@@ -240,18 +245,18 @@ fun BillHistoryScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = when(bill.billStatus){
-                                                    "ACTIVE"->"Chưa thanh toán"
-                                                    "PAID"->"Đã thanh toán"
-                                                    "CANCELLED"->"Đã hủy"
-                                                    "OVERDUE"->"Quá hạn"
-                                                    else->bill.billStatus
+                                                text = when (bill.billStatus) {
+                                                    "ACTIVE" -> "Chưa thanh toán"
+                                                    "PAID" -> "Đã thanh toán"
+                                                    "CANCELLED" -> "Đã hủy"
+                                                    "OVERDUE" -> "Quá hạn"
+                                                    else -> bill.billStatus
                                                 },
                                                 style = CustomTypography.titleSmall,
-                                                color = when(bill.billStatus){
-                                                    "ACTIVE"->Red1
-                                                    "PAID"-> Green1
-                                                    else-> Gray1
+                                                color = when (bill.billStatus) {
+                                                    "ACTIVE" -> Red1
+                                                    "PAID" -> Green1
+                                                    else -> Gray1
                                                 },
                                             )
                                         }
@@ -371,8 +376,8 @@ fun BillHistoryScreen(
                             )
                         },
                         onDismiss = {
-                            selectedStatus=uiState.selectedStatus
-                            selectedSort=uiState.selectedSort
+                            selectedStatus = uiState.selectedStatus
+                            selectedSort = uiState.selectedSort
                             onClickFilter()
                         })
                 }
