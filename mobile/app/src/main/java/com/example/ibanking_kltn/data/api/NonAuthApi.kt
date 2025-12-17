@@ -30,24 +30,24 @@ interface NonAuthApi {
     ): Call<LoginResponse>
 
 
-    @POST("/api/v1/accounts/reset-password")
+    @POST("/api/accounts/reset-password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
     ): Response<Unit>
 
-    @POST("/api/v1/accounts/send-otp")
+    @POST("/api/accounts/send-otp")
     suspend fun sendOtp(
         @Body request: SendOtpRequest
     ): Response<Unit>
 
-    @POST("/api/v1/accounts/request-otp")
+    @POST("/api/accounts/request-otp")
     suspend fun requestOtp(
         @Body request: RequestOtpRequest
     ): Response<RequestOtpResponse>
 
 
 
-    @POST("/api/v1/accounts/verify-otp")
+    @POST("/api/accounts/verify-otp")
     suspend fun verifyOtp(
         @Body request: VerifyOtpRequest
     ): Response<VerifyOtpResponse>

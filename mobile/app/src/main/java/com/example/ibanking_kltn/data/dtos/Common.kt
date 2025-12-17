@@ -61,3 +61,11 @@ enum class BillStatus {
     OVERDUE,
     CANCELED
 }
+
+data class  Pagination<T>(
+    val contents: List<T>,
+    val currentPage: Int,
+    val pageSize: Int,
+    val totalElements: Int,
+    val totalPages: Int
+)

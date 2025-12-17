@@ -745,7 +745,7 @@ fun QrCodeImage(
     modifier: Modifier = Modifier,
     content: QRPayload,
     size: Dp,
-    onSavedSuccess:()->Unit = {},
+    onSavedSuccess: () -> Unit = {},
 ) {
     val payload = jsonInstance().encodeToString(content)
     val bitmap = generateQrBitmap(payload, size = size.value.toInt())
@@ -1007,12 +1007,298 @@ fun BillFilterDialog(
 
 
 @Composable
+fun TransactionHistoryFilterDialog(
+    selectedStatus: String = "",
+    selectedSort: String = "",
+    onSelectStatus: (String) -> Unit = {},
+    onSelectSort: (String) -> Unit = {},
+    onResetStatusFilter: () -> Unit = {},
+    onResetSortFilter: () -> Unit = {},
+    onResetAll: () -> Unit = {},
+    onApply: () -> Unit = {},
+    onDismiss: () -> Unit = {}
+) {
+    val billStatusOptions = BillStatus.entries.map { status ->
+        when (status) {
+            BillStatus.ACTIVE -> {
+                return@map "Chưa thanh toán"
+            }
+
+            BillStatus.PAID -> {
+                return@map "Đã thanh toán"
+            }
+
+            BillStatus.OVERDUE -> {
+                return@map "Quá hạn"
+            }
+
+            BillStatus.CANCELED -> {
+                return@map "Đã hủy"
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = White1, shape = RoundedCornerShape(12.dp)
+            )
+            .padding(5.dp)
+    ) {
+        Box(
+            contentAlignment = Alignment.TopEnd,
+        ) {
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.padding(15.dp)
+            ) {
+
+
+                Text(
+                    text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
+                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Trạng thái hóa đơn",
+                                style = CustomTypography.bodyMedium,
+                                color = Gray1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "Bỏ lọc",
+                                style = CustomTypography.bodyMedium,
+                                color = Blue1,
+                                modifier = Modifier.clickable {
+                                    onResetStatusFilter()
+                                }
+                            )
+                        }
+
+                        CustomDropdownField(
+                            options = billStatusOptions,
+                            selectedOption = selectedStatus,
+                            onOptionSelected = {
+                                onSelectStatus(it)
+                            },
+                            placeholder = "Trạng thái hóa đơn"
+                        )
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Loại dịch vụ",
+                                style = CustomTypography.bodyMedium,
+                                color = Gray1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "Bỏ lọc",
+                                style = CustomTypography.bodyMedium,
+                                color = Blue1,
+                                modifier = Modifier.clickable {
+                                    onResetStatusFilter()
+                                }
+                            )
+                        }
+
+                        CustomDropdownField(
+                            options = billStatusOptions,
+                            selectedOption = selectedStatus,
+                            onOptionSelected = {
+                                onSelectStatus(it)
+                            },
+                            placeholder = "Loại dịch vụ"
+                        )
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Tài khoản thanh toán",
+                                style = CustomTypography.bodyMedium,
+                                color = Gray1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "Bỏ lọc",
+                                style = CustomTypography.bodyMedium,
+                                color = Blue1,
+                                modifier = Modifier.clickable {
+                                    onResetStatusFilter()
+                                }
+                            )
+                        }
+
+                        CustomDropdownField(
+                            options = billStatusOptions,
+                            selectedOption = selectedStatus,
+                            onOptionSelected = {
+                                onSelectStatus(it)
+                            },
+                            placeholder = "Tài khoản thanh toán"
+                        )
+                    }
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                    ) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Ngày",
+                                style = CustomTypography.bodyMedium,
+                                color = Gray1
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                text = "Bỏ lọc",
+                                style = CustomTypography.bodyMedium,
+                                color = Blue1,
+                                modifier = Modifier.clickable {
+                                    onResetStatusFilter()
+                                }
+                            )
+                        }
+
+                        CustomDropdownField(
+                            options = billStatusOptions,
+                            selectedOption = selectedStatus,
+                            onOptionSelected = {
+                                onSelectStatus(it)
+                            },
+                            placeholder = "Tài khoản thanh toán"
+                        )
+                    }
+
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Bỏ lọc",
+                        style = CustomTypography.bodyMedium,
+                        color = Blue1,
+                        modifier = Modifier.clickable {
+                            onResetSortFilter()
+                        })
+                }
+
+                CustomDropdownField(
+                    options = listOf("Mới nhất", "Cũ nhất"),
+                    selectedOption = selectedSort,
+                    onOptionSelected = {
+                        onSelectSort(it)
+                    },
+                    placeholder = "Sắp xếp theo"
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            onResetAll()
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Gray2
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "Đặt lại", style = CustomTypography.bodyMedium, color = Black1
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            onApply()
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Blue1
+                        ),
+                        shape = RoundedCornerShape(10.dp)
+                    ) {
+                        Text(
+                            text = "Áp dụng", style = CustomTypography.bodyMedium, color = White1
+                        )
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 0.dp, shape = RoundedCornerShape(10.dp)
+                    )
+                    .clickable {
+                        onDismiss()
+                    }) {
+
+                Icon(
+                    painter = painterResource(R.drawable.close),
+                    contentDescription = null,
+                    tint = Gray1,
+                    modifier = Modifier.size(35.dp)
+                )
+            }
+        }
+
+
+    }
+}
+
+
+@Composable
 @Preview()
 fun Preview() {
-    QrCodeImage(
-        content = BillPayload(
-            billCode = "1234567890",
-        ),
-        size = 200.dp,
-    )
+    TransactionHistoryFilterDialog()
 }

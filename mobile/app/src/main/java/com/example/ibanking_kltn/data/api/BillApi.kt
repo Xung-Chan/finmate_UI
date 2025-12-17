@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.data.api
 
+import com.example.ibanking_kltn.data.dtos.Pagination
 import com.example.ibanking_kltn.data.dtos.requests.CancelBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.CreateBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
@@ -45,7 +46,7 @@ interface BillApi {
     @POST("/api/bills/filter")
     suspend fun filterBill(
         @Body request: FilterBillRequest
-    ): Response<Unit>
+    ): Response<Pagination<BillResponse>>
 
 
 }

@@ -224,6 +224,7 @@ fun ChangePasswordScreen(
                                                 painter = painterResource(R.drawable.ok_status),
                                                 contentDescription = null,
                                                 tint = Green1,
+                                                modifier = Modifier.size(20.dp)
                                             )
                                         } else
 
@@ -233,6 +234,7 @@ fun ChangePasswordScreen(
                                                 ),
                                                 contentDescription = null,
                                                 tint = Red2,
+                                                modifier = Modifier.size(20.dp)
                                             )
 
 

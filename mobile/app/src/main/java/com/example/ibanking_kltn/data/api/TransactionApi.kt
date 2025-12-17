@@ -1,10 +1,13 @@
 package com.example.ibanking_kltn.data.api
 
+import com.example.ibanking_kltn.data.dtos.Pagination
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.DepositTransactionRequest
+import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
 import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
 import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
 import com.example.ibanking_kltn.data.dtos.responses.DepositTransactionResponse
+import com.example.ibanking_kltn.data.dtos.responses.HandleVNPayReturnResponse
 import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import retrofit2.Response
@@ -33,7 +36,7 @@ interface TransactionApi {
     ): Response<AllExpenseTypeResponse>
 
 
-    @POST("/api/transactions/gateway-deposit")
+    @POST("/api/transactions/gateway-deposit/")
     suspend fun createDepositTransaction(
         @Body request: DepositTransactionRequest
 
@@ -44,13 +47,20 @@ interface TransactionApi {
     suspend fun handleVNPayReturn(
         @Query("vnp_ResponseCode") vnp_ResponseCode: String,
         @Query("vnp_TxnRef") vnp_TxnRef: String,
-    ): Response<String>
+    ): Response<HandleVNPayReturnResponse>
 
 
     @GET("/api/transactions/{transactionId}")
     suspend fun getTransactionStatus(
         @Path ("transactionId") transactionId: String,
     ): Response<TransactionHistoryResponse>
+
+
+    @POST("/api/transactions/filter")
+    suspend fun getTransactionHistory(
+       @Body request : FilterTransactionRequest
+    ): Response<Pagination<TransactionHistoryResponse>>
+
 
 
 }

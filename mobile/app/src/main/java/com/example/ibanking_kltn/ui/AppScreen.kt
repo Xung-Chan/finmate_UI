@@ -40,6 +40,7 @@ import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.QRScannerScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
@@ -54,6 +55,7 @@ import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
+import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
 import com.example.ibanking_kltn.utils.GradientSnackBar
@@ -62,12 +64,7 @@ import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
 
 enum class Screens {
-    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home,
-    TransactionResult, Transfer, ConfirmPayment,
-    Settings,
-    PayBill, CreateBill, BillHistory, BillDetail,
-    Deposit, HandleDepositResult,
-    QRScanner
+    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home, TransactionResult, Transfer, ConfirmPayment, Settings, PayBill, CreateBill, BillHistory, BillDetail, TransactionHistory, TransactionHistoryDetail, Deposit, HandleDepositResult, QRScanner
 }
 
 @Composable
@@ -88,7 +85,7 @@ fun AppScreen(
     val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
     val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
-
+    val transactionHistoryViewModel: TransactionHistoryViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(Service.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -98,8 +95,7 @@ fun AppScreen(
 
     val onError: (String) -> Unit = { message ->
         appViewModel.showSnackBarMessage(
-            message = message,
-            type = SnackBarType.ERROR
+            message = message, type = SnackBarType.ERROR
         )
     }
 
@@ -117,8 +113,7 @@ fun AppScreen(
             onNavigateToAnalyticsScreen = {},
             onNavigateToQRScanner = {
                 navController.navigate(Screens.QRScanner.name)
-            }
-        )
+            })
     }
 
     Box(
@@ -127,8 +122,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-            navController = navController,
-            startDestination = Screens.SignIn.name
+            navController = navController, startDestination = Screens.SignIn.name
         ) {
             composable(route = Screens.SignIn.name) {
                 val authUiState by authViewModel.uiState.collectAsState()
@@ -137,26 +131,35 @@ fun AppScreen(
                     onLoginClick = {
 
                         //api
-//                    authViewModel.onLoginClick(
-//                        onSuccess = {
-//                            navController.navigate(Screens.Home.name) {
-////                                popUpTo(Screens.SignIn.name) {
-////                                    inclusive = true
-////                                }
-//                            }
-//                        }
-//                    )
+                        authViewModel.onLoginClick(
+                            onSuccess = {
+                                navController.navigate(Screens.Home.name) {
+//                                popUpTo(Screens.SignIn.name) {
+//                                    inclusive = true
+//                                }
+                                }
+                                appViewModel.showSnackBarMessage(
+                                    message = "Đăng nhập thành công",
+                                    type = SnackBarType.SUCCESS,
+                                    actionLabel = "Đóng",
+                                    onAction = {
+                                        appViewModel.closeSnackBarMessage()
+                                    })
+                            },
+                            onError = {
+                                message->onError(message)
+                            },
+                        )
 
                         //mock
-                        navController.navigate(Screens.Home.name)
-                        appViewModel.showSnackBarMessage(
-                            message = "Đăng nhập thành công",
-                            type = SnackBarType.SUCCESS,
-                            actionLabel = "Đóng",
-                            onAction = {
-                                appViewModel.closeSnackBarMessage()
-                            }
-                        )
+//                        navController.navigate(Screens.Home.name)
+//                        appViewModel.showSnackBarMessage(
+//                            message = "Đăng nhập thành công",
+//                            type = SnackBarType.SUCCESS,
+//                            actionLabel = "Đóng",
+//                            onAction = {
+//                                appViewModel.closeSnackBarMessage()
+//                            })
                     },
                     onEmailChange = { it -> authViewModel.onEmailChange(it) },
                     onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
@@ -181,65 +184,51 @@ fun AppScreen(
                                     actionLabel = "Đóng",
                                     onAction = {
                                         appViewModel.closeSnackBarMessage()
-                                    }
-                                )
+                                    })
                             },
                             onError = { message ->
                                 appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
+                                    message = message, type = SnackBarType.ERROR
                                 )
-                            }
-                        )
+                            })
 
-                    }
-                )
+                    })
 
             }
             composable(route = Screens.TransactionResult.name) {
                 val transactionResultUiState by transactionResultViewModel.uiState.collectAsState()
-                TransactionResultScreen(
-                    onBackToHomeClick = {
-                        navController.navigate(Screens.Home.name) {
-                            popUpTo(Screens.Home.name) {
-                                inclusive = true
-                            }
+                TransactionResultScreen(onBackToHomeClick = {
+                    navController.navigate(Screens.Home.name) {
+                        popUpTo(Screens.Home.name) {
+                            inclusive = true
                         }
-                    },
-                    uiState = transactionResultUiState,
-                    onContactClick = {}
-                )
+                    }
+                }, uiState = transactionResultUiState, onContactClick = {})
             }
             composable(route = Screens.Home.name) {
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
-//                homeViewModel.init()
-//                authViewModel.clearState()
+                    homeViewModel.init()
+                    authViewModel.clearState()
                 }
                 HomeScreen(
-                    homeUiState = homeUiState,
-                    onChangeVisibleBalance = {
+                    homeUiState = homeUiState, onChangeVisibleBalance = {
                         homeViewModel.onChangeVisibleBalance()
                     },
 
                     onNavigateToTransferScreen = {
                         transferViewModel.clearState()
                         navController.navigate(Screens.Transfer.name)
-                    },
-                    onNavigateToDeposit = {
+                    }, onNavigateToDeposit = {
                         navController.navigate(Screens.Deposit.name)
-                    },
-                    onNavigateToPayBillScreen = {
+                    }, onNavigateToPayBillScreen = {
                         payBillViewModel.init()
                         navController.navigate(Screens.PayBill.name)
-                    },
-                    navigationBar = { navigationBar() },
-                    onNavigateToBillHistoryScreen = {
+                    }, navigationBar = { navigationBar() }, onNavigateToBillHistoryScreen = {
                         billHistoryViewModel.clearState()
                         navController.navigate(Screens.BillHistory.name)
-                    }
-                )
+                    })
             }
             composable(route = Screens.Transfer.name) {
                 val transferUiState by transferViewModel.uiState.collectAsState()
@@ -289,40 +278,32 @@ fun AppScreen(
                     uiState = confirmUiState,
                     onBackClick = { navController.popBackStack() },
                     onConfirmClick = {
-                        confirmViewModel.onConfirmClick(
-                            onSentOtp = {
-                                appViewModel.showSnackBarMessage(
-                                    message = "Đã gửi mã OTP đến email của bạn",
-                                    type = SnackBarType.INFO,
+                        confirmViewModel.onConfirmClick(onSentOtp = {
+                            appViewModel.showSnackBarMessage(
+                                message = "Đã gửi mã OTP đến email của bạn",
+                                type = SnackBarType.INFO,
 
-                                    )
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
                                 )
-                            }
-                        )
+                        }, onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
                     },
                     onOtpChange = {
-                        confirmViewModel.onOtpChange(
-                            otp = it,
-                            onSuccess = {
-                                transactionResultViewModel.init(
-                                    status = TransactionStatus.COMPLETED,
-                                    service = service.name,
-                                    amount = confirmUiState.amount,
-                                    toMerchantName = confirmUiState.toMerchantName
-                                )
-                                navController.navigate(Screens.TransactionResult.name)
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            })
+                        confirmViewModel.onOtpChange(otp = it, onSuccess = {
+                            transactionResultViewModel.init(
+                                status = TransactionStatus.COMPLETED,
+                                service = service.name,
+                                amount = confirmUiState.amount,
+                                toMerchantName = confirmUiState.toMerchantName
+                            )
+                            navController.navigate(Screens.TransactionResult.name)
+                        }, onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
                     },
                     onOtpDismiss = {
                         confirmViewModel.onOtpDismiss()
@@ -333,42 +314,35 @@ fun AppScreen(
 
                 val uiState by payBillViewModel.uiState.collectAsState()
                 service = Service.PAY_BILL
-//                LaunchedEffect(Unit) {
-//                    payBillViewModel.init()
-//                }
+                LaunchedEffect(Unit) {
+                    payBillViewModel.init()
+                }
 
-                PayBillScreen(
-                    uiState = uiState,
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    onCheckingBill = {
-                        payBillViewModel.onCheckingBill()
-                    },
-                    onConfirmPayBill = {
-                        confirmViewModel.clearState()
-                        val billData = payBillViewModel.uiState.value
-                        confirmViewModel.init(
-                            accountType = billData.accountType,
-                            amount = billData.amount,
-                            toWalletNumber = billData.toWalletNumber,
-                            description = if (billData.description.isNotEmpty()) removeVietnameseAccents(
-                                billData.description
-                            ) else "Chuyen tien den ${billData.toMerchantName}",
-                            toMerchantName = billData.toMerchantName,
-                            billCode = billData.billCode,
-                            service = service
-                        )
-                        navController.navigate(Screens.ConfirmPayment.name)
+                PayBillScreen(uiState = uiState, onBackClick = {
+                    navController.popBackStack()
+                }, onCheckingBill = {
+                    payBillViewModel.onCheckingBill()
+                }, onConfirmPayBill = {
+                    confirmViewModel.clearState()
+                    val billData = payBillViewModel.uiState.value
+                    confirmViewModel.init(
+                        accountType = billData.accountType,
+                        amount = billData.amount,
+                        toWalletNumber = billData.toWalletNumber,
+                        description = if (billData.description.isNotEmpty()) removeVietnameseAccents(
+                            billData.description
+                        ) else "Chuyen tien den ${billData.toMerchantName}",
+                        toMerchantName = billData.toMerchantName,
+                        billCode = billData.billCode,
+                        service = service
+                    )
+                    navController.navigate(Screens.ConfirmPayment.name)
 
-                    },
-                    onChangeBillCode = {
-                        payBillViewModel.onChangeBillCode(it)
-                    },
-                    onChangeAccountType = {
-                        payBillViewModel.onChangeAccountType(it)
-                    }
-                )
+                }, onChangeBillCode = {
+                    payBillViewModel.onChangeBillCode(it)
+                }, onChangeAccountType = {
+                    payBillViewModel.onChangeAccountType(it)
+                })
             }
             composable(route = Screens.ChangePassword.name) {
                 val uiState by changePasswordViewModel.uiState.collectAsState()
@@ -383,17 +357,13 @@ fun AppScreen(
                     onChangeNewPassword = { changePasswordViewModel.onChangeNewPassword(it) },
 
                     onConfirmChangePassword = {
-                        changePasswordViewModel.onConfirmChangePassword(
-                            onChangeSuccess = {
-                                navController.navigate(Screens.ChangePasswordSuccess.name)
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            }
-                        )
+                        changePasswordViewModel.onConfirmChangePassword(onChangeSuccess = {
+                            navController.navigate(Screens.ChangePasswordSuccess.name)
+                        }, onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
                     },
                     onBackClick = { navController.popBackStack() },
 
@@ -416,8 +386,7 @@ fun AppScreen(
                                 inclusive = true
                             }
                         }
-                    }
-                )
+                    })
             }
             composable(route = Screens.Settings.name) {
                 tabNavigation = TabNavigation.PROFILE
@@ -437,103 +406,73 @@ fun AppScreen(
                 LaunchedEffect(Unit) {
                     forgotPasswordViewModel.clearState()
                 }
-                ForgotPasswordScreen(
-                    uiState = uiState,
+                ForgotPasswordScreen(uiState = uiState,
                     onFindUsernameClick = {
-                        forgotPasswordViewModel.onFindUsernameClick(
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            }
-                        )
-                    },
-                    onUsernameChange = {
-                        forgotPasswordViewModel.onUsernameChange(it)
-                    },
-                    onSendOtpClick = {
-                        forgotPasswordViewModel.onSendOtpClick(
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            }
-                        )
-                    },
-                    onEmailChange = {
+                    forgotPasswordViewModel.onFindUsernameClick(
+                        onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
+                }, onUsernameChange = {
+                    forgotPasswordViewModel.onUsernameChange(it)
+                }, onSendOtpClick = {
+                    forgotPasswordViewModel.onSendOtpClick(
+                        onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
+                }, onEmailChange = {
 
-                        forgotPasswordViewModel.onEmailChange(it)
-                    },
-                    onConfirmOtpClick = {
-                        forgotPasswordViewModel.onConfirmOtpClick(
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            }
+                    forgotPasswordViewModel.onEmailChange(it)
+                }, onConfirmOtpClick = {
+                    forgotPasswordViewModel.onConfirmOtpClick(
+                        onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.ERROR
+                            )
+                        })
+                }, onOtpChange = {
+                    forgotPasswordViewModel.onOtpChange(it)
+                }, onResetPasswordClick = {
+                    forgotPasswordViewModel.onResetPasswordClick(onSuccess = {
+                        navController.navigate(Screens.SignIn.name)
+                        appViewModel.showSnackBarMessage(
+                            message = "Đổi mật khẩu thành công", type = SnackBarType.SUCCESS
                         )
-                    },
-                    onOtpChange = {
-                        forgotPasswordViewModel.onOtpChange(it)
-                    },
-                    onResetPasswordClick = {
-                        forgotPasswordViewModel.onResetPasswordClick(
-                            onSuccess = {
-                                navController.navigate(Screens.SignIn.name)
-                                appViewModel.showSnackBarMessage(
-                                    message = "Đổi mật khẩu thành công",
-                                    type = SnackBarType.SUCCESS
-                                )
-                            }, onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
-                                )
-                            }
+                    }, onError = { message ->
+                        appViewModel.showSnackBarMessage(
+                            message = message, type = SnackBarType.ERROR
                         )
-                    },
-                    onNewPasswordChange = {
-                        forgotPasswordViewModel.onNewPasswordChange(it)
-                    },
-                    onBackToEnterEmailClick = {
-                        forgotPasswordViewModel.onBackToEnterEmailClick()
-                    },
-                    onBackToEnterUsernameClick = {
-                        forgotPasswordViewModel.onBackToEnterUsernameClick()
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    onChangeVisiblePassword = {
-                        forgotPasswordViewModel.onChangeVisiblePassword()
-                    }
-                )
+                    })
+                }, onNewPasswordChange = {
+                    forgotPasswordViewModel.onNewPasswordChange(it)
+                }, onBackToEnterEmailClick = {
+                    forgotPasswordViewModel.onBackToEnterEmailClick()
+                }, onBackToEnterUsernameClick = {
+                    forgotPasswordViewModel.onBackToEnterUsernameClick()
+                }, onBackClick = {
+                    navController.popBackStack()
+                }, onChangeVisiblePassword = {
+                    forgotPasswordViewModel.onChangeVisiblePassword()
+                })
             }
             composable(route = Screens.Deposit.name) {
                 val uiState by depositViewModel.uiState.collectAsState()
                 GatewayDeposit(
                     onBackClick = {
                         navController.navigate(Screens.Home.name)
-                    },
-                    onContinuePayment = {
+                    }, onContinuePayment = {
                         depositViewModel.onContinuePayment(
-                            context = context,
-                            onError = { message ->
+                            context = context, onError = { message ->
                                 appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.ERROR
+                                    message = message, type = SnackBarType.ERROR
                                 )
-                            }
-                        )
-                    },
-                    uiState = uiState,
-                    onChangeAmount = {
+                            })
+                    }, uiState = uiState, onChangeAmount = {
                         depositViewModel.onAmountChange(it)
-                    },
-                    isEnableContinue = depositViewModel.isEnableContinuePayment()
+                    }, isEnableContinue = depositViewModel.isEnableContinuePayment()
                 )
             }
             composable(
@@ -542,26 +481,24 @@ fun AppScreen(
                     navDeepLink {
                         uriPattern =
                             "ibanking://vnpay-return?vnp_Amount={vnp_Amount}&vnp_BankCode={vnp_BankCode}&vnp_BankTranNo={vnp_BankTranNo}&vnp_CardType={vnp_CardType}&vnp_OrderInfo={vnp_OrderInfo}&vnp_PayDate={vnp_PayDate}&vnp_ResponseCode={vnp_ResponseCode}&vnp_TmnCode={vnp_TmnCode}&vnp_TransactionNo={vnp_TransactionNo}&vnp_TransactionStatus={vnp_TransactionStatus}&vnp_TxnRef={vnp_TxnRef}&vnp_SecureHash={vnp_SecureHash}"
-                    }
-                ),
+                    }),
                 arguments = listOf(
                     navArgument("vnp_TxnRef") { type = NavType.StringType; nullable = true },
-                    navArgument("vnp_ResponseCode") { type = NavType.StringType; nullable = true }
-                )) { backStackEntry ->
+                    navArgument("vnp_ResponseCode") {
+                        type = NavType.StringType; nullable = true
+                    })
+            ) { backStackEntry ->
 
                 LaunchedEffect(Unit) {
-                    val txnRef =
-                        backStackEntry.arguments?.getString("vnp_TxnRef") ?: ""
-                    val responseCode =
-                        backStackEntry.arguments?.getString("vnp_ResponseCode") ?: ""
+                    val txnRef = backStackEntry.arguments?.getString("vnp_TxnRef") ?: ""
+                    val responseCode = backStackEntry.arguments?.getString("vnp_ResponseCode") ?: ""
 
                     depositViewModel.handleVNPayReturn(
                         vnp_ResponseCode = responseCode,
                         vnp_TxnRef = txnRef,
                         onError = {
                             appViewModel.showSnackBarMessage(
-                                message = it,
-                                type = SnackBarType.ERROR
+                                message = it, type = SnackBarType.ERROR
                             )
                         },
                         onNavigateToTransactionResult = {
@@ -573,8 +510,7 @@ fun AppScreen(
                                     ?: "UNKNOWN"
                             )
                             navController.navigate(Screens.TransactionResult.name)
-                        }
-                    )
+                        })
                 }
 
 
@@ -584,38 +520,32 @@ fun AppScreen(
                 QRScannerScreen(
                     uiState = uiState,
                     detecting = {
-                        qrScannerViewModel.onDetecting(
-                            qrCode = it,
-                            onBillDetecting = { payload ->
-                                payBillViewModel.init()
-                                navController.navigate(Screens.PayBill.name) {
-                                    launchSingleTop = true
-                                    popUpTo(Screens.Home.name)
-                                }
-                                payBillViewModel.onChangeBillCode(payload.billCode)
-                                payBillViewModel.onCheckingBill()
-                            },
-                            onTransferDetecting = { payload ->
-                                transferViewModel.init()
-                                transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
-                                payload.amount?.let { amount ->
-                                    transferViewModel.onAmountChange(amount.toString())
-                                }
-                                navController.navigate(Screens.Transfer.name) {
-                                    launchSingleTop = true
-                                    popUpTo(Screens.Home.name)
-
-                                }
-                                transferViewModel.onDoneWalletNumber()
-
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.INFO
-                                )
+                        qrScannerViewModel.onDetecting(qrCode = it, onBillDetecting = { payload ->
+                            payBillViewModel.init()
+                            navController.navigate(Screens.PayBill.name) {
+                                launchSingleTop = true
+                                popUpTo(Screens.Home.name)
                             }
-                        )
+                            payBillViewModel.onChangeBillCode(payload.billCode)
+                            payBillViewModel.onCheckingBill()
+                        }, onTransferDetecting = { payload ->
+                            transferViewModel.init()
+                            transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
+                            payload.amount?.let { amount ->
+                                transferViewModel.onAmountChange(amount.toString())
+                            }
+                            navController.navigate(Screens.Transfer.name) {
+                                launchSingleTop = true
+                                popUpTo(Screens.Home.name)
+
+                            }
+                            transferViewModel.onDoneWalletNumber()
+
+                        }, onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.INFO
+                            )
+                        })
                     },
                 )
             }
@@ -624,91 +554,118 @@ fun AppScreen(
                 QRScannerScreen(
                     uiState = uiState,
                     detecting = {
-                        qrScannerViewModel.onDetecting(
-                            qrCode = it,
-                            onBillDetecting = {
-                                payBillViewModel.init()
-                                navController.navigate(Screens.PayBill.name) {
-                                    launchSingleTop = true
-                                    popUpTo(Screens.Home.name)
-                                }
-                                payBillViewModel.onChangeBillCode(it.billCode)
-                                payBillViewModel.onCheckingBill()
-                            },
-                            onTransferDetecting = { payload ->
-                                transferViewModel.init()
-                                transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
-                                payload.amount?.let { amount ->
-                                    transferViewModel.onAmountChange(amount.toString())
-                                }
-                                navController.navigate(Screens.Transfer.name) {
-                                    launchSingleTop = true
-                                    popUpTo(Screens.Home.name)
-
-                                }
-                                transferViewModel.onDoneWalletNumber()
-
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message,
-                                    type = SnackBarType.INFO
-                                )
+                        qrScannerViewModel.onDetecting(qrCode = it, onBillDetecting = {
+                            payBillViewModel.init()
+                            navController.navigate(Screens.PayBill.name) {
+                                launchSingleTop = true
+                                popUpTo(Screens.Home.name)
                             }
-                        )
+                            payBillViewModel.onChangeBillCode(it.billCode)
+                            payBillViewModel.onCheckingBill()
+                        }, onTransferDetecting = { payload ->
+                            transferViewModel.init()
+                            transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
+                            payload.amount?.let { amount ->
+                                transferViewModel.onAmountChange(amount.toString())
+                            }
+                            navController.navigate(Screens.Transfer.name) {
+                                launchSingleTop = true
+                                popUpTo(Screens.Home.name)
+
+                            }
+                            transferViewModel.onDoneWalletNumber()
+
+                        }, onError = { message ->
+                            appViewModel.showSnackBarMessage(
+                                message = message, type = SnackBarType.INFO
+                            )
+                        })
                     },
                 )
             }
             composable(route = Screens.BillHistory.name) { backStackEntry ->
                 val uiState by billHistoryViewModel.uiState.collectAsState()
                 val bills = billHistoryViewModel.billPager.collectAsLazyPagingItems()
-                BillHistoryScreen(
+                BillHistoryScreen(uiState = uiState, bills = bills, onClickFilter = {
+                    billHistoryViewModel.onClickFilter()
+                }, onResetAll = {
+                    billHistoryViewModel.onResetAll(
+                        onError = onError
+                    )
+                }, onApply = { selectedStatus, selectedSort ->
+                    billHistoryViewModel.onApply(
+                        onError = onError,
+                        selectedStatus = selectedStatus,
+                        selectedSort = selectedSort,
+                    )
+                }, onErrorLoading = {
+                    appViewModel.showSnackBarMessage(
+                        message = it, type = SnackBarType.ERROR
+                    )
+                }, onViewDetail = { bill ->
+                    billDetailViewModel.init(bill = bill)
+                    navController.navigate(Screens.BillDetail.name)
+                }, onBackClick = {
+                    navController.popBackStack()
+                })
+            }
+            composable(route = Screens.BillDetail.name) { backStackEntry ->
+                val bill by billDetailViewModel.uiState.collectAsState()
+                BillDetailScreen(bill = bill, onSavedSuccess = {
+                    appViewModel.showSnackBarMessage(
+                        message = "Lưu hóa đơn thành công", type = SnackBarType.SUCCESS
+                    )
+                }, onBackClick = {
+                    navController.popBackStack()
+                })
+            }
+            //TODO
+            composable(route = Screens.TransactionHistory.name) { backStackEntry ->
+                val uiState by transactionHistoryViewModel.uiState.collectAsState()
+                val transactions =
+                    transactionHistoryViewModel.transactionHistoryPager.collectAsLazyPagingItems()
+                TransactionHistoryScreen(
                     uiState = uiState,
-                    bills = bills,
-                    onClickFilter = {
-                        billHistoryViewModel.onClickFilter()
-                    },
-                    onResetAll = {
-                        billHistoryViewModel.onResetAll(
-                            onError = onError
-                        )
-                    },
-                    onApply = { selectedStatus, selectedSort ->
-                        billHistoryViewModel.onApply(
-                            onError = onError,
-                            selectedStatus = selectedStatus,
-                            selectedSort = selectedSort,
-                        )
-                    },
-                    onErrorLoading = {
-                        appViewModel.showSnackBarMessage(
-                            message = it,
-                            type = SnackBarType.ERROR
-                        )
-                    },
-                    onViewDetail = { bill ->
-                        billDetailViewModel.init(bill = bill)
-                        navController.navigate(Screens.BillDetail.name)
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
+                    transactions = transactions,
+//                    onClickFilter = {
+//                        billHistoryViewModel.onClickFilter()
+//                    },
+//                    onResetAll = {
+//                        billHistoryViewModel.onResetAll(
+//                            onError = onError
+//                        )
+//                    },
+//                    onApply = { selectedStatus, selectedSort ->
+//                        billHistoryViewModel.onApply(
+//                            onError = onError,
+//                            selectedStatus = selectedStatus,
+//                            selectedSort = selectedSort,
+//                        )
+//                    },
+//                    onErrorLoading = {
+//                        appViewModel.showSnackBarMessage(
+//                            message = it,
+//                            type = SnackBarType.ERROR
+//                        )
+//                    },
+//                    onViewDetail = { bill ->
+//                        billDetailViewModel.init(bill = bill)
+//                        navController.navigate(Screens.BillDetail.name)
+//                    },
+//                    onBackClick = {
+//                        navController.popBackStack()
+//                    }
                 )
             }
             composable(route = Screens.BillDetail.name) { backStackEntry ->
                 val bill by billDetailViewModel.uiState.collectAsState()
-                BillDetailScreen(
-                    bill = bill,
-                    onSavedSuccess = {
-                        appViewModel.showSnackBarMessage(
-                            message = "Lưu hóa đơn thành công",
-                            type = SnackBarType.SUCCESS
-                        )
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
+                BillDetailScreen(bill = bill, onSavedSuccess = {
+                    appViewModel.showSnackBarMessage(
+                        message = "Lưu hóa đơn thành công", type = SnackBarType.SUCCESS
+                    )
+                }, onBackClick = {
+                    navController.popBackStack()
+                })
             }
 
         }

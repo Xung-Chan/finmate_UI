@@ -113,6 +113,7 @@ class BillViewModel @Inject constructor(
                             screenState = StateType.SUCCESS,
                             checkingState = StateType.SUCCESS,
                             toMerchantName = data.merchantName,
+                            toWalletNumber = data.walletNumber,
                             amount = data.amount,
                             description = data.description,
                             dueDate = data.dueDate

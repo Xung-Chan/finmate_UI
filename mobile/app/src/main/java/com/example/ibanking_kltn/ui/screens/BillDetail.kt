@@ -40,7 +40,7 @@ import com.example.ibanking_kltn.utils.DashedDivider
 import com.example.ibanking_kltn.utils.QrCodeImage
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -256,7 +256,7 @@ fun BillDetailScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
-                                text = formatterDateString(LocalDate.parse(bill.dueDate)),
+                                text = formatterDateString(LocalDateTime.parse(bill.dueDate).toLocalDate()),
                                 style = CustomTypography.titleSmall,
                                 color = Black1,
                             )
@@ -365,7 +365,7 @@ fun BillDetailPreview() {
             billStatus = "PAID",
             description = "Thanh toán dịch vụ Internet tháng 12",
             metadata = mapOf("orderId" to "ORD-123456"),
-            qrIdentifier = "ABC-QR-CODE-12345",
+            qrIdentifier = "01KCNM2ZWMGEFHK4QJFBSC6K7Z",
             walletNumber = "0987654321"
         ),
         onSavedSuccess = {},

@@ -16,7 +16,7 @@ data class RequestOtpResponse(
 )
 
 data class VerifyOtpResponse(
-    val maskedMail: String,
-    val verifyKeyDurationMinutes: Long,
-    val verifyKey: String
+
+    val email: String,
+    val resetPasswordToken: String
 )

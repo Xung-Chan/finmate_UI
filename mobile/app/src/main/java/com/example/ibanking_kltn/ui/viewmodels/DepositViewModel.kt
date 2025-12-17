@@ -16,6 +16,7 @@ import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,17 +33,13 @@ class DepositViewModel @Inject constructor(
     val uiState: StateFlow<DepositUiState> = _uiState.asStateFlow()
 
     fun openCustomTab(context: Context, url: String) {
-        val customTabsIntent = CustomTabsIntent.Builder()
-            .setShowTitle(true)
-            .build()
+        val customTabsIntent = CustomTabsIntent.Builder().setShowTitle(true).build()
 
         customTabsIntent.launchUrl(context, url.toUri())
     }
 
     fun onAmountChange(amount: String) {
-        val formatAmount = amount
-            .replace(".", "")
-            .replace(",", "")
+        val formatAmount = amount.replace(".", "").replace(",", "")
         if (formatAmount == "") {
             _uiState.update {
                 it.copy(amount = 0L)
@@ -53,8 +50,9 @@ class DepositViewModel @Inject constructor(
             it.copy(amount = formatAmount.toLong())
         }
     }
+
     fun isEnableContinuePayment(): Boolean {
-        return uiState.value.amount >= 10000L && uiState.value.screenState!= StateType.LOADING
+        return uiState.value.amount >= 10000L && uiState.value.screenState != StateType.LOADING
     }
 
     fun onContinuePayment(
@@ -72,6 +70,11 @@ class DepositViewModel @Inject constructor(
             val apiResult = transactionRepository.createDepositTransaction(request)
             when (apiResult) {
                 is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.FAILED(apiResult.message)
+                        )
+                    }
                     onError(apiResult.message)
                 }
 
@@ -82,8 +85,7 @@ class DepositViewModel @Inject constructor(
                         )
                     }
                     openCustomTab(
-                        context = context,
-                        url = apiResult.data.url
+                        context = context, url = apiResult.data.url
                     )
                 }
             }
@@ -97,11 +99,12 @@ class DepositViewModel @Inject constructor(
         onError: (String) -> Unit,
         onNavigateToTransactionResult: (TransactionResultUiState) -> Unit
     ) {
+        var retries = 10
+        var errorMessage = ""
         viewModelScope.launch {
             var transactionId = ""
             val handleResult = transactionRepository.handleVNPayReturn(
-                vnp_ResponseCode = vnp_ResponseCode,
-                vnp_TxnRef = vnp_TxnRef
+                vnp_ResponseCode = vnp_ResponseCode, vnp_TxnRef = vnp_TxnRef
             )
             when (handleResult) {
                 is ApiResult.Error -> {
@@ -110,37 +113,55 @@ class DepositViewModel @Inject constructor(
                 }
 
                 is ApiResult.Success -> {
-                    transactionId = handleResult.data
+                    transactionId = handleResult.data.transactionId
                 }
             }
-            val statusResult = transactionRepository.getTransactionStatus(
-                transactionId = transactionId
-            )
-            when (statusResult) {
-                is ApiResult.Error -> {
-                    onError(statusResult.message)
-                    return@launch
-                }
+            while (retries > 0) {
 
-                is ApiResult.Success -> {
-                    val transactionHistory = statusResult.data
-                    val transactionResultUiState = TransactionResultUiState(
-                        service = "Nạp tiền qua VNPAY",
-                        amount = transactionHistory.amount.toLong(),
-                        status = when(transactionHistory.status){
-                            "PENDING"-> TransactionStatus.PENDING
-                            "COMPLETED"-> TransactionStatus.COMPLETED
-                            "PROCESSING" -> TransactionStatus.PROCESSING
-                            "FAILED"-> TransactionStatus.FAILED
-                            "CANCELED"-> TransactionStatus.CANCELED
-                            else-> TransactionStatus.FAILED
+                val statusResult = transactionRepository.getTransactionStatus(
+                    transactionId = transactionId
+                )
+                when (statusResult) {
+                    is ApiResult.Error -> {
+                        errorMessage = statusResult.message
+                    }
+
+                    is ApiResult.Success -> {
+                        val transactionHistory = statusResult.data
+                        val transactionResultUiState = TransactionResultUiState(
+                            service = "Nạp tiền qua VNPAY",
+                            amount = transactionHistory.amount.toLong(),
+                            status = when (transactionHistory.status) {
+                                "PENDING" -> TransactionStatus.PENDING
+                                "COMPLETED" -> TransactionStatus.COMPLETED
+                                "PROCESSING" -> TransactionStatus.PROCESSING
+                                "FAILED" -> TransactionStatus.FAILED
+                                "CANCELED" -> TransactionStatus.CANCELED
+                                else -> TransactionStatus.FAILED
+                            }
+                        )
+
+                        if(retries==1){
+                            onNavigateToTransactionResult(transactionResultUiState)
+                            return@launch
+
                         }
-                    )
-                    onNavigateToTransactionResult(transactionResultUiState)
+
+                        if (transactionHistory.status != "PENDING" && transactionHistory.status != "PROCESSING") {
+                            onNavigateToTransactionResult(transactionResultUiState)
+                            return@launch
+                        }
+
+                    }
+
+
                 }
+                delay(1000L)
 
-
+                retries--
             }
+
+            onError(errorMessage)
 
         }
     }

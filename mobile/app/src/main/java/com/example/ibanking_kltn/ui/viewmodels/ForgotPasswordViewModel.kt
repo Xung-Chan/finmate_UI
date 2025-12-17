@@ -169,7 +169,7 @@ class ForgotPasswordViewModel @Inject constructor(
                     val response = apiResult.data
                     _uiState.update {
                         it.copy(
-                            token = response.verifyKey,
+                            token = response.resetPasswordToken,
                             screenState = StateType.SUCCESS,
                             currentStep = ForgotPasswordStep.RESET_PASSWORD
                         )

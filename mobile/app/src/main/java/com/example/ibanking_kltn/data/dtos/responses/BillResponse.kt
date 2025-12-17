@@ -27,10 +27,10 @@ data class BillingCycleResponse(
     val totalSpent: Double
 )
 
-data class FilterBillResponse(
-    val contents: List<BillResponse>,
-    val currentPage: Int,
-    val pageSize: Int,
-    val totalElements: Int,
-    val totalPages: Int
-)
+//data class FilterBillResponse(
+//    val contents: List<BillResponse>,
+//    val currentPage: Int,
+//    val pageSize: Int,
+//    val totalElements: Int,
+//    val totalPages: Int
+//)
