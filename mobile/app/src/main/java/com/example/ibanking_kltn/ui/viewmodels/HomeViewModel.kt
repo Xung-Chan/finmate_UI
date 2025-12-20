@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
+    private val serviceManager: ServiceManager,
     @ApplicationContext private val context: Context
 ) : ViewModel(), IViewModel {
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -35,13 +37,26 @@ class HomeViewModel @Inject constructor(
         ).show()
     }
 
-     fun init() {
+    fun init() {
         clearState()
         loadWalletInfo()
+        loadFavoriteAndRecentServices()
     }
 
     override fun clearState() {
         _uiState.value = HomeUiState()
+    }
+
+    fun loadFavoriteAndRecentServices() {
+        val favoriteServices = serviceManager.getFavoriteServices()
+        val recentServices = serviceManager.getRecentServices()
+
+        _uiState.update {
+            it.copy(
+                favoriteServices = favoriteServices,
+                recentServices = recentServices
+            )
+        }
     }
 
     fun loadWalletInfo() {

@@ -1,12 +1,13 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.ServiceManager
+import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.dtos.ServiceItem
 import com.example.ibanking_kltn.ui.uistates.SnackBarState
 import com.example.ibanking_kltn.utils.SnackBarType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -19,7 +20,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val serviceManager: ServiceManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SnackBarState())
     val uiState: StateFlow<SnackBarState> = _uiState.asStateFlow()
@@ -54,6 +55,13 @@ class AppViewModel @Inject constructor(
             delay(3000L)
             closeSnackBarMessage()
         }
+    }
+
+    fun addRecentService(service: ServiceCategory) {
+        serviceManager.addRecentService(ServiceItem(
+            service = service.name,
+            lastUsed = System.currentTimeMillis()
+        ))
     }
 
 }

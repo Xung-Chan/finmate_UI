@@ -29,38 +29,82 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.AccountType
+import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.data.dtos.SortOption
+import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
+import com.example.ibanking_kltn.ui.theme.Green1
+import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
-import com.example.ibanking_kltn.utils.BillFilterDialog
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.TransactionHistoryFilterDialog
+import com.example.ibanking_kltn.utils.formatterDateString
+import com.example.ibanking_kltn.utils.formatterVND
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionHistoryScreen(
     uiState: TransactionHistoryUiState,
-    transactions: LazyPagingItems<TransactionHistoryResponse>
+    transactions: LazyPagingItems<TransactionHistoryResponse>,
+    onErrorLoading: (String) -> Unit,
+    onClickFilter: () -> Unit,
+    onBackClick: () -> Unit,
+    onApply: (
+        TransactionStatus?,
+        ServiceType?,
+        AccountType?,
+        SortOption,
+    ) -> Unit,
+    onResetAll: () -> Unit,
+    onViewDetail: (TransactionHistoryResponse) -> Unit,
 ) {
     val refreshState = rememberPullToRefreshState()
+    var selectedStatus by remember {
+        mutableStateOf<TransactionStatus?>(null)
+    }
+
+    var selectedService by remember {
+        mutableStateOf<ServiceType?>(null)
+    }
+
+    var selectedAccountType by remember {
+        mutableStateOf<AccountType?>(null)
+    }
+
+    var selectedSort by remember {
+        mutableStateOf(SortOption.NEWEST)
+    }
+
+
+
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
@@ -71,7 +115,9 @@ fun TransactionHistoryScreen(
                         Text(text = stringResource(R.string.TransactionHistory_Title))
                     },
                     navigationIcon = {
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = {
+                            onBackClick()
+                        }) {
                             Icon(
                                 Icons.Default.ArrowBackIosNew,
                                 contentDescription = null,
@@ -119,11 +165,13 @@ fun TransactionHistoryScreen(
                         horizontalArrangement = Arrangement.End,
                         modifier = Modifier
                             .shadow(
-                                elevation = 0.dp,
+                                elevation = 30.dp,
+                                ambientColor = Color.Transparent,
+                                spotColor = Color.Transparent,
                                 shape = RoundedCornerShape(20.dp),
                             )
                             .clickable {
-                                //                        onClickFilter()
+                                onClickFilter()
                             },
                     ) {
                         Box(
@@ -134,16 +182,6 @@ fun TransactionHistoryScreen(
                                 contentDescription = null,
                                 modifier = Modifier.size(50.dp)
                             )
-                            //                        if (uiState.filterCount > 0) {
-                            //                            Box(modifier = Modifier.padding(5.dp)) {
-                            //                                Text(
-                            //                                    text = uiState.filterCount.toString(),
-                            //                                    style = CustomTypography.labelLarge,
-                            //                                    color = Blue1,
-                            //                                )
-                            //
-                            //                            }
-                            //                        }
 
                         }
 
@@ -151,10 +189,10 @@ fun TransactionHistoryScreen(
                 }
 
                 PullToRefreshBox(
-                    isRefreshing = false,
+                    isRefreshing = transactions.loadState.refresh is LoadState.Loading,
                     state = refreshState,
                     onRefresh = {
-                        //                    bills.refresh()
+                        transactions.refresh()
                     },
                     indicator = {
                         Box(
@@ -164,7 +202,7 @@ fun TransactionHistoryScreen(
 
                             PullToRefreshDefaults.Indicator(
                                 state = refreshState,
-                                isRefreshing = false,
+                                isRefreshing = transactions.loadState.refresh is LoadState.Loading,
                                 containerColor = White1,
                                 color = Blue3,
                             )
@@ -186,8 +224,8 @@ fun TransactionHistoryScreen(
                         items(
                             count = transactions.itemCount,
                         ) { item ->
-                            val bill = transactions[item]
-                            if (bill == null) {
+                            val transaction = transactions[item]
+                            if (transaction == null) {
                                 return@items
                             }
                             Column(
@@ -200,30 +238,39 @@ fun TransactionHistoryScreen(
                                         ambientColor = Black1.copy(alpha = 0.25f),
                                         spotColor = Black1.copy(alpha = 0.25f)
                                     )
+                                    .clickable {
+                                        onViewDetail(transaction)
+                                    }
                                     .background(color = White1, shape = RoundedCornerShape(20.dp))
                                     .padding(20.dp)
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
                                     Row(
                                         modifier = Modifier.weight(1f),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Nguyen Van A",
+                                            text = transaction.description,
                                             style = CustomTypography.titleMedium,
                                             color = Black1,
-
-                                            )
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
                                     }
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.End
                                     ) {
                                         Text(
-                                            text = "30/11/2025",
+                                            text = formatterDateString(
+                                                LocalDateTime.parse(
+                                                    transaction.processedAt
+                                                ).toLocalDate()
+                                            ),
                                             style = CustomTypography.titleSmall,
                                             color = Gray1,
                                         )
@@ -249,9 +296,13 @@ fun TransactionHistoryScreen(
                                         horizontalArrangement = Arrangement.End
                                     ) {
                                         Text(
-                                            text = "30/11/2025",
+                                            text = TransactionStatus.entries.first { t -> t.name == transaction.status }.status,
                                             style = CustomTypography.titleSmall,
-                                            color = Red1,
+                                            color = when (transaction.status) {
+                                                TransactionStatus.COMPLETED.name -> Green1
+                                                TransactionStatus.PENDING.name -> Orange1
+                                                else -> Red1
+                                            },
                                         )
                                     }
                                 }
@@ -275,7 +326,7 @@ fun TransactionHistoryScreen(
                                         horizontalArrangement = Arrangement.End
                                     ) {
                                         Text(
-                                            text = "500,000 VND",
+                                            text = "${formatterVND(transaction.amount.toLong())} VND",
                                             style = CustomTypography.titleSmall,
                                             color = Black1,
                                         )
@@ -294,10 +345,10 @@ fun TransactionHistoryScreen(
                             }
 
                             is LoadState.Error -> {
-                                //                            onErrorLoading(
-                                //                                state.error.message
-                                //                                    ?: "Tải dữ liệu không thành công. Vui lòng thử lại sau."
-                                //                            )
+                                onErrorLoading(
+                                    state.error.message
+                                        ?: "Tải dữ liệu không thành công. Vui lòng thử lại sau."
+                                )
                             }
                         }
                     }
@@ -317,38 +368,57 @@ fun TransactionHistoryScreen(
                     )
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
-                BillFilterDialog(
-//                    selectedStatus = selectedStatus,
-//                    selectedSort = selectedSort,
-//                    onSelectStatus = {
-//                        selectedStatus = it
-//                    },
-//                    onSelectSort = {
-//                        selectedSort = it
-//                    },
-//                    onResetStatusFilter = {
-//                        selectedStatus = ""
-//                    },
-//                    onResetSortFilter = {
-//                        selectedSort = ""
-//                    },
-//                    onResetAll = {
-//                        selectedStatus = ""
-//                        selectedSort = ""
-//                        onResetAll()
-//                    },
-//                    onApply = {
-//                        onApply(
-//                            selectedStatus,
-//                            selectedSort
-//                        )
-//                    },
-//                    onDismiss = {
-//                        selectedStatus = uiState.selectedStatus
-//                        selectedSort = uiState.selectedSort
-//                        onClickFilter()
-//                    }
-                )
+                TransactionHistoryFilterDialog(
+                    selectedStatus = selectedStatus,
+                    selectedSort = selectedSort,
+                    selectedAccountType = selectedAccountType,
+                    selectedService = selectedService,
+                    onSelectStatus = {
+                        selectedStatus = it
+                    },
+                    onSelectSort = {
+                        selectedSort = it
+                    },
+                    onSelectService = {
+                        selectedService = it
+                    },
+                    onSelectAccountType = {
+                        selectedAccountType = it
+                    },
+                    onResetStatusFilter = {
+                        selectedStatus = null
+                    },
+                    onResetSortFilter = {
+                        selectedSort = SortOption.NEWEST
+                    },
+                    onResetServiceFilter = {
+                        selectedService = null
+                    },
+                    onResetAccountTypeFilter = {
+                        selectedAccountType = null
+                    },
+                    onResetAll = {
+                        selectedStatus = null
+                        selectedService = null
+                        selectedAccountType = null
+                        selectedSort = SortOption.NEWEST
+                        onResetAll()
+                    },
+                    onApply = {
+                        onApply(
+                            selectedStatus,
+                            selectedService,
+                            selectedAccountType,
+                            selectedSort
+                        )
+                    },
+                    onDismiss = {
+                        selectedStatus = uiState.selectedStatus
+                        selectedSort = uiState.selectedSort
+                        selectedService = uiState.type
+                        selectedAccountType = uiState.accountType
+                        onClickFilter()
+                    })
             }
 
         }

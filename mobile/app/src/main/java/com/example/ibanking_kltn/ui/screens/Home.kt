@@ -6,8 +6,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -30,26 +31,27 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.dtos.ServiceItem
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.Blue2
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.CustomTypography
-import com.example.ibanking_kltn.ui.theme.Green1
-import com.example.ibanking_kltn.ui.theme.Orange2
-import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
@@ -64,14 +66,13 @@ import java.time.LocalDate
 @Composable
 fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
-    onChangeVisibleBalance: () -> Unit,
-    onNavigateToTransferScreen: () -> Unit,
-//    onNavigateToSettingScreen: () -> Unit,
-    onNavigateToDeposit: () -> Unit,
-    onNavigateToPayBillScreen: () -> Unit,
     navigationBar: @Composable () -> Unit,
-    onNavigateToBillHistoryScreen: () -> Unit,
-) {
+    onChangeVisibleBalance: () -> Unit,
+//    onNavigateToSettingScreen: () -> Unit,
+    onNavigateTo: Map<String, () -> Unit>,
+    onNavigateServiceList: () -> Unit,
+
+    ) {
 
 
     val bottomBarHeight = 100.dp
@@ -338,149 +339,46 @@ fun HomeScreen(
                                 )
                             }
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .width(70.dp)
-                                        .clickable {
-                                            onNavigateToDeposit()
-                                        }
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
+                                for (it in homeUiState.recentServices) {
+                                    val serviceCategory=ServiceCategory.valueOf(it.service)
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
                                         modifier = Modifier
-                                            .size(70.dp)
-                                            .background(
-                                                color = Green1.copy(alpha = 0.08f),
-                                                shape = RoundedCornerShape(10)
-                                            )
+                                            .width(70.dp)
+                                            .clickable {
+                                                onNavigateTo[it.service]?.invoke()
+                                            }
                                     ) {
-                                        Icon(
-                                            Icons.Default.Call,
-                                            tint = Green1,
-                                            contentDescription = null
-                                        )
-                                    }
-
-                                    Row(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            "Nạp tiền",
-                                            color = Black1,
-                                            style = CustomTypography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .width(70.dp)
-                                        .clickable {
-                                            onNavigateToPayBillScreen()
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Center,
+                                            modifier = Modifier
+                                                .size(70.dp)
+                                                .background(
+                                                    color = Color(serviceCategory.color).copy(alpha = 0.08f),
+                                                    shape = RoundedCornerShape(10)
+                                                )
+                                        ) {
+                                            Icon(
+                                                painter = painterResource(id = serviceCategory.icon),
+                                                tint = Color(serviceCategory.color),
+                                                contentDescription = null
+                                            )
                                         }
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier
-                                            .size(70.dp)
-                                            .background(
-                                                color = Red3.copy(alpha = 0.08f),
-                                                shape = RoundedCornerShape(10)
+
+                                        Row(modifier = Modifier.fillMaxWidth()) {
+                                            Text(
+                                                text = ServiceCategory.valueOf(it.service).serviceName,
+                                                color = Black1,
+                                                style = CustomTypography.titleSmall,
+                                                textAlign = TextAlign.Center
                                             )
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.bill),
-                                            tint = Red3,
-                                            contentDescription = null
-                                        )
-                                    }
-
-                                    Row(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            text = stringResource(R.string.PayBill_Title),
-                                            color = Black1,
-                                            style = CustomTypography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .width(70.dp)
-                                        .clickable {
-                                            onNavigateToTransferScreen()
                                         }
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier
-                                            .size(70.dp)
-                                            .background(
-                                                color = Orange2.copy(alpha = 0.08f),
-                                                shape = RoundedCornerShape(10)
-                                            )
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.transfer),
-                                            tint = Orange2,
-                                            contentDescription = null
-                                        )
-                                    }
 
-                                    Row(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            text = stringResource(R.string.Transfer_Title),
-                                            color = Black1,
-                                            style = CustomTypography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
                                     }
-
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .width(70.dp)
-                                        .clickable {
-                                            onNavigateToBillHistoryScreen()
-                                        }
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                        modifier = Modifier
-                                            .size(70.dp)
-                                            .background(
-                                                color = Blue2.copy(alpha = 0.08f),
-                                                shape = RoundedCornerShape(10)
-                                            )
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.requestmoney),
-                                            tint = Blue2,
-                                            contentDescription = null
-                                        )
-                                    }
-
-                                    Row(modifier = Modifier.fillMaxWidth()) {
-                                        Text(
-                                            "Mobile Recharg",
-                                            color = Black1,
-                                            style = CustomTypography.titleSmall,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-
                                 }
 
                             }
@@ -491,12 +389,31 @@ fun HomeScreen(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = stringResource(R.string.Home_Section2),
-                                    color = Black1,
-                                    style = CustomTypography.titleMedium
-                                )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(modifier = Modifier.weight(1f)) {
+
+                                    Text(
+                                        text = stringResource(R.string.Home_Section2),
+                                        color = Black1,
+                                        style = CustomTypography.titleMedium
+                                    )
+                                }
+                                Row(
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    TextButton(onClick = {
+                                        onNavigateServiceList()
+                                    }) {
+                                        Text(
+                                            text = "Xem tất cả",
+                                            color = Blue1,
+                                            style = CustomTypography.bodyMedium
+                                        )
+                                    }
+                                }
                             }
 
                             Column(
@@ -507,267 +424,112 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(10.dp)
+
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        10.dp,
-                                        Alignment.CenterHorizontally
-                                    )
-                                ) {
-                                    //Feat Cell
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                                for (i in 0 until homeUiState.favoriteServices.size step 2) {
+                                    Row(
                                         modifier = Modifier
-                                            .weight(1f)
-                                            .shadow(
-                                                elevation = 30.dp,
-                                                shape = RoundedCornerShape(20),
-                                                clip = true,
-                                                ambientColor = Black1.copy(alpha = 0.9f),
-                                                spotColor = Black1.copy(alpha = 0.9f),
-                                            )
-                                            .background(
-                                                color = White1,
-                                                shape = RoundedCornerShape(16)
-                                            )
-                                            .padding(15.dp)
-                                    ) {
-                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                            Icon(Icons.Default.Call, contentDescription = null)
-                                            Text(
-                                                text = "Feat Cell",
-                                                style = CustomTypography.titleSmall
-                                            )
+                                            .fillMaxWidth()
+                                            .height(IntrinsicSize.Min),
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            10.dp,
+                                            Alignment.CenterHorizontally
+                                        ),
 
-                                        }
-                                    }
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .shadow(
-                                                elevation = 30.dp,
-                                                shape = RoundedCornerShape(20),
-                                                clip = true,
-                                                ambientColor = Black1.copy(alpha = 0.9f),
-                                                spotColor = Black1.copy(alpha = 0.9f),
-                                            )
-                                            .background(
-                                                color = White1,
-                                                shape = RoundedCornerShape(16)
-                                            )
-                                            .padding(15.dp)
-                                    ) {
-                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                            Icon(Icons.Default.Call, contentDescription = null)
-                                            Text(
-                                                text = "Feat Cell",
-                                                style = CustomTypography.titleSmall
-                                            )
+                                        ) {
 
+                                        for (j in i until i + 2) {
+                                            val serviceItem =
+                                                homeUiState.favoriteServices.getOrNull(j)
+                                                    ?: continue
+                                            val serviceCategory = ServiceCategory.valueOf(serviceItem.service)
+                                            Column(
+                                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .fillMaxHeight()
+                                                    .shadow(
+                                                        elevation = 30.dp,
+                                                        shape = RoundedCornerShape(20),
+                                                        clip = true,
+                                                        ambientColor = Black1.copy(alpha = 0.9f),
+                                                        spotColor = Black1.copy(alpha = 0.9f),
+                                                    )
+                                                    .clickable {
+                                                        onNavigateTo[serviceItem.service]?.invoke()
+                                                    }
+                                                    .background(
+                                                        color = White1,
+                                                        shape = RoundedCornerShape(16)
+                                                    )
+                                                    .padding(15.dp)
+                                            ) {
+                                                Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+                                                    Icon(
+                                                        painter = painterResource(serviceCategory.icon),
+                                                        tint = Color(serviceCategory.color),
+                                                        contentDescription = null
+                                                    )
+                                                    Text(
+                                                        text = ServiceCategory.valueOf(homeUiState.favoriteServices[j].service).serviceName,
+                                                        style = CustomTypography.titleSmall
+                                                    )
+
+                                                }
+                                            }
                                         }
+                                        //Feat Cell
+
                                     }
 
                                 }
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        10.dp,
-                                        Alignment.CenterHorizontally
-                                    )
-                                ) {
-                                    //Feat Cell
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .shadow(
-                                                elevation = 30.dp,
-                                                shape = RoundedCornerShape(20),
-                                                clip = true,
-                                                ambientColor = Black1.copy(alpha = 0.9f),
-                                                spotColor = Black1.copy(alpha = 0.9f),
-                                            )
-                                            .background(
-                                                color = White1,
-                                                shape = RoundedCornerShape(16)
-                                            )
-                                            .padding(15.dp)
-                                    ) {
-                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                            Icon(Icons.Default.Call, contentDescription = null)
-                                            Text(
-                                                text = "Feat Cell",
-                                                style = CustomTypography.titleSmall
-                                            )
+//                                Row(
+//                                    modifier = Modifier.fillMaxWidth(),
+//                                    horizontalArrangement = Arrangement.spacedBy(
+//                                        10.dp,
+//                                        Alignment.CenterHorizontally
+//                                    )
+//                                ) {
+//                                    //Feat Cell
+//                                    Column(
+//                                        verticalArrangement = Arrangement.spacedBy(10.dp),
+//                                        modifier = Modifier
+//                                            .shadow(
+//                                                elevation = 30.dp,
+//                                                shape = RoundedCornerShape(20),
+//                                                clip = true,
+//                                                ambientColor = Black1.copy(alpha = 0.9f),
+//                                                spotColor = Black1.copy(alpha = 0.9f),
+//                                            )
+//                                            .clickable {
+////                                                onNavigateTo[it.service]?.invoke()
+//                                            }
+//                                            .background(
+//                                                color = White1,
+//                                                shape = RoundedCornerShape(16)
+//                                            )
+//                                            .padding(15.dp)
+//                                    ) {
+//                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
+//                                            Icon(Icons.Default.Call, contentDescription = null)
+//                                            Text(
+//                                                text = ServiceCategory.valueOf(it.service).serviceName,
+//                                                style = CustomTypography.titleSmall
+//                                            )
+//
+//                                        }
+//                                    }
+//                                }
 
-                                        }
-                                    }
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .shadow(
-                                                elevation = 30.dp,
-                                                shape = RoundedCornerShape(20),
-                                                clip = true,
-                                                ambientColor = Black1.copy(alpha = 0.9f),
-                                                spotColor = Black1.copy(alpha = 0.9f),
-                                            )
-                                            .background(
-                                                color = White1,
-                                                shape = RoundedCornerShape(16)
-                                            )
-                                            .padding(15.dp)
-                                    ) {
-                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                            Icon(Icons.Default.Call, contentDescription = null)
-                                            Text(
-                                                text = "Feat Cell",
-                                                style = CustomTypography.titleSmall
-                                            )
-
-                                        }
-                                    }
-
-                                }
 
                             }
+                            //Feat Cell
+
                         }
                         Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
 
                     }
                 }
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(bottomBarHeight)
-//                        .background(color = Color.Transparent)
-//                ) {
-//                    //nav
-//                    Column(
-//                        verticalArrangement = Arrangement.Bottom,
-//                        modifier = Modifier
-//                            .height(bottomBarHeight)
-//                            .fillMaxWidth()
-////                        .background(White3)
-//                    ) {
-//                        Row(
-//                            verticalAlignment = Alignment.CenterVertically,
-//                            horizontalArrangement = Arrangement.spacedBy(
-//                                75.dp,
-//                                alignment = Alignment.CenterHorizontally
-//                            ),
-//                            modifier = Modifier
-//
-//                                .height(bottomBarHeight * 5 / 8)
-//                                .fillMaxWidth()
-//                                .shadow(
-//                                    elevation = 30.dp,
-//                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f),
-//                                    ambientColor = Black1.copy(alpha = 0.9f),
-//                                    spotColor = Black1.copy(alpha = 0.9f),
-//                                )
-//                                .background(
-//                                    color = White1,
-//                                    shape = RoundedCornerShape(topStart = 0.2f, topEnd = 0.2f)
-//                                )
-//
-//                        )
-//                        {
-//                            Row(
-//                                verticalAlignment = Alignment.CenterVertically,
-//                                horizontalArrangement = Arrangement.spacedBy(
-//                                    30.dp,
-//                                    alignment = Alignment.CenterHorizontally
-//                                ),
-//                                modifier = Modifier
-//                                    .weight(1f)
-//                                    .padding(10.dp)
-//                            ) {
-//                                IconButton(onClick = {}) {
-//                                    Icon(
-//                                        painter = painterResource(R.drawable.category),
-//                                        contentDescription = null,
-//                                        tint = Blue3,
-//                                        modifier = Modifier.size(35.dp)
-//                                    )
-//                                }
-//
-//                                IconButton(onClick = {}) {
-//                                    Icon(
-//                                        painter = painterResource(R.drawable.wallet),
-//                                        contentDescription = null,
-//                                        tint = Gray1,
-//                                        modifier = Modifier.size(35.dp)
-//                                    )
-//                                }
-//
-//                            }
-//                            Row(
-//                                verticalAlignment = Alignment.CenterVertically,
-//                                horizontalArrangement = Arrangement.spacedBy(
-//                                    30.dp,
-//                                    alignment = Alignment.CenterHorizontally
-//                                ),
-//                                modifier = Modifier
-//                                    .weight(1f)
-//                                    .padding(10.dp)
-//                            ) {
-//                                IconButton(onClick = {}) {
-//                                    Icon(
-//                                        painter = painterResource(R.drawable.analytic),
-//                                        contentDescription = null,
-//                                        tint = Gray1,
-//                                        modifier = Modifier.size(35.dp)
-//                                    )
-//                                }
-//
-//                                IconButton(onClick = {
-//                                    onNavigateToSettingScreen()
-//                                }) {
-//                                    Icon(
-//                                        painter = painterResource(R.drawable.profile),
-//                                        contentDescription = null,
-//                                        tint = Gray1,
-//                                        modifier = Modifier.size(35.dp)
-//                                    )
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    Column(
-//                        verticalArrangement = Arrangement.Center,
-//                        horizontalAlignment = Alignment.CenterHorizontally,
-//                        modifier = Modifier
-//                            .height(bottomBarHeight)
-//                            .fillMaxWidth()
-//                    ) {
-//                        IconButton(
-//                            onClick = {},
-//                            modifier = Modifier
-//                                .shadow(
-//                                    elevation = 20.dp,
-//                                    shape = RoundedCornerShape(40)
-//                                )
-//                                .border(
-//                                    width = 5.dp, color = White1,
-//                                    shape = RoundedCornerShape(40)
-//                                )
-//                                .background(color = Blue3, shape = RoundedCornerShape(40))
-//                                .padding(5.dp)
-//                        ) {
-//                            Icon(
-//                                painter = painterResource(R.drawable.qr),
-//                                contentDescription = null,
-//                                tint = White1,
-//                                modifier = Modifier.size(35.dp)
-//                            )
-//                        }
-//                    }
-//                }
 
                 navigationBar()
 
@@ -778,18 +540,44 @@ fun HomeScreen(
 
 }
 
-//@Preview(
-//    showSystemUi = true,
-//    showBackground = true
-//
-//)
-//@Composable
-//fun HomePreview() {
-//    HomeScreen(
-//        homeUiState = HomeUiState(),
-//        onChangeVisibleBalance = {},
-//        onNavigateToSettingScreen = {},
-//        onNavigateToTransferScreen = {},
-//        onNavigateToPayBillScreen = {}
-//    )
-//}
+@Preview(
+    showSystemUi = true,
+    showBackground = true
+
+)
+@Composable
+fun HomePreview() {
+    val mocList=listOf(
+        ServiceItem(
+            service = ServiceCategory.MONEY_TRANSFER.name,
+            lastUsed = System.currentTimeMillis(),
+        ),
+        ServiceItem(
+            service = ServiceCategory.DEPOSIT.name,
+            lastUsed = System.currentTimeMillis(),
+        ),
+        ServiceItem(
+            service = ServiceCategory.BILL_HISTORY.name,
+            lastUsed = System.currentTimeMillis(),
+        ),
+        ServiceItem(
+            service = ServiceCategory.BILL_PAYMENT.name,
+            lastUsed = System.currentTimeMillis(),
+        ),
+    )
+    HomeScreen(
+        homeUiState = HomeUiState(
+            favoriteServices = mocList,
+            recentServices = mocList,
+        ),
+        onChangeVisibleBalance = {},
+        navigationBar = {},
+        onNavigateTo = mapOf(
+            ServiceCategory.MONEY_TRANSFER.name to {},
+            ServiceCategory.DEPOSIT.name to {},
+            ServiceCategory.BILL_PAYMENT.name to {},
+            ServiceCategory.BILL_HISTORY.name to {},
+        ),
+        onNavigateServiceList = {}
+    )
+}

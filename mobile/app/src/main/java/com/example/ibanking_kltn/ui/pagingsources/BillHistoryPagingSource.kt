@@ -2,14 +2,16 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.ibanking_kltn.data.dtos.requests.FilterBillParam
 import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 
+
 class BillHistoryPagingSource(
-   val api: BillRepository,
-    val status: String?=null
+    val api: BillRepository,
+    val filterPara: FilterBillParam = FilterBillParam()
 ) : PagingSource<Int, BillResponse>() {
     override fun getRefreshKey(state: PagingState<Int, BillResponse>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
@@ -25,7 +27,8 @@ class BillHistoryPagingSource(
             val apiResult = api.filterBill(
                 request = FilterBillRequest(
                     page = page,
-                    status = status
+                    status = filterPara.status,
+                    sortBy = filterPara.sortBy
                 ),
             )
             when (apiResult) {

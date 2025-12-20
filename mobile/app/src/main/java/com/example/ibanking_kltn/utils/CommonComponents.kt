@@ -84,10 +84,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.QRPayload
+import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TabNavigation
+import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -829,8 +833,8 @@ fun QrCodeImage(
 
 @Composable
 fun BillFilterDialog(
-    selectedStatus: String = "",
-    selectedSort: String = "",
+    selectedStatus: BillStatus? = null,
+    selectedSort: SortOption = SortOption.NEWEST,
     onSelectStatus: (String) -> Unit = {},
     onSelectSort: (String) -> Unit = {},
     onResetStatusFilter: () -> Unit = {},
@@ -840,24 +844,9 @@ fun BillFilterDialog(
     onDismiss: () -> Unit = {}
 ) {
     val billStatusOptions = BillStatus.entries.map { status ->
-        when (status) {
-            BillStatus.ACTIVE -> {
-                return@map "Chưa thanh toán"
-            }
-
-            BillStatus.PAID -> {
-                return@map "Đã thanh toán"
-            }
-
-            BillStatus.OVERDUE -> {
-                return@map "Quá hạn"
-            }
-
-            BillStatus.CANCELED -> {
-                return@map "Đã hủy"
-            }
-        }
+        status.status
     }
+    val billSortOptions = SortOption.entries.map { it.sortBy }
 
 
     Column(
@@ -903,7 +892,7 @@ fun BillFilterDialog(
 
                 CustomDropdownField(
                     options = billStatusOptions,
-                    selectedOption = selectedStatus,
+                    selectedOption = selectedStatus?.status ?: "",
                     onOptionSelected = {
                         onSelectStatus(it)
                     },
@@ -934,8 +923,8 @@ fun BillFilterDialog(
                 }
 
                 CustomDropdownField(
-                    options = listOf("Mới nhất", "Cũ nhất"),
-                    selectedOption = selectedSort,
+                    options = billSortOptions,
+                    selectedOption = selectedSort.sortBy,
                     onOptionSelected = {
                         onSelectSort(it)
                     },
@@ -1008,35 +997,35 @@ fun BillFilterDialog(
 
 @Composable
 fun TransactionHistoryFilterDialog(
-    selectedStatus: String = "",
-    selectedSort: String = "",
-    onSelectStatus: (String) -> Unit = {},
-    onSelectSort: (String) -> Unit = {},
+    selectedStatus: TransactionStatus? = null,
+    selectedService: ServiceType? = null,
+    selectedAccountType: AccountType? = null,
+    selectedSort: SortOption = SortOption.NEWEST,
+
+    onSelectStatus: (TransactionStatus) -> Unit = {},
+    onSelectService: (ServiceType) -> Unit = {},
+    onSelectAccountType: (AccountType) -> Unit = {},
+    onSelectSort: (SortOption) -> Unit = {},
+
+
     onResetStatusFilter: () -> Unit = {},
+    onResetServiceFilter: () -> Unit = {},
+    onResetAccountTypeFilter: () -> Unit = {},
     onResetSortFilter: () -> Unit = {},
     onResetAll: () -> Unit = {},
     onApply: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
-    val billStatusOptions = BillStatus.entries.map { status ->
-        when (status) {
-            BillStatus.ACTIVE -> {
-                return@map "Chưa thanh toán"
-            }
-
-            BillStatus.PAID -> {
-                return@map "Đã thanh toán"
-            }
-
-            BillStatus.OVERDUE -> {
-                return@map "Quá hạn"
-            }
-
-            BillStatus.CANCELED -> {
-                return@map "Đã hủy"
-            }
-        }
+    val transactionStatusOptions = TransactionStatus.entries.map { status ->
+        status.status
     }
+
+    val transactionSortOptions = SortOption.entries.map { it.sortBy }
+
+    val serviceOptions = ServiceType.entries.map { it.serviceName }
+    val accountTypeOptions = AccountType.entries.map { it.type }
+
+//TODO    date
 
     Column(
         modifier = Modifier
@@ -1088,10 +1077,14 @@ fun TransactionHistoryFilterDialog(
                         }
 
                         CustomDropdownField(
-                            options = billStatusOptions,
-                            selectedOption = selectedStatus,
+                            options = transactionStatusOptions,
+                            selectedOption = selectedStatus?.status ?: "",
                             onOptionSelected = {
-                                onSelectStatus(it)
+                                val selectStatus =
+                                    TransactionStatus.entries.first { transactionStatus ->
+                                        transactionStatus.status == it
+                                    }
+                                onSelectStatus(selectStatus)
                             },
                             placeholder = "Trạng thái hóa đơn"
                         )
@@ -1116,16 +1109,18 @@ fun TransactionHistoryFilterDialog(
                                 style = CustomTypography.bodyMedium,
                                 color = Blue1,
                                 modifier = Modifier.clickable {
-                                    onResetStatusFilter()
+                                    onResetServiceFilter()
                                 }
                             )
                         }
 
                         CustomDropdownField(
-                            options = billStatusOptions,
-                            selectedOption = selectedStatus,
+                            options = serviceOptions,
+                            selectedOption = selectedService?.serviceName ?: "",
                             onOptionSelected = {
-                                onSelectStatus(it)
+                                onSelectService(ServiceType.entries.first { service ->
+                                    service.serviceName == it
+                                })
                             },
                             placeholder = "Loại dịch vụ"
                         )
@@ -1150,16 +1145,18 @@ fun TransactionHistoryFilterDialog(
                                 style = CustomTypography.bodyMedium,
                                 color = Blue1,
                                 modifier = Modifier.clickable {
-                                    onResetStatusFilter()
+                                    onResetAccountTypeFilter()
                                 }
                             )
                         }
 
                         CustomDropdownField(
-                            options = billStatusOptions,
-                            selectedOption = selectedStatus,
+                            options = accountTypeOptions,
+                            selectedOption = selectedAccountType?.type ?: "",
                             onOptionSelected = {
-                                onSelectStatus(it)
+                                onSelectAccountType(AccountType.entries.first { accountType ->
+                                    accountType.type == it
+                                })
                             },
                             placeholder = "Tài khoản thanh toán"
                         )
@@ -1188,12 +1185,12 @@ fun TransactionHistoryFilterDialog(
                                 }
                             )
                         }
-
+                        //TODO
                         CustomDropdownField(
-                            options = billStatusOptions,
-                            selectedOption = selectedStatus,
+                            options = emptyList(),
+                            selectedOption = "",
                             onOptionSelected = {
-                                onSelectStatus(it)
+//                                onSelectStatus(it)
                             },
                             placeholder = "Tài khoản thanh toán"
                         )
@@ -1225,10 +1222,13 @@ fun TransactionHistoryFilterDialog(
                 }
 
                 CustomDropdownField(
-                    options = listOf("Mới nhất", "Cũ nhất"),
-                    selectedOption = selectedSort,
+                    options = transactionSortOptions,
+                    selectedOption = selectedSort.sortBy,
                     onOptionSelected = {
-                        onSelectSort(it)
+                        onSelectSort(SortOption.entries.first { option ->
+                            option.sortBy == it
+                        }
+                        )
                     },
                     placeholder = "Sắp xếp theo"
                 )

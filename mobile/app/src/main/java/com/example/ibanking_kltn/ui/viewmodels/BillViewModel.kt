@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
@@ -29,7 +30,6 @@ class BillViewModel @Inject constructor(
     private val billRepository: BillRepository,
     private val walletRepository: WalletRepository,
     private val payLaterRepository: PayLaterRepository,
-
     private val sharedPreferences: SharedPreferences,
     @ApplicationContext private val context: Context
 ) : ViewModel(), IViewModel {

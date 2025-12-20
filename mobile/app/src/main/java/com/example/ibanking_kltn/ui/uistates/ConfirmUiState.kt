@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.Service
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
 
 data class ConfirmUiState(
@@ -8,7 +8,7 @@ data class ConfirmUiState(
     val confirmState: StateType = StateType.NONE,
     val isOtpShow: Boolean = false,
 
-    val service: Service = Service.NONE,
+    val service: ServiceType? = null,
     val expenseType: String? = null,
     val toMerchantName: String = "",
     val accountType: String = "",

@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.data.dtos.SortOption
+import com.example.ibanking_kltn.data.dtos.requests.FilterBillParam
 import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.ui.pagingsources.BillHistoryPagingSource
@@ -36,17 +39,25 @@ class BillHistoryViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val billPager = uiState
         .map {
-            it.selectedStatus
+
+            val filterSort = when (it.selectedSort) {
+                SortOption.NEWEST -> "date_desc"
+                SortOption.OLDEST -> "date_asc"
+            }
+            return@map FilterBillParam(
+                status = uiState.value.selectedStatus?.name,
+                sortBy = filterSort
+            )
         }
         .distinctUntilChanged()
-        .flatMapLatest { status ->
+        .flatMapLatest { filterPara ->
             Pager(
                 PagingConfig(
                     pageSize = 10,
-                    prefetchDistance = 2
+                    prefetchDistance = 1
                 )
             ) {
-                BillHistoryPagingSource(billRepository, uiState.value.selectedStatus)
+                BillHistoryPagingSource(billRepository, filterPara)
             }.flow.cachedIn(viewModelScope)
         }
 
@@ -55,20 +66,6 @@ class BillHistoryViewModel @Inject constructor(
         _uiState.value = BillHistoryUiState()
     }
 
-    private fun countFilter() {
-        var count = 0
-        if (uiState.value.selectedStatus.isNotEmpty()) {
-            count++
-        }
-        if (uiState.value.selectedSort.isNotEmpty()) {
-            count++
-        }
-        _uiState.update {
-            it.copy(
-                filterCount = count
-            )
-        }
-    }
 
     fun onClickFilter() {
         _uiState.update {
@@ -84,13 +81,13 @@ class BillHistoryViewModel @Inject constructor(
     ) {
         _uiState.update {
             it.copy(
-                selectedStatus = "",
-                selectedSort = ""
+                selectedStatus = null,
+                selectedSort = SortOption.NEWEST
             )
         }
         onApply(
-            selectedStatus = "",
-            selectedSort = "",
+            selectedStatus = null,
+            selectedSort = SortOption.NEWEST,
             onError = {
                 onError(it)
             }
@@ -98,8 +95,8 @@ class BillHistoryViewModel @Inject constructor(
     }
 
     fun onApply(
-        selectedStatus: String,
-        selectedSort: String,
+        selectedStatus: BillStatus?,
+        selectedSort: SortOption,
         onError: (String) -> Unit
     ) {
         _uiState.update {
@@ -110,12 +107,15 @@ class BillHistoryViewModel @Inject constructor(
                 selectedSort = selectedSort
             )
         }
-        countFilter()
         viewModelScope.launch {
+            val sortBy = when (selectedSort) {
+                SortOption.NEWEST -> "date_desc"
+                SortOption.OLDEST -> "date_asc"
+            }
             val request = FilterBillRequest(
-                status = uiState.value.selectedStatus,
-                page = 0
-//                sortBy = uiState.value.selectedSort
+                status = uiState.value.selectedStatus?.name,
+                page = 0,
+                sortBy = sortBy
             )
             val apiResult = billRepository.filterBill(
                 request = request

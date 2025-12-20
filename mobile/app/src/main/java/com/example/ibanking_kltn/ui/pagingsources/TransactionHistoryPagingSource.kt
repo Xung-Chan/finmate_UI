@@ -2,14 +2,19 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_soa.data.utils.ApiResult
+import java.time.LocalDate
 
 class TransactionHistoryPagingSource(
     val api: TransactionRepository,
-    val status: String?=null
+    val filterPara: FilterTransactionPara = FilterTransactionPara(
+        fromDate = LocalDate.now().minusMonths(1).toString(),
+        toDate = LocalDate.now().toString()
+    )
 ) : PagingSource<Int, TransactionHistoryResponse>() {
     override fun getRefreshKey(state: PagingState<Int, TransactionHistoryResponse>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
@@ -25,7 +30,12 @@ class TransactionHistoryPagingSource(
             val apiResult = api.getTransactionHistory(
                 request = FilterTransactionRequest(
                     page = page,
-                    status = status
+                    fromDate =filterPara.fromDate,
+                    toDate = filterPara.toDate,
+                    accountType = filterPara.accountType,
+                    status = filterPara.status,
+                    type = filterPara.type,
+                    sortBy = filterPara.sortBy,
                 ),
             )
             when (apiResult) {

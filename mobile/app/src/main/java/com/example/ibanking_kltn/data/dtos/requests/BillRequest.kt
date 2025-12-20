@@ -6,22 +6,30 @@ data class CreateBillRequest(
     val dueDate: String,
     val expenseTypeId: String
 )
+
 data class PreparePayBillRequest(
     val accountType: String,
     val billerCode: String
 )
+
 data class PreparePrePaymentRequest(
     val amount: Int,
     val billerCode: String
 )
+
 data class CancelBillRequest(
     val qrIdentifier: String
 )
 
 data class FilterBillRequest(
-    val status: String?=null,
-    val page: Int?=0,
-    val size: Int?=10,
-    //TODO
-//    val sort????
+    val status: String? = null,
+    val sortBy: String = "date_desc",
+    val page: Int? = 0,
+    val size: Int? = 10,
+)
+
+
+data class FilterBillParam(
+    val status: String? =null,
+    val sortBy: String = "date_desc"
 )

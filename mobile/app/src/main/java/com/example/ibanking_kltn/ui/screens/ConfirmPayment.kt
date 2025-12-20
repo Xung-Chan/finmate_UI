@@ -33,7 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.Service
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -114,7 +114,7 @@ fun ConfirmPaymentScreen(
                         }
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = uiState.service.name,
+                            value = uiState.service?.name ?: "",
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -417,7 +417,7 @@ fun ConfirmPreview() {
     ConfirmPaymentScreen(
         uiState = ConfirmUiState(
             isOtpShow = true,
-            service = Service.TRANSFER
+            service = ServiceType.TRANSFER
         ),
         onBackClick = { },
         onConfirmClick = { },

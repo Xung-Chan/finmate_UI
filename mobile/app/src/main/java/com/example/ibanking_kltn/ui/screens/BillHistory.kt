@@ -41,9 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -63,7 +64,7 @@ fun BillHistoryScreen(
     uiState: BillHistoryUiState,
     bills: LazyPagingItems<BillResponse>,
     onResetAll: () -> Unit,
-    onApply: (selectedStatus: String, selectedSort: String) -> Unit,
+    onApply: (selectedStatus: BillStatus?, selectedSort: SortOption) -> Unit,
     onErrorLoading: (String) -> Unit,
     onClickFilter: () -> Unit,
     onViewDetail: (BillResponse) -> Unit,
@@ -71,10 +72,10 @@ fun BillHistoryScreen(
 ) {
     val refreshState = rememberPullToRefreshState()
     var selectedStatus by remember {
-        mutableStateOf("")
+        mutableStateOf<BillStatus?>(null)
     }
     var selectedSort by remember {
-        mutableStateOf("")
+        mutableStateOf(SortOption.NEWEST)
     }
     LoadingScaffold(
         isLoading = false,
@@ -114,16 +115,6 @@ fun BillHistoryScreen(
                                         contentDescription = null,
                                         modifier = Modifier.size(40.dp)
                                     )
-                                    if (uiState.filterCount > 0) {
-                                        Box(modifier = Modifier.padding(5.dp)) {
-                                            Text(
-                                                text = uiState.filterCount.toString(),
-                                                style = CustomTypography.labelLarge,
-                                                color = Blue1,
-                                            )
-
-                                        }
-                                    }
 
                                 }
 
@@ -353,20 +344,20 @@ fun BillHistoryScreen(
                         selectedStatus = selectedStatus,
                         selectedSort = selectedSort,
                         onSelectStatus = {
-                            selectedStatus = it
+                            selectedStatus = BillStatus.entries.first{billStatus-> billStatus.status == it }
                         },
                         onSelectSort = {
-                            selectedSort = it
+                            selectedSort = SortOption.entries.first{sortOption-> sortOption.sortBy == it }
                         },
                         onResetStatusFilter = {
-                            selectedStatus = ""
+                            selectedStatus = null
                         },
                         onResetSortFilter = {
-                            selectedSort = ""
+                            selectedSort = SortOption.NEWEST
                         },
                         onResetAll = {
-                            selectedStatus = ""
-                            selectedSort = ""
+                            selectedStatus = null
+                            selectedSort = SortOption.NEWEST
                             onResetAll()
                         },
                         onApply = {

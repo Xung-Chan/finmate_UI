@@ -4,7 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.Service
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
@@ -53,7 +53,7 @@ class ConfirmViewModel @Inject constructor(
         toMerchantName: String,
         expenseType: String? = null,
         billCode: String? = null,
-        service: Service
+        service: ServiceType
     ) {
         loadPaymentInfo(
             accountType = accountType,
@@ -79,7 +79,7 @@ class ConfirmViewModel @Inject constructor(
         toMerchantName: String,
         expenseType: String? = null,
         billCode: String? = null,
-        service: Service
+        service: ServiceType
     ) {
         _uiState.update {
             it.copy(
@@ -155,7 +155,7 @@ class ConfirmViewModel @Inject constructor(
             var apiResult: ApiResult<Any>
 
             when (uiState.value.service) {
-                Service.TRANSFER -> {
+                ServiceType.TRANSFER -> {
                     apiResult = transactionRepository.prepareTransfer(
                         request = PrepareTransferRequest(
                             accountType = uiState.value.accountType,
@@ -166,7 +166,7 @@ class ConfirmViewModel @Inject constructor(
                     )
                 }
 
-                Service.PAY_BILL -> {
+                ServiceType.BILL_PAYMENT -> {
                     apiResult = billRepository.preparePayBill(
                         request = PreparePayBillRequest(
                             accountType = uiState.value.accountType,

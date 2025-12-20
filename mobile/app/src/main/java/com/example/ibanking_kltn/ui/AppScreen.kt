@@ -25,7 +25,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.example.ibanking_kltn.data.dtos.Service
+import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
@@ -40,6 +41,7 @@ import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.QRScannerScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
@@ -55,6 +57,7 @@ import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
+import com.example.ibanking_kltn.ui.viewmodels.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
@@ -86,8 +89,9 @@ fun AppScreen(
     val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
     val transactionHistoryViewModel: TransactionHistoryViewModel = hiltViewModel()
+    val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
 
-    var service by remember { mutableStateOf(Service.TRANSFER) }
+    var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
 
     val snackBarState by appViewModel.uiState.collectAsState()
@@ -116,6 +120,7 @@ fun AppScreen(
             })
     }
 
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -133,6 +138,7 @@ fun AppScreen(
                         //api
                         authViewModel.onLoginClick(
                             onSuccess = {
+                                homeViewModel.init()
                                 navController.navigate(Screens.Home.name) {
 //                                popUpTo(Screens.SignIn.name) {
 //                                    inclusive = true
@@ -146,8 +152,8 @@ fun AppScreen(
                                         appViewModel.closeSnackBarMessage()
                                     })
                             },
-                            onError = {
-                                message->onError(message)
+                            onError = { message ->
+                                onError(message)
                             },
                         )
 
@@ -209,6 +215,7 @@ fun AppScreen(
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
+
                     homeViewModel.init()
                     authViewModel.clearState()
                 }
@@ -217,22 +224,82 @@ fun AppScreen(
                         homeViewModel.onChangeVisibleBalance()
                     },
 
-                    onNavigateToTransferScreen = {
-                        transferViewModel.clearState()
-                        navController.navigate(Screens.Transfer.name)
-                    }, onNavigateToDeposit = {
-                        navController.navigate(Screens.Deposit.name)
-                    }, onNavigateToPayBillScreen = {
-                        payBillViewModel.init()
-                        navController.navigate(Screens.PayBill.name)
-                    }, navigationBar = { navigationBar() }, onNavigateToBillHistoryScreen = {
-                        billHistoryViewModel.clearState()
-                        navController.navigate(Screens.BillHistory.name)
-                    })
+//                    onNavigateToTransferScreen = {
+//                        transferViewModel.clearState()
+//                        navController.navigate(Screens.Transfer.name)
+//                    },
+//                    onNavigateToDeposit = {
+//                        navController.navigate(Screens.Deposit.name)
+//                    },
+//                    onNavigateToPayBillScreen = {
+//                        payBillViewModel.init()
+//                        navController.navigate(Screens.PayBill.name)
+//                    },
+                    navigationBar = { navigationBar() },
+//                    onNavigateToBillHistoryScreen = {
+//                        billHistoryViewModel.clearState()
+//                        navController.navigate(Screens.BillHistory.name)
+//                    },
+//                    onNavigateToTransactionHistory = {
+//                        transactionHistoryViewModel.clearState()
+//                        navController.navigate(Screens.TransactionHistory.name)
+//                    },
+                    onNavigateTo = mapOf(
+                        ServiceCategory.MONEY_TRANSFER.name to {
+                            appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
+                            transferViewModel.clearState()
+                            navController.navigate(Screens.Transfer.name)
+                        },
+                        ServiceCategory.DEPOSIT.name to {
+                            appViewModel.addRecentService(ServiceCategory.DEPOSIT)
+                            navController.navigate(Screens.Deposit.name)
+                        },
+                        ServiceCategory.BILL_PAYMENT.name to {
+                            appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
+                            payBillViewModel.init()
+                            navController.navigate(Screens.PayBill.name)
+                        },
+
+                        ServiceCategory.BILL_HISTORY.name to {
+                            appViewModel.addRecentService(ServiceCategory.BILL_HISTORY)
+                            billHistoryViewModel.clearState()
+                            navController.navigate(Screens.BillHistory.name)
+                        },
+                        ServiceCategory.PAY_LATER.name to {
+                            appViewModel.addRecentService(ServiceCategory.PAY_LATER)
+                            //TODO
+                            navController.navigate(Screens.BillHistory.name)
+                        },
+                        ServiceCategory.AIR_PLANE.name to {
+                            appViewModel.addRecentService(ServiceCategory.AIR_PLANE)
+                            //TODO
+                            navController.navigate(Screens.BillHistory.name)
+                        },
+                        ServiceCategory.ANALYTIC.name to {
+                            appViewModel.addRecentService(ServiceCategory.ANALYTIC)
+                            //TODO
+                            navController.navigate(Screens.BillHistory.name)
+                        },
+                        ServiceCategory.BILL_CREATE.name to {
+                            appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
+                            //TODO
+                            navController.navigate(Screens.CreateBill.name)
+                        },
+                        ServiceCategory.HOTEL.name to {
+                            appViewModel.addRecentService(ServiceCategory.HOTEL)
+                            //TODO
+                            navController.navigate(Screens.BillHistory.name)
+                        }
+
+                    ),
+                    onNavigateServiceList = {
+                        //TODO
+                    }
+                )
             }
             composable(route = Screens.Transfer.name) {
                 val transferUiState by transferViewModel.uiState.collectAsState()
-                service = Service.TRANSFER
+                service = ServiceType.TRANSFER
                 LaunchedEffect(Unit) {
                     transferViewModel.init()
                 }
@@ -313,7 +380,7 @@ fun AppScreen(
             composable(route = Screens.PayBill.name) { backStackEntry ->
 
                 val uiState by payBillViewModel.uiState.collectAsState()
-                service = Service.PAY_BILL
+                service = ServiceType.BILL_PAYMENT
                 LaunchedEffect(Unit) {
                     payBillViewModel.init()
                 }
@@ -406,8 +473,7 @@ fun AppScreen(
                 LaunchedEffect(Unit) {
                     forgotPasswordViewModel.clearState()
                 }
-                ForgotPasswordScreen(uiState = uiState,
-                    onFindUsernameClick = {
+                ForgotPasswordScreen(uiState = uiState, onFindUsernameClick = {
                     forgotPasswordViewModel.onFindUsernameClick(
                         onError = { message ->
                             appViewModel.showSnackBarMessage(
@@ -619,7 +685,6 @@ fun AppScreen(
                     navController.popBackStack()
                 })
             }
-            //TODO
             composable(route = Screens.TransactionHistory.name) { backStackEntry ->
                 val uiState by transactionHistoryViewModel.uiState.collectAsState()
                 val transactions =
@@ -627,45 +692,45 @@ fun AppScreen(
                 TransactionHistoryScreen(
                     uiState = uiState,
                     transactions = transactions,
-//                    onClickFilter = {
-//                        billHistoryViewModel.onClickFilter()
-//                    },
-//                    onResetAll = {
-//                        billHistoryViewModel.onResetAll(
-//                            onError = onError
-//                        )
-//                    },
-//                    onApply = { selectedStatus, selectedSort ->
-//                        billHistoryViewModel.onApply(
-//                            onError = onError,
-//                            selectedStatus = selectedStatus,
-//                            selectedSort = selectedSort,
-//                        )
-//                    },
-//                    onErrorLoading = {
-//                        appViewModel.showSnackBarMessage(
-//                            message = it,
-//                            type = SnackBarType.ERROR
-//                        )
-//                    },
-//                    onViewDetail = { bill ->
-//                        billDetailViewModel.init(bill = bill)
-//                        navController.navigate(Screens.BillDetail.name)
-//                    },
-//                    onBackClick = {
-//                        navController.popBackStack()
-//                    }
+                    onClickFilter = {
+                        transactionHistoryViewModel.onClickFilter()
+                    },
+                    onResetAll = {
+                        transactionHistoryViewModel.onResetAll(
+                            onError = onError
+                        )
+                    },
+                    onApply = { selectedStatus, selectedService, selectedAccountType, selectedSort ->
+                        transactionHistoryViewModel.onApply(
+                            onError = onError,
+                            selectedStatus = selectedStatus,
+                            selectedSort = selectedSort,
+                            selectedService = selectedService,
+                            selectedAccountType = selectedAccountType
+                        )
+                    },
+                    onErrorLoading = {
+                        appViewModel.showSnackBarMessage(
+                            message = it,
+                            type = SnackBarType.ERROR
+                        )
+                    },
+                    onViewDetail = { transaction ->
+                        transactionDetailViewModel.init(transaction = transaction)
+                        navController.navigate(Screens.TransactionHistoryDetail.name)
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
                 )
             }
-            composable(route = Screens.BillDetail.name) { backStackEntry ->
-                val bill by billDetailViewModel.uiState.collectAsState()
-                BillDetailScreen(bill = bill, onSavedSuccess = {
-                    appViewModel.showSnackBarMessage(
-                        message = "Lưu hóa đơn thành công", type = SnackBarType.SUCCESS
-                    )
-                }, onBackClick = {
-                    navController.popBackStack()
-                })
+            composable(route = Screens.TransactionHistoryDetail.name) { backStackEntry ->
+                val transaction by transactionDetailViewModel.uiState.collectAsState()
+                TransactionDetailScreen(
+                    transaction = transaction,
+                    onBackClick = {
+                        navController.popBackStack()
+                    })
             }
 
         }

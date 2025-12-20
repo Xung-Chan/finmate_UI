@@ -154,7 +154,7 @@ fun TransactionResultScreen(
                         )
                     }
 
-                    TransactionStatus.PROCESSING -> {
+                    TransactionStatus.PENDING -> {
                         Icon(
                             painter = painterResource(id = R.drawable.processing),
                             contentDescription = null,
@@ -178,12 +178,8 @@ fun TransactionResultScreen(
                             "Giao dịch thành công"
                         }
 
-                        TransactionStatus.PROCESSING -> {
-                            "Giao dich đang xử lý"
-                        }
-
                         TransactionStatus.PENDING -> {
-                            "Giao dịch chờ"
+                            "Giao dich đang xử lý"
                         }
 
                         TransactionStatus.FAILED -> {
@@ -260,7 +256,7 @@ fun TransactionResultScreen(
                                         Green1
                                     }
 
-                                    TransactionStatus.PROCESSING -> {
+                                    TransactionStatus.PENDING -> {
                                         WarningColor
                                     }
 
@@ -289,9 +285,6 @@ fun TransactionResultScreen(
                                         "Thành công"
                                     }
 
-                                    TransactionStatus.PROCESSING -> {
-                                        "Đang xử lý"
-                                    }
 
                                     TransactionStatus.PENDING -> {
                                         "Chờ"
@@ -314,7 +307,7 @@ fun TransactionResultScreen(
                                         Green1
                                     }
 
-                                    TransactionStatus.PROCESSING -> {
+                                    TransactionStatus.PENDING -> {
                                         WarningColor
                                     }
 

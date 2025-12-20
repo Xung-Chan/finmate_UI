@@ -361,7 +361,7 @@ fun BillDetailPreview() {
         bill = BillResponse(
             merchantName = "Công ty ABC",
             amount = 250000,
-            dueDate = "2024-12-31",
+            dueDate = "2024-10-15T14:30:00",
             billStatus = "PAID",
             description = "Thanh toán dịch vụ Internet tháng 12",
             metadata = mapOf("orderId" to "ORD-123456"),

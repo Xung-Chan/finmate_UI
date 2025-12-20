@@ -134,7 +134,6 @@ class DepositViewModel @Inject constructor(
                             status = when (transactionHistory.status) {
                                 "PENDING" -> TransactionStatus.PENDING
                                 "COMPLETED" -> TransactionStatus.COMPLETED
-                                "PROCESSING" -> TransactionStatus.PROCESSING
                                 "FAILED" -> TransactionStatus.FAILED
                                 "CANCELED" -> TransactionStatus.CANCELED
                                 else -> TransactionStatus.FAILED

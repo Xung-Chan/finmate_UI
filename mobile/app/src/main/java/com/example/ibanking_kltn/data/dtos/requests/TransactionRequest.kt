@@ -17,15 +17,21 @@ data class DepositTransactionRequest(
 )
 
 data class FilterTransactionRequest(
-    val username: String? = null,
-    val accountType:String?=null,
+    val fromDate: String,
+    val toDate: String,
+    val accountType: String? = null,
     val status: String? = null,
     val type: String? = null,
-    val fromDate: String? = null,
-    val toDate: String? = null,
+    val sortBy: String = "processed_at_desc",
     val page: Int? = 0,
     val size: Int? = 10,
-    val sortBy:String?=null, //created_at_desc
-//    val accountType;
-//ActionBy actionBy;
+)
+
+data class FilterTransactionPara(
+    val fromDate: String,
+    val toDate: String,
+    val accountType: String? = null,
+    val status: String? = null,
+    val type: String? = null,
+    val sortBy: String = "processed_at_desc",
 )
