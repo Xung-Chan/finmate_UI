@@ -29,6 +29,7 @@ import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
+import com.example.ibanking_kltn.ui.screens.AllServiceScreen
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
 import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
@@ -46,6 +47,7 @@ import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
+import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillDetailViewModel
@@ -67,7 +69,16 @@ import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
 
 enum class Screens {
-    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword, Home, TransactionResult, Transfer, ConfirmPayment, Settings, PayBill, CreateBill, BillHistory, BillDetail, TransactionHistory, TransactionHistoryDetail, Deposit, HandleDepositResult, QRScanner
+    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword,
+
+    Home,
+    TransactionResult, Transfer, ConfirmPayment,
+    Settings,
+    PayBill, CreateBill, BillHistory, BillDetail,
+    TransactionHistory, TransactionHistoryDetail,
+    Deposit, HandleDepositResult,
+    QRScanner,
+    AllService,
 }
 
 @Composable
@@ -90,6 +101,7 @@ fun AppScreen(
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
     val transactionHistoryViewModel: TransactionHistoryViewModel = hiltViewModel()
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
+    val allServiceViewModel: AllServiceViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -119,7 +131,54 @@ fun AppScreen(
                 navController.navigate(Screens.QRScanner.name)
             })
     }
+    val navigator = mapOf(
+        ServiceCategory.MONEY_TRANSFER.name to {
+            appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
+            transferViewModel.clearState()
+            navController.navigate(Screens.Transfer.name)
+        },
+        ServiceCategory.DEPOSIT.name to {
+            appViewModel.addRecentService(ServiceCategory.DEPOSIT)
+            navController.navigate(Screens.Deposit.name)
+        },
+        ServiceCategory.BILL_PAYMENT.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
+            payBillViewModel.init()
+            navController.navigate(Screens.PayBill.name)
+        },
 
+        ServiceCategory.BILL_HISTORY.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_HISTORY)
+            billHistoryViewModel.clearState()
+            navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.PAY_LATER.name to {
+            appViewModel.addRecentService(ServiceCategory.PAY_LATER)
+            //TODO
+            navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.AIR_PLANE.name to {
+            appViewModel.addRecentService(ServiceCategory.AIR_PLANE)
+            //TODO
+            navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.ANALYTIC.name to {
+            appViewModel.addRecentService(ServiceCategory.ANALYTIC)
+            //TODO
+            navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.BILL_CREATE.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
+            //TODO
+            navController.navigate(Screens.CreateBill.name)
+        },
+        ServiceCategory.HOTEL.name to {
+            appViewModel.addRecentService(ServiceCategory.HOTEL)
+            //TODO
+            navController.navigate(Screens.BillHistory.name)
+        }
+
+    )
 
     Box(
         modifier = Modifier
@@ -224,76 +283,11 @@ fun AppScreen(
                         homeViewModel.onChangeVisibleBalance()
                     },
 
-//                    onNavigateToTransferScreen = {
-//                        transferViewModel.clearState()
-//                        navController.navigate(Screens.Transfer.name)
-//                    },
-//                    onNavigateToDeposit = {
-//                        navController.navigate(Screens.Deposit.name)
-//                    },
-//                    onNavigateToPayBillScreen = {
-//                        payBillViewModel.init()
-//                        navController.navigate(Screens.PayBill.name)
-//                    },
                     navigationBar = { navigationBar() },
-//                    onNavigateToBillHistoryScreen = {
-//                        billHistoryViewModel.clearState()
-//                        navController.navigate(Screens.BillHistory.name)
-//                    },
-//                    onNavigateToTransactionHistory = {
-//                        transactionHistoryViewModel.clearState()
-//                        navController.navigate(Screens.TransactionHistory.name)
-//                    },
-                    onNavigateTo = mapOf(
-                        ServiceCategory.MONEY_TRANSFER.name to {
-                            appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
-                            transferViewModel.clearState()
-                            navController.navigate(Screens.Transfer.name)
-                        },
-                        ServiceCategory.DEPOSIT.name to {
-                            appViewModel.addRecentService(ServiceCategory.DEPOSIT)
-                            navController.navigate(Screens.Deposit.name)
-                        },
-                        ServiceCategory.BILL_PAYMENT.name to {
-                            appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
-                            payBillViewModel.init()
-                            navController.navigate(Screens.PayBill.name)
-                        },
-
-                        ServiceCategory.BILL_HISTORY.name to {
-                            appViewModel.addRecentService(ServiceCategory.BILL_HISTORY)
-                            billHistoryViewModel.clearState()
-                            navController.navigate(Screens.BillHistory.name)
-                        },
-                        ServiceCategory.PAY_LATER.name to {
-                            appViewModel.addRecentService(ServiceCategory.PAY_LATER)
-                            //TODO
-                            navController.navigate(Screens.BillHistory.name)
-                        },
-                        ServiceCategory.AIR_PLANE.name to {
-                            appViewModel.addRecentService(ServiceCategory.AIR_PLANE)
-                            //TODO
-                            navController.navigate(Screens.BillHistory.name)
-                        },
-                        ServiceCategory.ANALYTIC.name to {
-                            appViewModel.addRecentService(ServiceCategory.ANALYTIC)
-                            //TODO
-                            navController.navigate(Screens.BillHistory.name)
-                        },
-                        ServiceCategory.BILL_CREATE.name to {
-                            appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
-                            //TODO
-                            navController.navigate(Screens.CreateBill.name)
-                        },
-                        ServiceCategory.HOTEL.name to {
-                            appViewModel.addRecentService(ServiceCategory.HOTEL)
-                            //TODO
-                            navController.navigate(Screens.BillHistory.name)
-                        }
-
-                    ),
+                    onNavigateTo = navigator,
                     onNavigateServiceList = {
-                        //TODO
+                        allServiceViewModel.init()
+                        navController.navigate(Screens.AllService.name)
                     }
                 )
             }
@@ -732,7 +726,22 @@ fun AppScreen(
                         navController.popBackStack()
                     })
             }
-
+            composable(route = Screens.AllService.name) { backStackEntry ->
+                val uiState by allServiceViewModel.uiState.collectAsState()
+                AllServiceScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onChangeToModifyState = {
+                        //TODO
+                    },
+                    onSaveFavoriteServices = {
+                        //TODO
+                    },
+                    navigator = navigator
+                )
+            }
         }
 
 

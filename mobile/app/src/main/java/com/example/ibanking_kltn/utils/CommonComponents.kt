@@ -1,8 +1,11 @@
 package com.example.ibanking_kltn.utils
 
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,8 +16,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,14 +44,17 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -83,6 +92,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.commandiron.wheel_picker_compose.WheelDatePicker
+import com.commandiron.wheel_picker_compose.core.SelectorProperties
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.BillPayload
@@ -103,6 +114,7 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Gray4
+import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.InfoGradient
 import com.example.ibanking_kltn.ui.theme.LabelColor
 import com.example.ibanking_kltn.ui.theme.SuccessGradient
@@ -110,6 +122,17 @@ import com.example.ibanking_kltn.ui.theme.TextColor
 import com.example.ibanking_kltn.ui.theme.WarningGradient
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.utils.ContinuousSelectionHelper.getSelection
+import com.kizitonwose.calendar.compose.VerticalCalendar
+import com.kizitonwose.calendar.compose.rememberCalendarState
+import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.CalendarMonth
+import com.kizitonwose.calendar.core.DayPosition
+import com.kizitonwose.calendar.core.daysOfWeek
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -997,10 +1020,6 @@ fun BillFilterDialog(
 
 @Composable
 fun TransactionHistoryFilterDialog(
-    selectedStatus: TransactionStatus? = null,
-    selectedService: ServiceType? = null,
-    selectedAccountType: AccountType? = null,
-    selectedSort: SortOption = SortOption.NEWEST,
 
     onSelectStatus: (TransactionStatus) -> Unit = {},
     onSelectService: (ServiceType) -> Unit = {},
@@ -1016,6 +1035,31 @@ fun TransactionHistoryFilterDialog(
     onApply: () -> Unit = {},
     onDismiss: () -> Unit = {}
 ) {
+    var selectedStatus by remember {
+        mutableStateOf<TransactionStatus?>(null)
+    }
+
+    var selectedService by remember {
+        mutableStateOf<ServiceType?>(null)
+    }
+
+    var selectedAccountType by remember {
+        mutableStateOf<AccountType?>(null)
+    }
+
+    var selectedSort by remember {
+        mutableStateOf(SortOption.NEWEST)
+    }
+
+    var selectedFromDate by remember {
+        mutableStateOf(LocalDate.now().minusDays(30))
+    }
+
+    var selectedToDate by remember {
+        mutableStateOf(LocalDate.now())
+    }
+
+
     val transactionStatusOptions = TransactionStatus.entries.map { status ->
         status.status
     }
@@ -1025,270 +1069,777 @@ fun TransactionHistoryFilterDialog(
     val serviceOptions = ServiceType.entries.map { it.serviceName }
     val accountTypeOptions = AccountType.entries.map { it.type }
 
-//TODO    date
+    var isShowFromDatePicker by remember {
+        mutableStateOf(false)
+    }
+    var isShowToDatePicker by remember {
+        mutableStateOf(false)
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = White1, shape = RoundedCornerShape(12.dp)
+                )
+                .padding(5.dp)
+        ) {
+
+            Box(
+                contentAlignment = Alignment.TopEnd,
+            ) {
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(15.dp)
+                ) {
+
+
+                    Text(
+                        text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Trạng thái hóa đơn",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        onResetStatusFilter()
+                                    }
+                                )
+                            }
+
+                            CustomDropdownField(
+                                options = transactionStatusOptions,
+                                selectedOption = selectedStatus?.status ?: "",
+                                onOptionSelected = {
+                                    val selectStatus =
+                                        TransactionStatus.entries.first { transactionStatus ->
+                                            transactionStatus.status == it
+                                        }
+                                    onSelectStatus(selectStatus)
+                                },
+                                placeholder = "Trạng thái hóa đơn"
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Loại dịch vụ",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        onResetServiceFilter()
+                                    }
+                                )
+                            }
+
+                            CustomDropdownField(
+                                options = serviceOptions,
+                                selectedOption = selectedService?.serviceName ?: "",
+                                onOptionSelected = {
+                                    onSelectService(ServiceType.entries.first { service ->
+                                        service.serviceName == it
+                                    })
+                                },
+                                placeholder = "Loại dịch vụ"
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Tài khoản thanh toán",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        onResetAccountTypeFilter()
+                                    }
+                                )
+                            }
+
+                            CustomDropdownField(
+                                options = accountTypeOptions,
+                                selectedOption = selectedAccountType?.type ?: "",
+                                onOptionSelected = {
+                                    onSelectAccountType(AccountType.entries.first { accountType ->
+                                        accountType.type == it
+                                    })
+                                },
+                                placeholder = "Tài khoản thanh toán"
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Ngày",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = CustomTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        onResetStatusFilter()
+                                    }
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                CustomClickField(
+                                    onClick = {
+                                        isShowFromDatePicker = true
+                                    },
+                                    placeholder = "Từ ngày",
+                                    value = selectedFromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.calendar),
+                                            tint = Gray1,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                CustomClickField(
+                                    onClick = {
+                                        isShowToDatePicker = true
+                                    },
+                                    placeholder = "Đến ngày",
+                                    value = selectedToDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.calendar),
+                                            tint = Gray1,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                            }
+                        }
+
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "Bỏ lọc",
+                            style = CustomTypography.bodyMedium,
+                            color = Blue1,
+                            modifier = Modifier.clickable {
+                                onResetSortFilter()
+                            })
+                    }
+
+                    CustomDropdownField(
+                        options = transactionSortOptions,
+                        selectedOption = selectedSort.sortBy,
+                        onOptionSelected = {
+                            onSelectSort(SortOption.entries.first { option ->
+                                option.sortBy == it
+                            }
+                            )
+                        },
+                        placeholder = "Sắp xếp theo"
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                onResetAll()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Gray2
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "Đặt lại",
+                                style = CustomTypography.bodyMedium,
+                                color = Black1
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                onApply()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Blue1
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "Áp dụng",
+                                style = CustomTypography.bodyMedium,
+                                color = White1
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 0.dp, shape = RoundedCornerShape(10.dp)
+                        )
+                        .clickable {
+                            onDismiss()
+                        }) {
+
+                    Icon(
+                        painter = painterResource(R.drawable.close),
+                        contentDescription = null,
+                        tint = Gray1,
+                        modifier = Modifier.size(35.dp)
+                    )
+                }
+            }
+
+
+        }
+
+        if (isShowFromDatePicker) {
+            Box(
+                contentAlignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Gray3.copy(alpha = 0.5f),
+                    )
+                    .padding(20.dp)
+                    .pointerInput(Unit) {}) {
+                CustomDatePicker(
+                    minDate = LocalDate.now().minusDays(30),
+                    maxDate = LocalDate.now(),
+                    onSelectedDate = {
+                        selectedFromDate = it
+                        isShowFromDatePicker = false
+                    },
+                    onDismiss = {
+                        isShowFromDatePicker = false
+                    }
+                )
+
+            }
+
+        }
+        if (isShowToDatePicker) {
+            Box(
+                contentAlignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Gray3.copy(alpha = 0.5f),
+                    )
+                    .padding(20.dp)
+                    .pointerInput(Unit) {}) {
+                CustomDatePicker(
+                    minDate = LocalDate.now().minusDays(30),
+                    maxDate = LocalDate.now(),
+                    onSelectedDate = {
+                        selectedToDate = it
+                        isShowToDatePicker = false
+                    },
+                    onDismiss = {
+                        isShowToDatePicker = false
+                    }
+                )
+
+            }
+
+        }
+
+    }
+}
+
+
+@Composable
+fun CustomSwitchButton(
+    switchPadding: Dp = 4.dp,
+    buttonWidth: Dp = 60.dp,
+    buttonHeight: Dp = 30.dp,
+    value: Boolean,
+    onClick: () -> Unit
+) {
+
+    val switchSize by remember {
+        mutableStateOf(buttonHeight - switchPadding * 2)
+    }
+
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+
+    var switchClicked by remember {
+        mutableStateOf(value)
+    }
+
+    var padding by remember {
+        mutableStateOf(0.dp)
+    }
+
+    padding = if (switchClicked) buttonWidth - switchSize - switchPadding * 2 else 0.dp
+
+    val animateSize by animateDpAsState(
+        targetValue = if (switchClicked) padding else 0.dp,
+        tween(
+            durationMillis = 700,
+            delayMillis = 0,
+            easing = LinearOutSlowInEasing
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .width(buttonWidth)
+            .height(buttonHeight)
+            .clip(CircleShape)
+            .background(if (switchClicked) Green1 else Color.LightGray)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+
+                switchClicked = !switchClicked
+                onClick()
+
+            }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(switchPadding)
+        ) {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(animateSize)
+                    .background(Color.Transparent)
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(switchSize)
+                    .clip(CircleShape)
+                    .background(Color.White)
+            )
+
+        }
+    }
+
+}
+
+
+@Composable
+fun Example2Page(
+    close: () -> Unit = {},
+    dateSelected: (startDate: LocalDate, endDate: LocalDate) -> Unit = { _, _ -> },
+) {
+    val currentMonth = remember { YearMonth.now() }
+    val startMonth = remember { currentMonth }
+    val endMonth = remember { currentMonth.plusMonths(12) }
+    val today = remember { LocalDate.now() }
+    var selection by remember {
+        mutableStateOf(
+            DateSelection(
+                startDate = LocalDate.now().plusDays(1),
+                endDate = LocalDate.now().plusDays(3)
+            )
+        )
+    }
+    val daysOfWeek = remember { daysOfWeek() }
+    MaterialTheme(colorScheme = MaterialTheme.colorScheme.copy(primary = Blue1)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White)
+                .padding(10.dp),
+        ) {
+            Column {
+                val state = rememberCalendarState(
+                    startMonth = startMonth,
+                    endMonth = endMonth,
+                    firstVisibleMonth = currentMonth,
+                    firstDayOfWeek = daysOfWeek.first(),
+                )
+                CalendarTop(
+                    daysOfWeek = daysOfWeek,
+                    selection = selection,
+                    close = close,
+                    clearDates = { selection = DateSelection() },
+                )
+                VerticalCalendar(
+                    state = state,
+                    contentPadding = PaddingValues(bottom = 100.dp),
+                    dayContent = { value ->
+
+                        Day(
+                            value,
+                            today = today,
+                            selection = selection,
+                            isInMonth = value.position == DayPosition.MonthDate,
+                        ) { day ->
+                            if (day.position == DayPosition.MonthDate &&
+                                (day.date == today || day.date.isAfter(today))
+                            ) {
+                                selection = getSelection(
+                                    clickedDate = day.date,
+                                    dateSelection = selection,
+                                )
+                            }
+                        }
+                    },
+                    monthHeader = { month -> MonthHeader(month) },
+                )
+            }
+            CalendarBottom(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .align(Alignment.BottomCenter),
+                selection = selection,
+                save = {
+                    val (startDate, endDate) = selection
+                    if (startDate != null && endDate != null) {
+                        dateSelected(startDate, endDate)
+                    }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun Day(
+    day: CalendarDay,
+    today: LocalDate,
+    selection: DateSelection,
+    isInMonth: Boolean,
+    onClick: (CalendarDay) -> Unit,
+) {
+    var textColor = Black1
+
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f) // This is important for square-sizing!
+            .clickable(
+                enabled = day.position == DayPosition.MonthDate && day.date >= today,
+                onClick = { onClick(day) },
+            )
+            .backgroundHighlight(
+                day = day,
+                today = today,
+                selection = selection,
+            ) { textColor = it },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = day.date.dayOfMonth.toString(),
+            color = if (isInMonth) textColor else Gray1.copy(0.8f),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+        )
+    }
+}
+
+@Composable
+private fun MonthHeader(calendarMonth: CalendarMonth) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = calendarMonth.yearMonth.toString(),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+@Composable
+private fun CalendarTop(
+    modifier: Modifier = Modifier,
+    daysOfWeek: List<DayOfWeek>,
+    selection: DateSelection,
+    close: () -> Unit,
+    clearDates: () -> Unit,
+) {
+    Column(modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp, bottom = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(
+                modifier = Modifier.height(IntrinsicSize.Max),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
+                        .clip(CircleShape)
+                        .clickable(onClick = close)
+                        .padding(12.dp),
+                    painter = painterResource(id = R.drawable.close),
+                    contentDescription = "Close",
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(percent = 50))
+                        .clickable(onClick = clearDates)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    text = "Clear",
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.End,
+                )
+            }
+            val daysBetween = selection.daysBetween
+            val text = if (daysBetween == null) {
+                "Select dates"
+            } else {
+                // Ideally you'd do this using the strings.xml file
+                "$daysBetween ${if (daysBetween == 1L) "night" else "nights"} in Munich"
+            }
+            Text(
+                modifier = Modifier.padding(horizontal = 14.dp),
+                text = text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+            ) {
+                for (dayOfWeek in daysOfWeek) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        color = Color.DarkGray,
+                        text = dayOfWeek.toString().substring(0, 1),
+                        fontSize = 15.sp,
+                    )
+                }
+            }
+        }
+        HorizontalDivider()
+    }
+}
+
+@Composable
+private fun CalendarBottom(
+    modifier: Modifier = Modifier,
+    selection: DateSelection,
+    save: () -> Unit,
+) {
+    Column(modifier.fillMaxWidth()) {
+        HorizontalDivider()
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "€75 night",
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(100.dp),
+                onClick = save,
+                enabled = selection.daysBetween != null,
+            ) {
+                Text(text = "Save")
+            }
+        }
+    }
+}
+
+
+@Composable
+fun CustomDatePicker(
+    minDate: LocalDate,
+    maxDate: LocalDate,
+    onSelectedDate: (LocalDate) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
+
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = White1, shape = RoundedCornerShape(12.dp)
-            )
-            .padding(5.dp)
+                color = Black1,
+                shape = RoundedCornerShape(20.dp)
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(
-            contentAlignment = Alignment.TopEnd,
-        ) {
+        WheelDatePicker(
+            startDate = selectedDate,
+            minDate = minDate,
+            maxDate = maxDate,
+            textColor = White1,
+            selectorProperties = object : SelectorProperties {
+                @Composable
+                override fun border(): State<BorderStroke?> {
+                    return remember {
+                        mutableStateOf(
+                            BorderStroke(
+                                width = 2.dp,
+                                color = Color.Transparent
+                            )
+                        )
+                    }
+                }
 
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.padding(15.dp)
+                @Composable
+                override fun color(): State<Color> {
+                    return remember {
+
+                        mutableStateOf(
+                            Color.Transparent
+                        )
+                    }
+                }
+
+                @Composable
+                override fun enabled(): State<Boolean> {
+                    return remember {
+                        mutableStateOf(
+                            true
+                        )
+                    }
+                }
+
+                @Composable
+                override fun shape(): State<Shape> {
+                    return remember {
+                        mutableStateOf(
+                            RoundedCornerShape(0.dp)
+                        )
+                    }
+                }
+            },
+        ) { date ->
+            selectedDate = date
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+
             ) {
-
-
-                Text(
-                    text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
-                )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-
-                    ) {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Trạng thái hóa đơn",
-                                style = CustomTypography.bodyMedium,
-                                color = Gray1
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Bỏ lọc",
-                                style = CustomTypography.bodyMedium,
-                                color = Blue1,
-                                modifier = Modifier.clickable {
-                                    onResetStatusFilter()
-                                }
-                            )
-                        }
-
-                        CustomDropdownField(
-                            options = transactionStatusOptions,
-                            selectedOption = selectedStatus?.status ?: "",
-                            onOptionSelected = {
-                                val selectStatus =
-                                    TransactionStatus.entries.first { transactionStatus ->
-                                        transactionStatus.status == it
-                                    }
-                                onSelectStatus(selectStatus)
-                            },
-                            placeholder = "Trạng thái hóa đơn"
-                        )
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-
-                    ) {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Loại dịch vụ",
-                                style = CustomTypography.bodyMedium,
-                                color = Gray1
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Bỏ lọc",
-                                style = CustomTypography.bodyMedium,
-                                color = Blue1,
-                                modifier = Modifier.clickable {
-                                    onResetServiceFilter()
-                                }
-                            )
-                        }
-
-                        CustomDropdownField(
-                            options = serviceOptions,
-                            selectedOption = selectedService?.serviceName ?: "",
-                            onOptionSelected = {
-                                onSelectService(ServiceType.entries.first { service ->
-                                    service.serviceName == it
-                                })
-                            },
-                            placeholder = "Loại dịch vụ"
-                        )
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-
-                    ) {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Tài khoản thanh toán",
-                                style = CustomTypography.bodyMedium,
-                                color = Gray1
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Bỏ lọc",
-                                style = CustomTypography.bodyMedium,
-                                color = Blue1,
-                                modifier = Modifier.clickable {
-                                    onResetAccountTypeFilter()
-                                }
-                            )
-                        }
-
-                        CustomDropdownField(
-                            options = accountTypeOptions,
-                            selectedOption = selectedAccountType?.type ?: "",
-                            onOptionSelected = {
-                                onSelectAccountType(AccountType.entries.first { accountType ->
-                                    accountType.type == it
-                                })
-                            },
-                            placeholder = "Tài khoản thanh toán"
-                        )
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-
-                    ) {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Ngày",
-                                style = CustomTypography.bodyMedium,
-                                color = Gray1
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            Text(
-                                text = "Bỏ lọc",
-                                style = CustomTypography.bodyMedium,
-                                color = Blue1,
-                                modifier = Modifier.clickable {
-                                    onResetStatusFilter()
-                                }
-                            )
-                        }
-                        //TODO
-                        CustomDropdownField(
-                            options = emptyList(),
-                            selectedOption = "",
-                            onOptionSelected = {
-//                                onSelectStatus(it)
-                            },
-                            placeholder = "Tài khoản thanh toán"
-                        )
-                    }
-
-                }
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
-                )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Bỏ lọc",
-                        style = CustomTypography.bodyMedium,
-                        color = Blue1,
-                        modifier = Modifier.clickable {
-                            onResetSortFilter()
-                        })
-                }
-
-                CustomDropdownField(
-                    options = transactionSortOptions,
-                    selectedOption = selectedSort.sortBy,
-                    onOptionSelected = {
-                        onSelectSort(SortOption.entries.first { option ->
-                            option.sortBy == it
-                        }
-                        )
-                    },
-                    placeholder = "Sắp xếp theo"
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            onResetAll()
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Gray2
-                        ),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Text(
-                            text = "Đặt lại", style = CustomTypography.bodyMedium, color = Black1
-                        )
-                    }
-
-                    Button(
-                        onClick = {
-                            onApply()
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Blue1
-                        ),
-                        shape = RoundedCornerShape(10.dp)
-                    ) {
-                        Text(
-                            text = "Áp dụng", style = CustomTypography.bodyMedium, color = White1
-                        )
-                    }
-                }
+            TextButton(
+                onClick = {
+                    onDismiss()
+                },
+                contentPadding = PaddingValues(horizontal = 40.dp)
+            ) {
+                Text("Thoát", color = White1)
             }
-            Box(
-                modifier = Modifier
-                    .shadow(
-                        elevation = 0.dp, shape = RoundedCornerShape(10.dp)
-                    )
-                    .clickable {
-                        onDismiss()
-                    }) {
-
-                Icon(
-                    painter = painterResource(R.drawable.close),
-                    contentDescription = null,
-                    tint = Gray1,
-                    modifier = Modifier.size(35.dp)
-                )
+            TextButton(
+                onClick = {
+                    onSelectedDate(selectedDate)
+                },
+                contentPadding = PaddingValues(horizontal = 40.dp)
+            ) {
+                Text("OK", color = White1)
             }
         }
 
@@ -1296,9 +1847,72 @@ fun TransactionHistoryFilterDialog(
     }
 }
 
+//@Preview(heightDp = 800)
+//@Composable
+//private fun Example2Preview() {
+//    Example2Page()
+//}
+
+@Composable
+fun CustomClickField(
+    onClick: () -> Unit,
+    value: String,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    trailingIcon: @Composable (() -> Unit) = { },
+) {
+
+
+    Box(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 30.dp,
+                    shape = RoundedCornerShape(30),
+                    ambientColor = Black1.copy(alpha = 0.25f),
+                    spotColor = Black1.copy(alpha = 0.25f)
+                )
+                .border(
+                    width = 1.dp, color = Gray2, shape = RoundedCornerShape(30)
+                )
+                .background(
+                    color = White1, shape = RoundedCornerShape(30)
+                )
+                .clickable {
+                    onClick()
+                }
+                .padding(15.dp)) {
+            Column(
+                verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
+            ) {
+                if (value == "") Text(
+                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                )
+                else Text(
+                    text = value, style = CustomTypography.titleMedium, color = Black1
+                )
+
+            }
+            trailingIcon()
+
+        }
+    }
+
+}
+
 
 @Composable
 @Preview()
 fun Preview() {
-    TransactionHistoryFilterDialog()
+    TransactionHistoryFilterDialog(
+
+    )
+//    CustomDatePicker(
+//        minDate = LocalDate.now().minusYears(1),
+//        maxDate = LocalDate.now().plusYears(1),
+//        onSelectedDate = {},
+//        onDismiss = {}
+//    )
 }

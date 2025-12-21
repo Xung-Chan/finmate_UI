@@ -75,7 +75,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.ui)
+//    implementation(libs.androidx.ui)
     implementation(libs.androidx.browser)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -88,7 +88,6 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.9.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose-android:2.9.2")
-    implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -124,5 +123,11 @@ dependencies {
     //pagination
     implementation("androidx.paging:paging-runtime:3.3.6")
     implementation("androidx.paging:paging-compose:3.3.6")
+
+    //calendar
+    implementation("com.kizitonwose.calendar:view:2.9.0")
+    implementation("com.kizitonwose.calendar:compose:2.9.0")
+
+    implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
 
 }

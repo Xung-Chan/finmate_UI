@@ -369,10 +369,10 @@ fun TransactionHistoryScreen(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 TransactionHistoryFilterDialog(
-                    selectedStatus = selectedStatus,
-                    selectedSort = selectedSort,
-                    selectedAccountType = selectedAccountType,
-                    selectedService = selectedService,
+//                    selectedStatus = selectedStatus,
+//                    selectedSort = selectedSort,
+//                    selectedAccountType = selectedAccountType,
+//                    selectedService = selectedService,
                     onSelectStatus = {
                         selectedStatus = it
                     },
