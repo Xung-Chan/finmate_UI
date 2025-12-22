@@ -18,7 +18,7 @@ class WalletRepository @Inject constructor(
                 walletNumber = "1234567890",
                 id = "ID",
                 mail = "sbakjsbask",
-                balance = 10000.0,
+                balance = 100000000.0,
                 merchantName = "Nguyen Van A",
                 status = "ACTIVE",
                 username = "avsjhsbasa",

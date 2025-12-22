@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.dtos.ServiceItem
 import com.example.ibanking_kltn.ui.uistates.AllServiceUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,6 +33,30 @@ class AllServiceViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 favoriteServices =favoriteServices
+            )
+        }
+    }
+
+    fun onChangeModifyFavorite() {
+        _uiState.update {
+            it.copy(
+                isModifyFavorite = true
+            )
+        }
+    }
+
+    fun onSaveFavoriteServices(services: List<ServiceCategory>) {
+        val serviceItems = services.map { service ->
+            ServiceItem(
+                service = service.name,
+                lastUsed = System.currentTimeMillis()
+            )
+        }
+        serviceManager.updateFavorite(serviceItems)
+        _uiState.update {
+            it.copy(
+                isModifyFavorite = false,
+                favoriteServices = services
             )
         }
     }

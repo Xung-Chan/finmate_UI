@@ -1077,7 +1077,8 @@ fun TransactionHistoryFilterDialog(
     }
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -1906,13 +1907,4 @@ fun CustomClickField(
 @Composable
 @Preview()
 fun Preview() {
-    TransactionHistoryFilterDialog(
-
-    )
-//    CustomDatePicker(
-//        minDate = LocalDate.now().minusYears(1),
-//        maxDate = LocalDate.now().plusYears(1),
-//        onSelectedDate = {},
-//        onDismiss = {}
-//    )
 }

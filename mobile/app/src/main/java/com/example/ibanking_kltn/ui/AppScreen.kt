@@ -734,10 +734,10 @@ fun AppScreen(
                         navController.popBackStack()
                     },
                     onChangeToModifyState = {
-                        //TODO
+                        allServiceViewModel.onChangeModifyFavorite()
                     },
                     onSaveFavoriteServices = {
-                        //TODO
+                        allServiceViewModel.onSaveFavoriteServices(it)
                     },
                     navigator = navigator
                 )
