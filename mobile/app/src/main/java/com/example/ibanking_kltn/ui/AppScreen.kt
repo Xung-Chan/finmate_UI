@@ -35,6 +35,7 @@ import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
+import com.example.ibanking_kltn.ui.screens.CreateBillScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
@@ -55,6 +56,7 @@ import com.example.ibanking_kltn.ui.viewmodels.BillHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
+import com.example.ibanking_kltn.ui.viewmodels.CreateBillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
@@ -102,6 +104,7 @@ fun AppScreen(
     val transactionHistoryViewModel: TransactionHistoryViewModel = hiltViewModel()
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
     val allServiceViewModel: AllServiceViewModel = hiltViewModel()
+    val createBillViewModel: CreateBillViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -125,7 +128,9 @@ fun AppScreen(
             onNavigateToHomeScreen = {
                 navController.navigate(Screens.Home.name)
             },
-            onNavigateToWalletScreen = {},
+            onNavigateToTransactionHistoryScreen = {
+                navController.navigate(Screens.TransactionHistory.name)
+            },
             onNavigateToAnalyticsScreen = {},
             onNavigateToQRScanner = {
                 navController.navigate(Screens.QRScanner.name)
@@ -576,6 +581,7 @@ fun AppScreen(
 
             }
             composable(route = Screens.QRScanner.name) { backStackEntry ->
+                //TODO
                 val uiState by qrScannerViewModel.uiState.collectAsState()
                 QRScannerScreen(
                     uiState = uiState,
@@ -610,37 +616,37 @@ fun AppScreen(
                 )
             }
             composable(route = Screens.CreateBill.name) { backStackEntry ->
-                val uiState by qrScannerViewModel.uiState.collectAsState()
-                QRScannerScreen(
+                val uiState by createBillViewModel.uiState.collectAsState()
+                CreateBillScreen(
                     uiState = uiState,
-                    detecting = {
-                        qrScannerViewModel.onDetecting(qrCode = it, onBillDetecting = {
-                            payBillViewModel.init()
-                            navController.navigate(Screens.PayBill.name) {
-                                launchSingleTop = true
-                                popUpTo(Screens.Home.name)
-                            }
-                            payBillViewModel.onChangeBillCode(it.billCode)
-                            payBillViewModel.onCheckingBill()
-                        }, onTransferDetecting = { payload ->
-                            transferViewModel.init()
-                            transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
-                            payload.amount?.let { amount ->
-                                transferViewModel.onAmountChange(amount.toString())
-                            }
-                            navController.navigate(Screens.Transfer.name) {
-                                launchSingleTop = true
-                                popUpTo(Screens.Home.name)
-
-                            }
-                            transferViewModel.onDoneWalletNumber()
-
-                        }, onError = { message ->
-                            appViewModel.showSnackBarMessage(
-                                message = message, type = SnackBarType.INFO
-                            )
-                        })
+                    onBackClick = {
+                        navController.popBackStack()
                     },
+                    isEnableContinue = createBillViewModel.isEnableCreateBill(),
+                    onContinueClick = {
+                        createBillViewModel.onContinueClick(
+                            onSucess = {
+                                billDetailViewModel.init(bill = it)
+                                navController.navigate(Screens.BillDetail.name)
+                            },
+                            onError =onError
+                        )
+                    },
+                    onChangeAmount = {
+                        createBillViewModel.onAmountChange(it)
+                    },
+                    onChangeDescription = {
+                        createBillViewModel.onDescriptionChange(it)
+                    },
+                    onExpenseTypeChange = {
+                        createBillViewModel.onExpenseTypeChange(it)
+                    },
+                    onAccountTypeChange = {
+                        createBillViewModel.onAccountTypeChange(it)
+                    },
+                    onDateChange = {
+                        createBillViewModel.onExpiryDateChange(it)
+                    }
                 )
             }
             composable(route = Screens.BillHistory.name) { backStackEntry ->
@@ -680,6 +686,7 @@ fun AppScreen(
                 })
             }
             composable(route = Screens.TransactionHistory.name) { backStackEntry ->
+                tabNavigation = TabNavigation.HISTORY
                 val uiState by transactionHistoryViewModel.uiState.collectAsState()
                 val transactions =
                     transactionHistoryViewModel.transactionHistoryPager.collectAsLazyPagingItems()

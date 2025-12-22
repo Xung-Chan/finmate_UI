@@ -9,7 +9,6 @@ import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
@@ -18,7 +17,19 @@ class BillRepository @Inject constructor(
     private val billApi: BillApi
 ) {
     suspend fun createBill(request: CreateBillRequest): ApiResult<BillResponse> {
-        return safeApiCall { billApi.createBill(request) }
+//        return safeApiCall { billApi.createBill(request) }
+        return ApiResult.Success(
+            data = BillResponse(
+                merchantName = "Mocked Merchant",
+                amount = request.amount,
+                dueDate = request.dueDate,
+                billStatus = "ACTIVE",
+                description = request.description,
+                metadata = "",
+                qrIdentifier = "MOCKED-QR-CODE-12345",
+                walletNumber = "0987654321"
+            )
+        )
     }
 
     suspend fun getBillInfo(qrCode: String): ApiResult<BillResponse> {

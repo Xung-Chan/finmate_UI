@@ -218,6 +218,88 @@ fun CustomTextField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun <T> CustomDropdownField(
+    modifier: Modifier = Modifier,
+    options: List<T>,
+    optionsComposable: @Composable (T) -> Unit,
+    selectedOption: String,
+    onOptionSelected: (T) -> Unit,
+    placeholder: String
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var boxWidth by remember { mutableIntStateOf(0) }
+    Box(
+        modifier = modifier.onGloballyPositioned { coordinates ->
+            boxWidth = coordinates.size.width
+        }) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .shadow(
+                    elevation = 30.dp,
+                    shape = RoundedCornerShape(30),
+                    ambientColor = Black1.copy(alpha = 0.25f),
+                    spotColor = Black1.copy(alpha = 0.25f)
+                )
+                .border(
+                    width = 1.dp, color = Gray2, shape = RoundedCornerShape(30)
+                )
+                .background(
+                    color = White1, shape = RoundedCornerShape(30)
+                )
+                .clickable {
+                    expanded = true
+                }
+                .padding(15.dp)) {
+            Column(
+                verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
+            ) {
+                if (selectedOption == "") Text(
+                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                )
+                else Text(
+                    text = selectedOption, style = CustomTypography.titleMedium, color = Black1
+                )
+
+            }
+            Icon(
+                painter = painterResource(R.drawable.dropdown),
+                tint = Gray1,
+                contentDescription = null,
+                modifier = Modifier.size(25.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+            },
+            containerColor = White1,
+            modifier = Modifier.width(with(LocalDensity.current) { boxWidth.toDp() })
+
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+
+                    text = {
+                        optionsComposable(option)
+                    },
+                    onClick = {
+                        expanded = false
+                        onOptionSelected(
+                            option
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun CustomDropdownField(
     modifier: Modifier = Modifier,
     options: List<String>,
@@ -500,7 +582,7 @@ fun NavigationBar(
     currentTab: TabNavigation,
     onNavigateToSettingScreen: () -> Unit,
     onNavigateToHomeScreen: () -> Unit,
-    onNavigateToWalletScreen: () -> Unit,
+    onNavigateToTransactionHistoryScreen: () -> Unit,
     onNavigateToAnalyticsScreen: () -> Unit,
     onNavigateToQRScanner: () -> Unit,
 ) {
@@ -560,12 +642,12 @@ fun NavigationBar(
                     }
 
                     IconButton(onClick = {
-                        onNavigateToWalletScreen()
+                        onNavigateToTransactionHistoryScreen()
                     }) {
                         Icon(
-                            painter = painterResource(R.drawable.wallet),
+                            painter = painterResource(R.drawable.history_bold),
                             contentDescription = null,
-                            tint = if (currentTab == TabNavigation.WALLET) Blue3 else Gray1,
+                            tint = if (currentTab == TabNavigation.HISTORY) Blue3 else Gray1,
                             modifier = Modifier.size(35.dp)
                         )
                     }

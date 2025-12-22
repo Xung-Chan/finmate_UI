@@ -23,16 +23,22 @@ class AllServiceViewModel @Inject constructor(
     val uiState: StateFlow<AllServiceUiState> = _uiState.asStateFlow()
 
     fun init() {
+        clear()
         loadFavoriteServices()
     }
-    private fun loadFavoriteServices() {
+
+    fun clear() {
+        _uiState.value = AllServiceUiState()
+    }
+
+    fun loadFavoriteServices() {
         val savedServices = serviceManager.getFavoriteServices()
         val favoriteServices = savedServices.map { service ->
             ServiceCategory.valueOf(service.service)
         }
         _uiState.update {
             it.copy(
-                favoriteServices =favoriteServices
+                favoriteServices = favoriteServices
             )
         }
     }

@@ -7,5 +7,6 @@ data class WalletResponse(
     val merchantName: String,
     val status: String,
     val username: String,
-    val walletNumber: String
+    val walletNumber: String,
+    val verified: Boolean
 )

@@ -22,6 +22,7 @@ class WalletRepository @Inject constructor(
                 merchantName = "Nguyen Van A",
                 status = "ACTIVE",
                 username = "avsjhsbasa",
+                verified = true
             )
         )
     }
@@ -39,7 +40,9 @@ class WalletRepository @Inject constructor(
                 balance = 10000.0,
                 merchantName = "Nguyen Van A",
                 status = "ACTIVE",
-                username = "avsjhsbasa",
+                    username = "avsjhsbasa",
+                verified = true
+
             )
         )
 
