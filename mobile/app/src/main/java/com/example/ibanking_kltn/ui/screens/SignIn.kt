@@ -365,9 +365,7 @@ fun SignInScreen(
                         )
                     Text(
                         text = "Khi đăng xuất bạn sẽ không nhận được các thông báo từ tài khoản này nữa.",
-                        style = CustomTypography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
+                        style = CustomTypography.titleMedium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                         color = Gray1

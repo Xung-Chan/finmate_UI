@@ -54,14 +54,48 @@ class SettingViewModel @Inject constructor(
     ) {
         if (uiState.value.isEnableBiometric) {
 
-            //TODO turn off biometric
-            biometricManager.clear()
             _uiState.update {
                 it.copy(
-                    isEnableBiometric = false
+                    screenState = StateType.LOADING
                 )
             }
-            onSuccess(false)
+
+            viewModelScope.launch {
+                var deviceId = biometricManager.getDeviceToken()
+                if (deviceId == null) {
+                    deviceId = biometricManager.generateDeviceToken()
+                }
+                val request = RegisterBiometricRequest(
+                    deviceId = deviceId,
+                    password = uiState.value.confirmPassword,
+                )
+                val apiResult = authRepository.cancelBiometric(
+                    request = request
+                )
+                when (apiResult) {
+                    is ApiResult.Success -> {
+                        biometricManager.clear()
+                        _uiState.update {
+                            it.copy(
+                                isEnableBiometric = false,
+                                screenState = StateType.SUCCESS
+
+                            )
+                        }
+                        onSuccess(false)
+                    }
+
+                    is ApiResult.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                screenState = StateType.FAILED(apiResult.message)
+                            )
+                        }
+                        onError(apiResult.message)
+                    }
+                }
+            }
+
         } else {
             _uiState.update {
                 it.copy(
@@ -96,12 +130,23 @@ class SettingViewModel @Inject constructor(
                     }
 
                     is ApiResult.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                screenState = StateType.FAILED(apiResult.message)
+                            )
+                        }
                         onError(apiResult.message)
                     }
                 }
             }
+
         }
     }
 
+    fun onChangePasswordConfirm(newPassword: String) {
+        _uiState.update {
+            it.copy(confirmPassword = newPassword)
+        }
+    }
 
 }

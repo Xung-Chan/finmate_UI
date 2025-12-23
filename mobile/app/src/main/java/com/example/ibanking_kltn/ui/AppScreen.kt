@@ -500,7 +500,11 @@ fun AppScreen(
                             }
                         }
                     },
-                    navigationBar = { navigationBar() }
+                    navigationBar = { navigationBar() },
+                    onChangePassword = {
+                        settingViewModel.onChangePasswordConfirm(it)
+                    },
+                    onError = onError
 
                 )
             }
@@ -650,6 +654,9 @@ fun AppScreen(
                             )
                         })
                     },
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
                 )
             }
             composable(route = Screens.CreateBill.name) { backStackEntry ->

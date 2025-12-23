@@ -5,13 +5,41 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.Black1
+import com.example.ibanking_kltn.ui.theme.CustomTypography
+import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.uistates.QRScannerUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.QRCodeAnalyzer
@@ -20,41 +48,139 @@ import com.example.ibanking_kltn.utils.QRCodeAnalyzer
 @Composable
 fun QRScannerScreen(
     uiState: QRScannerUiState,
-//    onBillDetecting: (BillPayload) -> Unit,
-//    onTransferDetecting: (TransferPayload) -> Unit,
     detecting: (String) -> Unit,
+    onBackClick: () -> Unit,
 //    onError: (String) -> Unit
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    AndroidView(factory = { ctx ->
-        val previewView = PreviewView(ctx)
-        val cameraProviderFuture = ProcessCameraProvider.Companion.getInstance(ctx)
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().apply {
-                surfaceProvider = previewView.surfaceProvider
-            }
-            val analyzer = ImageAnalysis.Builder()
-                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .build().also {
-                    it.setAnalyzer(
-                        ContextCompat.getMainExecutor(ctx),
-                        QRCodeAnalyzer { qrCode ->
-                            if (uiState.state != StateType.LOADING && !uiState.isDetectSuccess)
-                                detecting(qrCode)
+    Box {
+        Scaffold(
+            topBar = {
 
+                TopAppBar(
+                    title = {
+                        Text(text = "Quét mã QR")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+
+                            onBackClick()
+                        }) {
+                            Icon(
+                                Icons.Default.ArrowBackIosNew,
+                                contentDescription = null,
+                                modifier = Modifier.size(25.dp),
+                                tint = White1
+                            )
                         }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        titleContentColor = White1,
+                        containerColor = Black1
+                    ),
+                )
+            },
+            containerColor = Color.Transparent,
+            modifier = Modifier.systemBarsPadding()
+        ) { paddingValues ->
+            Column(modifier = Modifier.padding(paddingValues)) {
+                AndroidView(
+                    factory = { ctx ->
+                        val previewView = PreviewView(ctx)
+                        val cameraProviderFuture = ProcessCameraProvider.Companion.getInstance(ctx)
+                        cameraProviderFuture.addListener({
+                            val cameraProvider = cameraProviderFuture.get()
+                            val preview = Preview.Builder().build().apply {
+                                surfaceProvider = previewView.surfaceProvider
+                            }
+                            val analyzer = ImageAnalysis.Builder()
+                                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                .build().also {
+                                    it.setAnalyzer(
+                                        ContextCompat.getMainExecutor(ctx),
+                                        QRCodeAnalyzer { qrCode ->
+                                            if (uiState.state != StateType.LOADING && !uiState.isDetectSuccess)
+                                                detecting(qrCode)
+
+                                        }
+                                    )
+                                }
+                            cameraProvider.unbindAll()
+                            cameraProvider.bindToLifecycle(
+                                lifecycleOwner,
+                                CameraSelector.DEFAULT_BACK_CAMERA,
+                                preview,
+                                analyzer
+                            )
+                        }, ContextCompat.getMainExecutor(ctx))
+                        previewView
+                    },
+                    modifier = Modifier.Companion.fillMaxSize()
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(R.drawable.scan),
+                contentDescription = "QR Scanner Frame",
+                modifier = Modifier.size(350.dp)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(20.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.padding(vertical = 20.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = White1,
+                            shape = CircleShape
+                        )
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = CircleShape,
+                            ambientColor = Color.Transparent,
+                            spotColor = Color.Transparent
+                        )
+                        .clickable {
+                            //TODO: Chọn ảnh từ thư viện
+                        }
+                        .padding(10.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.image),
+                        contentDescription = "Gallery Icon",
+                        modifier = Modifier.size(25.dp)
                     )
                 }
-            cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
-                lifecycleOwner,
-                CameraSelector.DEFAULT_BACK_CAMERA,
-                preview,
-                analyzer
-            )
-        }, ContextCompat.getMainExecutor(ctx))
-        previewView
-    }, modifier = Modifier.Companion.fillMaxSize())
+                Text(
+                    text = "Chọn ảnh QR",
+                    style = CustomTypography.bodyMedium,
+                    color = White1
+                )
+            }
+        }
+    }
+
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showSystemUi = true,showBackground = true)
+@Composable
+fun QRScannerPreview() {
+    QRScannerScreen(QRScannerUiState(), detecting = {}, onBackClick = {}
+
+    )
 }

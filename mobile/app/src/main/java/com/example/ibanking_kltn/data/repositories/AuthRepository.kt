@@ -64,6 +64,12 @@ class AuthRepository @Inject constructor(
             )
         )
     }
+    suspend fun cancelBiometric(request: RegisterBiometricRequest): ApiResult<Unit> {
+//        return safeApiCall { biometricApi.cancelBiometric(request = request) }
+        return ApiResult.Success(
+            data = Unit
+        )
+    }
 
     suspend fun requestOtp(request: RequestOtpRequest): ApiResult<RequestOtpResponse> {
 //        return safeApiCall { nonAuthApi.requestOtp(request = request) }

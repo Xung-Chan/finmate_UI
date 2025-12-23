@@ -15,5 +15,10 @@ interface BiometricApi {
         @Body request: RegisterBiometricRequest
     ): Response<RegisterBiometricResponse>
 
+    @POST("/api/biometric/cancel")
+    suspend fun cancelBiometric(
+        @Body request: RegisterBiometricRequest
+    ): Response<Unit>
+
 
 }
