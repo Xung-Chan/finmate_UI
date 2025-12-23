@@ -1,14 +1,18 @@
 package com.example.ibanking_kltn.data.repositories
 
 import com.example.ibanking_kltn.data.api.AuthApi
+import com.example.ibanking_kltn.data.api.BiometricApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.dtos.requests.ChangePasswordRequest
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.data.dtos.requests.LoginViaBiometricRequest
+import com.example.ibanking_kltn.data.dtos.requests.RegisterBiometricRequest
 import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
 import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
 import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
 import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
+import com.example.ibanking_kltn.data.dtos.responses.RegisterBiometricResponse
 import com.example.ibanking_kltn.data.dtos.responses.RequestOtpResponse
 import com.example.ibanking_kltn.data.dtos.responses.VerifyOtpResponse
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -16,7 +20,8 @@ import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val authApi: AuthApi,
-    private val nonAuthApi: NonAuthApi
+    private val nonAuthApi: NonAuthApi,
+    private val biometricApi: BiometricApi
 ) {
 
 
@@ -35,6 +40,27 @@ class AuthRepository @Inject constructor(
                 refresh_token = "mocked-refresh-token",
                 id_token = "mocked-id-token",
                 expires_in = 100
+            )
+        )
+    }
+
+    suspend fun loginViaBiometric(request: LoginViaBiometricRequest): ApiResult<LoginResponse> {
+//        return safeApiCall { nonAuthApi.login(request = request) }
+        return ApiResult.Success(
+            LoginResponse(
+                access_token = "mocked-access-token",
+                refresh_token = "mocked-refresh-token",
+                id_token = "mocked-id-token",
+                expires_in = 100
+            )
+        )
+    }
+
+    suspend fun registerBiometric(request: RegisterBiometricRequest): ApiResult<RegisterBiometricResponse> {
+//        return safeApiCall { biometricApi.registerBiometric(request = request) }
+        return ApiResult.Success(
+            RegisterBiometricResponse(
+                biometricKey = "mocked-biometric-key"
             )
         )
     }

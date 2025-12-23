@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.ServiceManager
+import com.example.ibanking_kltn.data.di.TokenManager
+import com.example.ibanking_kltn.data.dtos.LastLoginUser
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -22,6 +24,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
     private val serviceManager: ServiceManager,
+    private val tokenManager: TokenManager,
+
     @ApplicationContext private val context: Context
 ) : ViewModel(), IViewModel {
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -74,6 +78,12 @@ class HomeViewModel @Inject constructor(
                             myWallet = walletResponse
                         )
                     }
+                    tokenManager.setLastLoginUser(
+                        lastLoginUser = LastLoginUser(
+                            username = walletResponse.username,
+                            fullName = walletResponse.merchantName,
+                        )
+                    )
                 }
 
                 is ApiResult.Error -> {

@@ -47,7 +47,6 @@ import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
-import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
@@ -61,6 +60,7 @@ import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
+import com.example.ibanking_kltn.ui.viewmodels.SettingViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
@@ -105,6 +105,7 @@ fun AppScreen(
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
     val allServiceViewModel: AllServiceViewModel = hiltViewModel()
     val createBillViewModel: CreateBillViewModel = hiltViewModel()
+    val settingViewModel: SettingViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -123,17 +124,25 @@ fun AppScreen(
             bottomBarHeight = 100.dp,
             currentTab = tabNavigation,
             onNavigateToSettingScreen = {
-                navController.navigate(Screens.Settings.name)
+                navController.navigate(Screens.Settings.name){
+                    launchSingleTop=true
+                }
             },
             onNavigateToHomeScreen = {
-                navController.navigate(Screens.Home.name)
+                navController.navigate(Screens.Home.name){
+                    launchSingleTop=true
+                }
             },
             onNavigateToTransactionHistoryScreen = {
-                navController.navigate(Screens.TransactionHistory.name)
+                navController.navigate(Screens.TransactionHistory.name){
+                    launchSingleTop=true
+                }
             },
             onNavigateToAnalyticsScreen = {},
             onNavigateToQRScanner = {
-                navController.navigate(Screens.QRScanner.name)
+                navController.navigate(Screens.QRScanner.name){
+                    launchSingleTop=true
+                }
             })
     }
     val navigator = mapOf(
@@ -174,7 +183,7 @@ fun AppScreen(
         },
         ServiceCategory.BILL_CREATE.name to {
             appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
-            //TODO
+            createBillViewModel.init()
             navController.navigate(Screens.CreateBill.name)
         },
         ServiceCategory.HOTEL.name to {
@@ -195,6 +204,10 @@ fun AppScreen(
         ) {
             composable(route = Screens.SignIn.name) {
                 val authUiState by authViewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    authViewModel.clearState()
+                    authViewModel.loadLastLoginUser()
+                }
                 SignInScreen(
                     uiState = authUiState,
                     onLoginClick = {
@@ -204,9 +217,9 @@ fun AppScreen(
                             onSuccess = {
                                 homeViewModel.init()
                                 navController.navigate(Screens.Home.name) {
-//                                popUpTo(Screens.SignIn.name) {
-//                                    inclusive = true
-//                                }
+                                    popUpTo(Screens.SignIn.name) {
+                                        inclusive = true
+                                    }
                                 }
                                 appViewModel.showSnackBarMessage(
                                     message = "Đăng nhập thành công",
@@ -221,15 +234,6 @@ fun AppScreen(
                             },
                         )
 
-                        //mock
-//                        navController.navigate(Screens.Home.name)
-//                        appViewModel.showSnackBarMessage(
-//                            message = "Đăng nhập thành công",
-//                            type = SnackBarType.SUCCESS,
-//                            actionLabel = "Đóng",
-//                            onAction = {
-//                                appViewModel.closeSnackBarMessage()
-//                            })
                     },
                     onEmailChange = { it -> authViewModel.onEmailChange(it) },
                     onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
@@ -262,7 +266,11 @@ fun AppScreen(
                                 )
                             })
 
-                    })
+                    },
+                    onDeleteLastLoginUser = {
+                        authViewModel.onDeleteLastLoginUser()
+                    }
+                )
 
             }
             composable(route = Screens.TransactionResult.name) {
@@ -456,13 +464,42 @@ fun AppScreen(
             }
             composable(route = Screens.Settings.name) {
                 tabNavigation = TabNavigation.PROFILE
+                val uiState by settingViewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    settingViewModel.init()
+                }
                 SettingScreen(
-                    uiState = SettingUiState(),
-                    onViewProfileClick = {},
+                    uiState = uiState,
+                    onViewProfileClick = {
+                        //TODO
+                    },
                     onChangePasswordClick = {
                         navController.navigate(Screens.ChangePassword.name)
                     },
-                    clickBiometric = {},
+                    onClickBiometric = {
+                        settingViewModel.onSwitchBiometric(
+                            onSuccess = { isEnable ->
+                                val message = if (isEnable) {
+                                    "Bật đăng nhập bằng sinh trắc học thành công"
+                                } else {
+                                    "Tắt đăng nhập bằng sinh trắc học thành công"
+                                }
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.INFO
+                                )
+                            },
+                            onError = onError
+                        )
+                    },
+                    onLogout = {
+                        authViewModel.onLogout()
+                        navController.navigate(Screens.SignIn.name) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     navigationBar = { navigationBar() }
 
                 )
@@ -627,9 +664,12 @@ fun AppScreen(
                         createBillViewModel.onContinueClick(
                             onSucess = {
                                 billDetailViewModel.init(bill = it)
-                                navController.navigate(Screens.BillDetail.name)
+                                navController.navigate(Screens.BillDetail.name) {
+                                    launchSingleTop = true
+                                    popUpTo(Screens.Home.name)
+                                }
                             },
-                            onError =onError
+                            onError = onError
                         )
                     },
                     onChangeAmount = {
@@ -640,9 +680,6 @@ fun AppScreen(
                     },
                     onExpenseTypeChange = {
                         createBillViewModel.onExpenseTypeChange(it)
-                    },
-                    onAccountTypeChange = {
-                        createBillViewModel.onAccountTypeChange(it)
                     },
                     onDateChange = {
                         createBillViewModel.onExpiryDateChange(it)

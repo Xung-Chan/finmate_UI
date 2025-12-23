@@ -1,9 +1,8 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
-
 data class SettingUiState(
-    val state: StateType = StateType.NONE,
-    val myWallet: WalletResponse? = null,
-    val isBalanceShow: Boolean = false
+    val screenState: StateType = StateType.NONE,
+    val isEnableBiometric: Boolean = false,
+    val username: String = "",
+    val confirmPassword: String = "",
 )

@@ -108,6 +108,7 @@ import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
+import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.ErrorGradient
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -1935,7 +1936,6 @@ fun CustomDatePicker(
 //private fun Example2Preview() {
 //    Example2Page()
 //}
-
 @Composable
 fun CustomClickField(
     onClick: () -> Unit,
@@ -1981,6 +1981,121 @@ fun CustomClickField(
             trailingIcon()
 
         }
+    }
+
+}
+
+@Composable
+fun CustomConfirmDialog(
+    dimissText: String,
+    confirmText: String,
+    onDimiss: () -> Unit,
+    onConfirm: () -> Unit,
+    message: @Composable () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                color = Gray3.copy(alpha = 0.5f),
+            )
+            .padding(20.dp)
+            .pointerInput(Unit) {},
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            contentAlignment = Alignment.TopEnd,
+            modifier = Modifier
+                .background(
+                    color = White1,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(10.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+
+                    .padding(horizontal = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                message()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                onDimiss()
+                            }
+                            .padding(vertical = 10.dp)
+
+                        ,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = dimissText,
+                            style = CustomTypography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Blue5
+                        )
+                    }
+                    Row(
+                        modifier = Modifier
+                            .weight(1f)
+                            .background(
+                                color = Blue5,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                            .shadow(
+                                elevation = 10.dp,
+                                shape = RoundedCornerShape(10.dp),
+                                ambientColor = Color.Transparent,
+                                spotColor = Color.Transparent
+                            )
+                            .clickable {
+                                onConfirm()
+                            }
+                            .padding(vertical = 10.dp)
+                        ,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = confirmText,
+                            style = CustomTypography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = White1
+                        )
+                    }
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = CircleShape,
+                        ambientColor = Color.Transparent,
+                        spotColor = Color.Transparent
+                    )
+                    .clickable {
+                        onDimiss()
+                    }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.close), contentDescription = null,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+        }
+
     }
 
 }

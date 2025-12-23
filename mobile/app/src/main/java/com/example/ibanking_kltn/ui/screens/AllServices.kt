@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,7 +40,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -51,15 +49,14 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
-import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AllServiceUiState
+import com.example.ibanking_kltn.utils.CustomConfirmDialog
 
 @Composable
 fun ServiceComponent(
@@ -421,135 +418,45 @@ fun AllServiceScreen(
 
         }
         if (isShowMissingServiceDialog) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = Gray3.copy(alpha = 0.5f),
-                    )
-                    .padding(20.dp)
-                    .pointerInput(Unit) {},
-                contentAlignment = Alignment.Center
-            ) {
-                Box(
-                    contentAlignment = Alignment.TopEnd,
-                    modifier = Modifier
-                        .background(
-                            color = White1,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(10.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-
-                            .padding(horizontal = 20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(R.drawable.missing_service),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                        ) {
-                            Text(
-                                text = "Còn một vị trí trống nè",
-                                style = CustomTypography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                            Text(
-                                text = "Để chúng tôi thêm dịch vụ còn trống cho bạn nhé ?",
-                                style = CustomTypography.bodyMedium
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(vertical = 10.dp)
-
-                                    .clickable {
-                                        isShowMissingServiceDialog = false
-                                    },
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = "Không, cảm ơn",
-                                    style = CustomTypography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = Blue5
-                                )
+            CustomConfirmDialog(
+                dimissText = "Không",
+                confirmText = "Được, hãy giúp tôi",
+                onDimiss = {
+                    isShowMissingServiceDialog = false
+                },
+                onConfirm = {
+                    val missingCount = 4 - favoriteServices.size
+                    favoriteServices = favoriteServices.toMutableList().apply {
+                        repeat(missingCount) {
+                            val randomService = ServiceCategory.entries.first {
+                                !favoriteServices.contains(it)
                             }
-                            Row(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .background(
-                                        color = Blue5,
-                                        shape = RoundedCornerShape(10.dp)
-                                    )
-                                    .shadow(
-                                        elevation = 10.dp,
-                                        shape = RoundedCornerShape(10.dp),
-                                        ambientColor = Color.Transparent,
-                                        spotColor = Color.Transparent
-                                    )
-                                    .padding(vertical = 10.dp)
-                                    .clickable {
-                                        val missingCount = 4 - favoriteServices.size
-                                        favoriteServices = favoriteServices.toMutableList().apply {
-                                            repeat(missingCount) {
-                                                val randomService = ServiceCategory.entries.first {
-                                                    !favoriteServices.contains(it)
-                                                }
-                                                add(randomService)
-                                            }
-                                        }
-                                        isShowMissingServiceDialog = false
-                                    },
-                                horizontalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = "Được, giúp tôi",
-                                    style = CustomTypography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = White1
-                                )
-                            }
+                            add(randomService)
                         }
                     }
-                    Row(
-                        modifier = Modifier
-                            .shadow(
-                                elevation = 10.dp,
-                                shape = CircleShape,
-                                ambientColor = Color.Transparent,
-                                spotColor = Color.Transparent
-                            )
-                            .clickable {
-                                isShowMissingServiceDialog = false
-                            }
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.close), contentDescription = null,
-                            modifier = Modifier.size(25.dp)
-                        )
-                    }
+                    isShowMissingServiceDialog = false
                 }
-
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.missing_service),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(
+                        text = "Còn một vị trí trống nè",
+                        style = CustomTypography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                    Text(
+                        text = "Để chúng tôi thêm dịch vụ còn trống cho bạn nhé ?",
+                        style = CustomTypography.bodyMedium
+                    )
+                }
             }
 
         }

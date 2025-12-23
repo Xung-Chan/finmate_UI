@@ -1,6 +1,7 @@
 package com.example.ibanking_kltn.data.api
 
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.data.dtos.requests.LoginViaBiometricRequest
 import com.example.ibanking_kltn.data.dtos.requests.RefreshTokenRequest
 import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
 import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
@@ -22,6 +23,12 @@ interface NonAuthApi {
         @Header("X-App-Token") appToken: String = "android_app_secret_key",
         @Body request: LoginRequest
     ): Response<LoginResponse>
+
+    @POST("/auth/biometric/login")
+    suspend fun loginViaBiometric(
+        @Body request: LoginViaBiometricRequest
+    ): Response<LoginResponse>
+
 
     @POST("/auth/refresh")
     fun refreshToken(
@@ -46,10 +53,10 @@ interface NonAuthApi {
     ): Response<RequestOtpResponse>
 
 
-
     @POST("/api/accounts/verify-otp")
     suspend fun verifyOtp(
         @Body request: VerifyOtpRequest
     ): Response<VerifyOtpResponse>
+
 
 }

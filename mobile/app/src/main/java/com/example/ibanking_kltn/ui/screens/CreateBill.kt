@@ -36,14 +36,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.AccountType
-import com.example.ibanking_kltn.data.dtos.PaymentAccount
 import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
@@ -71,7 +68,6 @@ fun CreateBillScreen(
     onBackClick: () -> Unit,
     onContinueClick: () -> Unit,
     isEnableContinue: Boolean,
-    onAccountTypeChange: (PaymentAccount) -> Unit,
     onChangeAmount: (String) -> Unit,
     onChangeDescription: (String) -> Unit,
     onExpenseTypeChange: (ExpenseType) -> Unit,
@@ -88,7 +84,7 @@ fun CreateBillScreen(
                 topBar = {
                     TopAppBar(
                         title = {
-                            Text(text = stringResource(R.string.Transfer_Title))
+                            Text(text = "Tạo hóa đơn")
                         },
                         navigationIcon = {
                             IconButton(onClick = {
@@ -141,79 +137,6 @@ fun CreateBillScreen(
                         ) {
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(
-                                    "Tài khoản thụ hưởng",
-                                    style = CustomTypography.titleMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomDropdownField<PaymentAccount>(
-                                modifier = Modifier.fillMaxWidth(),
-                                options = uiState.allAccountWallet,
-                                onOptionSelected = {
-                                    onAccountTypeChange(it)
-                                },
-                                optionsComposable = {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(it.accountType.icon),
-                                            contentDescription = null,
-                                            tint = it.accountType.color,
-                                            modifier = Modifier.size(25.dp)
-                                        )
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = "${it.accountType.name} - ${it.accountNumber}",
-                                                style = CustomTypography.bodyMedium,
-                                                color = Black1
-                                            )
-                                            Text(
-                                                text = formatterVND(it.balance),
-                                                style = CustomTypography.bodyMedium.copy(
-                                                    fontWeight = FontWeight.Bold
-                                                ),
-                                                color = Gray1
-                                            )
-
-                                        }
-                                    }
-                                },
-                                selectedOption = "",
-                                placeholder = "Chọn tài khoản thanh toán"
-                            )
-                            if (uiState.selectedAccountWallet != null) {
-
-                                Row(modifier = Modifier.fillMaxWidth()) {
-                                    Text(
-                                        "Người thụ hưởng",
-                                        style = CustomTypography.titleMedium,
-                                        color = Gray1
-                                    )
-                                }
-                                CustomTextField(
-                                    value = uiState.selectedAccountWallet.merchantName,
-                                    placeholder = {
-                                        Text(
-                                            "Tên người thụ hưởng",
-                                            style = CustomTypography.titleMedium,
-                                            color = Gray2
-                                        )
-                                    },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    enable = false,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onValueChange = {
-                                    }
-                                )
-                            }
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(
                                     "Thông tin giao dịch",
                                     style = CustomTypography.titleMedium,
                                     color = Gray1
@@ -249,7 +172,7 @@ fun CreateBillScreen(
                                 value = uiState.description,
                                 placeholder = {
                                     Text(
-                                        "Nội dung chuyển khoản",
+                                        "Nội dung",
                                         style = CustomTypography.titleMedium,
                                         color = Gray2
                                     )
@@ -293,7 +216,7 @@ fun CreateBillScreen(
                                         modifier = Modifier.size(25.dp)
                                     )
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
                     }
@@ -361,14 +284,6 @@ fun CreateBillScreen(
 fun CreateBillPreview() {
     CreateBillScreen(
         uiState = CreateBillUiState(
-            allAccountWallet = listOf(
-                PaymentAccount(
-                    accountNumber = "1234567890",
-                    accountType = AccountType.WALLET,
-                    balance = 1000000L,
-                    merchantName = "Nguyen Van A"
-                )
-            )
         ),
         onBackClick = {},
         isEnableContinue = false,
@@ -376,7 +291,6 @@ fun CreateBillPreview() {
         onChangeAmount = {},
         onChangeDescription = {},
         onExpenseTypeChange = {},
-        onAccountTypeChange = {},
         onDateChange = {}
     )
 }

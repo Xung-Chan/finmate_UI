@@ -7,6 +7,7 @@ import androidx.security.crypto.MasterKey
 import com.example.ibanking_kltn.BuildConfig
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
+import com.example.ibanking_kltn.data.api.BiometricApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
 import com.example.ibanking_kltn.data.api.TransactionApi
@@ -147,6 +148,16 @@ object NetworkModule {
         retrofit: Retrofit
     ): BillApi {
         return retrofit.create(BillApi::class.java)
+
+    }
+
+    @Singleton
+    @Provides
+    fun provideBiometricApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): BiometricApi {
+        return retrofit.create(BiometricApi::class.java)
 
     }
 

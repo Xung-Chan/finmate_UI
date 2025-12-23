@@ -2,11 +2,11 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.PaymentAccount
 import com.example.ibanking_kltn.data.dtos.requests.CreateBillRequest
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.data.repositories.BillRepository
+import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.ui.uistates.CreateBillUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -18,10 +18,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @HiltViewModel
 class CreateBillViewModel @Inject constructor(
-
+    private val transactionRepository: TransactionRepository,
     private val billRepository: BillRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateBillUiState())
@@ -30,18 +32,44 @@ class CreateBillViewModel @Inject constructor(
 
     fun init(
     ) {
+        clearState()
+        loadExpenseType()
     }
 
     fun clearState() {
         _uiState.value = CreateBillUiState()
     }
-    fun loadWallet(){
 
+
+    fun loadExpenseType() {
+        _uiState.update {
+            it.copy(screenState = StateType.LOADING)
+        }
+
+        viewModelScope.launch {
+            val apiResult = transactionRepository.getAllExpenseType()
+            when (apiResult) {
+                is ApiResult.Success -> {
+                    val expenseTypeResponse = apiResult.data
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.SUCCESS,
+                            allExpenseTypeResponse = expenseTypeResponse
+                        )
+                    }
+                }
+
+                is ApiResult.Error -> {
+//                    error(apiResult.message)
+                }
+            }
+        }
     }
 
+
+
     fun isEnableCreateBill(): Boolean {
-        return uiState.value.selectedAccountWallet != null
-                && uiState.value.selectedExpenseType != null
+        return  uiState.value.selectedExpenseType != null
                 && uiState.value.amount > 0L
                 && uiState.value.expiryDate >= LocalDate.now()
                 && uiState.value.description.isNotEmpty()
@@ -60,7 +88,8 @@ class CreateBillViewModel @Inject constructor(
             val request = CreateBillRequest(
                 amount = uiState.value.amount,
                 description = uiState.value.description,
-                dueDate = uiState.value.expiryDate.toString(),
+                dueDate = LocalDateTime.of(uiState.value.expiryDate, LocalTime.now()).toString(),
+
                 expenseTypeId = uiState.value.selectedExpenseType!!.id,
             )
             val apiResult = billRepository.createBill(
@@ -113,9 +142,6 @@ class CreateBillViewModel @Inject constructor(
         _uiState.update { it.copy(selectedExpenseType = expenseType) }
     }
 
-    fun onAccountTypeChange(accountType: PaymentAccount) {
-        _uiState.update { it.copy(selectedAccountWallet = accountType) }
-    }
 
     fun onExpiryDateChange(date: LocalDate) {
         _uiState.update { it.copy(expiryDate = date) }

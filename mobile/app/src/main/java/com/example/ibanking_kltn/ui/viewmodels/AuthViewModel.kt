@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.BiometricManager
 import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val tokenManager: TokenManager,
+    private val biometricManager: BiometricManager,
     @ApplicationContext private val context: Context,
     private val biometricAuthenticator: BiometricAuthenticator,
 ) : ViewModel(), IViewModel {
@@ -42,6 +44,33 @@ class AuthViewModel @Inject constructor(
 
     override fun clearState() {
         _uiState.value = AuthUiState()
+    }
+
+    fun loadLastLoginUser() {
+        val lastLoginUser = tokenManager.getLastLoginUser()
+        if (lastLoginUser != null) {
+            _uiState.update {
+                it.copy(
+                    username = lastLoginUser.username,
+                    fullName = lastLoginUser.fullName
+                )
+            }
+        }
+
+    }
+
+    fun onLogout() {
+        tokenManager.clearToken()
+    }
+    fun onDeleteLastLoginUser() {
+        tokenManager.clearLastLoginUser()
+        biometricManager.clear()
+        _uiState.update {
+            it.copy(
+                username = "",
+                fullName = null
+            )
+        }
     }
 
     fun onEmailChange(newEmail: String) {
@@ -85,6 +114,7 @@ class AuthViewModel @Inject constructor(
                         access = loginResponse.access_token,
                         refresh = loginResponse.refresh_token
                     )
+
                     onSuccess()
                 }
 
@@ -104,8 +134,7 @@ class AuthViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-//        val isAllowBiometricAuthenticator = !tokenManager.getRefreshToken().isNullOrEmpty()
-        val isAllowBiometricAuthenticator = true
+        val isAllowBiometricAuthenticator = biometricManager.getBiometricKey()!=null
         if (!isAllowBiometricAuthenticator) {
             onError("Vui lòng đăng nhập bằng tài khoản và mật khẩu trước")
             return

@@ -117,3 +117,17 @@ enum class ServiceCategory(val serviceName: String, val icon: Int,val color: ULo
     BILL_HISTORY(serviceName="Lịch sử hóa đơn", icon = R.drawable.bill_history_service, color = Red2.value),
     ANALYTIC(serviceName="Thống kê", icon = R.drawable.analytic_service, color = Blue6.value)
 }
+
+
+@Serializable
+data class BiometricStorage(
+    val deviceId: String,
+    val biometricKey: String,
+    val username: String
+)
+
+@Serializable
+data class LastLoginUser(
+    val username: String,
+    val fullName: String,
+)

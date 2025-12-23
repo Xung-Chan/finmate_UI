@@ -1,7 +1,6 @@
 package com.example.ibanking_kltn.data.dtos.responses
 
 
-
 data class LoginResponse(
     val access_token: String,
     val refresh_token: String,
@@ -19,4 +18,8 @@ data class VerifyOtpResponse(
 
     val email: String,
     val resetPasswordToken: String
+)
+
+data class RegisterBiometricResponse(
+    val biometricKey: String
 )

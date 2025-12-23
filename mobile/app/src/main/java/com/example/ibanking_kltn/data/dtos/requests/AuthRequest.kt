@@ -37,3 +37,13 @@ data class VerifyOtpRequest(
     val purpose: String,
     val verifyKey: String
 )
+data class RegisterBiometricRequest(
+    val deviceId: String,
+    val password: String
+)
+
+data class LoginViaBiometricRequest(
+    val biometricKey: String,
+    val deviceId: String,
+    val username: String
+)
