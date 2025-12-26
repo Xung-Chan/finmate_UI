@@ -26,7 +26,7 @@ class TokenAuthenticator @Inject constructor(
                 access = newTokenResponse.access_token,
                 refresh = newTokenResponse.refresh_token
             )
-            return response.request().newBuilder()
+            return response.request.newBuilder()
                 .header("Authorization", "Bearer ${newTokenResponse.access_token}")
                 .build()
         }

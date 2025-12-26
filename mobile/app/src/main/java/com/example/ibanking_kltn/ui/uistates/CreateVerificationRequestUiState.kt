@@ -1,0 +1,33 @@
+package com.example.ibanking_kltn.ui.uistates
+
+import android.net.Uri
+
+data class CreateVerificationRequestUiState(
+    val screenState: StateType = StateType.NONE,
+
+    val documents: List<FileInfo> = emptyList(),
+
+    val invoiceDisplayName: String = "",
+    val businessName: String = "",
+    val businessCode: String = "",
+    val businessAddress: String = "",
+    val representativeName: String = "",
+    val representativeIdType: String = "",
+    val representativeIdNumber: String = "",
+    val contactEmail: String = "",
+    val contactPhone: String = "",
+
+    )
+
+enum class IdType {
+     CMND,
+     CCCD,
+     Passport
+}
+
+data class FileInfo(
+    val uri: Uri,
+    val fileName: String,
+    val extension: String,
+    val size: Long
+)

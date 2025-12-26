@@ -177,10 +177,8 @@ fun CustomTextField(
 
     BasicTextField(
         modifier = modifier,
-        value = textFieldValue,
-        onValueChange = {
-            onValueChange(it.text)
-        },
+        value = value,
+        onValueChange =onValueChange,
         enabled = enable,
         readOnly = readOnly,
         textStyle = textStyle,

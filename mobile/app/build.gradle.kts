@@ -127,7 +127,10 @@ dependencies {
     //calendar
     implementation("com.kizitonwose.calendar:view:2.9.0")
     implementation("com.kizitonwose.calendar:compose:2.9.0")
-
     implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
+
+    //image loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
 
 }

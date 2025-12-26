@@ -7,6 +7,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.OpenableColumns
+import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
@@ -110,17 +112,15 @@ fun saveBitmapToInternalStorage(
 fun shareText(
     context: Context,
     text: String
-){
+) {
     val sendIntent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT,text)
+        putExtra(Intent.EXTRA_TEXT, text)
     }
 
     val shareIntent = Intent.createChooser(sendIntent, "Chia sẻ qua")
     context.startActivity(shareIntent)
 }
-
-
 
 
 data class DateSelection(val startDate: LocalDate? = null, val endDate: LocalDate? = null) {
@@ -219,4 +219,38 @@ fun Modifier.backgroundHighlight(
         }
     }
     return this.background(backgroundColor, shape = RoundedCornerShape(4.dp))
+}
+
+fun Context.getFileInfo(uri: Uri): Triple<String?, String?, Long?> {
+    var fileName: String? = null
+    var size: Long? = null
+    var extension: String? = null
+
+    contentResolver.query(
+        uri,
+        arrayOf(
+            OpenableColumns.DISPLAY_NAME,
+            OpenableColumns.SIZE
+        ),
+        null,
+        null,
+        null
+    )?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            fileName =
+                cursor.getString(cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME))
+            size =
+                cursor.getLong(cursor.getColumnIndexOrThrow(OpenableColumns.SIZE))
+        }
+    }
+
+    // Lấy extension từ tên
+    extension = fileName?.substringAfterLast('.', "")
+
+    return Triple(fileName, extension, size)
+}
+
+
+fun formatReadableSize(context: Context, size: Long): String {
+    return Formatter.formatFileSize(context, size)
 }

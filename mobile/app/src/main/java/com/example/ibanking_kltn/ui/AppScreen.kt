@@ -25,10 +25,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
+import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.screens.AllServiceScreen
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
 import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
@@ -36,6 +38,7 @@ import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.CreateBillScreen
+import com.example.ibanking_kltn.ui.screens.CreateVerificationRequestScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
@@ -56,6 +59,7 @@ import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
 import com.example.ibanking_kltn.ui.viewmodels.CreateBillViewModel
+import com.example.ibanking_kltn.ui.viewmodels.CreateVerificationRequestViewModel
 import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
@@ -81,6 +85,7 @@ enum class Screens {
     Deposit, HandleDepositResult,
     QRScanner,
     AllService,
+    VerificationRequest
 }
 
 @Composable
@@ -106,6 +111,7 @@ fun AppScreen(
     val allServiceViewModel: AllServiceViewModel = hiltViewModel()
     val createBillViewModel: CreateBillViewModel = hiltViewModel()
     val settingViewModel: SettingViewModel = hiltViewModel()
+    val createVerificationRequestViewModel: CreateVerificationRequestViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -124,24 +130,24 @@ fun AppScreen(
             bottomBarHeight = 100.dp,
             currentTab = tabNavigation,
             onNavigateToSettingScreen = {
-                navController.navigate(Screens.Settings.name){
-                    launchSingleTop=true
+                navController.navigate(Screens.Settings.name) {
+                    launchSingleTop = true
                 }
             },
             onNavigateToHomeScreen = {
-                navController.navigate(Screens.Home.name){
-                    launchSingleTop=true
+                navController.navigate(Screens.Home.name) {
+                    launchSingleTop = true
                 }
             },
             onNavigateToTransactionHistoryScreen = {
-                navController.navigate(Screens.TransactionHistory.name){
-                    launchSingleTop=true
+                navController.navigate(Screens.TransactionHistory.name) {
+                    launchSingleTop = true
                 }
             },
             onNavigateToAnalyticsScreen = {},
             onNavigateToQRScanner = {
-                navController.navigate(Screens.QRScanner.name){
-                    launchSingleTop=true
+                navController.navigate(Screens.QRScanner.name) {
+                    launchSingleTop = true
                 }
             })
     }
@@ -190,7 +196,13 @@ fun AppScreen(
             appViewModel.addRecentService(ServiceCategory.HOTEL)
             //TODO
             navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.VERIFICATION_REQUEST.name to {
+            appViewModel.addRecentService(ServiceCategory.VERIFICATION_REQUEST)
+            //TODO
+            navController.navigate(Screens.VerificationRequest.name)
         }
+
 
     )
 
@@ -388,9 +400,9 @@ fun AppScreen(
 
                 val uiState by payBillViewModel.uiState.collectAsState()
                 service = ServiceType.BILL_PAYMENT
-                LaunchedEffect(Unit) {
-                    payBillViewModel.init()
-                }
+//                LaunchedEffect(Unit) {
+//                    payBillViewModel.init()
+//                }
 
                 PayBillScreen(uiState = uiState, onBackClick = {
                     navController.popBackStack()
@@ -624,35 +636,54 @@ fun AppScreen(
             composable(route = Screens.QRScanner.name) { backStackEntry ->
                 //TODO
                 val uiState by qrScannerViewModel.uiState.collectAsState()
+                val onBillDetecting: (BillPayload) -> Unit = { payload ->
+                    payBillViewModel.init()
+                    navController.navigate(Screens.PayBill.name) {
+                        launchSingleTop = true
+                        popUpTo(Screens.Home.name)
+                    }
+                    payBillViewModel.onChangeBillCode(payload.billCode)
+                    payBillViewModel.onCheckingBill()
+                }
+                val onTransferDetecting: (TransferPayload) -> Unit = { payload ->
+                    transferViewModel.init()
+                    transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
+                    payload.amount?.let { amount ->
+                        transferViewModel.onAmountChange(amount.toString())
+                    }
+                    navController.navigate(Screens.Transfer.name) {
+                        launchSingleTop = true
+                        popUpTo(Screens.Home.name)
+
+                    }
+                    transferViewModel.onDoneWalletNumber()
+
+                }
                 QRScannerScreen(
                     uiState = uiState,
                     detecting = {
-                        qrScannerViewModel.onDetecting(qrCode = it, onBillDetecting = { payload ->
-                            payBillViewModel.init()
-                            navController.navigate(Screens.PayBill.name) {
-                                launchSingleTop = true
-                                popUpTo(Screens.Home.name)
+                        qrScannerViewModel.onDetecting(
+                            qrCode = it,
+                            onBillDetecting = onBillDetecting,
+                            onTransferDetecting = onTransferDetecting,
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message, type = SnackBarType.INFO
+                                )
                             }
-                            payBillViewModel.onChangeBillCode(payload.billCode)
-                            payBillViewModel.onCheckingBill()
-                        }, onTransferDetecting = { payload ->
-                            transferViewModel.init()
-                            transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
-                            payload.amount?.let { amount ->
-                                transferViewModel.onAmountChange(amount.toString())
+                        )
+                    },
+                    onAnalyzeImage = {
+                        qrScannerViewModel.onAnalyzeImage(
+                            context = context, uri = it,
+                            onBillDetecting = onBillDetecting,
+                            onTransferDetecting = onTransferDetecting,
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message, type = SnackBarType.INFO
+                                )
                             }
-                            navController.navigate(Screens.Transfer.name) {
-                                launchSingleTop = true
-                                popUpTo(Screens.Home.name)
-
-                            }
-                            transferViewModel.onDoneWalletNumber()
-
-                        }, onError = { message ->
-                            appViewModel.showSnackBarMessage(
-                                message = message, type = SnackBarType.INFO
-                            )
-                        })
+                        )
                     },
                     onBackClick = {
                         navController.popBackStack()
@@ -793,6 +824,70 @@ fun AppScreen(
                     navigator = navigator
                 )
             }
+
+            composable(route = Screens.VerificationRequest.name) { backStackEntry ->
+                val uiState by createVerificationRequestViewModel.uiState.collectAsState()
+                CreateVerificationRequestScreen(
+                    uiState = uiState,
+                    isEnableConfirm = createVerificationRequestViewModel.isEnableConfirm(),
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onAddFile = {
+                        createVerificationRequestViewModel.onAddFile(it)
+                    },
+                    onDeleteFile = {
+                        createVerificationRequestViewModel.onDeleteFile(it)
+                    },
+                    onConfirmClick = {
+                        createVerificationRequestViewModel.onConfirmClick(
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Tạo yêu cầu xác thực thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                                navController.navigate(Screens.Home.name) {
+                                    popUpTo(Screens.VerificationRequest.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onError = onError
+                        )
+                    },
+                    onSelectType = {
+                        createVerificationRequestViewModel.onSelectType(it)
+                    },
+                    onChangeInvoiceDisplayName = {
+                        createVerificationRequestViewModel.onChangeInvoiceDisplayName(it)
+                    },
+                    onChangeBusinessName = {
+                        createVerificationRequestViewModel.onChangeBusinessName(it)
+                    },
+                    onChangeBusinessCode = {
+                        createVerificationRequestViewModel.onChangeBusinessCode(it)
+                    },
+                    onChangeBusinessAddress = {
+                        createVerificationRequestViewModel.onChangeBusinessAddress(it)
+                    },
+                    onChangeRepresentativeName = {
+                        createVerificationRequestViewModel.onChangeRepresentativeName(it)
+                    },
+                    onChangeRepresentativeIdNumber = {
+
+                        createVerificationRequestViewModel.onChangeRepresentativeIdNumber(it)
+                    },
+                    onChangeContactEmail = {
+                        createVerificationRequestViewModel.onChangeContactEmail(it)
+                    },
+                    onChangeContactPhone = {
+                        createVerificationRequestViewModel.onChangeContactPhone(it)
+                    }
+
+
+                )
+            }
+
         }
 
 

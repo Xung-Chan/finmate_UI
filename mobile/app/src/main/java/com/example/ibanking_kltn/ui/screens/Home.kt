@@ -478,52 +478,13 @@ fun HomeScreen(
                                                 }
                                             }
                                         }
-                                        //Feat Cell
 
                                     }
 
                                 }
-//                                Row(
-//                                    modifier = Modifier.fillMaxWidth(),
-//                                    horizontalArrangement = Arrangement.spacedBy(
-//                                        10.dp,
-//                                        Alignment.CenterHorizontally
-//                                    )
-//                                ) {
-//                                    //Feat Cell
-//                                    Column(
-//                                        verticalArrangement = Arrangement.spacedBy(10.dp),
-//                                        modifier = Modifier
-//                                            .shadow(
-//                                                elevation = 30.dp,
-//                                                shape = RoundedCornerShape(20),
-//                                                clip = true,
-//                                                ambientColor = Black1.copy(alpha = 0.9f),
-//                                                spotColor = Black1.copy(alpha = 0.9f),
-//                                            )
-//                                            .clickable {
-////                                                onNavigateTo[it.service]?.invoke()
-//                                            }
-//                                            .background(
-//                                                color = White1,
-//                                                shape = RoundedCornerShape(16)
-//                                            )
-//                                            .padding(15.dp)
-//                                    ) {
-//                                        Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-//                                            Icon(Icons.Default.Call, contentDescription = null)
-//                                            Text(
-//                                                text = ServiceCategory.valueOf(it.service).serviceName,
-//                                                style = CustomTypography.titleSmall
-//                                            )
-//
-//                                        }
-//                                    }
-//                                }
 
 
                             }
-                            //Feat Cell
 
                         }
                         Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))

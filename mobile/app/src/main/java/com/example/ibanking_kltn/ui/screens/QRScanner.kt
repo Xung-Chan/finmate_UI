@@ -1,5 +1,9 @@
 package com.example.ibanking_kltn.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -27,10 +31,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -50,10 +60,26 @@ fun QRScannerScreen(
     uiState: QRScannerUiState,
     detecting: (String) -> Unit,
     onBackClick: () -> Unit,
+    onAnalyzeImage: (Uri) -> Unit,
 //    onError: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+    LaunchedEffect(
+        selectedImageUri
+    ) {
+        selectedImageUri?.let { uri ->
+            onAnalyzeImage(uri)
+        }
 
+    }
+    // Single photo picker
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        selectedImageUri = uri
+    }
     Box {
         Scaffold(
             topBar = {
@@ -156,7 +182,10 @@ fun QRScannerScreen(
                             spotColor = Color.Transparent
                         )
                         .clickable {
-                            //TODO: Chọn ảnh từ thư viện
+                            singlePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+                            )
+
                         }
                         .padding(10.dp)
                 ) {
@@ -177,10 +206,12 @@ fun QRScannerScreen(
 
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showSystemUi = true,showBackground = true)
+@androidx.compose.ui.tooling.preview.Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun QRScannerPreview() {
-    QRScannerScreen(QRScannerUiState(), detecting = {}, onBackClick = {}
+    QRScannerScreen(
+        QRScannerUiState(), detecting = {}, onBackClick = {},
+        onAnalyzeImage = {}
 
     )
 }
