@@ -267,7 +267,7 @@ fun CreateVerificationRequestScreen(
                                     value = uiState.contactPhone,
                                     keyboardOptions = KeyboardOptions(
                                         imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Text
+                                        keyboardType = KeyboardType.Number
                                     ),
                                     enable = true,
                                     onValueChange = {
@@ -342,23 +342,28 @@ fun CreateVerificationRequestScreen(
                                     selectedOption = uiState.representativeIdType,
                                     placeholder = "Loại giấy tờ",
                                 )
-                                CustomTextField(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    value = uiState.representativeIdNumber,
-                                    keyboardOptions = KeyboardOptions(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.Text
-                                    ),
-                                    keyboardActions = KeyboardActions(
-                                        onDone = {
-                                            focusManager.clearFocus()
-                                        }
-                                    ),
-                                    enable = true,
-                                    onValueChange = {
-                                        onChangeRepresentativeIdNumber(it)
-                                    },
-                                )
+                                if (
+                                    uiState.representativeIdType != ""
+                                ){
+
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = uiState.representativeIdNumber,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                focusManager.clearFocus()
+                                            }
+                                        ),
+                                        enable = true,
+                                        onValueChange = {
+                                            onChangeRepresentativeIdNumber(it)
+                                        },
+                                    )
+                                }
 
                             }
 

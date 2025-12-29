@@ -23,3 +23,28 @@ data class VerifyOtpResponse(
 data class RegisterBiometricResponse(
     val biometricKey: String
 )
+
+enum class UserStatusEnum {
+    ACTIVE,
+    UNACTIVE,
+    LOCKED
+}
+
+data class UpdateAvatarResponse(
+
+    val imageUrl: String
+)
+
+data class UserInfoResponse(
+    val id: String,
+    val username: String,
+    val fullName: String,
+    val mail: String,
+    val status: UserStatusEnum,
+    val phoneNumber: String,
+    val avatarUrl: String,
+    val dateOfBirth: String,
+    val gender: String,
+    val address: String,
+    val cardId: String
+)

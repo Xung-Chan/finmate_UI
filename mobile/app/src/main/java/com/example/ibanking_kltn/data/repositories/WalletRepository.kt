@@ -2,19 +2,18 @@ package com.example.ibanking_kltn.data.repositories
 
 import android.content.Context
 import android.net.Uri
-import android.provider.OpenableColumns
 import android.util.Log
 import com.example.ibanking_kltn.data.api.WalletApi
 import com.example.ibanking_kltn.data.dtos.requests.WalletVerificationRequest
 import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
 import com.example.ibanking_kltn.data.dtos.responses.WalletVerificationResponse
+import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 class WalletRepository @Inject constructor(
@@ -68,13 +67,13 @@ class WalletRepository @Inject constructor(
         try {
             val gson = Gson()
             val jsonString = gson.toJson(request)
-
-            // 2. Tạo RequestBody cho data field
             val dataRequestBody = jsonString.toRequestBody("application/json".toMediaTypeOrNull())
-
-            // 3. Convert URIs sang MultipartBody.Part
             val documentParts = documentUris.mapIndexed { index, uri ->
-                createMultipartFromUri(uri, "documents", index)
+                createMultipartFromUri(
+                    uri = uri,
+                    partName = "documents",
+                    context = context
+                )
             }
 
 //            return safeApiCall(
@@ -115,47 +114,6 @@ class WalletRepository @Inject constructor(
 
     }
 
-    private fun createMultipartFromUri(
-        uri: Uri,
-        partName: String,
-        index: Int
-    ): MultipartBody.Part {
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val bytes = inputStream?.readBytes() ?: ByteArray(0)
-        inputStream?.close()
-
-        val fileName = getFileName(uri) ?: "document_$index.jpg"
-        val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
-        val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
-        return MultipartBody.Part.createFormData(
-            partName,
-            fileName,
-            requestBody
-        )
-    }
-
-    private fun getFileName(uri: Uri): String? {
-        var result: String? = null
-        if (uri.scheme == "content") {
-            val cursor = context.contentResolver.query(uri, null, null, null, null)
-            cursor?.use {
-                if (it.moveToFirst()) {
-                    val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                    if (index != -1) {
-                        result = it.getString(index)
-                    }
-                }
-            }
-        }
-        if (result == null) {
-            result = uri.path
-            val cut = result?.lastIndexOf('/')
-            if (cut != -1) {
-                result = result?.substring(cut!! + 1)
-            }
-        }
-        return result
-    }
 
 
 }

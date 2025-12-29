@@ -16,3 +16,8 @@ val RobotoSlab = FontFamily(
     Font(R.font.robotoslab_semibold, FontWeight.SemiBold),
     Font(R.font.robotoslab_thin, FontWeight.Thin)
 )
+val Poppins = FontFamily(
+    Font(R.font.poppins_regular, FontWeight.Normal),
+    Font(R.font.poppins_italic, FontWeight.Thin),
+    Font(R.font.poppins_bold, FontWeight.Bold),
+)

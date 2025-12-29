@@ -20,9 +20,8 @@ data class CreateVerificationRequestUiState(
     )
 
 enum class IdType {
-     CMND,
-     CCCD,
-     Passport
+    CCCD,
+    PASSPORT
 }
 
 data class FileInfo(

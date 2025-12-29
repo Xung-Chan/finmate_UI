@@ -106,6 +106,13 @@ data class ServiceItem(
     val lastUsed: Long= System.currentTimeMillis(),
 )
 
+@Serializable
+data class SavedReceiver(
+    val memorableName: String,
+    val toWalletNumber: String,
+    val toMerchantName: String,
+)
+
 enum class ServiceCategory(val serviceName: String, val icon: Int,val color: ULong) {
     MONEY_TRANSFER(serviceName = "Chuyển tiền", icon =  R.drawable.money_transfer_service, color = Red1.value),
     BILL_PAYMENT(serviceName="Thanh toán hóa đơn", icon = R.drawable.pay_bill_service, color = Blue5.value),

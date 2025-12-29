@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.utils
 
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -24,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,6 +36,8 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -92,6 +96,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import com.commandiron.wheel_picker_compose.WheelDatePicker
 import com.commandiron.wheel_picker_compose.core.SelectorProperties
 import com.example.ibanking_kltn.R
@@ -104,6 +109,7 @@ import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.BackgroundColor
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -130,6 +136,8 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import me.saket.swipe.SwipeAction
+import me.saket.swipe.SwipeableActionsBox
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -178,7 +186,7 @@ fun CustomTextField(
     BasicTextField(
         modifier = modifier,
         value = value,
-        onValueChange =onValueChange,
+        onValueChange = onValueChange,
         enabled = enable,
         readOnly = readOnly,
         textStyle = textStyle,
@@ -630,7 +638,8 @@ fun NavigationBar(
                         .padding(10.dp)
                 ) {
                     IconButton(onClick = {
-                        onNavigateToHomeScreen()
+                        if (currentTab != TabNavigation.HOME)
+                            onNavigateToHomeScreen()
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.category),
@@ -641,7 +650,8 @@ fun NavigationBar(
                     }
 
                     IconButton(onClick = {
-                        onNavigateToTransactionHistoryScreen()
+                        if (currentTab != TabNavigation.HISTORY)
+                            onNavigateToTransactionHistoryScreen()
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.history_bold),
@@ -662,7 +672,8 @@ fun NavigationBar(
                         .padding(10.dp)
                 ) {
                     IconButton(onClick = {
-                        onNavigateToAnalyticsScreen()
+                        if (currentTab != TabNavigation.ANALYTICS)
+                            onNavigateToAnalyticsScreen()
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.analytic),
@@ -673,7 +684,8 @@ fun NavigationBar(
                     }
 
                     IconButton(onClick = {
-                        onNavigateToSettingScreen()
+                        if (currentTab != TabNavigation.PROFILE)
+                            onNavigateToSettingScreen()
                     }) {
                         Icon(
                             painter = painterResource(R.drawable.profile),
@@ -1535,18 +1547,15 @@ fun CustomSwitchButton(
         MutableInteractionSource()
     }
 
-    var switchClicked by remember {
-        mutableStateOf(value)
-    }
 
     var padding by remember {
         mutableStateOf(0.dp)
     }
 
-    padding = if (switchClicked) buttonWidth - switchSize - switchPadding * 2 else 0.dp
+    padding = if (value) buttonWidth - switchSize - switchPadding * 2 else 0.dp
 
     val animateSize by animateDpAsState(
-        targetValue = if (switchClicked) padding else 0.dp,
+        targetValue = if (value) padding else 0.dp,
         tween(
             durationMillis = 700,
             delayMillis = 0,
@@ -1559,13 +1568,12 @@ fun CustomSwitchButton(
             .width(buttonWidth)
             .height(buttonHeight)
             .clip(CircleShape)
-            .background(if (switchClicked) Green1 else Color.LightGray)
+            .background(if (value) Green1 else Color.LightGray)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null
             ) {
 
-                switchClicked = !switchClicked
                 onClick()
 
             }
@@ -2032,9 +2040,7 @@ fun CustomConfirmDialog(
                             .clickable {
                                 onDimiss()
                             }
-                            .padding(vertical = 10.dp)
-
-                        ,
+                            .padding(vertical = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
@@ -2061,8 +2067,7 @@ fun CustomConfirmDialog(
                             .clickable {
                                 onConfirm()
                             }
-                            .padding(vertical = 10.dp)
-                        ,
+                            .padding(vertical = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
@@ -2098,8 +2103,288 @@ fun CustomConfirmDialog(
 
 }
 
+@Composable
+fun ProgressBarWithLabel(
+    progress: Float, // 0.0 - 1.0
+    modifier: Modifier = Modifier,
+    progressColor: Color = Color(0xFF00BCD4), // Cyan
+    backgroundColor: Color = Color(0xFFE0E0E0),
+    labelBackgroundColor: Color = Color.White,
+    labelBorderColor: Color = Color(0xFF9E9E9E),
+    labelTextColor: Color = Color.Black,
+    progressHeight: Dp = 8.dp,
+    labelPadding: Dp = 8.dp,
+    animationDuration: Int = 1000
+) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(durationMillis = animationDuration, easing = EaseInOut),
+        label = "progress"
+    )
+
+    val percentage = (animatedProgress * 100).toInt()
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(progressHeight + 40.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(progressHeight)
+                .align(Alignment.CenterStart)
+                .clip(RoundedCornerShape(progressHeight / 2))
+                .background(backgroundColor)
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(animatedProgress)
+                .height(progressHeight)
+                .align(Alignment.CenterStart)
+                .clip(RoundedCornerShape(progressHeight / 2))
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            progressColor,
+                            progressColor.copy(alpha = 0.8f)
+                        )
+                    )
+                )
+        )
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .offset(
+                    x = (animatedProgress - 0.5f) * with(LocalDensity.current) {
+                        (modifier.fillMaxWidth().toString().length * 2).dp // Approximate width
+                    }
+                )
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(
+                        color = labelBackgroundColor,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = labelBorderColor,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "$percentage%",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = labelTextColor,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
-@Preview()
+fun InformationLine(
+    title: String,
+    modifier: Modifier = Modifier,
+    leading: @Composable (color: Color) -> Unit = {},
+    trailing: @Composable (color: Color) -> Unit = { },
+    color: Color = Gray1,
+    onClick: () -> Unit = {},
+    enable: Boolean = false,
+) {
+    val themeColor = if (enable) color else Gray1
+    Column(
+        modifier = modifier
+            .customClick {
+                if (enable) {
+                    onClick()
+                }
+            }
+            .padding(5.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            leading(themeColor)
+            Text(
+                text = title,
+                style = AppTypography.bodyMedium,
+                color = themeColor,
+            )
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.End
+            ) {
+                trailing(themeColor)
+
+            }
+
+        }
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+    }
+}
+
+
+@Composable
+fun RetryCompose(
+    onRetry: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                color = Gray3.copy(alpha = 0.5f),
+            )
+            .padding(20.dp)
+            .pointerInput(Unit) {},
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+
+                .padding(horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            Image(
+                painter = painterResource(R.drawable.error_illustration),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(150.dp)
+                    .width(200.dp)
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = "Oops!",
+                    style = AppTypography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+
+                    )
+                Text(
+                    text = "Có lỗi xảy ra trong quá trình tải dữ liệu. Vui lòng thử lại.",
+                    style = AppTypography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+
+                    )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    modifier = Modifier
+                        .background(
+                            color = Blue5,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        .customClick(
+                            shape = RoundedCornerShape(10.dp),
+                            onClick = {
+                                onRetry()
+                            }
+                        )
+                        .padding(vertical = 10.dp, horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        10.dp,
+                        alignment = Alignment.CenterHorizontally
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Thử lại",
+                        style = CustomTypography.bodyMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = White1
+                    )
+                    Icon(
+                        painter = painterResource(R.drawable.refresh),
+                        contentDescription = null,
+                        tint = White1,
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
+            }
+        }
+
+    }
+
+}
+
+
+@Composable
+fun SwipeComponent(
+    onStartSwipe: (() -> Unit)?,
+    onEndSwipe: (() -> Unit)?,
+    content: @Composable () -> Unit
+) {
+    val startAction =
+        SwipeAction(
+            icon = {
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier.padding(end = 10.dp)
+                ) {
+                    Icon(Icons.Outlined.Edit, contentDescription = null)
+                }
+            },
+            onSwipe = {
+                if (onStartSwipe != null) onStartSwipe()
+            },
+            background = Color.Gray,
+        )
+    val endAction =
+        SwipeAction(
+            icon = {
+                Box(
+                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier.padding(start = 10.dp)
+                ) {
+                    Icon(Icons.Outlined.Delete, contentDescription = null)
+                }
+            },
+            onSwipe = {
+                if (onEndSwipe != null) onEndSwipe()
+            },
+            background = Color.Red,
+        )
+    SwipeableActionsBox(
+        startActions = if (onStartSwipe == null) emptyList() else listOf(startAction),
+        endActions = if (onEndSwipe == null) emptyList() else listOf(endAction),
+        swipeThreshold = 100.dp,
+        backgroundUntilSwipeThreshold = Color.White,
+    ) {
+        content()
+    }
+}
+
+@Composable
+@Preview(
+    showBackground = true
+)
 fun Preview() {
+    ProgressBarWithLabel(
+        progress = 0.5f
+    )
 }

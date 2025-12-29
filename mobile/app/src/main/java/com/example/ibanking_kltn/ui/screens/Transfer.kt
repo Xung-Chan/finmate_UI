@@ -25,9 +25,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,7 +72,11 @@ fun TransferScreen(
 ) {
     val scrollState = rememberScrollState(0)
     val focusManager = LocalFocusManager.current
-
+    var handled by remember {
+        mutableStateOf(
+            false
+        )
+    }
     LoadingScaffold(isLoading = uiState.screenState is StateType.LOADING) {
         Scaffold(
             topBar = {
@@ -201,11 +210,25 @@ fun TransferScreen(
                                 },
 
                                 ),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .onFocusChanged(
+                                    onFocusChanged = {
+                                        if (
+                                            it.isFocused
+                                        ) {
+                                            handled = true
+                                        } else if (handled) {
+                                            onDoneWalletNumber()
+                                            handled = false
+                                        }
+                                    }
+                                ),
                             onValueChange = {
                                 onChangeReceiveWalletNumber(it)
                             }
                         )
+                        if(uiState.toMerchantName.isNotEmpty()){
                         CustomTextField(
                             value = uiState.toMerchantName,
                             placeholder = {
@@ -220,6 +243,8 @@ fun TransferScreen(
                             onValueChange = {},
 
                             )
+
+                        }
                     }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,

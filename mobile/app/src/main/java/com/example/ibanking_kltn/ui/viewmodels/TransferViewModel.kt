@@ -27,20 +27,10 @@ class TransferViewModel @Inject constructor(
     private val payLaterRepository: PayLaterRepository,
     @ApplicationContext private val context: Context,
 
-    ) : ViewModel(), IViewModel {
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(TransferUiState())
     val uiState: StateFlow<TransferUiState> = _uiState.asStateFlow()
 
-    override fun error(message: String) {
-        _uiState.update {
-            it.copy(screenState = StateType.FAILED(message = message))
-        }
-        Toast.makeText(
-            context,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 
     fun init() {
         loadBalance()
@@ -49,7 +39,7 @@ class TransferViewModel @Inject constructor(
     }
 
 
-    override fun clearState() {
+     fun clearState() {
         _uiState.value = TransferUiState()
     }
 
@@ -154,7 +144,18 @@ class TransferViewModel @Inject constructor(
     }
 
 
-    fun onDoneWalletNumber() {
+    fun onDoneWalletNumber(
+        onError: (String) -> Unit
+    ) {
+        if(uiState.value.toWalletNumber.isEmpty()){
+            _uiState.update {
+                it.copy(
+                    toMerchantName = "",
+                )
+            }
+            onError("Số ví phải gồm 10 chữ số")
+            return
+        }
         _uiState.update {
             it.copy(screenState = StateType.LOADING)
         }

@@ -10,9 +10,12 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.format.Formatter
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
@@ -27,11 +30,15 @@ import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import com.kizitonwose.calendar.core.yearMonth
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 
 fun removeVietnameseAccents(text: String): String {
@@ -253,4 +260,70 @@ fun Context.getFileInfo(uri: Uri): Triple<String?, String?, Long?> {
 
 fun formatReadableSize(context: Context, size: Long): String {
     return Formatter.formatFileSize(context, size)
+}
+
+fun Modifier.customClick(
+    enable: Boolean = true,
+    shape: Shape = RoundedCornerShape(5.dp),
+    onClick: () -> Unit,
+): Modifier {
+    return if (enable) this
+        .shadow(
+            elevation = 10.dp, shape = shape,
+            ambientColor = Color.Transparent,
+            spotColor = Color.Transparent
+        )
+        .clickable {
+            onClick()
+        }
+    else this
+        .background(
+            color = Gray2.copy(
+                alpha = 0.8f
+            ),
+            shape = shape
+        )
+
+}
+
+fun createMultipartFromUri(
+    uri: Uri,
+    partName: String,
+    context: Context
+): MultipartBody.Part {
+    val inputStream = context.contentResolver.openInputStream(uri)
+    val bytes = inputStream?.readBytes() ?: ByteArray(0)
+    inputStream?.close()
+
+    val fileName = getFileName(uri, context) ?: "${UUID.randomUUID().toString()}.jpg"
+    val mimeType = context.contentResolver.getType(uri) ?: "image/jpeg"
+    val requestBody = bytes.toRequestBody(mimeType.toMediaTypeOrNull())
+    return MultipartBody.Part.createFormData(
+        partName,
+        fileName,
+        requestBody
+    )
+}
+
+fun getFileName(uri: Uri, context: Context): String? {
+    var result: String? = null
+    if (uri.scheme == "content") {
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index != -1) {
+                    result = it.getString(index)
+                }
+            }
+        }
+    }
+    if (result == null) {
+        result = uri.path
+        val cut = result?.lastIndexOf('/')
+        if (cut != -1) {
+            result = result?.substring(cut!! + 1)
+        }
+    }
+    return result
 }

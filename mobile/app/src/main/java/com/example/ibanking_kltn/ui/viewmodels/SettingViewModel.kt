@@ -78,7 +78,8 @@ class SettingViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 isEnableBiometric = false,
-                                screenState = StateType.SUCCESS
+                                screenState = StateType.SUCCESS,
+                                confirmPassword = ""
 
                             )
                         }
@@ -123,7 +124,8 @@ class SettingViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 screenState = StateType.SUCCESS,
-                                isEnableBiometric = true
+                                isEnableBiometric = true,
+                                confirmPassword = ""
                             )
                         }
                         onSuccess(true)

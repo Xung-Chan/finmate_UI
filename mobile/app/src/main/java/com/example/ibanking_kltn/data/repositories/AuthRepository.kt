@@ -1,5 +1,7 @@
 package com.example.ibanking_kltn.data.repositories
 
+import android.content.Context
+import android.net.Uri
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BiometricApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
@@ -14,14 +16,22 @@ import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
 import com.example.ibanking_kltn.data.dtos.responses.RegisterBiometricResponse
 import com.example.ibanking_kltn.data.dtos.responses.RequestOtpResponse
+import com.example.ibanking_kltn.data.dtos.responses.UpdateAvatarResponse
+import com.example.ibanking_kltn.data.dtos.responses.UserInfoResponse
+import com.example.ibanking_kltn.data.dtos.responses.UserStatusEnum
 import com.example.ibanking_kltn.data.dtos.responses.VerifyOtpResponse
+import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class AuthRepository @Inject constructor(
     private val authApi: AuthApi,
     private val nonAuthApi: NonAuthApi,
-    private val biometricApi: BiometricApi
+    private val biometricApi: BiometricApi,
+    @ApplicationContext private val context: Context
 ) {
 
 
@@ -64,6 +74,7 @@ class AuthRepository @Inject constructor(
             )
         )
     }
+
     suspend fun cancelBiometric(request: RegisterBiometricRequest): ApiResult<Unit> {
 //        return safeApiCall { biometricApi.cancelBiometric(request = request) }
         return ApiResult.Success(
@@ -72,39 +83,93 @@ class AuthRepository @Inject constructor(
     }
 
     suspend fun requestOtp(request: RequestOtpRequest): ApiResult<RequestOtpResponse> {
-//        return safeApiCall { nonAuthApi.requestOtp(request = request) }
-        return ApiResult.Success(
-            RequestOtpResponse(
-                maskedMail = "nmd****@gmail.com",
-                verifyKeyDurationMinutes = 2000L,
-                verifyKey = "mocked-verify-key"
-            )
-        )
-        return ApiResult.Error("Username koong ton tai")
+        return safeApiCall { nonAuthApi.requestOtp(request = request) }
+//        return ApiResult.Success(
+//            RequestOtpResponse(
+//                maskedMail = "nmd****@gmail.com",
+//                verifyKeyDurationMinutes = 2000L,
+//                verifyKey = "mocked-verify-key"
+//            )
+//        )
+//        return ApiResult.Error("Username koong ton tai")
     }
 
     suspend fun sendOtp(request: SendOtpRequest): ApiResult<Unit> {
-//        return safeApiCall { nonAuthApi.sendOtp(request = request) }
-        return ApiResult.Success(
-            data = Unit
-        )
+        return safeApiCall { nonAuthApi.sendOtp(request = request) }
+//        return ApiResult.Success(
+//            data = Unit
+//        )
     }
 
 
     suspend fun verifyOtp(request: VerifyOtpRequest): ApiResult<VerifyOtpResponse> {
-//        return safeApiCall { nonAuthApi.verifyOtp(request = request) }
-        return ApiResult.Success(
-            data = VerifyOtpResponse(
-                email = "nmd****@gmail.com",
-                resetPasswordToken = "mocked-verify-key",
-            )
-        )
+        return safeApiCall { nonAuthApi.verifyOtp(request = request) }
+//        return ApiResult.Success(
+//            data = VerifyOtpResponse(
+//                email = "nmd****@gmail.com",
+//                resetPasswordToken = "mocked-verify-key",
+//            )
+//        )
     }
 
 
     suspend fun resetPassword(request: ResetPasswordRequest): ApiResult<Unit> {
-//        return safeApiCall { nonAuthApi.resetPassword(request = request) }
-        return ApiResult.Success(Unit)
+        return safeApiCall { nonAuthApi.resetPassword(request = request) }
+//        return ApiResult.Success(Unit)
     }
+
+    suspend fun getMyProfile(): ApiResult<UserInfoResponse> {
+//        return safeApiCall { authApi.getMyProfile() }
+        return ApiResult.Success(
+            UserInfoResponse(
+                id = "user-id-123",
+                username = "mocked-username",
+                fullName = "Mocked User",
+                mail = "mocked-mail",
+                status = UserStatusEnum.ACTIVE,
+                phoneNumber = "1234567890",
+                avatarUrl = "https://placehold.jp/150x150.png",
+                dateOfBirth = "1990-01-01",
+                gender = "Male",
+                address = "123 Mock St, Mock City",
+                cardId = "ID123456789"
+
+            )
+        )
+    }
+
+    suspend fun updateAvatar(
+        imageUrl: Uri
+    ): ApiResult<UpdateAvatarResponse> {
+
+        try {
+            val file = createMultipartFromUri(
+                uri = imageUrl,
+                partName = "file",
+                context = context
+            )
+
+
+//            return safeApiCall(
+//                apiCall = {
+//                    authApi.updateImageProfile(
+//                        file = file
+//                    )
+//                }
+//            )
+            delay(1000L)
+            return ApiResult.Success(
+                data = UpdateAvatarResponse(
+                    imageUrl = "https://placehold.jp/150x150.png"
+                )
+            )
+
+        } catch (e: Exception) {
+            return ApiResult.Error("Exception: ${e.message}")
+        }
+
+
+    }
+
 
 }

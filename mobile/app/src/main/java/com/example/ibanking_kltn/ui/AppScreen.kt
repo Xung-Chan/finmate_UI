@@ -1,5 +1,8 @@
 package com.example.ibanking_kltn.ui
 
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -8,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,8 +46,10 @@ import com.example.ibanking_kltn.ui.screens.CreateVerificationRequestScreen
 import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
+import com.example.ibanking_kltn.ui.screens.MyProfileScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.QRScannerScreen
+import com.example.ibanking_kltn.ui.screens.SavedReceiverScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
 import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
@@ -63,7 +69,9 @@ import com.example.ibanking_kltn.ui.viewmodels.CreateVerificationRequestViewMode
 import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
+import com.example.ibanking_kltn.ui.viewmodels.MyProfileViewModel
 import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
+import com.example.ibanking_kltn.ui.viewmodels.SavedReceiverViewModel
 import com.example.ibanking_kltn.ui.viewmodels.SettingViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
@@ -79,13 +87,14 @@ enum class Screens {
 
     Home,
     TransactionResult, Transfer, ConfirmPayment,
-    Settings,
+    Settings, MyProfile,
     PayBill, CreateBill, BillHistory, BillDetail,
     TransactionHistory, TransactionHistoryDetail,
     Deposit, HandleDepositResult,
     QRScanner,
     AllService,
-    VerificationRequest
+    VerificationRequest,
+    SavedReceiver
 }
 
 @Composable
@@ -93,7 +102,6 @@ fun AppScreen(
     navController: NavHostController = rememberNavController()
 ) {
     val appViewModel: AppViewModel = hiltViewModel()
-
     val authViewModel: AuthViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
     val transferViewModel: TransferViewModel = hiltViewModel()
@@ -112,6 +120,8 @@ fun AppScreen(
     val createBillViewModel: CreateBillViewModel = hiltViewModel()
     val settingViewModel: SettingViewModel = hiltViewModel()
     val createVerificationRequestViewModel: CreateVerificationRequestViewModel = hiltViewModel()
+    val myProfileViewModel: MyProfileViewModel = hiltViewModel()
+    val savedReceiverViewModel: SavedReceiverViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -125,26 +135,57 @@ fun AppScreen(
         )
     }
 
+    var lastBackPressed by remember { mutableLongStateOf(0L) }
+
+    var isAtRoot by remember{
+        mutableStateOf(true)
+    }
+
+    BackHandler(enabled = isAtRoot) {
+        val now = System.currentTimeMillis()
+        if (now - lastBackPressed < 2000) {
+            (context as Activity).finish()
+        } else {
+            lastBackPressed = now
+            Toast
+                .makeText(context, "Vuốt back lần nữa để thoát", Toast.LENGTH_SHORT)
+                .show()
+        }
+    }
+
+
+
     val navigationBar: @Composable () -> Unit = {
         NavigationBar(
             bottomBarHeight = 100.dp,
             currentTab = tabNavigation,
             onNavigateToSettingScreen = {
                 navController.navigate(Screens.Settings.name) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
+                    }
                     launchSingleTop = true
                 }
             },
             onNavigateToHomeScreen = {
                 navController.navigate(Screens.Home.name) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
+                    }
                     launchSingleTop = true
                 }
             },
             onNavigateToTransactionHistoryScreen = {
                 navController.navigate(Screens.TransactionHistory.name) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
+                    }
                     launchSingleTop = true
                 }
             },
-            onNavigateToAnalyticsScreen = {},
+            onNavigateToAnalyticsScreen = {
+                //TODO
+            },
             onNavigateToQRScanner = {
                 navController.navigate(Screens.QRScanner.name) {
                     launchSingleTop = true
@@ -199,7 +240,6 @@ fun AppScreen(
         },
         ServiceCategory.VERIFICATION_REQUEST.name to {
             appViewModel.addRecentService(ServiceCategory.VERIFICATION_REQUEST)
-            //TODO
             navController.navigate(Screens.VerificationRequest.name)
         }
 
@@ -296,6 +336,7 @@ fun AppScreen(
                 }, uiState = transactionResultUiState, onContactClick = {})
             }
             composable(route = Screens.Home.name) {
+                isAtRoot = true
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
@@ -325,7 +366,9 @@ fun AppScreen(
                 TransferScreen(
                     uiState = transferUiState,
                     onDoneWalletNumber = {
-                        transferViewModel.onDoneWalletNumber()
+                        transferViewModel.onDoneWalletNumber(
+                            onError = onError
+                        )
                     },
                     onAccountTypeChange = { transferViewModel.onAccountTypeChange(it) },
                     onExpenseTypeChange = {
@@ -475,6 +518,7 @@ fun AppScreen(
                     })
             }
             composable(route = Screens.Settings.name) {
+                isAtRoot=true
                 tabNavigation = TabNavigation.PROFILE
                 val uiState by settingViewModel.uiState.collectAsState()
                 LaunchedEffect(Unit) {
@@ -483,7 +527,8 @@ fun AppScreen(
                 SettingScreen(
                     uiState = uiState,
                     onViewProfileClick = {
-                        //TODO
+                        myProfileViewModel.init(onError = onError)
+                        navController.navigate(Screens.MyProfile.name)
                     },
                     onChangePasswordClick = {
                         navController.navigate(Screens.ChangePassword.name)
@@ -634,7 +679,6 @@ fun AppScreen(
 
             }
             composable(route = Screens.QRScanner.name) { backStackEntry ->
-                //TODO
                 val uiState by qrScannerViewModel.uiState.collectAsState()
                 val onBillDetecting: (BillPayload) -> Unit = { payload ->
                     payBillViewModel.init()
@@ -656,7 +700,9 @@ fun AppScreen(
                         popUpTo(Screens.Home.name)
 
                     }
-                    transferViewModel.onDoneWalletNumber()
+                    transferViewModel.onDoneWalletNumber(
+                        onError = onError
+                    )
 
                 }
                 QRScannerScreen(
@@ -761,6 +807,7 @@ fun AppScreen(
                 })
             }
             composable(route = Screens.TransactionHistory.name) { backStackEntry ->
+                isAtRoot=true
                 tabNavigation = TabNavigation.HISTORY
                 val uiState by transactionHistoryViewModel.uiState.collectAsState()
                 val transactions =
@@ -885,6 +932,109 @@ fun AppScreen(
                     }
 
 
+                )
+            }
+            composable(route = Screens.MyProfile.name) {
+                val uiState by myProfileViewModel.uiState.collectAsState()
+
+                MyProfileScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onUpdateImageProfile = {
+                        myProfileViewModel.onUpdateImageProfile(
+                            uri = it,
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Cập nhật ảnh đại diện thành công",
+                                    type = SnackBarType.SUCCESS,
+                                    actionLabel = "Đóng",
+                                    onAction = {
+                                        appViewModel.closeSnackBarMessage()
+                                    }
+                                )
+                            },
+                            onError = onError
+                        )
+                    },
+                    onRetry = {
+                        myProfileViewModel.loadUserInfo(
+                            onError = onError
+                        )
+                    },
+                    onNavigateMyContacts = {
+                        savedReceiverViewModel.init()
+                        navController.navigate(Screens.SavedReceiver.name)
+                    },
+                    onNavigateMyQR = {
+                        //todo
+                    },
+                    onNavigateToVerificationRequest = {
+                        navigator[ServiceCategory.VERIFICATION_REQUEST.name]?.invoke()
+                    },
+                    onNavigateToTermsAndConditions = {
+                        //todo
+                    }
+                )
+            }
+            composable(
+                route = Screens.SavedReceiver.name
+            ) {
+                val uiState by savedReceiverViewModel.uiState.collectAsState()
+
+                SavedReceiverScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onDeleteReceiver = { walletNumber ->
+                        savedReceiverViewModel.onDeleteSavedReceiver(
+                            walletNumber = walletNumber,
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Xóa người nhận thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            }
+                        )
+                    },
+                    onDoneWalletNumber = {
+                        savedReceiverViewModel.onDoneWalletNumber(
+                            onError = onError
+                        )
+                    },
+                    onAddReceiver = {
+                        savedReceiverViewModel.onAddSavedReceiver(
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Thêm người nhận thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            },
+                            onError = { message ->
+                                appViewModel.showSnackBarMessage(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            }
+                        )
+                    },
+                    onSearchReceiver = {
+                        savedReceiverViewModel.onSearch()
+                    },
+                    onChangeKeyword = {
+                        savedReceiverViewModel.onChangeKeyword(it)
+                    },
+                    onChangeMemorableName = {
+                        savedReceiverViewModel.onChangeMemorableName(it)
+                    },
+                    onChangeToWalletNumber = {
+                        savedReceiverViewModel.onChangeToWalletNumber(it)
+                    },
+                    onClearAddReceiverDialog = {
+                        savedReceiverViewModel.onClearAddDialog()
+                    },
                 )
             }
 

@@ -22,12 +22,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
@@ -60,6 +61,7 @@ import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
 import com.example.ibanking_kltn.utils.CustomSwitchButton
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.InformationLine
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -214,7 +216,9 @@ fun SettingScreen(
                         ) {
                             Text(
                                 text = "FinMate",
-                                style = CustomTypography.headlineMedium,
+                                style = AppTypography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
                                 color = Black1
                             )
                         }
@@ -222,90 +226,76 @@ fun SettingScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
+                            InformationLine(
+                                title = "Thông tin của tôi",
+                                color = Gray1,
+                                trailing = {
+                                    Icon(
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
+                                        imageVector = Icons.Default.ArrowForwardIos,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(25.dp), tint = it
+
+                                    )
+                                },
+                                enable = true,
+                                onClick = {
                                         onViewProfileClick()
-                                    },
-                            ) {
-                                Text(
-                                    text = "Thông tin của tôi",
-                                    style = CustomTypography.titleMedium,
-                                    color = Gray1
-                                )
-                            }
-                            HorizontalDivider(
-                                modifier = Modifier.padding(bottom = 10.dp)
-                            )
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        onChangePasswordClick()
-                                    },
-                            ) {
-                                Text(
-                                    text = "Đổi mật khẩu",
-                                    style = CustomTypography.titleMedium,
-                                    color = Gray1
-                                )
-                            }
-                            HorizontalDivider(
-                                modifier = Modifier.padding(bottom = 10.dp)
-                            )
-                            Row(
+                                },
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = "Sinh trắc học",
-                                        style = CustomTypography.titleMedium,
-                                        color = Gray1
-                                    )
-                                }
-                                CustomSwitchButton(
-                                    value = uiState.isEnableBiometric,
-                                    buttonWidth = 50.dp,
-                                    buttonHeight = 20.dp,
-                                    onClick = {
-                                        isShowConfirmPasswordBiometric = true
-                                    }
-                                )
-                            }
-                            HorizontalDivider(
-                                modifier = Modifier.padding(bottom = 10.dp)
                             )
+                            InformationLine(
+                                title = "Đổi mật khẩu",
+                                color = Gray1,
+                                trailing = {
+                                    Icon(
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        isShowConfirmLogout = true
-                                    },
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Row(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Text(
-                                        text = "Đăng xuất",
-                                        style = CustomTypography.titleMedium,
-                                        color = Gray1
+                                        imageVector = Icons.Default.ArrowForwardIos,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(25.dp), tint = it
+
                                     )
-                                }
-                                Icon(
-                                    painter = painterResource(R.drawable.logout),
-                                    contentDescription = null,
-                                    tint = Gray1,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
+                                },
+                                enable = true,
+                                onClick = {
+                                        onChangePasswordClick()
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            InformationLine(
+                                title = "Sinh trắc học",
+                                color = Gray1,
+                                trailing = {
+                                    CustomSwitchButton(
+                                        value = uiState.isEnableBiometric,
+                                        buttonWidth = 50.dp,
+                                        buttonHeight = 20.dp,
+                                        onClick = {
+                                            isShowConfirmPasswordBiometric = true
+                                        }
+                                    )
+                                },
+                                enable = false,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                            InformationLine(
+                                title = "Đăng xuất",
+                                color = Gray1,
+                                trailing = {
+                                    Icon(
+                                        painter = painterResource(R.drawable.logout),
+                                        contentDescription = null,
+                                        tint = Gray1,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                },
+                                enable =true,
+                                onClick = {
+                                        isShowConfirmLogout = true
 
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
                             Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
 
                         }

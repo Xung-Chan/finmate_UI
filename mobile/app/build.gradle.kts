@@ -131,6 +131,9 @@ dependencies {
 
     //image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
+    //swipe
+    implementation("me.saket.swipe:swipe:1.3.0")
+
 
 
 }
