@@ -3,8 +3,10 @@ package com.example.ibanking_kltn.utils
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -103,7 +105,10 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
 import com.example.ibanking_kltn.data.dtos.QRPayload
+import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TabNavigation
@@ -136,6 +141,12 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import ir.ehsannarmani.compose_charts.ColumnChart
+import ir.ehsannarmani.compose_charts.PieChart
+import ir.ehsannarmani.compose_charts.models.BarProperties
+import ir.ehsannarmani.compose_charts.models.Bars
+import ir.ehsannarmani.compose_charts.models.GridProperties
+import ir.ehsannarmani.compose_charts.models.Pie
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 import java.time.DayOfWeek
@@ -153,7 +164,7 @@ fun CustomTextField(
     enable: Boolean = true,
     isError: Boolean = false,
     readOnly: Boolean = false,
-    textStyle: TextStyle = CustomTypography.titleSmall,
+    textStyle: TextStyle = AppTypography.bodyMedium,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
     ),
@@ -263,10 +274,10 @@ fun <T> CustomDropdownField(
                 verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
             ) {
                 if (selectedOption == "") Text(
-                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                    text = placeholder, style = AppTypography.bodyMedium, color = Gray2
                 )
                 else Text(
-                    text = selectedOption, style = CustomTypography.titleMedium, color = Black1
+                    text = selectedOption, style = AppTypography.bodyMedium, color = Black1
                 )
 
             }
@@ -344,10 +355,10 @@ fun CustomDropdownField(
                 verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
             ) {
                 if (selectedOption == "") Text(
-                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                    text = placeholder, style = AppTypography.bodyMedium, color = Gray2
                 )
                 else Text(
-                    text = selectedOption, style = CustomTypography.titleMedium, color = Black1
+                    text = selectedOption, style = AppTypography.bodyMedium, color = Black1
                 )
 
             }
@@ -397,7 +408,7 @@ fun CustomTextButton(
         disabledContentColor = White1
     ),
     isLoading: Boolean = false,
-    style: TextStyle = CustomTypography.titleMedium,
+    style: TextStyle = AppTypography.bodyMedium,
 ) {
     TextButton(
         onClick = onClick,
@@ -487,7 +498,7 @@ fun OtpDialogCustom(
                     ) {
                         Text(
                             text = "Nhập mã OTP",
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = White1
                         )
                     }
@@ -912,7 +923,7 @@ fun QrCodeImage(
                     )
                     Text(
                         text = "Lưu ảnh QR",
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         color = Black1,
                     )
                 }
@@ -937,7 +948,7 @@ fun QrCodeImage(
                     )
                     Text(
                         text = "Chia sẻ QR",
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         color = Black1,
                     )
                 }
@@ -984,7 +995,7 @@ fun BillFilterDialog(
 
 
                 Text(
-                    text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
+                    text = "Lọc theo:", style = AppTypography.bodyMedium, color = Black1
                 )
 
                 Row(
@@ -993,13 +1004,13 @@ fun BillFilterDialog(
                 ) {
                     Text(
                         text = "Trạng thái hóa đơn",
-                        style = CustomTypography.bodyMedium,
+                        style = AppTypography.bodyMedium,
                         color = Gray1
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = "Bỏ lọc",
-                        style = CustomTypography.bodyMedium,
+                        style = AppTypography.bodyMedium,
                         color = Blue1,
                         modifier = Modifier.clickable {
                             onResetStatusFilter()
@@ -1018,7 +1029,7 @@ fun BillFilterDialog(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
+                    text = "Sắp xếp theo:", style = AppTypography.bodyMedium, color = Black1
                 )
 
                 Row(
@@ -1026,12 +1037,12 @@ fun BillFilterDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
+                        text = "Ngày tạo", style = AppTypography.bodyMedium, color = Gray1
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Text(
                         text = "Bỏ lọc",
-                        style = CustomTypography.bodyMedium,
+                        style = AppTypography.bodyMedium,
                         color = Blue1,
                         modifier = Modifier.clickable {
                             onResetSortFilter()
@@ -1066,7 +1077,7 @@ fun BillFilterDialog(
                         shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
-                            text = "Đặt lại", style = CustomTypography.bodyMedium, color = Black1
+                            text = "Đặt lại", style = AppTypography.bodyMedium, color = Black1
                         )
                     }
 
@@ -1083,7 +1094,7 @@ fun BillFilterDialog(
                         shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
-                            text = "Áp dụng", style = CustomTypography.bodyMedium, color = White1
+                            text = "Áp dụng", style = AppTypography.bodyMedium, color = White1
                         )
                     }
                 }
@@ -1192,7 +1203,7 @@ fun TransactionHistoryFilterDialog(
 
 
                     Text(
-                        text = "Lọc theo:", style = CustomTypography.titleMedium, color = Black1
+                        text = "Lọc theo:", style = AppTypography.bodyMedium, color = Black1
                     )
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -1208,13 +1219,13 @@ fun TransactionHistoryFilterDialog(
                             ) {
                                 Text(
                                     text = "Trạng thái hóa đơn",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "Bỏ lọc",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
                                         onResetStatusFilter()
@@ -1246,13 +1257,13 @@ fun TransactionHistoryFilterDialog(
                             ) {
                                 Text(
                                     text = "Loại dịch vụ",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "Bỏ lọc",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
                                         onResetServiceFilter()
@@ -1282,13 +1293,13 @@ fun TransactionHistoryFilterDialog(
                             ) {
                                 Text(
                                     text = "Tài khoản thanh toán",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "Bỏ lọc",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
                                         onResetAccountTypeFilter()
@@ -1318,13 +1329,13 @@ fun TransactionHistoryFilterDialog(
                             ) {
                                 Text(
                                     text = "Ngày",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                                 Spacer(modifier = Modifier.weight(1f))
                                 Text(
                                     text = "Bỏ lọc",
-                                    style = CustomTypography.bodyMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
                                         onResetStatusFilter()
@@ -1377,7 +1388,7 @@ fun TransactionHistoryFilterDialog(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Sắp xếp theo:", style = CustomTypography.titleMedium, color = Black1
+                        text = "Sắp xếp theo:", style = AppTypography.bodyMedium, color = Black1
                     )
 
                     Row(
@@ -1385,12 +1396,12 @@ fun TransactionHistoryFilterDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Ngày tạo", style = CustomTypography.bodyMedium, color = Gray1
+                            text = "Ngày tạo", style = AppTypography.bodyMedium, color = Gray1
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Text(
                             text = "Bỏ lọc",
-                            style = CustomTypography.bodyMedium,
+                            style = AppTypography.bodyMedium,
                             color = Blue1,
                             modifier = Modifier.clickable {
                                 onResetSortFilter()
@@ -1429,7 +1440,7 @@ fun TransactionHistoryFilterDialog(
                         ) {
                             Text(
                                 text = "Đặt lại",
-                                style = CustomTypography.bodyMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Black1
                             )
                         }
@@ -1448,7 +1459,7 @@ fun TransactionHistoryFilterDialog(
                         ) {
                             Text(
                                 text = "Áp dụng",
-                                style = CustomTypography.bodyMedium,
+                                style = AppTypography.bodyMedium,
                                 color = White1
                             )
                         }
@@ -1529,6 +1540,347 @@ fun TransactionHistoryFilterDialog(
     }
 }
 
+
+@Composable
+fun PayLaterApplicationHistoryFilterDialog(
+    currentStatus: PayLaterApplicationStatus?,
+    currentType: PayLaterApplicationType?,
+    currentFromDate: LocalDate,
+    currentToDate: LocalDate,
+    onApply: (status: PayLaterApplicationStatus?, type: PayLaterApplicationType?, fromDate: LocalDate, toDate: LocalDate) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedStatus by remember {
+        mutableStateOf<PayLaterApplicationStatus?>(currentStatus)
+    }
+
+    var selectedType by remember {
+        mutableStateOf<PayLaterApplicationType?>(currentType)
+    }
+
+
+    var selectedFromDate by remember {
+        mutableStateOf(currentFromDate)
+    }
+
+    var selectedToDate by remember {
+        mutableStateOf(currentToDate)
+    }
+
+
+    var isShowFromDatePicker by remember {
+        mutableStateOf(false)
+    }
+    var isShowToDatePicker by remember {
+        mutableStateOf(false)
+    }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = White1, shape = RoundedCornerShape(12.dp)
+                )
+                .padding(5.dp)
+        ) {
+
+            Box(
+                contentAlignment = Alignment.TopEnd,
+            ) {
+
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(15.dp)
+                ) {
+
+
+                    Text(
+                        text = "Lọc theo:", style = AppTypography.bodyMedium, color = Black1
+                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Trạng thái đơn",
+                                    style = AppTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = AppTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        selectedStatus = null
+                                    }
+                                )
+                            }
+
+                            CustomDropdownField<PayLaterApplicationStatus>(
+                                options = PayLaterApplicationStatus.entries,
+                                selectedOption = selectedStatus?.statusName ?: "",
+                                onOptionSelected = {
+                                    selectedStatus = it
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.statusName,
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1
+                                    )
+                                },
+                                placeholder = "Trạng thái đơn"
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Loại đơn",
+                                    style = AppTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = AppTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        selectedType = null
+                                    }
+                                )
+                            }
+
+                            CustomDropdownField(
+                                options = PayLaterApplicationType.entries,
+                                selectedOption = selectedType?.typeName ?: "",
+                                onOptionSelected = {
+                                    selectedType = it
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.typeName,
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1
+                                    )
+                                },
+                                placeholder = "Loại đơn"
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+
+                        ) {
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Ngày",
+                                    style = AppTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Spacer(modifier = Modifier.weight(1f))
+                                Text(
+                                    text = "Bỏ lọc",
+                                    style = AppTypography.bodyMedium,
+                                    color = Blue1,
+                                    modifier = Modifier.clickable {
+                                        selectedFromDate = LocalDate.now().minusDays(30)
+                                        selectedToDate = LocalDate.now()
+                                    }
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                CustomClickField(
+                                    onClick = {
+                                        isShowFromDatePicker = true
+                                    },
+                                    placeholder = "Từ ngày",
+                                    value = selectedFromDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.calendar),
+                                            tint = Gray1,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                CustomClickField(
+                                    onClick = {
+                                        isShowToDatePicker = true
+                                    },
+                                    placeholder = "Đến ngày",
+                                    value = selectedToDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                                    trailingIcon = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.calendar),
+                                            tint = Gray1,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp)
+                                        )
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                            }
+                        }
+
+                    }
+
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                selectedStatus = null
+                                selectedType = null
+                                selectedFromDate = LocalDate.now().minusDays(30)
+                                selectedToDate = LocalDate.now()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Gray2
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "Đặt lại",
+                                style = AppTypography.bodyMedium,
+                                color = Black1
+                            )
+                        }
+
+                        Button(
+                            onClick = {
+                                onApply(
+                                    selectedStatus,
+                                    selectedType,
+                                    selectedFromDate,
+                                    selectedToDate
+                                )
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Blue1
+                            ),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "Áp dụng",
+                                style = AppTypography.bodyMedium,
+                                color = White1
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .shadow(
+                            elevation = 0.dp, shape = RoundedCornerShape(10.dp)
+                        )
+                        .clickable {
+                            onDismiss()
+                        }) {
+
+                    Icon(
+                        painter = painterResource(R.drawable.close),
+                        contentDescription = null,
+                        tint = Gray1,
+                        modifier = Modifier.size(35.dp)
+                    )
+                }
+            }
+
+
+        }
+
+        if (isShowFromDatePicker) {
+            Box(
+                contentAlignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Gray3.copy(alpha = 0.5f),
+                    )
+                    .padding(20.dp)
+                    .pointerInput(Unit) {}) {
+                CustomDatePicker(
+                    minDate = LocalDate.now().minusDays(30),
+                    maxDate = LocalDate.now(),
+                    onSelectedDate = {
+                        selectedFromDate = it
+                        isShowFromDatePicker = false
+                    },
+                    onDismiss = {
+                        isShowFromDatePicker = false
+                    }
+                )
+
+            }
+
+        }
+        if (isShowToDatePicker) {
+            Box(
+                contentAlignment = Alignment.BottomEnd,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        color = Gray3.copy(alpha = 0.5f),
+                    )
+                    .padding(20.dp)
+                    .pointerInput(Unit) {}) {
+                CustomDatePicker(
+                    minDate = LocalDate.now().minusDays(30),
+                    maxDate = LocalDate.now(),
+                    onSelectedDate = {
+                        selectedToDate = it
+                        isShowToDatePicker = false
+                    },
+                    onDismiss = {
+                        isShowToDatePicker = false
+                    }
+                )
+
+            }
+
+        }
+
+    }
+}
 
 @Composable
 fun CustomSwitchButton(
@@ -1977,10 +2329,10 @@ fun CustomClickField(
                 verticalArrangement = Arrangement.Center, modifier = Modifier.weight(1f)
             ) {
                 if (value == "") Text(
-                    text = placeholder, style = CustomTypography.titleMedium, color = Gray2
+                    text = placeholder, style = AppTypography.bodyMedium, color = Gray2
                 )
                 else Text(
-                    text = value, style = CustomTypography.titleMedium, color = Black1
+                    text = value, style = AppTypography.bodyMedium, color = Black1
                 )
 
             }
@@ -2045,7 +2397,7 @@ fun CustomConfirmDialog(
                     ) {
                         Text(
                             text = dimissText,
-                            style = CustomTypography.bodyMedium.copy(
+                            style = AppTypography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold
                             ),
                             color = Blue5
@@ -2072,7 +2424,7 @@ fun CustomConfirmDialog(
                     ) {
                         Text(
                             text = confirmText,
-                            style = CustomTypography.bodyMedium.copy(
+                            style = AppTypography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold
                             ),
                             color = White1
@@ -2105,15 +2457,14 @@ fun CustomConfirmDialog(
 
 @Composable
 fun ProgressBarWithLabel(
-    progress: Float, // 0.0 - 1.0
+    progress: Float,
     modifier: Modifier = Modifier,
-    progressColor: Color = Color(0xFF00BCD4), // Cyan
+    progressColor: Color = Color(0xFF00BCD4),
     backgroundColor: Color = Color(0xFFE0E0E0),
     labelBackgroundColor: Color = Color.White,
     labelBorderColor: Color = Color(0xFF9E9E9E),
     labelTextColor: Color = Color.Black,
     progressHeight: Dp = 8.dp,
-    labelPadding: Dp = 8.dp,
     animationDuration: Int = 1000
 ) {
     val animatedProgress by animateFloatAsState(
@@ -2178,9 +2529,8 @@ fun ProgressBarWithLabel(
             ) {
                 Text(
                     text = "$percentage%",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = AppTypography.bodySmall,
                     color = labelTextColor,
-                    fontWeight = FontWeight.Medium
                 )
             }
         }
@@ -2313,7 +2663,7 @@ fun RetryCompose(
                 ) {
                     Text(
                         text = "Thử lại",
-                        style = CustomTypography.bodyMedium.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         color = White1
@@ -2380,11 +2730,276 @@ fun SwipeComponent(
 }
 
 @Composable
-@Preview(
-    showBackground = true
-)
+fun SavedReceiverDialog(
+    savedReceivers: List<SavedReceiver>,
+    onSelect: (savedReceiver: SavedReceiver) -> Unit,
+    onDimiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                color = Gray3.copy(alpha = 0.5f),
+            )
+            .padding(20.dp)
+            .pointerInput(Unit) {
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            contentAlignment = Alignment.TopEnd,
+            modifier = Modifier
+                .background(
+                    color = White1,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .padding(10.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                if (savedReceivers.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Không tìm thấy người nhận đã lưu",
+                            style = AppTypography.bodyMedium,
+                            color = Gray2,
+                        )
+                    }
+                    return@Column
+                }
+                savedReceivers.forEach { savedReceiver ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .customClick {
+                                onSelect(savedReceiver)
+                            },
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(IntrinsicSize.Min),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(20.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .background(
+                                        color = Blue5.copy(
+                                            alpha = 0.3f
+                                        ),
+                                        shape = CircleShape
+                                    )
+                                    .clip(CircleShape)
+                                    .padding(5.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val templateName =
+                                    savedReceiver.toMerchantName.split(" ")
+                                        .mapNotNull { it.firstOrNull()?.toString() }
+                                        .take(2)
+                                        .joinToString("")
+                                Text(
+                                    templateName,
+                                    color = Blue1,
+                                    style = AppTypography.bodySmall
+                                )
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = savedReceiver.memorableName,
+                                    style = AppTypography.bodyMedium.copy(
+                                        color = Black1
+                                    )
+                                )
+                                Text(
+                                    text = savedReceiver.toMerchantName,
+                                    style = AppTypography.bodySmall.copy(
+                                        color = Gray1
+                                    )
+                                )
+                            }
+                            Column(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = savedReceiver.toWalletNumber,
+                                    style = AppTypography.bodyMedium.copy(
+                                        color = Gray1,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+
+                        }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = Gray2
+                        )
+                    }
+
+
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = CircleShape,
+                        ambientColor = Color.Transparent,
+                        spotColor = Color.Transparent
+                    )
+                    .clickable {
+                        onDimiss()
+                    }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.close), contentDescription = null,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+        }
+
+    }
+
+}
+
+@Composable
+fun CustomPieChart(
+    data: List<Pie>,
+    modifier: Modifier = Modifier
+) {
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        PieChart(
+            modifier = Modifier.size(200.dp),
+            data = data,
+            scaleAnimEnterSpec = spring<Float>(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            ),
+            selectedScale = 1f,
+            spaceDegree = 3f,
+            selectedPaddingDegree = 0f,
+            style = Pie.Style.Stroke(width = 30.dp)
+
+        )
+
+        data.chunked(3).forEach { chunk ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                chunk.forEach {
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            5.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .background(color = it.color, shape = RoundedCornerShape(3.dp))
+                        )
+                        Text(
+                            text = it.label ?: "",
+                            style = AppTypography.bodySmall,
+                            color = Black1
+                        )
+                    }
+
+                }
+            }
+        }
+
+    }
+}
+
+@Composable
+fun CustomBarChart(
+    data: List<Bars> ,
+    modifier: Modifier = Modifier
+) {
+    ColumnChart(
+        modifier = modifier,
+        data = data,
+        barProperties = BarProperties(
+            cornerRadius = Bars.Data.Radius.Rectangle(topRight = 6.dp, topLeft = 6.dp),
+            spacing = 1.dp,
+            thickness = 20.dp,
+        ),
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        gridProperties = GridProperties(
+            yAxisProperties = GridProperties.AxisProperties(
+                enabled = false,
+            )
+        )
+    )
+}
+
+@Composable
+fun DefaultImageProfile(
+    name: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+
+            .background(
+                color = Blue5.copy(
+                    alpha = 0.3f
+                ),
+                shape = CircleShape
+            )
+            .clip(CircleShape)
+            .padding(5.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val templateName =
+            name.split(" ")
+                .mapNotNull { it.firstOrNull()?.toString() }
+                .take(2)
+                .joinToString("")
+        Text(
+            templateName,
+            color = Blue1,
+            style = AppTypography.bodySmall
+        )
+    }
+}
+
+@Composable
+@Preview()
 fun Preview() {
     ProgressBarWithLabel(
-        progress = 0.5f
+        0.2f
     )
+
 }

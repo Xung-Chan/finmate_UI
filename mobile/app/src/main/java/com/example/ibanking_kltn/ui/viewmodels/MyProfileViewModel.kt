@@ -59,7 +59,8 @@ class MyProfileViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 screenState = StateType.SUCCESS,
-                                userInfo = apiResult.data
+                                userInfo = apiResult.data,
+                                initialedUserInfo = true
 
                             )
                         }
@@ -69,7 +70,8 @@ class MyProfileViewModel @Inject constructor(
                     is ApiResult.Error -> {
                         _uiState.update {
                             it.copy(
-                                screenState = StateType.FAILED(apiResult.message)
+                                screenState = StateType.FAILED(apiResult.message),
+                                initialedUserInfo = true
                             )
                         }
                         onError(apiResult.message)

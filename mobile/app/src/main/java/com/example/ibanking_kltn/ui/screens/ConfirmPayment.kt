@@ -27,14 +27,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.data.dtos.PaymentAccount
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
+import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
@@ -56,7 +60,9 @@ fun ConfirmPaymentScreen(
     onConfirmClick: () -> Unit,
     onOtpChange: (String) -> Unit,
     onOtpDismiss: () -> Unit,
-) {
+    onAccountTypeChange: (PaymentAccount) -> Unit,
+
+    ) {
     val scrollState = rememberScrollState(0)
 
     LoadingScaffold(
@@ -115,28 +121,6 @@ fun ConfirmPaymentScreen(
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
                             value = uiState.service?.name ?: "",
-                            keyboardOptions = KeyboardOptions(
-                                imeAction = ImeAction.Done,
-                                keyboardType = KeyboardType.Text
-                            ),
-                            enable = false,
-                            onValueChange = {}
-                        )
-                    }
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row {
-                            Text(
-                                text = "Từ",
-                                style = CustomTypography.titleMedium,
-                                color = Gray1
-                            )
-                        }
-                        CustomTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = uiState.accountType,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -363,22 +347,58 @@ fun ConfirmPaymentScreen(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text(
-                            text = "Phương thức xác thực",
+                            text = "Tài khoản thanh toán",
                             style = CustomTypography.titleMedium,
                             color = Gray1
                         )
-                        CustomDropdownField(
+                        CustomDropdownField<PaymentAccount>(
                             modifier = Modifier.fillMaxWidth(),
-                            options = listOf("SMS Email", "Biometric"),
-                            onOptionSelected = {},
-                            selectedOption = "",
-                            placeholder = "Chọn phương thức xác thực"
+                            options = uiState.availableAccount,
+                            onOptionSelected = {
+                                onAccountTypeChange(it)
+                            },
+                            optionsComposable = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(it.accountType.icon),
+                                        contentDescription = null,
+                                        tint = it.accountType.color,
+                                    )
+                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                        Text(
+                                            text = "${it.accountType.name} - ${it.accountNumber}",
+                                            style = AppTypography.bodyMedium,
+                                            color = Black1
+                                        )
+                                        Text(
+                                            text = formatterVND(it.balance),
+                                            style = AppTypography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = Gray1
+                                        )
+                                    }
+                                }
+                            },
+                            selectedOption = uiState.accountType?.accountType?.type ?: "",
+                            placeholder = "Chọn tài khoản thanh toán"
                         )
+                        if (uiState.accountType != null) {
+                            Text(
+                                text = "Số dư: ${formatterVND(uiState.balance)} VND",
+                                style = CustomTypography.titleMedium,
+                                color = Blue1
+                            )
+                        }
                     }
                     Row(modifier = Modifier.fillMaxWidth()) {
 
                         CustomTextButton(
-                            enable = uiState.confirmState !is StateType.LOADING,
+                            enable = uiState.confirmState !is StateType.LOADING && uiState.accountType != null,
                             onClick = {
                                 onConfirmClick()
                             },
@@ -414,14 +434,14 @@ fun ConfirmPaymentScreen(
 )
 @Composable
 fun ConfirmPreview() {
-    ConfirmPaymentScreen(
-        uiState = ConfirmUiState(
-            isOtpShow = true,
-            service = ServiceType.TRANSFER
-        ),
-        onBackClick = { },
-        onConfirmClick = { },
-        onOtpChange = { },
-        onOtpDismiss = {}
-    )
+//    ConfirmPaymentScreen(
+//        uiState = ConfirmUiState(
+//            isOtpShow = true,
+//            service = ServiceType.TRANSFER
+//        ),
+//        onBackClick = { },
+//        onConfirmClick = { },
+//        onOtpChange = { },
+//        onOtpDismiss = {}
+//    )
 }

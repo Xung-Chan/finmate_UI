@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.BiometricManager
 import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.data.dtos.requests.LoginViaBiometricRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.ui.security.BiometricAuthenticator
 import com.example.ibanking_kltn.ui.uistates.AuthUiState
@@ -62,6 +63,7 @@ class AuthViewModel @Inject constructor(
     fun onLogout() {
         tokenManager.clearToken()
     }
+
     fun onDeleteLastLoginUser() {
         tokenManager.clearLastLoginUser()
         biometricManager.clear()
@@ -134,7 +136,7 @@ class AuthViewModel @Inject constructor(
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val isAllowBiometricAuthenticator = biometricManager.getBiometricKey()!=null
+        val isAllowBiometricAuthenticator = biometricManager.getBiometricKey() != null
         if (!isAllowBiometricAuthenticator) {
             onError("Vui lòng đăng nhập bằng tài khoản và mật khẩu trước")
             return
@@ -144,7 +146,10 @@ class AuthViewModel @Inject constructor(
             negativeButtonText = "Cancel",
             fragmentActivity = fragmentActivity,
             onSucess = {
-                onSuccess()
+                loginViaBiometric(
+                    onSuccess = onSuccess,
+                    onError = onError
+                )
             },
             onFailed = {
                 onError("Xác thực không thành công")
@@ -153,6 +158,53 @@ class AuthViewModel @Inject constructor(
                 onError(errorString)
             }
         )
+    }
+
+    private fun loginViaBiometric(
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        _uiState.update {
+            it.copy(loginState = StateType.LOADING)
+        }
+        viewModelScope.launch {
+            val biometricPayload = biometricManager.getBiometricKey()
+            if (biometricPayload == null) {
+                _uiState.update {
+                    it.copy(loginState = StateType.FAILED("Chưa đăng ký đăng nhập bằng sinh trắc học"))
+                }
+                onError("Chưa đăng ký đăng nhập bằng sinh trắc học")
+                return@launch
+            }
+            val request = LoginViaBiometricRequest(
+                biometricKey = biometricPayload.biometricKey,
+                deviceId = biometricPayload.deviceId,
+                username = biometricPayload.username,
+            )
+            val apiResult = authRepository.loginViaBiometric(request)
+            when (apiResult) {
+                is ApiResult.Success -> {
+                    val loginResponse = apiResult.data
+                    _uiState.update {
+                        it.copy(loginState = StateType.SUCCESS)
+                    }
+
+                    tokenManager.updateToken(
+                        access = loginResponse.access_token,
+                        refresh = loginResponse.refresh_token
+                    )
+                    onSuccess()
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(loginState = StateType.FAILED(apiResult.message))
+
+                    }
+                    onError(apiResult.message)
+                }
+            }
+        }
     }
 
 

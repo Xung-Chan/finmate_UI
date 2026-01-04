@@ -58,10 +58,12 @@ import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
+import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
 import com.example.ibanking_kltn.utils.CustomSwitchButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.InformationLine
+import com.example.ibanking_kltn.utils.LoadingScaffold
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,7 +90,9 @@ fun SettingScreen(
     val focusManager = LocalFocusManager.current
     val bottomBarHeight = 100.dp
     val scrollState = rememberScrollState(0)
-    Box {
+    LoadingScaffold(
+        isLoading = uiState.screenState == StateType.LOADING
+    ) {
         Scaffold(
             modifier = Modifier.systemBarsPadding()
         ) { paddingValues ->
@@ -275,7 +279,11 @@ fun SettingScreen(
                                         }
                                     )
                                 },
-                                enable = false,
+                                onClick = {
+                                    isShowConfirmPasswordBiometric = true
+
+                                },
+                                enable =true,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                             InformationLine(

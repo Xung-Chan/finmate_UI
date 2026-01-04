@@ -43,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -71,6 +70,7 @@ import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.SavedReceiverUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.SwipeComponent
 import com.example.ibanking_kltn.utils.customClick
 
@@ -250,31 +250,10 @@ fun SavedReceiverScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(20.dp)
                                     ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .background(
-                                                    color = Blue5.copy(
-                                                        alpha = 0.3f
-                                                    ),
-                                                    shape = CircleShape
-                                                )
-                                                .clip(CircleShape)
-                                                .padding(5.dp),
-                                            horizontalArrangement = Arrangement.Center,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            val templateName =
-                                                savedReceiver.toMerchantName.split(" ")
-                                                    .mapNotNull { it.firstOrNull()?.toString() }
-                                                    .take(2)
-                                                    .joinToString("")
-                                            Text(
-                                                templateName,
-                                                color = Blue1,
-                                                style = AppTypography.bodySmall
-                                            )
-                                        }
+                                        DefaultImageProfile(
+                                            name = savedReceiver.toMerchantName,
+                                            modifier = Modifier.size(40.dp)
+                                        )
                                         Column(
                                             verticalArrangement = Arrangement.Center
                                         ) {
@@ -347,30 +326,7 @@ fun SavedReceiverScreen(
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
                         Column {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Row {
-                                    Text(
-                                        text = "Tên gợi nhớ",
-                                        style = CustomTypography.titleMedium,
-                                        color = Gray1
-                                    )
-                                }
-                                CustomTextField(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    value = uiState.memorableName,
-                                    keyboardOptions = KeyboardOptions(
-                                        imeAction = ImeAction.Next,
-                                        keyboardType = KeyboardType.Text
-                                    ),
-                                    enable = true,
-                                    onValueChange = {
-                                        onChangeMemorableName(it)
-                                    }
-                                )
-                            }
+
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -434,6 +390,30 @@ fun SavedReceiverScreen(
                                         onValueChange = {}
                                     )
                                 }
+                            }
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Row {
+                                    Text(
+                                        text = "Tên gợi nhớ",
+                                        style = CustomTypography.titleMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                CustomTextField(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    value = uiState.memorableName,
+                                    keyboardOptions = KeyboardOptions(
+                                        imeAction = ImeAction.Next,
+                                        keyboardType = KeyboardType.Text
+                                    ),
+                                    enable = true,
+                                    onValueChange = {
+                                        onChangeMemorableName(it)
+                                    }
+                                )
                             }
                         }
 

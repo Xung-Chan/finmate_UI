@@ -1,17 +1,60 @@
 package com.example.ibanking_kltn.data.dtos.responses
 
+import com.example.ibanking_kltn.data.dtos.BillingCycleStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterAccountStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
+
 data class PayLaterResponse(
-    val approvedAt: Any,
-    val approvedBy: Any,
-    val availableCredit: Double?,
+    val approvedAt: String,
+    val approvedBy: String,
+    val availableCredit: Double,
     val creditLimit: Double,
     val id: String,
     val interestRate: Double,
-    val nextBillingDate: Any,
-    val nextDueDate: Any,
+    val nextBillingDate: String,
+    val nextDueDate: String,
     val payLaterAccountNumber: String,
-    val status: String,
+    val status: PayLaterAccountStatus,
     val usedCredit: Double,
     val username: String,
-    val walletNumber: Any
+    val walletNumber: String
+)
+
+
+data class PayLaterApplicationResponse(
+    val id: String,
+    val username: String,
+    val type: PayLaterApplicationType,
+
+    val requestedCreditLimit: Double,
+    val approvedLimit: Double?,
+
+    val reason: String?,
+    val rejectionReason: String?,
+    val status: PayLaterApplicationStatus,
+
+    val approvedBy: String?,
+    val appliedAt: String,
+    val processedAt: String?
+)
+
+data class BillingCycleResonse(
+    val code: String,
+
+    val startDate: String,
+    val endDate: String,
+    val dueDate: String,
+
+    val totalSpent: Double,        // đã sử dụng
+    val paidPrincipal: Double,     // đã trả gốc
+    val minimumPayment: Double,    // số tiền tối thiểu phải trả
+    val totalInterest: Double,     // tổng lãi phải trả
+    val paidInterest: Double,      // đã trả lãi
+    val lateInterestRate: Double,  // lãi suất trễ hạn
+
+    val penaltyFee: Double?,       // phí trễ hạn (có thể chưa áp dụng)
+    val penaltyApplied: Boolean,       // đã áp dụng phí trễ hạn hay chưa
+
+    val status: BillingCycleStatus
 )

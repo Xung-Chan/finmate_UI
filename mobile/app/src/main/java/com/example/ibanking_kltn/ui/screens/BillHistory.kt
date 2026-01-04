@@ -44,6 +44,7 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.CustomTypography
@@ -163,7 +164,20 @@ fun BillHistoryScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
 
                             ) {
-
+                            if (bills.itemCount == 0) {
+                                item {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = "Không có hóa đơn nào",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1,
+                                        )
+                                    }
+                                }
+                            }
                             items(
                                 count = bills.itemCount,
                             ) { item ->
@@ -344,10 +358,12 @@ fun BillHistoryScreen(
                         selectedStatus = selectedStatus,
                         selectedSort = selectedSort,
                         onSelectStatus = {
-                            selectedStatus = BillStatus.entries.first{billStatus-> billStatus.status == it }
+                            selectedStatus =
+                                BillStatus.entries.first { billStatus -> billStatus.status == it }
                         },
                         onSelectSort = {
-                            selectedSort = SortOption.entries.first{sortOption-> sortOption.sortBy == it }
+                            selectedSort =
+                                SortOption.entries.first { sortOption -> sortOption.sortBy == it }
                         },
                         onResetStatusFilter = {
                             selectedStatus = null

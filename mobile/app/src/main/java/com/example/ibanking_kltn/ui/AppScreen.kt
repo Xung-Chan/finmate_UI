@@ -30,12 +30,16 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.data.dtos.BillPayload
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
+import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
+import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.screens.AllServiceScreen
+import com.example.ibanking_kltn.ui.screens.AnalyticScreen
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
 import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
@@ -48,15 +52,20 @@ import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.MyProfileScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
+import com.example.ibanking_kltn.ui.screens.PayLaterApplicationHistoryScreen
+import com.example.ibanking_kltn.ui.screens.PayLaterApplicationScreen
+import com.example.ibanking_kltn.ui.screens.PayLaterScreen
 import com.example.ibanking_kltn.ui.screens.QRScannerScreen
 import com.example.ibanking_kltn.ui.screens.SavedReceiverScreen
 import com.example.ibanking_kltn.ui.screens.SettingScreen
 import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.TermsAndConditionsScreen
 import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
+import com.example.ibanking_kltn.ui.viewmodels.AnalyticViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillDetailViewModel
@@ -70,6 +79,9 @@ import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.MyProfileViewModel
+import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationHistoryViewModel
+import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationViewModel
+import com.example.ibanking_kltn.ui.viewmodels.PayLaterViewModel
 import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
 import com.example.ibanking_kltn.ui.viewmodels.SavedReceiverViewModel
 import com.example.ibanking_kltn.ui.viewmodels.SettingViewModel
@@ -81,20 +93,22 @@ import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
 import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
+import java.time.LocalDate
 
 enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword,
 
-    Home,
+    Home,Settings, Analytic,
     TransactionResult, Transfer, ConfirmPayment,
-    Settings, MyProfile,
+     MyProfile, TermAndConditions,
     PayBill, CreateBill, BillHistory, BillDetail,
     TransactionHistory, TransactionHistoryDetail,
     Deposit, HandleDepositResult,
     QRScanner,
     AllService,
     VerificationRequest,
-    SavedReceiver
+    SavedReceiver,
+    PayLater, PayLaterApplication, PayLaterApplicationHistory
 }
 
 @Composable
@@ -122,6 +136,10 @@ fun AppScreen(
     val createVerificationRequestViewModel: CreateVerificationRequestViewModel = hiltViewModel()
     val myProfileViewModel: MyProfileViewModel = hiltViewModel()
     val savedReceiverViewModel: SavedReceiverViewModel = hiltViewModel()
+    val payLaterViewModel: PayLaterViewModel = hiltViewModel()
+    val payLaterApplicationViewModel: PayLaterApplicationViewModel = hiltViewModel()
+    val payLaterApplicationHistoryViewModel: PayLaterApplicationHistoryViewModel = hiltViewModel()
+    val analyticViewModel: AnalyticViewModel=hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -137,7 +155,7 @@ fun AppScreen(
 
     var lastBackPressed by remember { mutableLongStateOf(0L) }
 
-    var isAtRoot by remember{
+    var isAtRoot by remember {
         mutableStateOf(true)
     }
 
@@ -154,7 +172,6 @@ fun AppScreen(
     }
 
 
-
     val navigationBar: @Composable () -> Unit = {
         NavigationBar(
             bottomBarHeight = 100.dp,
@@ -168,6 +185,8 @@ fun AppScreen(
                 }
             },
             onNavigateToHomeScreen = {
+                homeViewModel.loadWalletInfo()
+                homeViewModel.loadFavoriteAndRecentServices()
                 navController.navigate(Screens.Home.name) {
                     popUpTo(navController.graph.id) {
                         inclusive = false
@@ -184,7 +203,19 @@ fun AppScreen(
                 }
             },
             onNavigateToAnalyticsScreen = {
-                //TODO
+                analyticViewModel.loadDistributionStatistic (
+                    onError = onError
+                )
+                analyticViewModel.loadTrendStatistic  (
+                    onError = onError
+                )
+                navController.navigate(Screens.Analytic.name) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
+
             },
             onNavigateToQRScanner = {
                 navController.navigate(Screens.QRScanner.name) {
@@ -195,7 +226,8 @@ fun AppScreen(
     val navigator = mapOf(
         ServiceCategory.MONEY_TRANSFER.name to {
             appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
-            transferViewModel.clearState()
+            transferViewModel.init()
+            savedReceiverViewModel.loadSavedReceivers()
             navController.navigate(Screens.Transfer.name)
         },
         ServiceCategory.DEPOSIT.name to {
@@ -215,8 +247,10 @@ fun AppScreen(
         },
         ServiceCategory.PAY_LATER.name to {
             appViewModel.addRecentService(ServiceCategory.PAY_LATER)
-            //TODO
-            navController.navigate(Screens.BillHistory.name)
+            payLaterViewModel.init(
+                onError = onError
+            )
+            navController.navigate(Screens.PayLater.name)
         },
         ServiceCategory.AIR_PLANE.name to {
             appViewModel.addRecentService(ServiceCategory.AIR_PLANE)
@@ -303,6 +337,7 @@ fun AppScreen(
                         authViewModel.onBiometricClick(
                             fragmentActivity = context as FragmentActivity,
                             onSuccess = {
+                                homeViewModel.init()
                                 navController.navigate(Screens.Home.name)
                                 appViewModel.showSnackBarMessage(
                                     message = "Đăng nhập thành công",
@@ -328,6 +363,7 @@ fun AppScreen(
             composable(route = Screens.TransactionResult.name) {
                 val transactionResultUiState by transactionResultViewModel.uiState.collectAsState()
                 TransactionResultScreen(onBackToHomeClick = {
+                    homeViewModel.loadWalletInfo()
                     navController.navigate(Screens.Home.name) {
                         popUpTo(Screens.Home.name) {
                             inclusive = true
@@ -339,11 +375,11 @@ fun AppScreen(
                 isAtRoot = true
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
-                LaunchedEffect(Unit) {
-
-                    homeViewModel.init()
-                    authViewModel.clearState()
-                }
+//                LaunchedEffect(Unit) {
+//
+//                    homeViewModel.init()
+//                    authViewModel.clearState()
+//                }
                 HomeScreen(
                     homeUiState = homeUiState, onChangeVisibleBalance = {
                         homeViewModel.onChangeVisibleBalance()
@@ -359,10 +395,8 @@ fun AppScreen(
             }
             composable(route = Screens.Transfer.name) {
                 val transferUiState by transferViewModel.uiState.collectAsState()
+                val savedReceiverUiState by savedReceiverViewModel.uiState.collectAsState()
                 service = ServiceType.TRANSFER
-                LaunchedEffect(Unit) {
-                    transferViewModel.init()
-                }
                 TransferScreen(
                     uiState = transferUiState,
                     onDoneWalletNumber = {
@@ -370,7 +404,6 @@ fun AppScreen(
                             onError = onError
                         )
                     },
-                    onAccountTypeChange = { transferViewModel.onAccountTypeChange(it) },
                     onExpenseTypeChange = {
                         transferViewModel.onExpenseTypeChange(it)
                     },
@@ -383,7 +416,6 @@ fun AppScreen(
                         confirmViewModel.clearState()
                         val transferData = transferViewModel.uiState.value
                         confirmViewModel.init(
-                            accountType = transferData.accountType,
                             amount = transferData.amount,
                             toWalletNumber = transferData.toWalletNumber,
                             description = if (transferData.description.isNotEmpty()) removeVietnameseAccents(
@@ -391,12 +423,31 @@ fun AppScreen(
                             ) else "Chuyen tien den ${transferData.toMerchantName}",
                             toMerchantName = transferData.toMerchantName,
                             expenseType = transferData.expenseType,
+                            isVerified = transferData.isVerified,
                             service = service
                         )
+                        if (transferData.isSaveReceiver) {
+                            savedReceiverViewModel.onSaveReceiver(
+                                SavedReceiver(
+                                    memorableName = transferData.toMerchantName,
+                                    toWalletNumber = transferData.toWalletNumber,
+                                    toMerchantName = transferData.toMerchantName,
+                                )
+                            )
+                        }
+
                         navController.navigate(Screens.ConfirmPayment.name)
 
                     },
-                    isEnableContinue = transferViewModel.isEnableContinue()
+                    isEnableContinue = transferViewModel.isEnableContinue(),
+                    savedReceivers = savedReceiverUiState.savedReceivers,
+                    onSelectSavedReceiver = {
+                        transferViewModel.onSelectSavedReceiver(it)
+
+                    },
+                    onChangeSaveReceiver = {
+                        transferViewModel.onChangeSaveReceiver()
+                    }
 
                 )
             }
@@ -405,9 +456,12 @@ fun AppScreen(
 
                 ConfirmPaymentScreen(
                     uiState = confirmUiState,
-                    onBackClick = { navController.popBackStack() },
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
                     onConfirmClick = {
-                        confirmViewModel.onConfirmClick(onSentOtp = {
+                        confirmViewModel.onConfirmClick(
+                            onSentOtp = {
                             appViewModel.showSnackBarMessage(
                                 message = "Đã gửi mã OTP đến email của bạn",
                                 type = SnackBarType.INFO,
@@ -437,6 +491,9 @@ fun AppScreen(
                     onOtpDismiss = {
                         confirmViewModel.onOtpDismiss()
                     },
+                    onAccountTypeChange = {
+                        confirmViewModel.onSelectAccountType(it)
+                    },
                 )
             }
             composable(route = Screens.PayBill.name) { backStackEntry ->
@@ -447,31 +504,31 @@ fun AppScreen(
 //                    payBillViewModel.init()
 //                }
 
-                PayBillScreen(uiState = uiState, onBackClick = {
-                    navController.popBackStack()
-                }, onCheckingBill = {
-                    payBillViewModel.onCheckingBill()
-                }, onConfirmPayBill = {
-                    confirmViewModel.clearState()
-                    val billData = payBillViewModel.uiState.value
-                    confirmViewModel.init(
-                        accountType = billData.accountType,
-                        amount = billData.amount,
-                        toWalletNumber = billData.toWalletNumber,
-                        description = if (billData.description.isNotEmpty()) removeVietnameseAccents(
-                            billData.description
-                        ) else "Chuyen tien den ${billData.toMerchantName}",
-                        toMerchantName = billData.toMerchantName,
-                        billCode = billData.billCode,
-                        service = service
-                    )
-                    navController.navigate(Screens.ConfirmPayment.name)
+                PayBillScreen(
+                    uiState = uiState, onBackClick = {
+                        navController.popBackStack()
+                    }, onCheckingBill = {
+                        payBillViewModel.onCheckingBill()
+                    }, onConfirmPayBill = {
+                        confirmViewModel.clearState()
+                        val billData = payBillViewModel.uiState.value
+                        confirmViewModel.init(
+                            amount = billData.amount,
+                            toWalletNumber = billData.toWalletNumber,
+                            description = if (billData.description.isNotEmpty()) removeVietnameseAccents(
+                                billData.description
+                            ) else "Chuyen tien den ${billData.toMerchantName}",
+                            toMerchantName = billData.toMerchantName,
+                            billCode = billData.billCode,
+                            isVerified = true,
+                            service = service
+                        )
+                        navController.navigate(Screens.ConfirmPayment.name)
 
-                }, onChangeBillCode = {
-                    payBillViewModel.onChangeBillCode(it)
-                }, onChangeAccountType = {
-                    payBillViewModel.onChangeAccountType(it)
-                })
+                    }, onChangeBillCode = {
+                        payBillViewModel.onChangeBillCode(it)
+                    }
+                )
             }
             composable(route = Screens.ChangePassword.name) {
                 val uiState by changePasswordViewModel.uiState.collectAsState()
@@ -518,7 +575,7 @@ fun AppScreen(
                     })
             }
             composable(route = Screens.Settings.name) {
-                isAtRoot=true
+                isAtRoot = true
                 tabNavigation = TabNavigation.PROFILE
                 val uiState by settingViewModel.uiState.collectAsState()
                 LaunchedEffect(Unit) {
@@ -625,6 +682,7 @@ fun AppScreen(
                 val uiState by depositViewModel.uiState.collectAsState()
                 GatewayDeposit(
                     onBackClick = {
+                        homeViewModel.loadWalletInfo()
                         navController.navigate(Screens.Home.name)
                     }, onContinuePayment = {
                         depositViewModel.onContinuePayment(
@@ -797,17 +855,37 @@ fun AppScreen(
                 })
             }
             composable(route = Screens.BillDetail.name) { backStackEntry ->
-                val bill by billDetailViewModel.uiState.collectAsState()
-                BillDetailScreen(bill = bill, onSavedSuccess = {
-                    appViewModel.showSnackBarMessage(
-                        message = "Lưu hóa đơn thành công", type = SnackBarType.SUCCESS
-                    )
-                }, onBackClick = {
-                    navController.popBackStack()
-                })
+                val uiState by billDetailViewModel.uiState.collectAsState()
+                BillDetailScreen(
+                    uiState=uiState,
+                    onSavedSuccess = {
+                        appViewModel.showSnackBarMessage(
+                            message = "Lưu hóa đơn thành công", type = SnackBarType.SUCCESS
+                        )
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onCancelBill = {
+                        billDetailViewModel.onCancelBill(
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Hủy hóa đơn thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                                navController.navigate(Screens.BillHistory.name) {
+                                    popUpTo(Screens.BillHistory.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onError = onError
+                        )
+                    }
+                )
             }
             composable(route = Screens.TransactionHistory.name) { backStackEntry ->
-                isAtRoot=true
+                isAtRoot = true
                 tabNavigation = TabNavigation.HISTORY
                 val uiState by transactionHistoryViewModel.uiState.collectAsState()
                 val transactions =
@@ -842,8 +920,8 @@ fun AppScreen(
                         transactionDetailViewModel.init(transaction = transaction)
                         navController.navigate(Screens.TransactionHistoryDetail.name)
                     },
-                    onBackClick = {
-                        navController.popBackStack()
+                    navigationBar = {
+                        navigationBar()
                     }
                 )
             }
@@ -936,9 +1014,10 @@ fun AppScreen(
             }
             composable(route = Screens.MyProfile.name) {
                 val uiState by myProfileViewModel.uiState.collectAsState()
-
+                val homeUiState by homeViewModel.uiState.collectAsState()
                 MyProfileScreen(
                     uiState = uiState,
+                    myWalletNumber = homeUiState.myWallet!!.walletNumber,
                     onBackClick = {
                         navController.popBackStack()
                     },
@@ -967,14 +1046,109 @@ fun AppScreen(
                         savedReceiverViewModel.init()
                         navController.navigate(Screens.SavedReceiver.name)
                     },
-                    onNavigateMyQR = {
-                        //todo
-                    },
                     onNavigateToVerificationRequest = {
                         navigator[ServiceCategory.VERIFICATION_REQUEST.name]?.invoke()
                     },
                     onNavigateToTermsAndConditions = {
+                        navController.navigate(Screens.TermAndConditions.name)
+                    },
+                    onSavedQrSuccess = {
+                        appViewModel.showSnackBarMessage(
+                            message = "Lưu QR thành công", type = SnackBarType.SUCCESS
+                        )
+                    }
+                )
+            }
+            composable(route = Screens.PayLater.name) {
+                val uiState by payLaterViewModel.uiState.collectAsState()
+                PayLaterScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onActivePaylater = {
+                        payLaterApplicationViewModel.init(type = PayLaterApplicationType.ACTIVATION)
+                        navController.navigate(Screens.PayLaterApplication.name)
+                    },
+                    onLockPaylater = {
+                        payLaterViewModel.lockAccountRequest(
+                            onError = onError
+                        )
+                    },
+                    onUnlockPaylater = {
+                        payLaterViewModel.unlockAccountRequest(
+                            onError = onError
+                        )
+                    },
+                    onRetry = {
+                        payLaterViewModel.init(
+                            onError = onError
+                        )
+                    },
+                    onNavigateToApplicationHistory = {
+                        payLaterApplicationHistoryViewModel.clearState()
+                        navController.navigate(Screens.PayLaterApplicationHistory.name)
+                    },
+                    onNavigateToBillingCycleHistory = {
                         //todo
+                    }
+
+                )
+            }
+            composable(route = Screens.PayLaterApplication.name) {
+                val uiState by payLaterApplicationViewModel.uiState.collectAsState()
+                PayLaterApplicationScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onLimitChange = {
+                        payLaterApplicationViewModel.onChangeRequestLimit(it)
+                    },
+                    onChangeReason = {
+                        payLaterApplicationViewModel.onChangeReason(it)
+                    },
+                    onConfirmClick = {
+                        payLaterApplicationViewModel.onClickConfirm(
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Gửi yêu cầu thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                                navController.navigate(Screens.Home.name) {
+                                    popUpTo(Screens.PayLaterApplication.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            },
+                            onError = onError
+                        )
+                    },
+                )
+            }
+            composable(route = Screens.PayLaterApplicationHistory.name) {
+                val uiState by payLaterApplicationHistoryViewModel.uiState.collectAsState()
+                val applications =
+                    payLaterApplicationHistoryViewModel.payLaterApplicationHistoryPager.collectAsLazyPagingItems()
+                PayLaterApplicationHistoryScreen(
+                    uiState = uiState,
+                    applications = applications,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onErrorLoading = {
+                        appViewModel.showSnackBarMessage(
+                            message = it,
+                            type = SnackBarType.ERROR
+                        )
+                    },
+                    onApply = { status: PayLaterApplicationStatus?, type: PayLaterApplicationType?, date: LocalDate, date1: LocalDate ->
+                        payLaterApplicationHistoryViewModel.onApply(
+                            selectedStatus = status,
+                            selectedType = type,
+                            fromDate = date,
+                            toDate = date1
+                        )
                     }
                 )
             }
@@ -1035,6 +1209,51 @@ fun AppScreen(
                     onClearAddReceiverDialog = {
                         savedReceiverViewModel.onClearAddDialog()
                     },
+                )
+            }
+            composable(
+                route = Screens.TermAndConditions.name
+            ) {
+                TermsAndConditionsScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable(
+                route = Screens.Analytic.name
+            ) {
+                isAtRoot = true
+                tabNavigation = TabNavigation.ANALYTICS
+
+                val uiState by analyticViewModel.uiState.collectAsState()
+                AnalyticScreen(
+                    uiState =uiState,
+                    navigationBar = { navigationBar() },
+                    onRetry = {
+                        analyticViewModel.init(
+                            onError = onError
+                        )
+                    },
+                    onAnalyze = {
+                        //todo
+                    },
+                    onPlusMonth = {
+                        analyticViewModel.onPlusMonth(
+                            onError = onError
+                        )
+                    },
+                    onMinusMonth = {
+                        analyticViewModel.onMinusMonth(
+                            onError = onError
+                        )
+                    },
+                    onChangeMoneyFlowType = {
+                        analyticViewModel.onChangeMoneyFlowType(
+                            flowType = it,
+                            onError = onError
+                        )
+                    }
                 )
             }
 

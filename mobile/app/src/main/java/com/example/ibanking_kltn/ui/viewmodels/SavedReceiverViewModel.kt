@@ -203,4 +203,16 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
+    fun onSelectSavedReceiver(savedReceiver: SavedReceiver) {
+        _uiState.update {
+            it.copy(
+                selectedSavedReceiver = savedReceiver
+            )
+        }
+    }
+
+    fun onSaveReceiver(savedReceiver: SavedReceiver){
+        savedReceiverManager.add(savedReceiver)
+    }
+
 }

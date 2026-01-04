@@ -3,8 +3,8 @@ package com.example.ibanking_kltn.ui.uistates
 data class AuthUiState(
     val loginState: StateType = StateType.NONE,
     val fullName: String? = null,
-    val username: String="user1",
-    val password: String="Userpassword@1",
+    val username: String="",
+    val password: String="",
     val isPasswordShow: Boolean = false,
 )
 

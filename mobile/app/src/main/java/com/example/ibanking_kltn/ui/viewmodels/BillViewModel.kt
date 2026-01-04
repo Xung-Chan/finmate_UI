@@ -5,8 +5,6 @@ import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.di.ServiceManager
-import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
@@ -54,47 +52,10 @@ class BillViewModel @Inject constructor(
 
     fun init() {
         clearState()
-        loadAvailableAccount()
     }
 
 
-    private fun loadAvailableAccount() {
-        _uiState.update {
-            it.copy(screenState = StateType.LOADING)
-        }
-        viewModelScope.launch {
-            val availableAccount = mutableListOf<String>(AccountType.WALLET.toString())
-            val payLaterResponse = payLaterRepository.getMyPayLater()
-            when (payLaterResponse) {
-                is ApiResult.Success -> {
-                    if (payLaterResponse.data.availableCredit != null) {
-                        availableAccount.add(AccountType.PAY_LATER.toString())
-                    }
-                }
 
-                is ApiResult.Error -> {
-                    Toast.makeText(
-                        context,
-                        "Không thể tải thông tin PayLater: ${payLaterResponse.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            _uiState.update {
-                it.copy(
-                    screenState = StateType.SUCCESS,
-                    availableAccount = availableAccount.toList()
-                )
-            }
-        }
-    }
-
-    fun onChangeAccountType(accountType: String) {
-        _uiState.update {
-            it.copy(accountType = accountType)
-        }
-    }
     fun onCheckingBill() {
         _uiState.update {
             it.copy(screenState = StateType.LOADING)

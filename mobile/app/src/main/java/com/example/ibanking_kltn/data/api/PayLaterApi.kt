@@ -1,8 +1,17 @@
 package com.example.ibanking_kltn.data.api
 
+import com.example.ibanking_kltn.data.dtos.Pagination
+import com.example.ibanking_kltn.data.dtos.requests.FilterBillingCyclesRequest
+import com.example.ibanking_kltn.data.dtos.requests.FilterPayLaterApplicationRequest
+import com.example.ibanking_kltn.data.dtos.requests.PayLaterApplicationRequest
+import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.data.dtos.responses.PayLaterApplicationResponse
 import com.example.ibanking_kltn.data.dtos.responses.PayLaterResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 
 
 interface PayLaterApi {
@@ -10,10 +19,27 @@ interface PayLaterApi {
     suspend fun getMyPaylater(
     ): Response<PayLaterResponse>
 
-//
-//    @GET("/api/wallets/")
-//    suspend fun getInfoByWalletNumber(
-//        @Query(value = "walletNumber") walletNumber : String
-//    ): Response<WalletResponse>
 
+    @POST("/api/pay-later/applications")
+    suspend fun submitApplication(
+        @Body request: PayLaterApplicationRequest
+    ): Response<Unit>
+
+
+    @POST("/api/pay-later/applications/filter")
+    suspend fun filterApplications(
+        @Body request: FilterPayLaterApplicationRequest
+    ): Response<Pagination<PayLaterApplicationResponse>>
+
+
+    @POST("/api/pay-later/billing-cycles/filter")
+    suspend fun filterBillingCycles(
+        @Body request: FilterBillingCyclesRequest
+    ): Response<Pagination<BillingCycleResonse>>
+
+
+    @GET("/api/pay-later/billing-cycles")
+    suspend fun getBillingCycles(
+        @Query(value="billingCycleCode") billingCycleCode: String
+    ): Response<BillingCycleResonse>
 }

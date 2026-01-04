@@ -48,8 +48,8 @@ fun removeVietnameseAccents(text: String): String {
     return normalized
 }
 
-fun formatterDateString(date: LocalDate): String {
-    return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+fun formatterDateString(date: LocalDate, pattern:String = "dd/MM/yyyy"): String {
+    return date.format(DateTimeFormatter.ofPattern(pattern))
 }
 
 fun formatterVND(
@@ -326,4 +326,12 @@ fun getFileName(uri: Uri, context: Context): String? {
         }
     }
     return result
+}
+
+fun colorFromLabel(label: String): Color {
+    val hash = label.hashCode()
+    val r = (hash shr 16 and 0xFF) / 255f
+    val g = (hash shr 8 and 0xFF) / 255f
+    val b = (hash and 0xFF) / 255f
+    return Color(r, g, b)
 }

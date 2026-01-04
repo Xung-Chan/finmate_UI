@@ -12,8 +12,9 @@ import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
 import com.example.ibanking_kltn.data.api.TransactionApi
 import com.example.ibanking_kltn.data.api.WalletApi
-import com.example.ibanking_kltn.data.security.TokenAuthenticator
 import com.example.ibanking_kltn.data.security.AuthInterceptor
+import com.example.ibanking_kltn.data.security.TokenAuthenticator
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -73,7 +74,7 @@ object NetworkModule {
         return Retrofit.Builder()
             .baseUrl(GATEWAY_URL)
             .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
     }
 
@@ -86,7 +87,7 @@ object NetworkModule {
 
         return Retrofit.Builder()
             .baseUrl(GATEWAY_URL)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))
             .build()
     }
 

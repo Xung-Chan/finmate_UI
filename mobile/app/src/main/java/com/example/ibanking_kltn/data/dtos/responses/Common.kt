@@ -9,10 +9,3 @@ data class ErrorResponse(
     val status: Int,
 //    val timestamp: String
 )
-data class PaginationResponse<T>(
-    val contents: List<T>,
-    val totalPages: Long,
-    val currentPage: Long,
-    val pageSize: Long,
-    val totalElements: Long
-)

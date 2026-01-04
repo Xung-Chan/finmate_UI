@@ -20,36 +20,33 @@ class BillHistoryPagingSource(
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, BillResponse> {
-        return try {
-            val page = params.key ?: 1
+    override suspend fun load(
+        params: PagingSource.LoadParams<Int>
+    ): PagingSource.LoadResult<Int, BillResponse> {
+        val page = params.key ?: 0
 
-            val apiResult = api.filterBill(
-                request = FilterBillRequest(
-                    page = page,
-                    status = filterPara.status,
-                    sortBy = filterPara.sortBy
-                ),
-            )
-            when (apiResult) {
-                is ApiResult.Error -> {
-                    LoadResult.Error(Exception(apiResult.message))
-                }
+        var request = FilterBillRequest(
+            page = page,
+            sortBy = filterPara.sortBy
+        )
 
-                is ApiResult.Success -> {
-                    val response = apiResult.data
-                    LoadResult.Page(
-                        data = response.contents,
-                        prevKey = if (page == 1) null else page - 1,
-                        nextKey = if (page >= response.totalPages) null else page + 1
-                    )
+        if (filterPara.status != null) {
+            request = request.copy(status = filterPara.status.name)
+        }
 
-                }
+        return when (val apiResult = api.filterBill(request)) {
+            is ApiResult.Error ->
+                PagingSource.LoadResult.Error(Exception(apiResult.message))
+
+            is ApiResult.Success -> {
+                val response = apiResult.data
+                PagingSource.LoadResult.Page(
+                    data = response.contents,
+                    prevKey = if (page == 0) null else page - 1,
+                    nextKey = if (page >= response.totalPages - 1) null else page + 1
+                )
             }
-        } catch (e: Exception) {
-            LoadResult.Error(e)
         }
     }
-
 
 }

@@ -42,17 +42,13 @@ class TransactionHistoryViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val transactionHistoryPager = uiState
         .map {
-            val filterSort = when(it.selectedSort){
-                SortOption.NEWEST -> "processed_at_desc"
-                SortOption.OLDEST -> "processed_at_asc"
-            }
             FilterTransactionPara(
                 fromDate = it.fromDate,
                 toDate = it.toDate,
-                accountType =it.accountType?.name,
-                status = it.selectedStatus?.name,
-                type = it.type?.name,
-                sortBy =filterSort
+                accountType =it.accountType,
+                status = it.selectedStatus,
+                type = it.type,
+                sortBy = it.selectedSort
             )
         }
         .distinctUntilChanged()
@@ -90,14 +86,14 @@ class TransactionHistoryViewModel @Inject constructor(
                 selectedStatus = null,
                 selectedSort = SortOption.NEWEST,
                 type = null,
-                accountType = null
+                accountType = AccountType.WALLET
             )
         }
         onApply(
             selectedStatus = null,
             selectedSort = SortOption.NEWEST,
             selectedService = null,
-            selectedAccountType = null,
+            selectedAccountType = AccountType.WALLET,
             onError = {
                 onError(it)
             }
@@ -107,7 +103,7 @@ class TransactionHistoryViewModel @Inject constructor(
     fun onApply(
         selectedStatus: TransactionStatus?,
         selectedService: ServiceType?,
-        selectedAccountType: AccountType?,
+        selectedAccountType: AccountType,
         selectedSort: SortOption,
         onError: (String) -> Unit
     ) {
@@ -132,7 +128,7 @@ class TransactionHistoryViewModel @Inject constructor(
                 sortBy = sortBy,
                 fromDate = LocalDate.now().minusMonths(1).toString(),
                 toDate = LocalDate.now().toString(),
-                accountType = uiState.value.accountType?.name,
+                accountType = uiState.value.accountType.name,
                 type = uiState.value.type?.name,
                 size = 10,
             )

@@ -139,3 +139,45 @@ data class LastLoginUser(
     val username: String,
     val fullName: String,
 )
+
+
+
+enum class PayLaterAccountStatus {
+    PENDING,
+    ACTIVE,
+    SUSPENDED
+}
+
+
+enum class  PayLaterApplicationType(val typeName: String) {
+    ACTIVATION("Yêu cầu kích hoạt"), // Kích hoạt thẻ PayLater
+    LIMIT_ADJUSTMENT("Yêu cầu điều chỉnh hạn mức"), // Điều chỉnh hạn mức tín dụng
+    SUSPEND_REQUEST("Tạm khóa") // Yêu cầu tạm ngưng thẻ PayLater
+}
+enum class PayLaterApplicationStatus(val statusName: String) {
+    PENDING("Đang xử lý"),
+    APPROVED("Đã duyệt"),
+    REJECTED("Bị từ chối"),
+    CANCELED("Đã hủy")
+}
+
+enum class BillingCycleStatus {
+    OPEN, //Chu kỳ đang mở, chưa đến due_date
+    OVERDUE, //Đã quá due_date nhưng chưa trả đủ
+    PAID, //Đã trả đủ total_amount_due
+    PARTIALLY_PAID, //Đã trả >= minimum_payment nhưng < total_amount_due
+    CLOSED,  //Chu kỳ đã đóng (admin can thiệp hoặc đặc biệt)
+}
+
+enum class ExpenseType( val displayName: String, icon: Int){
+    LEISURE(displayName = "Vui chơi và giai trí",icon= R.drawable.entertain),
+    TRAVEL(displayName = "Du lịch và đi lại",icon= R.drawable.plane),
+    SHOPPING(displayName = "Mua sắm",icon= R.drawable.shopping),
+    ESSENTIALS(displayName = "Sinh hoạt và Ăn uống",icon= R.drawable.food),
+    HEALTH(displayName = "Sức khỏe và thể thao",icon= R.drawable.medical),
+}
+
+enum class MoneyFlowType {
+    OUTGOING,
+    INCOMING
+}

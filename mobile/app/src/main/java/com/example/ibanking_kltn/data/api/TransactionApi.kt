@@ -3,13 +3,17 @@ package com.example.ibanking_kltn.data.api
 import com.example.ibanking_kltn.data.dtos.Pagination
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.DepositTransactionRequest
+import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
 import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
+import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
 import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
 import com.example.ibanking_kltn.data.dtos.responses.DepositTransactionResponse
+import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
 import com.example.ibanking_kltn.data.dtos.responses.HandleVNPayReturnResponse
 import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -60,6 +64,19 @@ interface TransactionApi {
     suspend fun getTransactionHistory(
        @Body request : FilterTransactionRequest
     ): Response<Pagination<TransactionHistoryResponse>>
+
+
+    @POST("/api/transactions/statistics/trends")
+    suspend fun getTrendStatistic(
+       @Body request : TrendStatisticRequest
+    ): Response<TrendStatisticResponse>
+
+    @POST("/api/transactions/statistics/distribution")
+    suspend fun getDistributionStatistic(
+       @Body request : DistributionStatisticRequest
+    ): Response<DistributionStatisticResponse>
+
+
 
 
 

@@ -32,3 +32,30 @@ data class  TransactionHistoryResponse(
     val status: String,
     val toWalletNumber: String
 )
+class TrendStatisticResponse : ArrayList<TrendStatisticResponseItem>()
+
+data class TrendStatisticResponseItem(
+    val date: String,
+    val totalTransactions: Int,
+    val totalValue: Long
+)
+
+data class DistributionStatisticResponse(
+    val analyticId: String,
+    val distributions: List<Distribution>
+)
+
+data class Distribution(
+    val label: String,
+    val expenseName: String,
+    val expenseTag: String,
+    val totalTransactions: Int,
+    val totalValue: Long
+)
+
+
+data class AnalyzeResponse(
+    val canh_bao: String,
+    val ty_trong: String,
+    val xu_huong: String
+)

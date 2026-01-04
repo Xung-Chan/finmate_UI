@@ -26,6 +26,7 @@ interface NonAuthApi {
 
     @POST("/auth/biometric/login")
     suspend fun loginViaBiometric(
+        @Header("X-App-Token") appToken: String = "android_app_secret_key",
         @Body request: LoginViaBiometricRequest
     ): Response<LoginResponse>
 

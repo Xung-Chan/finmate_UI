@@ -1,5 +1,7 @@
 package com.example.ibanking_kltn.data.dtos.requests
 
+import com.example.ibanking_kltn.data.dtos.BillStatus
+
 data class CreateBillRequest(
     val amount: Long,
     val description: String,
@@ -30,6 +32,6 @@ data class FilterBillRequest(
 
 
 data class FilterBillParam(
-    val status: String? =null,
+    val status: BillStatus? =null,
     val sortBy: String = "date_desc"
 )

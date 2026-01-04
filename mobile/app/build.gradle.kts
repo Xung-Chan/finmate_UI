@@ -131,8 +131,11 @@ dependencies {
 
     //image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
+
     //swipe
     implementation("me.saket.swipe:swipe:1.3.0")
+    implementation ("io.github.ehsannarmani:compose-charts:0.2.0")
 
 
 

@@ -42,7 +42,7 @@ data class UserInfoResponse(
     val mail: String,
     val status: UserStatusEnum,
     val phoneNumber: String,
-    val avatarUrl: String,
+    val avatarUrl: String?,
     val dateOfBirth: String,
     val gender: String,
     val address: String,

@@ -46,7 +46,6 @@ import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.BillUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
-import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
@@ -60,7 +59,6 @@ fun PayBillScreen(
     onCheckingBill: () -> Unit = {},
     onConfirmPayBill: () -> Unit = {},
     onChangeBillCode: (String) -> Unit = {},
-    onChangeAccountType: (String) -> Unit = {},
 ) {
     val verticalScrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
@@ -321,20 +319,9 @@ fun PayBillScreen(
                         .background(color = White1, shape = RectangleShape)
                         .padding(20.dp)
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomDropdownField(
-                            modifier = Modifier.fillMaxWidth(),
-                            options = uiState.availableAccount,
-                            onOptionSelected = {
-                                onChangeAccountType(it)
-                            },
-                            selectedOption = uiState.accountType,
-                            placeholder = "Chọn tài khoản thanh toán"
-                        )
-                    }
 
                     CustomTextButton(
-                        enable = uiState.checkingState is StateType.SUCCESS && uiState.confirmState !is StateType.LOADING && uiState.accountType.isNotEmpty(),
+                        enable = uiState.checkingState is StateType.SUCCESS && uiState.confirmState !is StateType.LOADING ,
                         onClick = {
                             onConfirmPayBill()
                         },

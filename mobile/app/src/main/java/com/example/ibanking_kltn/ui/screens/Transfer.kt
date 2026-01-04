@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.CustomTypography
@@ -54,25 +55,34 @@ import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.SavedReceiverDialog
+import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterVND
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransferScreen(
     uiState: TransferUiState,
+    savedReceivers: List<SavedReceiver>,
     onDoneWalletNumber: () -> Unit,
     onBackClick: () -> Unit,
-    onAccountTypeChange: (String) -> Unit,
     onExpenseTypeChange: (String) -> Unit,
     onConfirmClick: () -> Unit,
     onChangeReceiveWalletNumber: (String) -> Unit,
     onChangeAmount: (String) -> Unit,
     onChangeDescription: (String) -> Unit,
     isEnableContinue: Boolean,
+    onSelectSavedReceiver: (SavedReceiver) -> Unit,
+    onChangeSaveReceiver: () -> Unit
 ) {
     val scrollState = rememberScrollState(0)
     val focusManager = LocalFocusManager.current
     var handled by remember {
+        mutableStateOf(
+            false
+        )
+    }
+    var isShowSavedReceiverDialog by remember{
         mutableStateOf(
             false
         )
@@ -115,30 +125,6 @@ fun TransferScreen(
                         .fillMaxWidth()
                         .verticalScroll(state = scrollState)
                 ) {
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        CustomDropdownField(
-                            modifier = Modifier.fillMaxWidth(),
-                            options = uiState.availableAccount,
-                            onOptionSelected = {
-                                onAccountTypeChange(it)
-                            },
-                            selectedOption = uiState.accountType,
-                            placeholder = "Chọn tài khoản thanh toán"
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Số dư: ${formatterVND(uiState.balance)} VND",
-                            style = CustomTypography.titleMedium,
-                            color = Blue1
-                        )
-                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -156,7 +142,9 @@ fun TransferScreen(
                             )
 
                         }
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = {
+                            isShowSavedReceiverDialog = true
+                        }) {
                             Icon(
                                 painter = painterResource(R.drawable.contact),
                                 contentDescription = null,
@@ -341,10 +329,16 @@ fun TransferScreen(
                             alignment = Alignment.Start
                         ),
                         modifier = Modifier.fillMaxWidth()
+                            .customClick{
+                                onChangeSaveReceiver()
+
+                            }
                     ) {
                         Checkbox(
-                            checked = false,
-                            onCheckedChange = { },
+                            checked = uiState.isSaveReceiver,
+                            onCheckedChange = {
+                                onChangeSaveReceiver()
+                            },
                             enabled = true,
                             colors = CheckboxDefaults.colors(
                                 checkedColor = Blue1,
@@ -368,7 +362,18 @@ fun TransferScreen(
             }
 
         }
-
+        if(isShowSavedReceiverDialog){
+            SavedReceiverDialog(
+                savedReceivers = savedReceivers,
+                onSelect = {
+                    onSelectSavedReceiver(it)
+                    isShowSavedReceiverDialog = false
+                },
+                onDimiss = {
+                    isShowSavedReceiverDialog = false
+                }
+            ) 
+        }
 
     }
 
@@ -381,16 +386,16 @@ fun TransferScreen(
 )
 @Composable
 fun TransferPreview() {
-    TransferScreen(
-        uiState = TransferUiState(),
-        onDoneWalletNumber = {},
-        onBackClick = {},
-        onAccountTypeChange = {},
-        onExpenseTypeChange = {},
-        onConfirmClick = {},
-        onChangeReceiveWalletNumber = {},
-        onChangeAmount = {},
-        onChangeDescription = {},
-        isEnableContinue = false,
-    )
+//    TransferScreen(
+//        uiState = TransferUiState(),
+//        onDoneWalletNumber = {},
+//        onBackClick = {},
+//        onAccountTypeChange = {},
+//        onExpenseTypeChange = {},
+//        onConfirmClick = {},
+//        onChangeReceiveWalletNumber = {},
+//        onChangeAmount = {},
+//        onChangeDescription = {},
+//        isEnableContinue = false,
+//    )
 }

@@ -6,9 +6,7 @@ data class BillUiState(
     val confirmState: StateType= StateType.NONE,
     val checkingState: StateType= StateType.NONE,
 
-    val availableAccount: List<String> = listOf(),
 
-    val accountType: String = "",
     val billCode: String="",
     val toMerchantName: String="",
     val toWalletNumber: String="",

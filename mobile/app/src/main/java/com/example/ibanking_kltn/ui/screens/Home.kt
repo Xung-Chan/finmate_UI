@@ -68,7 +68,6 @@ fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
     navigationBar: @Composable () -> Unit,
     onChangeVisibleBalance: () -> Unit,
-//    onNavigateToSettingScreen: () -> Unit,
     onNavigateTo: Map<String, () -> Unit>,
     onNavigateServiceList: () -> Unit,
 
@@ -195,7 +194,6 @@ fun HomeScreen(
                             .padding(30.dp)
                     ) {
                         //card
-                        Box() {
                             //top card
                             Box(
                                 modifier = Modifier
@@ -324,7 +322,6 @@ fun HomeScreen(
                                 }
                             }
 
-                        }
                         //frequently
                         Column(
                             modifier = Modifier.fillMaxWidth(),

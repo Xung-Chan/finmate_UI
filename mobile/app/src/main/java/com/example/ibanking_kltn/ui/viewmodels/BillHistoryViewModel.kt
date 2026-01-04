@@ -44,10 +44,15 @@ class BillHistoryViewModel @Inject constructor(
                 SortOption.NEWEST -> "date_desc"
                 SortOption.OLDEST -> "date_asc"
             }
-            return@map FilterBillParam(
-                status = uiState.value.selectedStatus?.name,
+            var para = FilterBillParam(
                 sortBy = filterSort
             )
+            if( it.selectedStatus != null){
+                para = para.copy(
+                    status = it.selectedStatus
+                )
+            }
+            return@map para
         }
         .distinctUntilChanged()
         .flatMapLatest { filterPara ->
