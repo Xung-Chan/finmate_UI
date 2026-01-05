@@ -11,12 +11,10 @@ import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.ui.pagingsources.TransactionHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
-import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -28,7 +26,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @HiltViewModel
@@ -94,6 +91,8 @@ class TransactionHistoryViewModel @Inject constructor(
             selectedSort = SortOption.NEWEST,
             selectedService = null,
             selectedAccountType = AccountType.WALLET,
+            selectedFromDate = LocalDate.now().minusMonths(1),
+            selectedToDate = LocalDate.now(),
             onError = {
                 onError(it)
             }
@@ -105,6 +104,8 @@ class TransactionHistoryViewModel @Inject constructor(
         selectedService: ServiceType?,
         selectedAccountType: AccountType,
         selectedSort: SortOption,
+        selectedFromDate: LocalDate,
+        selectedToDate: LocalDate,
         onError: (String) -> Unit
     ) {
         _uiState.update {
@@ -114,48 +115,50 @@ class TransactionHistoryViewModel @Inject constructor(
                 selectedStatus = selectedStatus,
                 type=selectedService,
                 accountType = selectedAccountType,
-                selectedSort = selectedSort
+                selectedSort = selectedSort,
+                fromDate = selectedFromDate,
+                toDate = selectedToDate
             )
         }
-        viewModelScope.launch {
-            val sortBy = when (selectedSort) {
-                SortOption.NEWEST -> "processed_at_desc"
-                SortOption.OLDEST -> "processed_at_asc"
-            }
-            val request = FilterTransactionRequest(
-                status = uiState.value.selectedStatus?.name,
-                page = 0,
-                sortBy = sortBy,
-                fromDate = LocalDate.now().minusMonths(1).toString(),
-                toDate = LocalDate.now().toString(),
-                accountType = uiState.value.accountType.name,
-                type = uiState.value.type?.name,
-                size = 10,
-            )
-            val apiResult = transactionRepository.getTransactionHistory(
-                request = request
-            )
-
-            when (apiResult) {
-                is ApiResult.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            screenState = StateType.SUCCESS,
-                        )
-                    }
-                }
-
-                is ApiResult.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            screenState = StateType.FAILED(apiResult.message)
-                        )
-                    }
-                    onError(apiResult.message)
-                }
-
-            }
-        }
+//        viewModelScope.launch {
+//            val sortBy = when (selectedSort) {
+//                SortOption.NEWEST -> "processed_at_desc"
+//                SortOption.OLDEST -> "processed_at_asc"
+//            }
+//            val request = FilterTransactionRequest(
+//                status = uiState.value.selectedStatus?.name,
+//                page = 0,
+//                sortBy = sortBy,
+//                fromDate = LocalDate.now().minusMonths(1).toString(),
+//                toDate = LocalDate.now().toString(),
+//                accountType = uiState.value.accountType.name,
+//                type = uiState.value.type?.name,
+//                size = 10,
+//            )
+//            val apiResult = transactionRepository.getTransactionHistory(
+//                request = request
+//            )
+//
+//            when (apiResult) {
+//                is ApiResult.Success -> {
+//                    _uiState.update {
+//                        it.copy(
+//                            screenState = StateType.SUCCESS,
+//                        )
+//                    }
+//                }
+//
+//                is ApiResult.Error -> {
+//                    _uiState.update {
+//                        it.copy(
+//                            screenState = StateType.FAILED(apiResult.message)
+//                        )
+//                    }
+//                    onError(apiResult.message)
+//                }
+//
+//            }
+//        }
     }
 
 

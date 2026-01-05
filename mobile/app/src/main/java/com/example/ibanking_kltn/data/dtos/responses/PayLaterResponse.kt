@@ -18,7 +18,7 @@ data class PayLaterResponse(
     val status: PayLaterAccountStatus,
     val usedCredit: Double,
     val username: String,
-    val walletNumber: String
+    val walletNumber: String?=null
 )
 
 

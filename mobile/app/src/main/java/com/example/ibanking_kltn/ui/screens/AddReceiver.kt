@@ -30,9 +30,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -101,7 +101,7 @@ fun AddReceiverScreen() {
                         Row {
                             Text(
                                 text = "Tên gợi nhớ",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -123,7 +123,7 @@ fun AddReceiverScreen() {
                         Row {
                             Text(
                                 text = "Số tài khoản",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -145,7 +145,7 @@ fun AddReceiverScreen() {
                         Row {
                             Text(
                                 text = "Tên chủ tài khoản",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -178,7 +178,7 @@ fun AddReceiverScreen() {
                             .background(color = Blue1, shape = RoundedCornerShape(30))
                     ) {
                         Text(
-                            "Xác nhận", style = CustomTypography.titleLarge,
+                            "Xác nhận", style = AppTypography.titleMedium,
                             color = White1,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()

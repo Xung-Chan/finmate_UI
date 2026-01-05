@@ -29,10 +29,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Orange1
@@ -40,7 +41,7 @@ import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.DashedDivider
-import com.example.ibanking_kltn.utils.formatterDateString
+import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
 import java.time.LocalDateTime
 
@@ -85,7 +86,7 @@ fun TransactionDetailScreen(
                 ) {
                     Text(
                         "Lỗi tải thông tin giao dịch",
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.titleSmall,
                         color = Red1
                     )
                 }
@@ -106,16 +107,14 @@ fun TransactionDetailScreen(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Top
                     ) {
                         Text(
                             text = "Mã giao dịch",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1
 
                         )
@@ -127,7 +126,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.id,
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                         )
                     }
@@ -141,9 +140,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Tài khoản nguồn",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -155,11 +152,13 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.sourceAccountNumber,
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                         )
                     }
                 }
+                if( transaction.toWalletNumber != null){
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -169,9 +168,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Tài khoản đích",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -183,10 +180,11 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.toWalletNumber,
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                         )
                     }
+                }
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -197,9 +195,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Nội dung",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -211,7 +207,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.description,
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                             textAlign = TextAlign.End
                         )
@@ -226,9 +222,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Ngày",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -239,10 +233,10 @@ fun TransactionDetailScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = formatterDateString(
-                                LocalDateTime.parse(transaction.processedAt).toLocalDate()
+                            text = formatterDateTimeString(
+                                LocalDateTime.parse(transaction.processedAt)
                             ),
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                         )
                     }
@@ -257,9 +251,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Dịch vụ",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -270,8 +262,8 @@ fun TransactionDetailScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = "DỊCH VỤ",
-                            style = CustomTypography.titleMedium,
+                            text = transaction.transactionType.serviceName,
+                            style = AppTypography.titleSmall,
                             color = Black1,
                         )
                     }
@@ -285,9 +277,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Trạng thái",
-                            style = CustomTypography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
+                            style = AppTypography.bodyLarge,
                             color = Gray1,
 
                             )
@@ -304,7 +294,9 @@ fun TransactionDetailScreen(
                                 TransactionStatus.CANCELED.name -> "Đã hủy"
                                 else -> "Thất bại"
                             },
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.titleSmall.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
                             color = when (transaction.status) {
                                 TransactionStatus.COMPLETED.name -> Green1
                                 TransactionStatus.PENDING.name -> Orange1
@@ -333,8 +325,8 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Tổng cộng",
-                            style = CustomTypography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
+                            style =AppTypography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
                             ),
                             color = Black1,
 
@@ -347,8 +339,8 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "${formatterVND(transaction.amount.toLong())} VND",
-                            style = CustomTypography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold
+                            style = AppTypography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
                             ),
                             color = Black1,
                         )
@@ -377,7 +369,8 @@ fun TransactionDetailPreview() {
             sourceAccountNumber = "1234567890",
             sourceBalanceUpdated = 5000000.0,
             status = "COMPLETED",
-            toWalletNumber = "0987654321"
+            toWalletNumber = "0987654321",
+            transactionType = ServiceType.TRANSFER
         ),
         onBackClick = {}
     )

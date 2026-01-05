@@ -32,7 +32,6 @@ import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -93,7 +92,7 @@ fun BillDetailScreen(
                 ) {
                     Text(
                         text = "Không tìm thấy hóa đơn",
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         color = Gray1,
                     )
                 }
@@ -147,7 +146,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Mã hóa đơn",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
 
                                     )
@@ -159,7 +158,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text =  uiState.bill.qrIdentifier,
-                                    style = CustomTypography.titleSmall,
+                                    style = AppTypography.bodySmall,
                                     color = Black1,
                                     textAlign = TextAlign.End
 
@@ -176,7 +175,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Tên người thụ hưởng",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     textAlign = TextAlign.End
 
@@ -189,7 +188,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text =  uiState.bill.merchantName,
-                                    style = CustomTypography.titleSmall,
+                                    style = AppTypography.bodySmall,
                                     color = Black1,
                                 )
                             }
@@ -203,7 +202,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Số tài khoản thụ hưởng",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     textAlign = TextAlign.End
 
@@ -216,7 +215,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text =  uiState.bill.walletNumber,
-                                    style = CustomTypography.titleSmall,
+                                    style = AppTypography.bodySmall,
                                     color = Black1,
                                 )
                             }
@@ -230,7 +229,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Nội dung",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
 
                                     )
@@ -242,7 +241,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text =  uiState.bill.description,
-                                    style = CustomTypography.titleSmall,
+                                    style = AppTypography.bodySmall,
                                     color = Black1,
                                     textAlign = TextAlign.End
                                 )
@@ -257,7 +256,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Ngày hết hạn",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     textAlign = TextAlign.End
 
@@ -272,7 +271,7 @@ fun BillDetailScreen(
                                     text = formatterDateString(
                                         LocalDateTime.parse( uiState.bill.dueDate).toLocalDate()
                                     ),
-                                    style = CustomTypography.titleSmall,
+                                    style = AppTypography.bodySmall,
                                     color = Black1,
                                 )
                             }
@@ -286,7 +285,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Trạng thái",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     textAlign = TextAlign.End
 
@@ -305,7 +304,7 @@ fun BillDetailScreen(
                                         "OVERDUE" -> "Quá hạn"
                                         else ->  uiState.bill.billStatus
                                     },
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = when ( uiState.bill.billStatus) {
                                         "ACTIVE" -> Red1
                                         "PAID" -> Green1
@@ -333,7 +332,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "Số tiền",
-                                    style = CustomTypography.titleLarge.copy(
+                                    style = AppTypography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = Black1,
@@ -349,7 +348,7 @@ fun BillDetailScreen(
                                     text = "${
                                         formatterVND( uiState.bill.amount)
                                     } VND",
-                                    style = CustomTypography.titleLarge.copy(
+                                    style = AppTypography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = Black1,

@@ -36,6 +36,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.text.Normalizer
 import java.text.NumberFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.UUID
@@ -49,6 +50,9 @@ fun removeVietnameseAccents(text: String): String {
 }
 
 fun formatterDateString(date: LocalDate, pattern:String = "dd/MM/yyyy"): String {
+    return date.format(DateTimeFormatter.ofPattern(pattern))
+}
+fun formatterDateTimeString(date: LocalDateTime, pattern:String = "HH:mm-dd/MM/yyyy"): String {
     return date.format(DateTimeFormatter.ofPattern(pattern))
 }
 

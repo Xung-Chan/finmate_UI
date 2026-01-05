@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,39 +36,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.MoneyFlowType
-import com.example.ibanking_kltn.data.dtos.responses.AnalyzeResponse
-import com.example.ibanking_kltn.data.dtos.responses.Distribution
 import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
 import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponseItem
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue5
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
+import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AnalyticUiState
+import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomBarChart
 import com.example.ibanking_kltn.utils.CustomPieChart
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.ProgressBarWithLabel
 import com.example.ibanking_kltn.utils.RetryCompose
 import com.example.ibanking_kltn.utils.colorFromLabel
 import com.example.ibanking_kltn.utils.customClick
+import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
+import com.kizitonwose.calendar.core.yearMonth
 import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.Pie
 import java.time.LocalDate
@@ -79,6 +85,8 @@ import java.time.YearMonth
 @Composable
 fun AnalyticScreen(
     uiState: AnalyticUiState,
+    fullName:String,
+    avatarUrl:String?,
     navigationBar: @Composable () -> Unit,
     onRetry: () -> Unit,
     onMinusMonth: () -> Unit,
@@ -92,7 +100,7 @@ fun AnalyticScreen(
     val scrollState = rememberScrollState(0)
 
     var selectedStatisticType by remember {
-        mutableStateOf(StatisticType.DISTRIBUTION)
+        mutableStateOf(StatisticType.TREND)
     }
     LoadingScaffold(
         isLoading = uiState.state == StateType.LOADING
@@ -151,12 +159,23 @@ fun AnalyticScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Person,
-                                        tint = Black1,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(35.dp)
-                                    )
+                                    if (avatarUrl == null) {
+                                        DefaultImageProfile(
+                                            modifier = Modifier
+                                                .size(100.dp),
+                                            name =fullName
+                                        )
+                                    } else {
+
+                                        AsyncImage(
+                                            model = avatarUrl,
+                                            contentDescription = "Avatar",
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
 
                                 }
                                 Column(
@@ -164,12 +183,14 @@ fun AnalyticScreen(
                                     verticalArrangement = Arrangement.Center,
                                 ) {
                                     Text(
-                                        "2021.03.04", color = White1,
-                                        style = CustomTypography.titleMedium
+                                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+                                        color = White1,
+                                        style = AppTypography.bodySmall
                                     )
                                     Text(
-                                        "Hi John", color = White1,
-                                        style = CustomTypography.titleMedium
+                                        text = "Xin chào, ${fullName}!",
+                                        color = White1,
+                                        style = AppTypography.bodyMedium
                                     )
                                 }
                             }
@@ -355,17 +376,20 @@ fun AnalyticScreen(
                                     )
 
                                 }
+
                                 Row(
                                     modifier = Modifier
                                         .customClick {
-                                            onPlusMonth()
+                                            if (uiState.selectedTime.yearMonth < LocalDate.now().yearMonth) {
+                                                onPlusMonth()
+                                            }
                                         }
                                         .padding(5.dp)
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.arrow_right),
                                         contentDescription = null,
-                                        tint = Black1,
+                                        tint = if (uiState.selectedTime.yearMonth < LocalDate.now().yearMonth) Black1 else Gray2,
                                         modifier = Modifier.size(25.dp)
                                     )
                                 }
@@ -448,7 +472,7 @@ fun AnalyticScreen(
                                     CustomBarChart(
                                         data = uiState.trendStatistic.filter { item ->
                                             val itemMonth = YearMonth.parse(item.date)
-                                            val  current =  YearMonth.of(
+                                            val current = YearMonth.of(
                                                 uiState.selectedTime.year,
                                                 uiState.selectedTime.monthValue
                                             )
@@ -478,11 +502,11 @@ fun AnalyticScreen(
                                                                 )
                                                             ) {
                                                                 listOf(
-                                                                    Blue5,Blue5,
+                                                                    Blue5, Blue5,
                                                                 )
                                                             } else {
                                                                 listOf(
-                                                                    Blue1,Blue1
+                                                                    Blue1, Blue1
                                                                 )
 
                                                             }
@@ -493,76 +517,82 @@ fun AnalyticScreen(
                                         },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(300.dp)
+
                                     )
                                 }
 
                                 StatisticType.DISTRIBUTION -> {
                                     CustomPieChart(
-                                        data = uiState.distributionStatistic.distributions.map { distribution ->
-                                            Pie(
-                                                label = distribution.expenseName,
-                                                data = distribution.totalValue.toDouble(),
-                                                color = colorFromLabel(distribution.expenseName)
-                                            )
+                                        data = uiState.distributionStatistic.distributions.filter { it.totalValue > 0 }
+                                            .map { distribution ->
+                                                Pie(
+                                                    label = distribution.expenseName,
+                                                    data = distribution.totalValue.toDouble(),
+                                                    color = colorFromLabel(distribution.expenseName)
+                                                )
 
-                                        },
+                                            },
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 }
                             }
-                            Text(
-                                text = "Phân tích chi tiêu theo danh mục",
-                                style = AppTypography.bodyMedium,
-                                color = Gray1
-                            )
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                uiState.distributionStatistic.distributions.forEach { distribution ->
-                                    val percentage =
-                                        distribution.totalValue.toFloat() / uiState.totalValue.toFloat()
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(15.dp)
-                                                .background(
-                                                    color = colorFromLabel(distribution.label),
-                                                    shape = RoundedCornerShape(3.dp)
-                                                )
-                                        )
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Row(modifier = Modifier.fillMaxWidth()) {
-                                                Text(
-                                                    text = distribution.expenseName,
-                                                    style = AppTypography.bodyMedium,
-                                                    color = Black1
-                                                )
-                                                Text(
-                                                    text = formatterVND(distribution.totalValue),
-                                                    style = AppTypography.bodyMedium,
-                                                    color = Black1,
-                                                    modifier = Modifier.weight(1f),
-                                                    textAlign = TextAlign.End
-                                                )
-                                            }
-                                            ProgressBarWithLabel(
-                                                modifier = Modifier.fillMaxWidth(),
-                                                progress = percentage
-                                            )
+                            val distributions =
+                                uiState.distributionStatistic.distributions.filter { it.totalValue > 0 }
+                            if (distributions.isNotEmpty()) {
+                                Text(
+                                    text = "Phân tích chi tiêu theo danh mục",
+                                    style = AppTypography.bodyMedium,
+                                    color = Gray1
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
 
+                                    distributions.forEach { distribution ->
+                                        val percentage =
+                                            distribution.totalValue.toFloat() / uiState.totalValue.toFloat()
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(15.dp)
+                                                    .background(
+                                                        color = colorFromLabel(distribution.expenseName),
+                                                        shape = RoundedCornerShape(3.dp)
+                                                    )
+                                            )
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Row(modifier = Modifier.fillMaxWidth()) {
+                                                    Text(
+                                                        text = distribution.expenseName,
+                                                        style = AppTypography.bodyMedium,
+                                                        color = Black1
+                                                    )
+                                                    Text(
+                                                        text = formatterVND(distribution.totalValue),
+                                                        style = AppTypography.bodyMedium,
+                                                        color = Black1,
+                                                        modifier = Modifier.weight(1f),
+                                                        textAlign = TextAlign.End
+                                                    )
+                                                }
+                                                ProgressBarWithLabel(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    progress = percentage
+                                                )
+
+                                            }
                                         }
+
                                     }
 
                                 }
-
-
                             }
                             if (uiState.analyzeResponse == null) {
                                 Row(
@@ -577,7 +607,8 @@ fun AnalyticScreen(
                                             )
                                         )
                                         .customClick {
-                                            onAnalyze()
+                                            if (uiState.analyzeState != StateType.LOADING)
+                                                onAnalyze()
                                         }
                                         .padding(10.dp),
                                     horizontalArrangement = Arrangement.spacedBy(
@@ -601,16 +632,23 @@ fun AnalyticScreen(
                                             modifier = Modifier.size(25.dp)
                                         )
                                     }
-                                    Column(modifier = Modifier.fillMaxWidth()) {
+                                    Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             text = "Phân tích chi tiêu bằng AI",
                                             style = AppTypography.bodyMedium,
                                             color = Black1
                                         )
                                         Text(
-                                            text = "Để FinMate giúp bạn phân tích chi tiêu",
+                                            text = if (uiState.analyzeState == StateType.LOADING) "AI đang phân tích..." else "Để FinMate giúp bạn phân tích chi tiêu",
                                             style = AppTypography.bodySmall,
                                             color = Gray1
+                                        )
+                                    }
+                                    if (uiState.analyzeState == StateType.LOADING) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(25.dp),
+                                            color = Blue5,
+                                            strokeWidth = 3.dp
                                         )
                                     }
                                 }
@@ -728,7 +766,7 @@ enum class StatisticType {
 @Composable
 private fun AnalyzeRow(
     modifier: Modifier = Modifier,
-    backgroundColor: androidx.compose.ui.graphics.Color,
+    backgroundColor: Color,
     content: @Composable () -> Unit,
 ) {
     Row(
@@ -770,50 +808,50 @@ fun AnalyticPreview() {
             trendStatistic = TrendStatisticResponse().apply {
                 addAll(
                     listOf(
-                        TrendStatisticResponseItem(
-                            date = "2025-01",
-                            totalTransactions = 0,
-                            totalValue = 100000L
-                        ),
-                        TrendStatisticResponseItem(
-                            date = "2025-02",
-                            totalTransactions = 0,
-                            totalValue = 100000L
-                        ),
+//                        TrendStatisticResponseItem(
+//                            date = "2025-01",
+//                            totalTransactions = 0,
+//                            totalValue = 100000L
+//                        ),
+//                        TrendStatisticResponseItem(
+//                            date = "2025-02",
+//                            totalTransactions = 0,
+//                            totalValue = 100000L
+//                        ),
                     )
                 )
             },
             distributionStatistic = DistributionStatisticResponse(
                 analyticId = "1",
                 distributions = listOf(
-                    Distribution(
-                        label = "Ăn uống",
-                        expenseName = "Ăn uống",
-                        expenseTag = "an_uong",
-                        totalTransactions = 10,
-                        totalValue = 500000L
-                    ),
-                    Distribution(
-                        label = "Sức khỏe",
-                        expenseName = "Sức khỏe",
-                        expenseTag = "suc_khoe",
-                        totalTransactions = 10,
-                        totalValue = 5000000L
-                    ),
+//                    Distribution(
+//                        label = "Ăn uống",
+//                        expenseName = "Ăn uống",
+//                        expenseTag = "an_uong",
+//                        totalTransactions = 10,
+//                        totalValue = 500000L
+//                    ),
+//                    Distribution(
+//                        label = "Sức khỏe",
+//                        expenseName = "Sức khỏe",
+//                        expenseTag = "suc_khoe",
+//                        totalTransactions = 10,
+//                        totalValue = 5000000L
+//                    ),
                 )
             ),
-            analyzeResponse = AnalyzeResponse(
-                canh_bao = "Bạn đã chi tiêu nhiều cho ăn uống",
-                ty_trong = "Chi tiêu cho ăn uống chiếm 50% tổng chi tiêu",
-                xu_huong = "Bạn có xu hướng chi tiêu nhiều vào cuối tuần"
-            )
-        ),
+            initialedDistributionStatistic = true,
+            initialedTrendStatistic = true,
+
+            ),
         navigationBar = {},
         onRetry = {},
         onMinusMonth = {},
         onPlusMonth = {},
         onAnalyze = {},
-        onChangeMoneyFlowType = {}
+        onChangeMoneyFlowType = {},
+        fullName = "Nguyễn Văn A",
+        avatarUrl = null,
     )
 
 }

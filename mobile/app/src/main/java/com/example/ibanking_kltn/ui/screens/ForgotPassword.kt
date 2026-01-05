@@ -43,9 +43,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
@@ -207,7 +207,7 @@ fun EnterOTP(
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_OTP_Label),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Gray1
             )
         }
@@ -222,7 +222,7 @@ fun EnterOTP(
                 placeholder = {
                     Text(
                         stringResource(id = R.string.ForgotPassword_OTP),
-                        style = CustomTypography.titleSmall,
+                        style = AppTypography.bodySmall,
                         color = Gray2
                     )
                 },
@@ -247,7 +247,7 @@ fun EnterOTP(
                 modifier = Modifier
                     .width(150.dp)
                     .height(50.dp),
-                style = CustomTypography.titleSmall,
+                style = AppTypography.bodySmall,
                 enable = uiState.isEnableResendOtp && !startCountDown
             )
         }
@@ -260,19 +260,19 @@ fun EnterOTP(
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Notify),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Black1,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = "OTP sẽ hết hạn sau 60 giây",
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Black1,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Change_Email),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Blue1,
                 modifier = Modifier.clickable {
                     onBackToEnterEmailClick()
@@ -333,7 +333,7 @@ fun EnterEmail(
         ) {
             Text(
                 text = "Chúng tôi sẽ gửi một OTP đến email ${uiState.maskedEmail} của bạn.",
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Black1
             )
         }
@@ -345,7 +345,7 @@ fun EnterEmail(
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Email_Label),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Gray1
             )
         }
@@ -359,7 +359,7 @@ fun EnterEmail(
                 placeholder = {
                     Text(
                         text = stringResource(id = R.string.ForgotPassword_Email),
-                        style = CustomTypography.titleSmall,
+                        style = AppTypography.bodySmall,
                         color = Gray2
                     )
                 },
@@ -383,7 +383,7 @@ fun EnterEmail(
 
             Text(
                 text = "Thay đổi username",
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Blue1,
                 modifier = Modifier.clickable {
                     onBackToEnterUsernameClick()
@@ -444,7 +444,7 @@ fun EnterNewPassword(
         ) {
             Text(
                 text = "Nhập mật khẩu mới",
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Gray1
             )
         }
@@ -460,7 +460,7 @@ fun EnterNewPassword(
                 placeholder = {
                     Text(
                         text = "Mật khẩu mới",
-                        style = CustomTypography.titleSmall,
+                        style = AppTypography.bodySmall,
                         color = Gray2
                     )
                 },
@@ -500,12 +500,12 @@ fun EnterNewPassword(
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Notify_3),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Black1
             )
             Text(
                 text = "Thay đổi email",
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Blue1,
                 modifier = Modifier.clickable {
                     onBackToEnterEmailClick()
@@ -563,7 +563,7 @@ fun EnterUsername(
         ) {
             Text(
                 text = stringResource(id = R.string.ForgotPassword_Username_Label),
-                style = CustomTypography.titleMedium,
+                style = AppTypography.bodyMedium,
                 color = Gray1
             )
         }
@@ -578,7 +578,7 @@ fun EnterUsername(
                 placeholder = {
                     Text(
                         text = "Username",
-                        style = CustomTypography.titleSmall,
+                        style = AppTypography.bodySmall,
                         color = Gray2
                     )
                 },

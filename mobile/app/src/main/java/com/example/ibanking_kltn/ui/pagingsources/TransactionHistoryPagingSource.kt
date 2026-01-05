@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
@@ -36,7 +37,7 @@ class TransactionHistoryPagingSource(
                 page = page,
                 fromDate =filterPara.fromDate.toString(),
                 toDate = filterPara.toDate.toString(),
-                accountType = filterPara.accountType.name,
+                accountType = filterPara.accountType?.name?: AccountType.WALLET.name,
                 status = filterPara.status?.name,
                 type = filterPara.type?.name,
                 sortBy = sortBy,

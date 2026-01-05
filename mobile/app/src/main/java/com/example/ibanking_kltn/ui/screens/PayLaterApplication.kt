@@ -37,7 +37,6 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -226,7 +225,7 @@ fun PayLaterApplicationScreen(
                                         placeholder = {
                                             Text(
                                                 text = "Nhập lý do",
-                                                style = CustomTypography.bodyMedium,
+                                                style = AppTypography.bodySmall,
                                                 color = Gray2
                                             )
                                         }

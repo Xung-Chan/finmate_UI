@@ -47,7 +47,6 @@ import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Green1
@@ -214,7 +213,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = bill.qrIdentifier,
-                                                style = CustomTypography.titleMedium,
+                                                style = AppTypography.bodyMedium,
                                                 color = Black1,
 
                                                 )
@@ -225,7 +224,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = bill.dueDate,
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Gray1,
                                             )
                                         }
@@ -240,7 +239,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = "Trạng thái",
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Gray1,
 
                                                 )
@@ -257,7 +256,7 @@ fun BillHistoryScreen(
                                                     "OVERDUE" -> "Quá hạn"
                                                     else -> bill.billStatus
                                                 },
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = when (bill.billStatus) {
                                                     "ACTIVE" -> Red1
                                                     "PAID" -> Green1
@@ -276,7 +275,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = "Số tiền",
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Gray1,
 
                                                 )
@@ -287,7 +286,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = "${formatterVND(bill.amount)} VND",
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Black1,
                                             )
                                         }
@@ -302,7 +301,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = "Mô tả",
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Gray1,
 
                                                 )
@@ -313,7 +312,7 @@ fun BillHistoryScreen(
                                         ) {
                                             Text(
                                                 text = bill.description,
-                                                style = CustomTypography.titleSmall,
+                                                style = AppTypography.bodySmall,
                                                 color = Black1,
                                             )
                                         }

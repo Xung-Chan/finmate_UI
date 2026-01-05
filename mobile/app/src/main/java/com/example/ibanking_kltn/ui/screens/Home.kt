@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,24 +38,30 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceItem
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Blue6
-import com.example.ibanking_kltn.ui.theme.CustomTypography
+import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.RetryCompose
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
 import java.time.LocalDate
@@ -70,8 +75,8 @@ fun HomeScreen(
     onChangeVisibleBalance: () -> Unit,
     onNavigateTo: Map<String, () -> Unit>,
     onNavigateServiceList: () -> Unit,
-
-    ) {
+    onRetry: () -> Unit,
+) {
 
 
     val bottomBarHeight = 100.dp
@@ -90,110 +95,130 @@ fun HomeScreen(
                     .padding(paddingValues)
 
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                ) {
-                    //user infor row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                space = 10.dp,
-                                alignment = Alignment.Start
-                            ),
-
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .background(
-                                        color = White1,
-                                        shape = CircleShape
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    tint = Black1,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(35.dp)
-                                )
-
-                            }
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = formatterDateString(LocalDate.now()),
-                                    color = White1,
-                                    style = CustomTypography.titleMedium
-                                )
-                                Text(
-                                    text = "Xin chào, ${homeUiState.myWallet?.username ?: "Unknown User"}!",
-                                    color = White1,
-                                    style = CustomTypography.titleMedium
-                                )
-                            }
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.question),
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        }
-                    }
-                    //Main container
+                if (!homeUiState.initialedUserInfo || !homeUiState.initialedUserWallet) {
+                    HomeLoadingScreen()
+                } else if (homeUiState.myWallet == null || homeUiState.myProfile == null) {
+                    RetryCompose(
+                        onRetry = {
+                            onRetry()
+                        },
+                    )
+                } else {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(
-                                color = White3,
-                                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                            )
-                            .padding(30.dp)
+                            .verticalScroll(scrollState)
                     ) {
-                        //card
+                        //user infor row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 10.dp,
+                                    alignment = Alignment.Start
+                                ),
+
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .background(
+                                            color = White1,
+                                            shape = CircleShape
+                                        ),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    if (homeUiState.myProfile.avatarUrl == null) {
+                                        DefaultImageProfile(
+                                            modifier = Modifier
+                                                .size(100.dp),
+                                            name = homeUiState.myProfile.fullName
+                                        )
+                                    } else {
+
+                                        AsyncImage(
+                                            model = homeUiState.myProfile.avatarUrl,
+                                            contentDescription = "Avatar",
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+
+                                }
+                                Column(
+                                    horizontalAlignment = Alignment.Start,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text(
+                                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+                                        color = White1,
+                                        style = AppTypography.bodySmall
+                                    )
+                                    Text(
+                                        text = "Xin chào, ${homeUiState.myWallet.merchantName}!",
+                                        color = White1,
+                                        style = AppTypography.bodyMedium
+                                    )
+                                }
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                IconButton(
+                                    onClick = {},
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .align(
+                                            Alignment.CenterVertically
+                                        )
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Notifications,
+                                        contentDescription = null,
+                                        tint = White1,
+                                        modifier = Modifier.size(35.dp)
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {},
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .align(
+                                            Alignment.CenterVertically
+                                        )
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.question),
+                                        contentDescription = null,
+                                        tint = White1,
+                                        modifier = Modifier.size(35.dp)
+                                    )
+                                }
+                            }
+                        }
+                        //Main container
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    color = White3,
+                                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                                )
+                                .padding(30.dp)
+                        ) {
+                            //card
                             //top card
                             Box(
                                 modifier = Modifier
@@ -228,10 +253,9 @@ fun HomeScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Text(
-                                            text = homeUiState.myWallet?.merchantName
-                                                ?: "Unknown Merchant",
+                                            text = homeUiState.myWallet.merchantName,
                                             color = White1,
-                                            style = CustomTypography.headlineMedium
+                                            style = AppTypography.headlineMedium
                                         )
                                     }
 
@@ -242,10 +266,9 @@ fun HomeScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         Text(
-                                            text = homeUiState.myWallet?.walletNumber
-                                                ?: "**** **** **** ****",
+                                            text = homeUiState.myWallet.walletNumber,
                                             color = White1,
-                                            style = CustomTypography.titleMedium
+                                            style = AppTypography.bodyMedium
                                         )
                                     }
                                     Row(
@@ -260,9 +283,9 @@ fun HomeScreen(
                                             )
                                             {
                                                 Text(
-                                                    text = "${formatterVND(homeUiState.myWallet?.balance?.toLong() ?: 0L)} VND",
+                                                    text = "${formatterVND(homeUiState.myWallet.balance.toLong())} VND",
                                                     color = White1,
-                                                    style = CustomTypography.titleLarge,
+                                                    style = AppTypography.titleMedium,
                                                 )
                                             }
                                             Row(
@@ -292,7 +315,7 @@ fun HomeScreen(
                                                 Text(
                                                     text = "********* VND",
                                                     color = White1,
-                                                    style = CustomTypography.titleLarge,
+                                                    style = AppTypography.titleMedium,
                                                 )
 
                                             }
@@ -322,173 +345,184 @@ fun HomeScreen(
                                 }
                             }
 
-                        //frequently
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(15.dp)
-                        ) {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = stringResource(R.string.Home_Section1),
-                                    color = Black1,
-                                    style = CustomTypography.titleMedium
-
-                                )
-                            }
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                for (it in homeUiState.recentServices) {
-                                    val serviceCategory=ServiceCategory.valueOf(it.service)
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .width(70.dp)
-                                            .clickable {
-                                                onNavigateTo[it.service]?.invoke()
-                                            }
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center,
-                                            modifier = Modifier
-                                                .size(70.dp)
-                                                .background(
-                                                    color = Color(serviceCategory.color).copy(alpha = 0.08f),
-                                                    shape = RoundedCornerShape(10)
-                                                )
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = serviceCategory.icon),
-                                                tint = Color(serviceCategory.color),
-                                                contentDescription = null
-                                            )
-                                        }
-
-                                        Row(modifier = Modifier.fillMaxWidth()) {
-                                            Text(
-                                                text = ServiceCategory.valueOf(it.service).serviceName,
-                                                color = Black1,
-                                                style = CustomTypography.titleSmall,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-
-                                    }
-                                }
-
-                            }
-
-                        }
-                        //service
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row(
+                            //frequently
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
+                                verticalArrangement = Arrangement.spacedBy(15.dp)
                             ) {
-                                Row(modifier = Modifier.weight(1f)) {
-
+                                Row(modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        text = stringResource(R.string.Home_Section2),
+                                        text = stringResource(R.string.Home_Section1),
                                         color = Black1,
-                                        style = CustomTypography.titleMedium
+                                        style = AppTypography.bodyMedium
+
                                     )
                                 }
                                 Row(
-                                    horizontalArrangement = Arrangement.End
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    TextButton(onClick = {
-                                        onNavigateServiceList()
-                                    }) {
+                                    for (it in homeUiState.recentServices) {
+                                        val serviceCategory = ServiceCategory.valueOf(it.service)
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .width(70.dp)
+                                                .clickable {
+                                                    onNavigateTo[it.service]?.invoke()
+                                                }
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Center,
+                                                modifier = Modifier
+                                                    .size(70.dp)
+                                                    .background(
+                                                        color = Color(serviceCategory.color).copy(
+                                                            alpha = 0.08f
+                                                        ),
+                                                        shape = RoundedCornerShape(10)
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    painter = painterResource(id = serviceCategory.icon),
+                                                    tint = Color(serviceCategory.color),
+                                                    contentDescription = null
+                                                )
+                                            }
+
+                                            Row(modifier = Modifier.fillMaxWidth()) {
+                                                Text(
+                                                    text = ServiceCategory.valueOf(it.service).serviceName,
+                                                    color = Black1,
+                                                    style = AppTypography.bodyMedium,
+                                                    textAlign = TextAlign.Center
+                                                )
+                                            }
+
+                                        }
+                                    }
+
+                                }
+
+                            }
+                            //service
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(modifier = Modifier.weight(1f)) {
+
                                         Text(
-                                            text = "Xem tất cả",
-                                            color = Blue1,
-                                            style = CustomTypography.bodyMedium
+                                            text = stringResource(R.string.Home_Section2),
+                                            color = Black1,
+                                            style = AppTypography.bodyMedium
                                         )
                                     }
-                                }
-                            }
-
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(
-                                    10.dp, Alignment.CenterVertically
-                                ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(10.dp)
-
-                            ) {
-                                for (i in 0 until homeUiState.favoriteServices.size step 2) {
                                     Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(IntrinsicSize.Min),
-                                        horizontalArrangement = Arrangement.spacedBy(
-                                            10.dp,
-                                            Alignment.CenterHorizontally
-                                        ),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        TextButton(onClick = {
+                                            onNavigateServiceList()
+                                        }) {
+                                            Text(
+                                                text = "Xem tất cả",
+                                                color = Blue1,
+                                                style = AppTypography.bodyMedium
+                                            )
+                                        }
+                                    }
+                                }
 
-                                        ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(
+                                        10.dp, Alignment.CenterVertically
+                                    ),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(10.dp)
 
-                                        for (j in i until i + 2) {
-                                            val serviceItem =
-                                                homeUiState.favoriteServices.getOrNull(j)
-                                                    ?: continue
-                                            val serviceCategory = ServiceCategory.valueOf(serviceItem.service)
-                                            Column(
-                                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .fillMaxHeight()
-                                                    .shadow(
-                                                        elevation = 30.dp,
-                                                        shape = RoundedCornerShape(20),
-                                                        clip = true,
-                                                        ambientColor = Black1.copy(alpha = 0.9f),
-                                                        spotColor = Black1.copy(alpha = 0.9f),
-                                                    )
-                                                    .clickable {
-                                                        onNavigateTo[serviceItem.service]?.invoke()
-                                                    }
-                                                    .background(
-                                                        color = White1,
-                                                        shape = RoundedCornerShape(16)
-                                                    )
-                                                    .padding(15.dp)
+                                ) {
+                                    for (i in 0 until homeUiState.favoriteServices.size step 2) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(IntrinsicSize.Min),
+                                            horizontalArrangement = Arrangement.spacedBy(
+                                                10.dp,
+                                                Alignment.CenterHorizontally
+                                            ),
+
                                             ) {
-                                                Column(verticalArrangement = Arrangement.spacedBy(15.dp)) {
-                                                    Icon(
-                                                        painter = painterResource(serviceCategory.icon),
-                                                        tint = Color(serviceCategory.color),
-                                                        contentDescription = null
-                                                    )
-                                                    Text(
-                                                        text = ServiceCategory.valueOf(homeUiState.favoriteServices[j].service).serviceName,
-                                                        style = CustomTypography.titleSmall
-                                                    )
 
+                                            for (j in i until i + 2) {
+                                                val serviceItem =
+                                                    homeUiState.favoriteServices.getOrNull(j)
+                                                        ?: continue
+                                                val serviceCategory =
+                                                    ServiceCategory.valueOf(serviceItem.service)
+                                                Column(
+                                                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                                                    modifier = Modifier
+                                                        .weight(1f)
+                                                        .fillMaxHeight()
+                                                        .shadow(
+                                                            elevation = 30.dp,
+                                                            shape = RoundedCornerShape(20),
+                                                            clip = true,
+                                                            ambientColor = Black1.copy(alpha = 0.9f),
+                                                            spotColor = Black1.copy(alpha = 0.9f),
+                                                        )
+                                                        .clickable {
+                                                            onNavigateTo[serviceItem.service]?.invoke()
+                                                        }
+                                                        .background(
+                                                            color = White1,
+                                                            shape = RoundedCornerShape(16)
+                                                        )
+                                                        .padding(15.dp)
+                                                ) {
+                                                    Column(
+                                                        verticalArrangement = Arrangement.spacedBy(
+                                                            15.dp
+                                                        )
+                                                    ) {
+                                                        Icon(
+                                                            painter = painterResource(
+                                                                serviceCategory.icon
+                                                            ),
+                                                            tint = Color(serviceCategory.color),
+                                                            contentDescription = null
+                                                        )
+                                                        Text(
+                                                            text = ServiceCategory.valueOf(
+                                                                homeUiState.favoriteServices[j].service
+                                                            ).serviceName,
+                                                            style = AppTypography.bodyMedium
+                                                        )
+
+                                                    }
                                                 }
                                             }
+
                                         }
 
                                     }
 
+
                                 }
 
-
                             }
+                            Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
 
                         }
-                        Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
-
                     }
                 }
-
                 navigationBar()
 
             }
@@ -498,6 +532,121 @@ fun HomeScreen(
 
 }
 
+@Composable
+fun HomeLoadingScreen(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        HomeHeaderSkeleton()
+        HomeContentSkeleton()
+    }
+}
+
+@Composable
+private fun HomeHeaderSkeleton() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+                .background(Gray1.copy(alpha = 0.3f))
+        )
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            SkeletonLine(width = 120.dp)
+            SkeletonLine(width = 180.dp)
+        }
+    }
+}
+@Composable
+private fun HomeContentSkeleton() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                White3,
+                RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+            )
+            .padding(30.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        WalletCardSkeleton()
+        ServicesSkeleton()
+    }
+}
+@Composable
+private fun WalletCardSkeleton() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(Blue5.copy(alpha = 0.3f))
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            SkeletonLine(width = 140.dp)
+            SkeletonLine(width = 200.dp)
+            SkeletonLine(width = 160.dp, height = 24.dp)
+        }
+    }
+}
+@Composable
+private fun ServicesSkeleton() {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        SkeletonLine(width = 120.dp)
+
+        repeat(2) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                repeat(2) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(100.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Gray1.copy(alpha = 0.2f))
+                    )
+                }
+            }
+        }
+    }
+}
+@Composable
+private fun SkeletonLine(
+    width: Dp,
+    height: Dp = 16.dp
+) {
+    Box(
+        modifier = Modifier
+            .width(width)
+            .height(height)
+            .clip(RoundedCornerShape(6.dp))
+            .background(Gray1.copy(alpha = 0.3f))
+    )
+}
+
+
+
+
+
 @Preview(
     showSystemUi = true,
     showBackground = true
@@ -505,7 +654,7 @@ fun HomeScreen(
 )
 @Composable
 fun HomePreview() {
-    val mocList=listOf(
+    val mocList = listOf(
         ServiceItem(
             service = ServiceCategory.MONEY_TRANSFER.name,
             lastUsed = System.currentTimeMillis(),
@@ -536,6 +685,7 @@ fun HomePreview() {
             ServiceCategory.BILL_PAYMENT.name to {},
             ServiceCategory.BILL_HISTORY.name to {},
         ),
-        onNavigateServiceList = {}
+        onNavigateServiceList = {},
+        onRetry = {},
     )
 }

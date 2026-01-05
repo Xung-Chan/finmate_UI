@@ -132,7 +132,7 @@ class ConfirmViewModel @Inject constructor(
                                 accountType = AccountType.PAY_LATER,
                                 accountNumber = payLaterInfo.data.walletNumber,
                                 merchantName = "Pay Later",
-                                balance = payLaterInfo.data.availableCredit.toLong()
+                                balance = (payLaterInfo.data.creditLimit - payLaterInfo.data.usedCredit).toLong()
                             )
                         )
                     }
@@ -261,6 +261,7 @@ class ConfirmViewModel @Inject constructor(
             }
         }
     }
+
     fun onSelectAccountType(account: PaymentAccount) {
         _uiState.update {
             it.copy(

@@ -209,6 +209,11 @@ class ForgotPasswordViewModel @Inject constructor(
             )
             when(apiResult){
                 is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.FAILED(apiResult.message)
+                        )
+                    }
                     onError(apiResult.message)
                 }
                 is ApiResult.Success->{

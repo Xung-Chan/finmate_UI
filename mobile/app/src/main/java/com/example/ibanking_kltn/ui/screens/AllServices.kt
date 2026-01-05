@@ -47,9 +47,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -101,7 +101,7 @@ fun ServiceComponent(
             )
             Text(
                 text = serviceName,
-                style = CustomTypography.bodySmall.copy(
+                style = AppTypography.labelMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
                 color = Gray1,
@@ -203,7 +203,7 @@ fun AllServiceScreen(
                     ) {
                         Text(
                             "Dịch vụ yêu thích",
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
                             modifier = Modifier.weight(1f)
                         )
@@ -221,7 +221,7 @@ fun AllServiceScreen(
                             ) {
                                 Text(
                                     text = "Xong",
-                                    style = CustomTypography.bodyMedium.copy(
+                                    style = AppTypography.bodySmall.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = Blue1
@@ -236,7 +236,7 @@ fun AllServiceScreen(
                             ) {
                                 Text(
                                     text = "Chỉnh sửa",
-                                    style = CustomTypography.bodyMedium.copy(
+                                    style = AppTypography.bodySmall.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = Blue1
@@ -283,7 +283,7 @@ fun AllServiceScreen(
                                     ) {}
                                     Text(
                                         text = "-----",
-                                        style = CustomTypography.bodyLarge.copy(
+                                        style = AppTypography.bodySmall.copy(
                                             fontWeight = FontWeight.Bold
                                         ),
                                         color = Gray1,
@@ -348,7 +348,7 @@ fun AllServiceScreen(
                     ) {
                         Text(
                             "Tất cả dịch vụ",
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
                             modifier = Modifier.weight(1f)
                         )
@@ -448,13 +448,13 @@ fun AllServiceScreen(
                 ) {
                     Text(
                         text = "Còn một vị trí trống nè",
-                        style = CustomTypography.titleMedium.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         )
                     )
                     Text(
                         text = "Để chúng tôi thêm dịch vụ còn trống cho bạn nhé ?",
-                        style = CustomTypography.bodyMedium
+                        style = AppTypography.bodySmall
                     )
                 }
             }

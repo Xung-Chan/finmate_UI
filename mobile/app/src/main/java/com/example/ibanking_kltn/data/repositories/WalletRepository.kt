@@ -114,6 +114,14 @@ class WalletRepository @Inject constructor(
 
     }
 
+    suspend fun getMyVerification(
+    ): ApiResult<WalletVerificationResponse> {
+        return safeApiCall(
+            apiCall = {
+                walletApi.getMyVerification()
+            }
+        )
+    }
 
 
 }

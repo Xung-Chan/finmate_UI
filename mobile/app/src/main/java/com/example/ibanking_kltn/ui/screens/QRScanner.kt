@@ -47,8 +47,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.uistates.QRScannerUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -197,7 +197,7 @@ fun QRScannerScreen(
                 }
                 Text(
                     text = "Chọn ảnh QR",
-                    style = CustomTypography.bodyMedium,
+                    style = AppTypography.bodySmall,
                     color = White1
                 )
             }

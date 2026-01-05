@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,7 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,11 +49,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
@@ -62,14 +63,19 @@ import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
 import com.example.ibanking_kltn.utils.CustomSwitchButton
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.InformationLine
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.formatterDateString
+import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     uiState: SettingUiState,
+    fullName:String,
+    avatarUrl:String?,
     onViewProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onClickBiometric: () -> Unit,
@@ -134,12 +140,23 @@ fun SettingScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    tint = Black1,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(35.dp)
-                                )
+                                if (avatarUrl == null) {
+                                    DefaultImageProfile(
+                                        modifier = Modifier
+                                            .size(100.dp),
+                                        name =fullName
+                                    )
+                                } else {
+
+                                    AsyncImage(
+                                        model = avatarUrl,
+                                        contentDescription = "Avatar",
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
 
                             }
                             Column(
@@ -147,12 +164,14 @@ fun SettingScreen(
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(
-                                    "2021.03.04", color = White1,
-                                    style = CustomTypography.titleMedium
+                                    text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+                                    color = White1,
+                                    style = AppTypography.bodySmall
                                 )
                                 Text(
-                                    "Hi John", color = White1,
-                                    style = CustomTypography.titleMedium
+                                    text = "Xin chào, ${fullName}!",
+                                    color = White1,
+                                    style = AppTypography.bodyMedium
                                 )
                             }
                         }
@@ -208,18 +227,30 @@ fun SettingScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            Image(
-                                painter = painterResource(R.drawable.profile),
-                                contentDescription = null,
-                                modifier = Modifier.size(100.dp)
-                            )
+                            if (avatarUrl == null) {
+                                DefaultImageProfile(
+                                    modifier = Modifier
+                                        .size(100.dp),
+                                    name =fullName
+                                )
+                            } else {
+
+                                AsyncImage(
+                                    model = avatarUrl,
+                                    contentDescription = "Avatar",
+                                    modifier = Modifier
+                                        .size(100.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "FinMate",
+                                text = fullName,
                                 style = AppTypography.headlineSmall.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -338,7 +369,7 @@ fun SettingScreen(
                 ) {
                     Text(
                         text = "Xác nhận đăng xuất",
-                        style = CustomTypography.titleMedium.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         textAlign = TextAlign.Center,
@@ -383,7 +414,7 @@ fun SettingScreen(
                         placeholder = {
                             Text(
                                 text = "Nhập mật khẩu hiện tại",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray2
                             )
                         },
@@ -449,6 +480,8 @@ fun SettingPreview() {
         onLogout = {},
         onChangePassword = {},
         navigationBar = {},
-        onError = {}
+        onError = {},
+        fullName = "Nguyễn Văn A",
+        avatarUrl = null
     )
 }

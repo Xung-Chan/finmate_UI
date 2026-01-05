@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 
 @HiltViewModel
@@ -35,7 +36,6 @@ class PayLaterApplicationHistoryViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     val payLaterApplicationHistoryPager = uiState
         .map {
-            //!
             FilterPayLaterApplicationPara(
                 fromDate = it.fromDate,
                 toDate = it.toDate,
@@ -70,55 +70,14 @@ class PayLaterApplicationHistoryViewModel @Inject constructor(
         fromDate: LocalDate,
         toDate: LocalDate,
     ) {
-//        _uiState.update {
-//            it.copy(
-//                screenState = StateType.LOADING,
-//                isShowFilter = false,
-//                selectedStatus = selectedStatus,
-//                type=selectedService,
-//                accountType = selectedAccountType,
-//                selectedSort = selectedSort
-//            )
-//        }
-//        viewModelScope.launch {
-//            val sortBy = when (selectedSort) {
-//                SortOption.NEWEST -> "processed_at_desc"
-//                SortOption.OLDEST -> "processed_at_asc"
-//            }
-//            val request = FilterTransactionRequest(
-//                status = uiState.value.selectedStatus?.name,
-//                page = 0,
-//                sortBy = sortBy,
-//                fromDate = LocalDate.now().minusMonths(1).toString(),
-//                toDate = LocalDate.now().toString(),
-//                accountType = uiState.value.accountType?.name,
-//                type = uiState.value.type?.name,
-//                size = 10,
-//            )
-//            val apiResult = transactionRepository.getTransactionHistory(
-//                request = request
-//            )
-//
-//            when (apiResult) {
-//                is ApiResult.Success -> {
-//                    _uiState.update {
-//                        it.copy(
-//                            screenState = StateType.SUCCESS,
-//                        )
-//                    }
-//                }
-//
-//                is ApiResult.Error -> {
-//                    _uiState.update {
-//                        it.copy(
-//                            screenState = StateType.FAILED(apiResult.message)
-//                        )
-//                    }
-//                    onError(apiResult.message)
-//                }
-//
-//            }
-//        }
+        _uiState.update {
+            it.copy(
+                selectedStatus = selectedStatus,
+                selectedType = selectedType,
+                fromDate = fromDate,
+                toDate = toDate,
+            )
+        }
     }
 
 

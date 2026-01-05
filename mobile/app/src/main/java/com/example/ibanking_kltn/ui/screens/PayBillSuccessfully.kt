@@ -31,9 +31,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.CustomTextButton
 
@@ -96,12 +96,12 @@ fun PayBillSuccessfullyScreen() {
             ){
                 Text(
                     text = stringResource(id = R.string.Transaction_Success),
-                    style = CustomTypography.titleLarge,
+                    style = AppTypography.titleSmall,
                     color = Blue1
                 )
                 Text(
                     text = stringResource(id = R.string.Transaction_Success_Message),
-                    style = CustomTypography.bodyMedium,
+                    style = AppTypography.bodySmall,
                     color = Black1,
                     textAlign = TextAlign.Center
                 )
@@ -116,7 +116,7 @@ fun PayBillSuccessfullyScreen() {
                         onClick = {},
                         modifier = Modifier
                             .fillMaxWidth(),
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         text = stringResource(id = R.string.BackToHome),
                         enable = true
                     )

@@ -38,8 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
@@ -122,7 +122,7 @@ fun PayBillScreen(
                         ) {
                             Text(
                                 text = stringResource(id = R.string.BillCode),
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
 
@@ -158,7 +158,7 @@ fun PayBillScreen(
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.MerchantName),
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
 
@@ -186,7 +186,7 @@ fun PayBillScreen(
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.Amount),
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
 
@@ -222,7 +222,7 @@ fun PayBillScreen(
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.Description),
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
 
@@ -250,7 +250,7 @@ fun PayBillScreen(
                             ) {
                                 Text(
                                     text = stringResource(id = R.string.DueDate),
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
 
@@ -277,7 +277,7 @@ fun PayBillScreen(
 
                             Text(
                                 text = stringResource(id = R.string.BillDescription),
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray2
                             )
                             Row(

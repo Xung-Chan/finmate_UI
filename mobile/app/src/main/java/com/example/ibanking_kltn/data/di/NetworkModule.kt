@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.ibanking_kltn.BuildConfig
+import com.example.ibanking_kltn.data.api.AiApi
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
 import com.example.ibanking_kltn.data.api.BiometricApi
@@ -159,6 +160,16 @@ object NetworkModule {
         retrofit: Retrofit
     ): BiometricApi {
         return retrofit.create(BiometricApi::class.java)
+
+    }
+
+    @Singleton
+    @Provides
+    fun provideAiApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): AiApi {
+        return retrofit.create(AiApi::class.java)
 
     }
 

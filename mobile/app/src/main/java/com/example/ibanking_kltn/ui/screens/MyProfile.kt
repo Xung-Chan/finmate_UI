@@ -9,12 +9,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,8 +55,8 @@ import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray3
+import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.MyProfileUiState
@@ -63,6 +67,7 @@ import com.example.ibanking_kltn.utils.InformationLine
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.QrCodeImage
 import com.example.ibanking_kltn.utils.RetryCompose
+import com.example.ibanking_kltn.utils.SkeletonBox
 import com.example.ibanking_kltn.utils.formatterDateString
 import java.time.LocalDate
 
@@ -122,16 +127,16 @@ fun MyProfileScreen(
             modifier = Modifier.systemBarsPadding(),
             containerColor = White3
         ) { paddingValues ->
-            if (!uiState.initialedUserInfo ) {
-                // Do nothing, just wait for initialization
+            if (!uiState.initialedUserInfo || !uiState.initialVerification) {
+                ProfileScreenSkeleton(paddingValues)
 
-            } else if (uiState.userInfo == null ) {
+            } else if (uiState.userInfo == null) {
                 RetryCompose(
                     onRetry = {
                         onRetry()
                     },
                 )
-            }  else {
+            } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -150,8 +155,7 @@ fun MyProfileScreen(
                                         .size(100.dp),
                                     name = uiState.userInfo.fullName
                                 )
-                            }
-                            else {
+                            } else {
 
                                 AsyncImage(
                                     model = uiState.userInfo.avatarUrl,
@@ -192,7 +196,8 @@ fun MyProfileScreen(
                     }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = uiState.userInfo.fullName,
@@ -200,9 +205,16 @@ fun MyProfileScreen(
                                 fontWeight = FontWeight.Bold
                             ),
                             color = Blue1,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
                         )
+                        if (uiState.isVerified)
+                            Spacer(Modifier.width(10.dp))
+                            Icon(
+                                painter = painterResource(R.drawable.ok_status_bold),
+                                contentDescription = null,
+                                tint = Green1,
+                                modifier = Modifier
+                                    .size(20.dp)
+                            )
                     }
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -400,32 +412,35 @@ fun MyProfileScreen(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             )
-                            InformationLine(
-                                title = "Xác thực tài khoản",
-                                color = Black1,
-                                leading = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.verify),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp),
-                                        tint = it
-                                    )
-                                },
-                                trailing = {
-                                    Icon(
+                            if (!uiState.isVerified) {
+                                InformationLine(
+                                    title = "Xác thực tài khoản",
+                                    color = Black1,
+                                    leading = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.verify),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp),
+                                            tint = it
+                                        )
+                                    },
+                                    trailing = {
+                                        Icon(
 
-                                        imageVector = Icons.Default.ArrowForwardIos,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp), tint = it
+                                            imageVector = Icons.Default.ArrowForwardIos,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp), tint = it
 
-                                    )
-                                },
-                                enable = true,
-                                onClick = {
-                                    onNavigateToVerificationRequest()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
+                                        )
+                                    },
+                                    enable = true,
+                                    onClick = {
+                                        onNavigateToVerificationRequest()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+
+                            }
                             InformationLine(
                                 title = "Điều khoản - Điều kiện",
                                 color = Black1,
@@ -488,7 +503,7 @@ fun MyProfileScreen(
                 ) {
                     Text(
                         text = "Xác nhận cập nhật avatar",
-                        style = CustomTypography.titleMedium.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         textAlign = TextAlign.Center,
@@ -563,6 +578,124 @@ fun MyProfileScreen(
     }
 
 }
+
+
+@Composable
+fun ProfileHeaderSkeleton() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SkeletonBox(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape),
+            shape = CircleShape
+        )
+
+        SkeletonBox(
+            modifier = Modifier
+                .width(180.dp)
+                .height(22.dp)
+        )
+    }
+}
+
+@Composable
+fun PersonalInfoSkeleton(lines: Int = 7) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 30.dp,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(Color.White, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        SkeletonBox(
+            modifier = Modifier
+                .width(150.dp)
+                .height(18.dp)
+        )
+
+        repeat(lines) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(14.dp)
+                )
+                SkeletonBox(
+                    modifier = Modifier
+                        .width(140.dp)
+                        .height(14.dp)
+                )
+            }
+        }
+    }
+}
+@Composable
+fun UtilityMenuSkeleton(items: Int = 4) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(30.dp, RoundedCornerShape(20.dp))
+            .background(Color.White, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        SkeletonBox(
+            modifier = Modifier
+                .width(100.dp)
+                .height(18.dp)
+        )
+
+        repeat(items) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape),
+                    shape = CircleShape
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                SkeletonBox(
+                    modifier = Modifier
+                        .height(14.dp)
+                        .weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileScreenSkeleton(
+    paddingValues: PaddingValues
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(paddingValues)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        ProfileHeaderSkeleton()
+        PersonalInfoSkeleton()
+        UtilityMenuSkeleton()
+    }
+}
+
 
 
 //@Preview(

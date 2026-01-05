@@ -43,9 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White3
@@ -112,7 +112,7 @@ fun SignInScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.LoginScreen_Welcome),
-                            style = CustomTypography.headlineMedium,
+                            style = AppTypography.headlineMedium,
                             color = Blue1
                         )
                     }
@@ -122,7 +122,7 @@ fun SignInScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.LoginScreen_Text),
-                            style = CustomTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1
                         )
                     }
@@ -154,7 +154,7 @@ fun SignInScreen(
                                 placeholder = {
                                     Text(
                                         text = stringResource(R.string.LoginScreen_UsernameLabel),
-                                        style = CustomTypography.titleMedium,
+                                        style = AppTypography.bodyMedium,
                                         color = Gray2
                                     )
                                 },
@@ -181,7 +181,7 @@ fun SignInScreen(
                             Row(modifier = Modifier.weight(1f)) {
                                 Text(
                                     text = "Xin chào, ${uiState.fullName}",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     modifier = Modifier
                                         .padding(start = 10.dp)
@@ -220,7 +220,7 @@ fun SignInScreen(
                             placeholder = {
                                 Text(
                                     text = stringResource(R.string.LoginScreen_PasswordLabel),
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -271,7 +271,7 @@ fun SignInScreen(
                     ) {
                         Text(
                             text = stringResource(R.string.LoginScreen_ForgotPassword),
-                            style = CustomTypography.titleSmall,
+                            style = AppTypography.bodyMedium,
                             color = Gray2,
                             modifier = Modifier.clickable {
                                 onForgotPasswordClick()
@@ -356,7 +356,7 @@ fun SignInScreen(
                 ) {
                     Text(
                         text = "Đăng xuất tài khoản?",
-                        style = CustomTypography.titleMedium.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         textAlign = TextAlign.Center,
@@ -365,7 +365,7 @@ fun SignInScreen(
                         )
                     Text(
                         text = "Khi đăng xuất bạn sẽ không nhận được các thông báo từ tài khoản này nữa.",
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodySmall,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                         color = Gray1

@@ -42,8 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Gray3
@@ -138,7 +138,7 @@ fun CreateBillScreen(
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     "Thông tin giao dịch",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -146,7 +146,7 @@ fun CreateBillScreen(
                                 value = formatterVND(uiState.amount),
                                 placeholder = {
                                     Text(
-                                        "Số tiền", style = CustomTypography.titleMedium,
+                                        "Số tiền", style = AppTypography.bodyMedium,
                                         color = Gray2
                                     )
                                 },
@@ -173,7 +173,7 @@ fun CreateBillScreen(
                                 placeholder = {
                                     Text(
                                         "Nội dung",
-                                        style = CustomTypography.titleMedium,
+                                        style = AppTypography.bodyMedium,
                                         color = Gray2
                                     )
                                 },
@@ -195,7 +195,7 @@ fun CreateBillScreen(
                                 optionsComposable = {
                                     Text(
                                         text = it.name,
-                                        style = CustomTypography.bodyMedium,
+                                        style = AppTypography.bodySmall,
                                         color = Black1
                                     )
                                 },
@@ -258,8 +258,8 @@ fun CreateBillScreen(
                         .padding(20.dp)
                         .pointerInput(Unit) {}) {
                     CustomDatePicker(
-                        minDate = LocalDate.now().minusDays(30),
-                        maxDate = LocalDate.now(),
+                        minDate = LocalDate.now(),
+                        maxDate = LocalDate.now().plusYears(2),
                         onSelectedDate = {
                             onDateChange(it)
                             isShowExpireDatePicker = false

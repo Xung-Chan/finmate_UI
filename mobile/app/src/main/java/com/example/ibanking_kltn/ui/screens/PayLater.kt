@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -63,6 +66,7 @@ import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.InformationLine
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.RetryCompose
+import com.example.ibanking_kltn.utils.SkeletonBox
 import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
@@ -117,7 +121,7 @@ fun PayLaterScreen(
             containerColor = White3
         ) { paddingValues ->
             if (!uiState.initialedUserInfo || !uiState.initialedPayLaterInfo) {
-                // Do nothing, just wait for initialization
+                PayLaterScreenSkeleton(paddingValues)
 
             } else if (uiState.userInfo == null || uiState.payLaterInfo == null) {
                 RetryCompose(
@@ -249,7 +253,8 @@ fun PayLaterScreen(
 
                             }
 
-                        } else if (uiState.payLaterInfo.status == PayLaterAccountStatus.SUSPENDED) {
+                        }
+                        else if (uiState.payLaterInfo.status == PayLaterAccountStatus.SUSPENDED) {
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -630,6 +635,130 @@ fun PayLaterScreen(
 
 }
 
+@Composable
+fun PayLaterHeaderSkeleton() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(220.dp)
+            .background(color = Blue5, shape = RoundedCornerShape(20.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            SkeletonBox(
+                modifier = Modifier
+                    .width(180.dp)
+                    .height(20.dp)
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            SkeletonBox(
+                modifier = Modifier
+                    .width(220.dp)
+                    .height(28.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun InfoCardSkeleton(lines: Int = 4) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 30.dp,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .background(Color.White, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        SkeletonBox(
+            modifier = Modifier
+                .width(160.dp)
+                .height(18.dp)
+        )
+
+        repeat(lines) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(14.dp)
+                )
+                SkeletonBox(
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(14.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun UtilitySkeleton() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(30.dp, RoundedCornerShape(20.dp))
+            .background(Color.White, RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        SkeletonBox(
+            modifier = Modifier
+                .width(100.dp)
+                .height(18.dp)
+        )
+
+        repeat(3) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SkeletonBox(
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                SkeletonBox(
+                    modifier = Modifier
+                        .height(14.dp)
+                        .weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PayLaterScreenSkeleton(paddingValues: PaddingValues) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(paddingValues)
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        PayLaterHeaderSkeleton()
+
+        InfoCardSkeleton(lines = 4)
+        InfoCardSkeleton(lines = 4)
+        UtilitySkeleton()
+    }
+}
 
 @Preview(
     showBackground = true,

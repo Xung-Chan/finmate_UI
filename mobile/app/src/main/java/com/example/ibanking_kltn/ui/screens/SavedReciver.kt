@@ -61,7 +61,6 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Blue5
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Gray3
@@ -334,7 +333,7 @@ fun SavedReceiverScreen(
                                 Row {
                                     Text(
                                         text = "Số tài khoản",
-                                        style = CustomTypography.titleMedium,
+                                        style = AppTypography.bodyMedium,
                                         color = Gray1
                                     )
                                 }
@@ -379,7 +378,7 @@ fun SavedReceiverScreen(
                                     Row {
                                         Text(
                                             text = "Tên chủ tài khoản",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray1
                                         )
                                     }
@@ -398,7 +397,7 @@ fun SavedReceiverScreen(
                                 Row {
                                     Text(
                                         text = "Tên gợi nhớ",
-                                        style = CustomTypography.titleMedium,
+                                        style = AppTypography.bodyMedium,
                                         color = Gray1
                                     )
                                 }
@@ -445,7 +444,7 @@ fun SavedReceiverScreen(
                             ) {
                                 Text(
                                     text = "Thêm người nhận",
-                                    style = CustomTypography.bodyMedium.copy(
+                                    style = AppTypography.bodySmall.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
                                     color = White1

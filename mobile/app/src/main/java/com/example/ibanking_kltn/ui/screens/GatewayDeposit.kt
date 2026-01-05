@@ -40,8 +40,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
@@ -129,7 +129,7 @@ fun GatewayDeposit(
                             Row {
                                 Text(
                                     text = "Số tiền cần nạp",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -137,7 +137,7 @@ fun GatewayDeposit(
                                 value = formatterVND(uiState.amount),
                                 placeholder = {
                                     Text(
-                                        "Số tiền", style = CustomTypography.titleMedium,
+                                        "Số tiền", style = AppTypography.bodyMedium,
                                         color = Gray2
                                     )
                                 },

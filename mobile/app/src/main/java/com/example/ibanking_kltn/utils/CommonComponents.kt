@@ -2,10 +2,15 @@ package com.example.ibanking_kltn.utils
 
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
@@ -120,7 +125,6 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Blue5
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.ErrorGradient
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
@@ -146,6 +150,7 @@ import ir.ehsannarmani.compose_charts.PieChart
 import ir.ehsannarmani.compose_charts.models.BarProperties
 import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.GridProperties
+import ir.ehsannarmani.compose_charts.models.HorizontalIndicatorProperties
 import ir.ehsannarmani.compose_charts.models.Pie
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
@@ -556,7 +561,7 @@ fun OtpDialogCustom(
                         modifier = Modifier.padding(vertical = 10.dp)
                     ) {
                         Text(
-                            text = "", style = CustomTypography.labelLarge, color = BackgroundColor
+                            text = "", style = AppTypography.bodyMedium, color = BackgroundColor
                         )
                     }
                 }
@@ -1125,53 +1130,40 @@ fun BillFilterDialog(
 @Composable
 fun TransactionHistoryFilterDialog(
 
-    onSelectStatus: (TransactionStatus) -> Unit = {},
-    onSelectService: (ServiceType) -> Unit = {},
-    onSelectAccountType: (AccountType) -> Unit = {},
-    onSelectSort: (SortOption) -> Unit = {},
+    currentFromDate: LocalDate,
+    currentToDate: LocalDate,
+    currentStatus: TransactionStatus?,
+    currentService: ServiceType?,
+    currentAccountType: AccountType,
+    currentSort: SortOption = SortOption.NEWEST,
 
-
-    onResetStatusFilter: () -> Unit = {},
-    onResetServiceFilter: () -> Unit = {},
-    onResetAccountTypeFilter: () -> Unit = {},
-    onResetSortFilter: () -> Unit = {},
-    onResetAll: () -> Unit = {},
-    onApply: () -> Unit = {},
+    onApply: (status: TransactionStatus?, service: ServiceType?, accountType: AccountType, sort: SortOption, fromDate: LocalDate, toDate: LocalDate) -> Unit,
     onDismiss: () -> Unit = {}
 ) {
     var selectedStatus by remember {
-        mutableStateOf<TransactionStatus?>(null)
+        mutableStateOf<TransactionStatus?>(currentStatus)
     }
 
     var selectedService by remember {
-        mutableStateOf<ServiceType?>(null)
+        mutableStateOf<ServiceType?>(currentService)
     }
 
     var selectedAccountType by remember {
-        mutableStateOf<AccountType?>(null)
+        mutableStateOf<AccountType>(currentAccountType)
     }
 
     var selectedSort by remember {
-        mutableStateOf(SortOption.NEWEST)
+        mutableStateOf(currentSort)
     }
 
     var selectedFromDate by remember {
-        mutableStateOf(LocalDate.now().minusDays(30))
+        mutableStateOf(currentFromDate)
     }
 
     var selectedToDate by remember {
-        mutableStateOf(LocalDate.now())
+        mutableStateOf(currentToDate)
     }
 
-
-    val transactionStatusOptions = TransactionStatus.entries.map { status ->
-        status.status
-    }
-
-    val transactionSortOptions = SortOption.entries.map { it.sortBy }
-
-    val serviceOptions = ServiceType.entries.map { it.serviceName }
-    val accountTypeOptions = AccountType.entries.map { it.type }
 
     var isShowFromDatePicker by remember {
         mutableStateOf(false)
@@ -1228,20 +1220,23 @@ fun TransactionHistoryFilterDialog(
                                     style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
-                                        onResetStatusFilter()
+                                        selectedStatus = null
                                     }
                                 )
                             }
 
                             CustomDropdownField(
-                                options = transactionStatusOptions,
+                                options = TransactionStatus.entries,
                                 selectedOption = selectedStatus?.status ?: "",
                                 onOptionSelected = {
-                                    val selectStatus =
-                                        TransactionStatus.entries.first { transactionStatus ->
-                                            transactionStatus.status == it
-                                        }
-                                    onSelectStatus(selectStatus)
+                                    selectedStatus = it
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.status,
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1
+                                    )
                                 },
                                 placeholder = "Trạng thái hóa đơn"
                             )
@@ -1266,18 +1261,23 @@ fun TransactionHistoryFilterDialog(
                                     style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
-                                        onResetServiceFilter()
+                                        selectedService = null
                                     }
                                 )
                             }
 
                             CustomDropdownField(
-                                options = serviceOptions,
+                                options = ServiceType.entries,
                                 selectedOption = selectedService?.serviceName ?: "",
                                 onOptionSelected = {
-                                    onSelectService(ServiceType.entries.first { service ->
-                                        service.serviceName == it
-                                    })
+                                    selectedService = it
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.serviceName,
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1
+                                    )
                                 },
                                 placeholder = "Loại dịch vụ"
                             )
@@ -1302,18 +1302,23 @@ fun TransactionHistoryFilterDialog(
                                     style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
-                                        onResetAccountTypeFilter()
+                                        selectedAccountType = AccountType.WALLET
                                     }
                                 )
                             }
 
                             CustomDropdownField(
-                                options = accountTypeOptions,
+                                options = AccountType.entries,
                                 selectedOption = selectedAccountType?.type ?: "",
                                 onOptionSelected = {
-                                    onSelectAccountType(AccountType.entries.first { accountType ->
-                                        accountType.type == it
-                                    })
+                                    selectedAccountType = it
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.type,
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1
+                                    )
                                 },
                                 placeholder = "Tài khoản thanh toán"
                             )
@@ -1338,7 +1343,8 @@ fun TransactionHistoryFilterDialog(
                                     style = AppTypography.bodyMedium,
                                     color = Blue1,
                                     modifier = Modifier.clickable {
-                                        onResetStatusFilter()
+                                        selectedFromDate = LocalDate.now().minusMonths(1)
+                                        selectedToDate = LocalDate.now()
                                     }
                                 )
                             }
@@ -1404,17 +1410,21 @@ fun TransactionHistoryFilterDialog(
                             style = AppTypography.bodyMedium,
                             color = Blue1,
                             modifier = Modifier.clickable {
-                                onResetSortFilter()
+                                selectedSort = SortOption.NEWEST
                             })
                     }
 
                     CustomDropdownField(
-                        options = transactionSortOptions,
+                        options = SortOption.entries,
                         selectedOption = selectedSort.sortBy,
                         onOptionSelected = {
-                            onSelectSort(SortOption.entries.first { option ->
-                                option.sortBy == it
-                            }
+                            selectedSort = it
+                        },
+                        optionsComposable = {
+                            Text(
+                                text = it.sortBy,
+                                style = AppTypography.bodyMedium,
+                                color = Black1
                             )
                         },
                         placeholder = "Sắp xếp theo"
@@ -1428,7 +1438,20 @@ fun TransactionHistoryFilterDialog(
                     ) {
                         Button(
                             onClick = {
-                                onResetAll()
+                                selectedStatus = null
+                                selectedService = null
+                                selectedAccountType = AccountType.WALLET
+                                selectedFromDate = LocalDate.now().minusMonths(1)
+                                selectedToDate = LocalDate.now()
+                                selectedSort = SortOption.NEWEST
+                                onApply(
+                                    selectedStatus,
+                                    selectedService,
+                                    selectedAccountType,
+                                    selectedSort,
+                                    selectedFromDate,
+                                    selectedToDate
+                                )
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -1447,7 +1470,14 @@ fun TransactionHistoryFilterDialog(
 
                         Button(
                             onClick = {
-                                onApply()
+                                onApply(
+                                    selectedStatus,
+                                    selectedService,
+                                    selectedAccountType,
+                                    selectedSort,
+                                    selectedFromDate,
+                                    selectedToDate
+                                )
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -1497,7 +1527,7 @@ fun TransactionHistoryFilterDialog(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 CustomDatePicker(
-                    minDate = LocalDate.now().minusDays(30),
+                    minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
                     onSelectedDate = {
                         selectedFromDate = it
@@ -1522,7 +1552,7 @@ fun TransactionHistoryFilterDialog(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 CustomDatePicker(
-                    minDate = LocalDate.now().minusDays(30),
+                    minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
                     onSelectedDate = {
                         selectedToDate = it
@@ -1766,6 +1796,12 @@ fun PayLaterApplicationHistoryFilterDialog(
                                 selectedType = null
                                 selectedFromDate = LocalDate.now().minusDays(30)
                                 selectedToDate = LocalDate.now()
+                                onApply(
+                                    selectedStatus,
+                                    selectedType,
+                                    selectedFromDate,
+                                    selectedToDate
+                                )
                             },
                             modifier = Modifier
                                 .weight(1f)
@@ -1839,7 +1875,7 @@ fun PayLaterApplicationHistoryFilterDialog(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 CustomDatePicker(
-                    minDate = LocalDate.now().minusDays(30),
+                    minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
                     onSelectedDate = {
                         selectedFromDate = it
@@ -1864,7 +1900,7 @@ fun PayLaterApplicationHistoryFilterDialog(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 CustomDatePicker(
-                    minDate = LocalDate.now().minusDays(30),
+                    minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
                     onSelectedDate = {
                         selectedToDate = it
@@ -2197,8 +2233,6 @@ fun CustomDatePicker(
     onDismiss: () -> Unit
 ) {
     var selectedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
-
-
 
     Column(
         modifier = Modifier
@@ -2890,49 +2924,72 @@ fun CustomPieChart(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        PieChart(
-            modifier = Modifier.size(200.dp),
-            data = data,
-            scaleAnimEnterSpec = spring<Float>(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow
-            ),
-            selectedScale = 1f,
-            spaceDegree = 3f,
-            selectedPaddingDegree = 0f,
-            style = Pie.Style.Stroke(width = 30.dp)
+        if (data.isEmpty() || data.all { it.data <= 0 }) {
 
-        )
+            Icon(
+                painter = painterResource(id = R.drawable.empty_data),
+                contentDescription = null,
+                tint = Gray1,
+                modifier = Modifier.size(48.dp)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Chưa có dữ liệu để thống kê",
+                style = AppTypography.bodyMedium,
+                color = Gray1
+            )
+            Text(
+                text = "Hãy phát sinh giao dịch để xem phân bố",
+                style = AppTypography.bodySmall,
+                color = Gray1
+            )
 
-        data.chunked(3).forEach { chunk ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                chunk.forEach {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            5.dp,
-                            Alignment.CenterHorizontally
-                        ),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(15.dp)
-                                .background(color = it.color, shape = RoundedCornerShape(3.dp))
-                        )
-                        Text(
-                            text = it.label ?: "",
-                            style = AppTypography.bodySmall,
-                            color = Black1
-                        )
+        } else {
+            PieChart(
+                modifier = Modifier.size(200.dp),
+                data = data,
+                scaleAnimEnterSpec = spring<Float>(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                selectedScale = 1f,
+                spaceDegree = 3f,
+                selectedPaddingDegree = 0f,
+                style = Pie.Style.Stroke(width = 30.dp)
+
+            )
+
+            data.chunked(3).forEach { chunk ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    chunk.forEach {
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            horizontalArrangement = Arrangement.spacedBy(
+                                5.dp,
+                                Alignment.CenterHorizontally
+                            ),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .background(color = it.color, shape = RoundedCornerShape(3.dp))
+                            )
+                            Text(
+                                text = it.label ?: "",
+                                style = AppTypography.bodySmall,
+                                color = Black1
+                            )
+                        }
+
                     }
-
                 }
             }
+
         }
 
     }
@@ -2940,27 +2997,60 @@ fun CustomPieChart(
 
 @Composable
 fun CustomBarChart(
-    data: List<Bars> ,
+    data: List<Bars>,
     modifier: Modifier = Modifier
 ) {
-    ColumnChart(
-        modifier = modifier,
-        data = data,
-        barProperties = BarProperties(
-            cornerRadius = Bars.Data.Radius.Rectangle(topRight = 6.dp, topLeft = 6.dp),
-            spacing = 1.dp,
-            thickness = 20.dp,
-        ),
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        gridProperties = GridProperties(
-            yAxisProperties = GridProperties.AxisProperties(
-                enabled = false,
+    if (data.isEmpty()) {
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+
+            Icon(
+                painter = painterResource(id = R.drawable.empty_data),
+                contentDescription = null,
+                tint = Gray1,
+                modifier = Modifier.size(48.dp)
             )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Chưa có dữ liệu để thống kê",
+                style = AppTypography.bodyMedium,
+                color = Gray1
+            )
+            Text(
+                text = "Hãy phát sinh giao dịch để xem phân bố",
+                style = AppTypography.bodySmall,
+                color = Gray1
+            )
+        }
+    } else
+
+        ColumnChart(
+            modifier = modifier.height(300.dp),
+            data = data,
+            barProperties = BarProperties(
+                cornerRadius = Bars.Data.Radius.Rectangle(topRight = 6.dp, topLeft = 6.dp),
+                spacing = 1.dp,
+                thickness = 20.dp,
+            ),
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessLow
+            ),
+            gridProperties = GridProperties(
+                yAxisProperties = GridProperties.AxisProperties(
+                    enabled = false,
+                ),
+            ),
+            indicatorProperties = HorizontalIndicatorProperties(
+                contentBuilder = { indicator ->
+                    formatterVND(indicator.toLong()) + " VND"
+                },
+            )
+
         )
-    )
 }
 
 @Composable
@@ -2993,6 +3083,45 @@ fun DefaultImageProfile(
             style = AppTypography.bodySmall
         )
     }
+}
+
+
+@Composable
+fun shimmerBrush(): Brush {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val translateAnim = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer_anim"
+    )
+
+    return Brush.linearGradient(
+        colors = listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.LightGray.copy(alpha = 0.3f),
+            Color.LightGray.copy(alpha = 0.6f),
+        ),
+        start = Offset(translateAnim.value - 1000f, 0f),
+        end = Offset(translateAnim.value, 0f)
+    )
+}
+
+@Composable
+fun SkeletonBox(
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(8.dp)
+) {
+    Box(
+        modifier = modifier
+            .background(
+                brush = shimmerBrush(),
+                shape = shape
+            )
+    )
 }
 
 @Composable

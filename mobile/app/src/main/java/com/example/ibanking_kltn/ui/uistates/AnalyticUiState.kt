@@ -8,6 +8,7 @@ import java.time.LocalDate
 
 data class AnalyticUiState(
     val state: StateType = StateType.NONE,
+    val analyzeState: StateType = StateType.NONE,
 
     val initialedDistributionStatistic: Boolean = false,
     val initialedTrendStatistic:Boolean = false,

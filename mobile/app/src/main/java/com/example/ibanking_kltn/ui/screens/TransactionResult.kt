@@ -34,9 +34,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -85,7 +85,7 @@ fun TransactionResultScreen(
                     )
                     Text(
                         text = "Liên hệ hỗ trợ",
-                        style = CustomTypography.bodyLarge.copy(
+                        style = AppTypography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
                         color = Blue1
@@ -189,7 +189,7 @@ fun TransactionResultScreen(
                         TransactionStatus.CANCELED -> {
                             "Đã hủy"
                         }
-                    }, style = CustomTypography.titleLarge, color = Blue1
+                    }, style = AppTypography.titleSmall, color = Blue1
                 )
                 Column(
                     modifier = Modifier
@@ -199,7 +199,7 @@ fun TransactionResultScreen(
                 ) {
                     Row {
                         Text(
-                            text = "Dịch vụ: ", style = CustomTypography.bodyMedium,
+                            text = "Dịch vụ: ", style = AppTypography.bodySmall,
                             color = Gray1
                         )
                         Row(
@@ -208,7 +208,7 @@ fun TransactionResultScreen(
                         ) {
                             Text(
                                 text = uiState.service,
-                                style = CustomTypography.bodyLarge.copy(
+                                style = AppTypography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = Black1
@@ -216,29 +216,31 @@ fun TransactionResultScreen(
 
                         }
                     }
-
-                    Row {
-                        Text(
-                            text = "Tên người thụ hưởng: ", style = CustomTypography.bodyMedium,
-                            color = Gray1
-                        )
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.End
-                        ) {
+                    if (!uiState.toMerchantName.isNullOrEmpty()) {
+                        Row {
                             Text(
-                                text = uiState.toMerchantName,
-                                style = CustomTypography.bodyLarge.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = Black1
+                                text = "Tên người thụ hưởng: ", style = AppTypography.bodySmall,
+                                color = Gray1
                             )
+                            Row(
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                Text(
+                                    text = uiState.toMerchantName,
+                                    style = AppTypography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Black1
+                                )
 
+                            }
                         }
+
                     }
                     Row {
                         Text(
-                            text = "Số tiền: ", style = CustomTypography.bodyMedium,
+                            text = "Số tiền: ", style = AppTypography.bodySmall,
                             color = Gray1
                         )
                         Row(
@@ -247,7 +249,7 @@ fun TransactionResultScreen(
                         ) {
                             Text(
                                 text = "${formatterVND(uiState.amount)} VND",
-                                style = CustomTypography.bodyLarge.copy(
+                                style = AppTypography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = when (uiState.status) {
@@ -272,7 +274,7 @@ fun TransactionResultScreen(
                     }
                     Row {
                         Text(
-                            text = "Trạng thái: ", style = CustomTypography.bodyMedium,
+                            text = "Trạng thái: ", style = AppTypography.bodySmall,
                             color = Gray1
                         )
                         Row(
@@ -298,7 +300,7 @@ fun TransactionResultScreen(
                                         "Đã hủy"
                                     }
                                 },
-                                style = CustomTypography.bodyLarge.copy(
+                                style = AppTypography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = when (uiState.status) {
@@ -336,7 +338,7 @@ fun TransactionResultScreen(
                             onBackToHomeClick()
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         text = stringResource(id = R.string.BackToHome),
                         enable = true
                     )

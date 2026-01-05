@@ -19,7 +19,7 @@ class TransactionResultViewModel @Inject constructor(
     fun init(
         service: String,
         amount: Long,
-        toMerchantName: String,
+        toMerchantName: String?,
         status: TransactionStatus
     ){
         _uiState.value= TransactionResultUiState(

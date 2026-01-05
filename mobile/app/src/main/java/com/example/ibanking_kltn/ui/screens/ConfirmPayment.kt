@@ -36,10 +36,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.PaymentAccount
+import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -114,13 +114,13 @@ fun ConfirmPaymentScreen(
                         Row {
                             Text(
                                 text = "Loại giao dịch",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.titleMedium,
                                 color = Gray1
                             )
                         }
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = uiState.service?.name ?: "",
+                            value = uiState.service?.serviceName ?: "",
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -150,7 +150,7 @@ fun ConfirmPaymentScreen(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Thông tin người nhận",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -163,7 +163,7 @@ fun ConfirmPaymentScreen(
                             Row {
                                 Text(
                                     text = "Họ tên",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -187,7 +187,7 @@ fun ConfirmPaymentScreen(
                             Row {
                                 Text(
                                     text = "Số tài khoản",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -224,7 +224,7 @@ fun ConfirmPaymentScreen(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Thông tin giao dịch",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -237,7 +237,7 @@ fun ConfirmPaymentScreen(
                             Row {
                                 Text(
                                     text = "Số tiền",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -260,32 +260,8 @@ fun ConfirmPaymentScreen(
                         ) {
                             Row {
                                 Text(
-                                    text = "Phí giao dịch",
-                                    style = CustomTypography.titleMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = "1.000",
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                enable = false,
-                                onValueChange = {}
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row {
-                                Text(
                                     text = "Nội dung chuyển khoản",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -311,7 +287,7 @@ fun ConfirmPaymentScreen(
                                 Row {
                                     Text(
                                         text = "Phân loại",
-                                        style = CustomTypography.titleMedium,
+                                        style = AppTypography.bodyMedium,
                                         color = Gray1
                                     )
                                 }
@@ -348,7 +324,7 @@ fun ConfirmPaymentScreen(
                     ) {
                         Text(
                             text = "Tài khoản thanh toán",
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = Gray1
                         )
                         CustomDropdownField<PaymentAccount>(
@@ -370,7 +346,7 @@ fun ConfirmPaymentScreen(
                                     )
                                     Column(modifier = Modifier.fillMaxWidth()) {
                                         Text(
-                                            text = "${it.accountType.name} - ${it.accountNumber}",
+                                            text = it.accountType.name,
                                             style = AppTypography.bodyMedium,
                                             color = Black1
                                         )
@@ -390,7 +366,7 @@ fun ConfirmPaymentScreen(
                         if (uiState.accountType != null) {
                             Text(
                                 text = "Số dư: ${formatterVND(uiState.balance)} VND",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Blue1
                             )
                         }
@@ -434,14 +410,15 @@ fun ConfirmPaymentScreen(
 )
 @Composable
 fun ConfirmPreview() {
-//    ConfirmPaymentScreen(
-//        uiState = ConfirmUiState(
-//            isOtpShow = true,
-//            service = ServiceType.TRANSFER
-//        ),
-//        onBackClick = { },
-//        onConfirmClick = { },
-//        onOtpChange = { },
-//        onOtpDismiss = {}
-//    )
+    ConfirmPaymentScreen(
+        uiState = ConfirmUiState(
+            isOtpShow = true,
+            service = ServiceType.TRANSFER
+        ),
+        onBackClick = { },
+        onConfirmClick = { },
+        onOtpChange = { },
+        onOtpDismiss = {},
+        onAccountTypeChange = {},
+    )
 }

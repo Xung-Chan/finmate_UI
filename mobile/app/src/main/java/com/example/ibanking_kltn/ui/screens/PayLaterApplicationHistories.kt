@@ -176,7 +176,19 @@ fun PayLaterApplicationHistoryScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
 
                         ) {
-
+                        if(
+                            applications.itemCount ==0
+                        ){
+                            item {
+                                Text(
+                                    text = "Không tìm thấy đơn nào.",
+                                    style = AppTypography.bodySmall,
+                                    color = Gray1,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
                         items(
                             count = applications.itemCount,
                         ) { item ->

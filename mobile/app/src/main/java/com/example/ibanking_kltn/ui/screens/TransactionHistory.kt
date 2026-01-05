@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -31,34 +30,34 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
+import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Green1
@@ -68,9 +67,12 @@ import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.TransactionHistoryFilterDialog
 import com.example.ibanking_kltn.utils.formatterDateString
+import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,6 +80,8 @@ import java.time.LocalDateTime
 fun TransactionHistoryScreen(
     uiState: TransactionHistoryUiState,
     transactions: LazyPagingItems<TransactionHistoryResponse>,
+    fullName: String,
+    avatarUrl: String?,
     onErrorLoading: (String) -> Unit,
     onClickFilter: () -> Unit,
     onApply: (
@@ -85,6 +89,8 @@ fun TransactionHistoryScreen(
         ServiceType?,
         AccountType,
         SortOption,
+        LocalDate,
+        LocalDate
     ) -> Unit,
     onResetAll: () -> Unit,
     onViewDetail: (TransactionHistoryResponse) -> Unit,
@@ -93,23 +99,6 @@ fun TransactionHistoryScreen(
     val bottomBarHeight = 100.dp
 
     val refreshState = rememberPullToRefreshState()
-    var selectedStatus by remember {
-        mutableStateOf<TransactionStatus?>(null)
-    }
-
-    var selectedService by remember {
-        mutableStateOf<ServiceType?>(null)
-    }
-
-    var selectedAccountType by remember {
-        mutableStateOf<AccountType>(AccountType.WALLET)
-    }
-
-    var selectedSort by remember {
-        mutableStateOf(SortOption.NEWEST)
-    }
-
-
 
     Box(
         modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
@@ -158,12 +147,23 @@ fun TransactionHistoryScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    tint = Black1,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(35.dp)
-                                )
+                                if (avatarUrl == null) {
+                                    DefaultImageProfile(
+                                        modifier = Modifier
+                                            .size(100.dp),
+                                        name =fullName
+                                    )
+                                } else {
+
+                                    AsyncImage(
+                                        model = avatarUrl,
+                                        contentDescription = "Avatar",
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
 
                             }
                             Column(
@@ -171,12 +171,14 @@ fun TransactionHistoryScreen(
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(
-                                    "2021.03.04", color = White1,
-                                    style = CustomTypography.titleMedium
+                                    text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+                                    color = White1,
+                                    style = AppTypography.bodySmall
                                 )
                                 Text(
-                                    "Hi John", color = White1,
-                                    style = CustomTypography.titleMedium
+                                    text = "Xin chào, ${fullName}!",
+                                    color = White1,
+                                    style = AppTypography.bodyMedium
                                 )
                             }
                         }
@@ -311,7 +313,19 @@ fun TransactionHistoryScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
 
                                 ) {
-
+                                if (
+                                    transactions.itemCount == 0
+                                ) {
+                                    item {
+                                        Text(
+                                            text = "Không tìm thấy giao dịch nào.",
+                                            style = AppTypography.bodySmall,
+                                            color = Gray1,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
                                 items(
                                     count = transactions.itemCount,
                                 ) { item ->
@@ -349,7 +363,7 @@ fun TransactionHistoryScreen(
                                             ) {
                                                 Text(
                                                     text = transaction.description,
-                                                    style = CustomTypography.titleMedium,
+                                                    style = AppTypography.bodyMedium,
                                                     color = Black1,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
@@ -360,12 +374,12 @@ fun TransactionHistoryScreen(
                                                 horizontalArrangement = Arrangement.End
                                             ) {
                                                 Text(
-                                                    text = formatterDateString(
-                                                        LocalDateTime.parse(
+                                                    text = formatterDateTimeString(
+                                                        date = LocalDateTime.parse(
                                                             transaction.processedAt
-                                                        ).toLocalDate()
+                                                        ),
                                                     ),
-                                                    style = CustomTypography.titleSmall,
+                                                    style = AppTypography.bodySmall,
                                                     color = Gray1,
                                                 )
                                             }
@@ -380,7 +394,7 @@ fun TransactionHistoryScreen(
                                             ) {
                                                 Text(
                                                     text = "Status",
-                                                    style = CustomTypography.titleSmall,
+                                                    style = AppTypography.bodySmall,
                                                     color = Gray1,
 
                                                     )
@@ -391,7 +405,7 @@ fun TransactionHistoryScreen(
                                             ) {
                                                 Text(
                                                     text = TransactionStatus.entries.first { t -> t.name == transaction.status }.status,
-                                                    style = CustomTypography.titleSmall,
+                                                    style = AppTypography.bodySmall,
                                                     color = when (transaction.status) {
                                                         TransactionStatus.COMPLETED.name -> Green1
                                                         TransactionStatus.PENDING.name -> Orange1
@@ -410,7 +424,7 @@ fun TransactionHistoryScreen(
                                             ) {
                                                 Text(
                                                     text = "Amount",
-                                                    style = CustomTypography.titleSmall,
+                                                    style = AppTypography.bodySmall,
                                                     color = Gray1,
 
                                                     )
@@ -421,7 +435,7 @@ fun TransactionHistoryScreen(
                                             ) {
                                                 Text(
                                                     text = "${formatterVND(transaction.amount.toLong())} VND",
-                                                    style = CustomTypography.titleSmall,
+                                                    style = AppTypography.bodySmall,
                                                     color = Black1,
                                                 )
                                             }
@@ -469,56 +483,28 @@ fun TransactionHistoryScreen(
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
                 TransactionHistoryFilterDialog(
-//                    selectedStatus = selectedStatus,
-//                    selectedSort = selectedSort,
-//                    selectedAccountType = selectedAccountType,
-//                    selectedService = selectedService,
-                    onSelectStatus = {
-                        selectedStatus = it
-                    },
-                    onSelectSort = {
-                        selectedSort = it
-                    },
-                    onSelectService = {
-                        selectedService = it
-                    },
-                    onSelectAccountType = {
-                        selectedAccountType = it
-                    },
-                    onResetStatusFilter = {
-                        selectedStatus = null
-                    },
-                    onResetSortFilter = {
-                        selectedSort = SortOption.NEWEST
-                    },
-                    onResetServiceFilter = {
-                        selectedService = null
-                    },
-                    onResetAccountTypeFilter = {
-                        selectedAccountType = AccountType.WALLET
-                    },
-                    onResetAll = {
-                        selectedStatus = null
-                        selectedService = null
-                        selectedAccountType = AccountType.WALLET
-                        selectedSort = SortOption.NEWEST
-                        onResetAll()
-                    },
-                    onApply = {
+                    currentFromDate = uiState.fromDate,
+                    currentToDate = uiState.toDate,
+                    currentStatus = uiState.selectedStatus,
+                    currentService = uiState.type,
+                    currentAccountType = uiState.accountType,
+                    currentSort = uiState.selectedSort,
+
+                    onApply = { status, service, accountType, sortOption, fromDate, toDate ->
                         onApply(
-                            selectedStatus,
-                            selectedService,
-                            selectedAccountType,
-                            selectedSort
+                            status,
+                            service,
+                            accountType,
+                            sortOption,
+                            fromDate,
+                            toDate
                         )
+
                     },
                     onDismiss = {
-                        selectedStatus = uiState.selectedStatus
-                        selectedSort = uiState.selectedSort
-                        selectedService = uiState.type
-                        selectedAccountType = uiState.accountType
                         onClickFilter()
-                    })
+                    },
+                )
             }
 
         }

@@ -28,9 +28,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.CustomTextButton
 
@@ -97,12 +97,12 @@ fun ChangePasswordSuccessfullyScreen(
             ){
                 Text(   
                     text = stringResource(id = R.string.ChangePassword_Success_Title),
-                    style = CustomTypography.titleLarge,
+                    style = AppTypography.titleSmall,
                     color = Blue1
                 )
                 Text(   
                     text = stringResource(id = R.string.ChangePassword_Notify),
-                    style = CustomTypography.bodyMedium,
+                    style = AppTypography.bodySmall,
                     color = Black1,
                     textAlign = TextAlign.Center
                 )
@@ -119,7 +119,7 @@ fun ChangePasswordSuccessfullyScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth(),
-                        style = CustomTypography.titleMedium,
+                        style = AppTypography.bodyMedium,
                         text = stringResource(id = R.string.BackToLogin),
                         enable = true
                     )

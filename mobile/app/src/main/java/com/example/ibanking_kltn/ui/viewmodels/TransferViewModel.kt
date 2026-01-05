@@ -20,54 +20,78 @@ import kotlinx.coroutines.launch
 class TransferViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val walletRepository: WalletRepository,
-    ) : ViewModel() {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(TransferUiState())
     val uiState: StateFlow<TransferUiState> = _uiState.asStateFlow()
 
 
-    fun init() {
-        loadExpenseType()
+    fun init(
+        onError: (String) -> Unit
+
+    ) {
+        clearState()
+        loadExpenseType(onError)
     }
 
 
-     fun clearState() {
+    fun clearState() {
         _uiState.value = TransferUiState()
     }
-
 
 
     fun isEnableContinue(): Boolean {
         val data = uiState.value
         val result = data.toMerchantName.isNotEmpty() &&
-                data.amount > 0L &&
-                data.expenseType.isNotEmpty()
+                data.amount > 0L
 
         return result
     }
 
 
-    fun loadExpenseType() {
-        _uiState.update {
-            it.copy(screenState = StateType.LOADING)
-        }
-
+    fun loadExpenseType(
+        onError: (String) -> Unit
+    ) {
+        var message = ""
         viewModelScope.launch {
-            val apiResult = transactionRepository.getAllExpenseType()
-            when (apiResult) {
-                is ApiResult.Success -> {
-                    val expenseTypeResponse = apiResult.data
-                    _uiState.update {
-                        it.copy(
-                            screenState = StateType.SUCCESS,
-                            allExpenseTypeResponse = expenseTypeResponse
-                        )
+            repeat(3) {
+                _uiState.update {
+                    it.copy(
+                        screenState = StateType.LOADING
+                    )
+                }
+                val apiResult = transactionRepository.getAllExpenseType()
+                when (apiResult) {
+                    is ApiResult.Success -> {
+                        val expenseTypeResponse = apiResult.data
+                        _uiState.update {
+                            it.copy(
+                                screenState = StateType.SUCCESS,
+                                allExpenseTypeResponse = expenseTypeResponse,
+                                initialed = true
+                            )
+                        }
+                        return@launch
+
+
+                    }
+
+                    is ApiResult.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                screenState = StateType.FAILED(apiResult.message),
+                            )
+                        }
+                        message = apiResult.message
                     }
                 }
-
-                is ApiResult.Error -> {
-                    error(apiResult.message)
-                }
             }
+            _uiState.update {
+                it.copy(
+                    screenState = StateType.FAILED(message),
+                    initialed = true
+                )
+            }
+            onError(message)
         }
     }
 
@@ -75,7 +99,7 @@ class TransferViewModel @Inject constructor(
     fun onDoneWalletNumber(
         onError: (String) -> Unit
     ) {
-        if(uiState.value.toWalletNumber.isEmpty()){
+        if (uiState.value.toWalletNumber.isEmpty()) {
             _uiState.update {
                 it.copy(
                     toMerchantName = "",
@@ -106,10 +130,11 @@ class TransferViewModel @Inject constructor(
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
+                            screenState = StateType.FAILED(apiResult.message),
                             toMerchantName = "",
                         )
                     }
-                    error(apiResult.message)
+                    onError(apiResult.message)
                 }
             }
         }
@@ -146,14 +171,14 @@ class TransferViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(description = content)
     }
 
-    fun onSelectSavedReceiver( savedReceiver: SavedReceiver) {
+    fun onSelectSavedReceiver(savedReceiver: SavedReceiver) {
         _uiState.update {
             it.copy(
                 toWalletNumber = savedReceiver.toWalletNumber,
             )
         }
         viewModelScope.launch {
-            onDoneWalletNumber {  }
+            onDoneWalletNumber { }
         }
     }
 

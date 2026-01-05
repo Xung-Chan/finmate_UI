@@ -44,10 +44,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue5
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -157,7 +157,7 @@ fun CreateVerificationRequestScreen(
                             Row {
                                 Text(
                                     text = "Thông tin doanh nghiệp",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -181,7 +181,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Tên hiển thị hóa đơn",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -200,7 +200,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Tên danh nghiệp",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -219,7 +219,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Mã số doanh nghiệp",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -238,7 +238,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Địa chỉ",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -257,7 +257,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Email liên hệ",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -276,7 +276,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Số điện thoại liên hệ",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -291,7 +291,7 @@ fun CreateVerificationRequestScreen(
                             Row {
                                 Text(
                                     text = "Người đại diện pháp lý",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1
                                 )
                             }
@@ -321,7 +321,7 @@ fun CreateVerificationRequestScreen(
                                     placeholder = {
                                         Text(
                                             text = "Tên người đại diện",
-                                            style = CustomTypography.titleMedium,
+                                            style = AppTypography.bodyMedium,
                                             color = Gray2
                                         )
                                     }
@@ -335,7 +335,7 @@ fun CreateVerificationRequestScreen(
                                     optionsComposable = {
                                         Text(
                                             text = it.name,
-                                            style = CustomTypography.bodyMedium,
+                                            style = AppTypography.bodySmall,
                                             color = Black1
                                         )
                                     },
@@ -378,7 +378,7 @@ fun CreateVerificationRequestScreen(
                             ) {
                                 Text(
                                     text = "Tài liệu đính kèm (.pdf/.doc/.docx)",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray1,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -397,7 +397,7 @@ fun CreateVerificationRequestScreen(
                                         Text(
                                             text = "Thêm đính kèm",
                                             color = Blue1,
-                                            style = CustomTypography.bodyMedium.copy(
+                                            style = AppTypography.bodySmall.copy(
                                                 fontWeight = FontWeight.Bold
                                             )
                                         )
@@ -505,7 +505,7 @@ private fun FileItem(
         Column {
             Text(
                 text = fileName,
-                style = CustomTypography.bodyMedium,
+                style = AppTypography.bodySmall,
                 color = Black1
             )
             Text(
@@ -513,7 +513,7 @@ private fun FileItem(
                     context = context,
                     size = size
                 ),
-                style = CustomTypography.bodySmall,
+                style = AppTypography.labelMedium,
                 color = Gray2
             )
         }

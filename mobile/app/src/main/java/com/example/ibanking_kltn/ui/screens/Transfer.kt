@@ -42,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
@@ -137,7 +137,7 @@ fun TransferScreen(
                         ) {
                             Text(
                                 text = "Người thụ hưởng đã lưu",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
 
@@ -174,7 +174,7 @@ fun TransferScreen(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Thông tin người nhận",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -183,7 +183,7 @@ fun TransferScreen(
                             placeholder = {
                                 Text(
                                     "Số tài khoản",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -221,7 +221,7 @@ fun TransferScreen(
                             value = uiState.toMerchantName,
                             placeholder = {
                                 Text(
-                                    "Tên người thụ hưởng", style = CustomTypography.titleMedium,
+                                    "Tên người thụ hưởng", style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -255,7 +255,7 @@ fun TransferScreen(
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 "Thông tin giao dịch",
-                                style = CustomTypography.titleMedium,
+                                style = AppTypography.bodyMedium,
                                 color = Gray1
                             )
                         }
@@ -263,7 +263,7 @@ fun TransferScreen(
                             value = formatterVND(uiState.amount),
                             placeholder = {
                                 Text(
-                                    "Số tiền", style = CustomTypography.titleMedium,
+                                    "Số tiền", style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -288,7 +288,7 @@ fun TransferScreen(
                             value = uiState.description,
                             placeholder = {
                                 Text(
-                                    "Nội dung chuyển khoản", style = CustomTypography.titleMedium,
+                                    "Nội dung chuyển khoản", style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -310,7 +310,7 @@ fun TransferScreen(
                                 onExpenseTypeChange(it)
                             },
                             selectedOption = uiState.expenseType,
-                            placeholder = "Phân loại"
+                            placeholder = "Phân loại (Hệ thống tự động phân loại nếu để trống)"
                         )
                     }
                 }
@@ -345,7 +345,7 @@ fun TransferScreen(
                                 uncheckedColor = Gray1,
                             ),
                         )
-                        Text(text = "Lưu người nhận", style = CustomTypography.titleMedium)
+                        Text(text = "Lưu người nhận", style = AppTypography.bodyMedium)
                     }
 
                     CustomTextButton(

@@ -29,4 +29,9 @@ interface WalletApi {
         @Part("data") data: RequestBody,
         @Part documents: List<MultipartBody.Part>
     ): Response<WalletVerificationResponse>
+
+
+    @GET("/api/wallet-verifications/wallet/me")
+    suspend fun getMyVerification(
+    ): Response<WalletVerificationResponse>
 }

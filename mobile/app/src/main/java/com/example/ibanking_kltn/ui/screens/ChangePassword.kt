@@ -39,8 +39,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
-import com.example.ibanking_kltn.ui.theme.CustomTypography
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
@@ -122,7 +122,7 @@ fun ChangePasswordScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.ChangePassword_OldPassword),
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = Gray1
                         )
                     }
@@ -138,7 +138,7 @@ fun ChangePasswordScreen(
                             placeholder = {
                                 Text(
                                     "Nhập mật khẩu cũ",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -182,7 +182,7 @@ fun ChangePasswordScreen(
                     ) {
                         Text(
                             text = stringResource(id = R.string.ChangePassword_NewPassword),
-                            style = CustomTypography.titleMedium,
+                            style = AppTypography.bodyMedium,
                             color = Gray1
                         )
                     }
@@ -198,7 +198,7 @@ fun ChangePasswordScreen(
                             placeholder = {
                                 Text(
                                     "Nhập mật khẩu mới",
-                                    style = CustomTypography.titleMedium,
+                                    style = AppTypography.bodyMedium,
                                     color = Gray2
                                 )
                             },
@@ -271,7 +271,7 @@ fun ChangePasswordScreen(
                     ) {
                         Text(
                             stringResource(R.string.ChangePassword_ValidPassword),
-                            style = CustomTypography.bodySmall,
+                            style = AppTypography.labelMedium,
                             color = Gray1
                         )
                     }

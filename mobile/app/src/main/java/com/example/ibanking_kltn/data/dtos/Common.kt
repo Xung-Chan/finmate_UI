@@ -4,7 +4,6 @@ import androidx.compose.ui.graphics.Color
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Blue2
 import com.example.ibanking_kltn.ui.theme.Blue5
-import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Orange1
@@ -20,7 +19,7 @@ enum class AccountType(val type: String,val icon: Int,val color: Color) {
 
 data class PaymentAccount(
     val accountType: AccountType,
-    val accountNumber: String,
+    val accountNumber: String?,
     val merchantName: String,
     val balance: Long
 )
@@ -122,7 +121,6 @@ enum class ServiceCategory(val serviceName: String, val icon: Int,val color: ULo
     AIR_PLANE(serviceName="Đặt vé máy bay", icon = R.drawable.airplane_service, color = Blue2.value),
     BILL_CREATE(serviceName="Tạo hóa đơn", icon = R.drawable.bill_create_service, color = Green1.value),
     BILL_HISTORY(serviceName="Lịch sử hóa đơn", icon = R.drawable.bill_history_service, color = Red2.value),
-    ANALYTIC(serviceName="Thống kê", icon = R.drawable.analytic_service, color = Blue6.value),
     VERIFICATION_REQUEST(serviceName="Yêu cầu xác thực", icon = R.drawable.wallet_regular, color = Blue5.value)
 }
 

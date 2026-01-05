@@ -1,5 +1,7 @@
 package com.example.ibanking_kltn.data.dtos.responses
 
+import com.example.ibanking_kltn.data.dtos.ServiceType
+
 data class PrepareTransactionResponse(
     val retryTokenOtp: String,
     val transactionId: String
@@ -30,7 +32,8 @@ data class  TransactionHistoryResponse(
     val sourceAccountNumber: String,
     val sourceBalanceUpdated: Double,
     val status: String,
-    val toWalletNumber: String
+    val toWalletNumber: String?,
+    val transactionType: ServiceType
 )
 class TrendStatisticResponse : ArrayList<TrendStatisticResponseItem>()
 
@@ -54,8 +57,3 @@ data class Distribution(
 )
 
 
-data class AnalyzeResponse(
-    val canh_bao: String,
-    val ty_trong: String,
-    val xu_huong: String
-)

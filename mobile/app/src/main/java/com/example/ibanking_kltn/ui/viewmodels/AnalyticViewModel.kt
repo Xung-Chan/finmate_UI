@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.MoneyFlowType
 import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
 import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
+import com.example.ibanking_kltn.data.repositories.AiRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.ui.uistates.AnalyticUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -20,7 +21,9 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class AnalyticViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
-) : ViewModel() {
+    private val aiRepository: AiRepository,
+
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(AnalyticUiState())
     val uiState: StateFlow<AnalyticUiState> = _uiState.asStateFlow()
 
@@ -138,9 +141,56 @@ class AnalyticViewModel @Inject constructor(
         }
     }
 
+    fun onAnalyze(
+        onError: (message: String) -> Unit
+    ) {
+        _uiState.update {
+            it.copy(
+                analyzeState = StateType.LOADING
+            )
+        }
+        viewModelScope.launch {
+            if (uiState.value.distributionStatistic?.analyticId == null) {
+                onError("Vui lòng thống kê phân bổ trước khi phân tích")
+                _uiState.update {
+                    it.copy(
+                        analyzeState = StateType.FAILED("Vui lòng thống kê phân bổ trước khi phân tích")
+                    )
+                }
+                return@launch
+            }
+            val apiResult = aiRepository.getAnalytic(
+                analyzeRequestId = uiState.value.distributionStatistic!!.analyticId
+            )
+            when (apiResult) {
+                is ApiResult.Success -> {
+
+                    _uiState.update {
+                        it.copy(
+                            analyzeState = StateType.SUCCESS,
+                            analyzeResponse = apiResult.data,
+                        )
+                    }
+                    return@launch
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            analyzeState = StateType.FAILED(apiResult.message)
+                        )
+                    }
+
+                    onError(apiResult.message)
+                }
+            }
+
+        }
+    }
+
     fun onMinusMonth(
         onError: (String) -> Unit
-    ){
+    ) {
         _uiState.update {
             it.copy(
                 selectedTime = it.selectedTime.minusMonths(1)
@@ -151,9 +201,10 @@ class AnalyticViewModel @Inject constructor(
         )
 
     }
+
     fun onPlusMonth(
         onError: (String) -> Unit
-    ){
+    ) {
         _uiState.update {
             it.copy(
                 selectedTime = it.selectedTime.plusMonths(1)
@@ -164,16 +215,17 @@ class AnalyticViewModel @Inject constructor(
         )
 
     }
+
     fun onChangeMoneyFlowType(
         flowType: MoneyFlowType,
         onError: (String) -> Unit
-    ){
+    ) {
         _uiState.update {
             it.copy(
                 selectedFlowType = flowType
             )
         }
-        loadTrendStatistic (
+        loadTrendStatistic(
             onError = onError
         )
 

@@ -36,7 +36,7 @@ data class FilterTransactionRequest(
 data class FilterTransactionPara(
     val fromDate: LocalDate,
     val toDate: LocalDate,
-    val accountType: AccountType = AccountType.WALLET,
+    val accountType: AccountType? = AccountType.WALLET,
     val status: TransactionStatus? = null,
     val type: ServiceType? = null,
     val sortBy: SortOption = SortOption.NEWEST,

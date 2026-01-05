@@ -26,6 +26,6 @@ data class WalletVerificationResponse(
     val representativeIdType: String,
     val representativeName: String,
     val status: String,
-    val verifiedDocuments: List<String>,
+    val verifiedDocuments: String,
     val walletNumber: Any
 )

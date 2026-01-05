@@ -6,6 +6,7 @@ import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
 data class TransferUiState(
     val screenState: StateType = StateType.NONE,
     val confirmState: StateType = StateType.NONE,
+    val initialed: Boolean = false,
     val isOtpShow: Boolean = false,
 
     val expenseType: String = "",
@@ -27,6 +28,6 @@ data class TransactionResultUiState(
     val screenState: StateType = StateType.NONE,
     val service: String="",
     val amount: Long= 0L,
-    val toMerchantName: String= "",
+    val toMerchantName: String?= "",
     val status: TransactionStatus= TransactionStatus.COMPLETED,
 )
