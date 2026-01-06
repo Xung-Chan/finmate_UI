@@ -41,7 +41,8 @@
 
 /* ---- Base height & font ---- */
 .ant-input,
-.ant-input-number,
+.ant-input-number-input,
+.ant-input-password,
 .ant-select-selector,
 .ant-picker {
   height: 40px !important;
@@ -52,6 +53,7 @@
 /* ---- Text alignment ---- */
 .ant-input,
 .ant-input-number-input,
+.ant-input-password,
 .ant-select-selection-item,
 .ant-picker-input > input {
   height: 40px !important;
@@ -62,6 +64,7 @@
 /* ---- Padding chuẩn ---- */
 .ant-input,
 .ant-input-number-input,
+.ant-input-password,
 .ant-select-selector,
 .ant-picker-input > input {
   padding: 0 11px !important;
@@ -92,6 +95,7 @@
 .ant-input:focus,
 .ant-input-focused,
 .ant-input-number-focused,
+.ant-input-password-focused,
 .ant-select-focused .ant-select-selector,
 .ant-picker-focused {
   border-color: #3629B7 !important;

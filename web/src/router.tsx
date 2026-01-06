@@ -9,15 +9,28 @@ import {
     userListRoute,
     addUserDetailRoute,
     editUserDetailRoute,
-    roleManagementRoute,
-    roleManagementIndexRoute,
+    walletNormalManagementRoute,
+    walletManagementRoute,
+    walletManagementIndexRoute,
+    walletDetailRoute,
+    walletVerificationManagementRoute,
+    paylaterAccountRoute,
+    paylaterApplicationIndexRoute,
+    paylaterApplicationRoute,
+    paylaterAccountIndexRoute,
+    paylaterDetailRoute,
     transactionManagementRoute,
     transactionManagementIndexRoute,
-    transactionDetailRoute,
     aiTrainingDataRoute,
     aiTrainingDataIndexRoute,
     creditPolicyRoute,
     creditPolicyIndexRoute,
+    transactionAnalyticsRoute,
+    notificationManagementRoute,
+    notificationListRoute,
+    notificationListIndexRoute,
+    createNotificationRoute,
+    logMailManagementRoute,
 } from "./routes/dashboard";
 export const routeTree = rootRoute.addChildren([
     authLayoutRoute.addChildren([
@@ -25,25 +38,43 @@ export const routeTree = rootRoute.addChildren([
         // thêm các route con ở đây
     ]),
     dashboardLayoutRoute.addChildren([
+        transactionAnalyticsRoute,
         usermanagementRoute.addChildren([
             userListRoute.addChildren([
                 userListIndexRoute,
                 addUserDetailRoute,
                 editUserDetailRoute,
             ]),
-            roleManagementRoute.addChildren([
-                roleManagementIndexRoute,
+        ]),
+        walletManagementRoute.addChildren([
+            walletNormalManagementRoute.addChildren([
+                walletManagementIndexRoute,
+                walletDetailRoute,
+            ]),
+            walletVerificationManagementRoute,
+            paylaterAccountRoute.addChildren([
+                paylaterAccountIndexRoute,
+                paylaterDetailRoute,
+            ]),
+            paylaterApplicationRoute.addChildren([
+                paylaterApplicationIndexRoute,
             ]),
         ]),
         transactionManagementRoute.addChildren([
             transactionManagementIndexRoute,
-            transactionDetailRoute,
         ]),
         aiTrainingDataRoute.addChildren([
             aiTrainingDataIndexRoute,
         ]),
         creditPolicyRoute.addChildren([
             creditPolicyIndexRoute,
+        ]),
+        notificationManagementRoute.addChildren([
+            notificationListRoute.addChildren([
+                notificationListIndexRoute,
+                createNotificationRoute,
+            ]),
+            logMailManagementRoute,
         ]),
         // thêm các route con ở đây
     ]),

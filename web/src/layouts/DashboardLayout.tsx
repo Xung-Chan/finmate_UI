@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { UsergroupAddOutlined } from "@ant-design/icons";
+import { DashboardOutlined, TeamOutlined, WalletOutlined, TransactionOutlined, BellOutlined } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "@tanstack/react-router";
+import { useLogout } from "@/hooks/auth.hook";
 import logo from "@/assets/Logomark.png";
 import { colors } from "@/theme/color";
 
@@ -19,7 +20,7 @@ const DashboardLayout = () => {
     const [openMenuKey, setOpenMenuKey] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
-
+    const logout = useLogout();
     useEffect(() => {
         const { selectedKey, openMenuKey } = getMenuStateFromPath(location.pathname);
         setSelectedKey(selectedKey);
@@ -28,30 +29,55 @@ const DashboardLayout = () => {
 
     const mainMenuItems = [
         {
+            key: "analytics",
+            label: "Tổng quan",
+            icon: <DashboardOutlined />,
+        },
+        {
             key: "users",
             label: "Quản lý người dùng",
-            icon: <UsergroupAddOutlined />,
+            icon: <TeamOutlined />,
             subMenu: [
                 { key: "list", label: "Danh sách người dùng" },
-                { key: "roles", label: "Vai trò & Quyền" },
-                { key: "dang-xuat", label: "Đăng xuất" },
+                { key: "logout", label: "Đăng xuất" },
+            ],
+        },
+        {
+            key: "wallets-management",
+            label: "Quản lý ví",
+            icon: <WalletOutlined />,
+            subMenu: [
+                { key: "wallets", label: "Ví thường" },
+                { key: "wallet-verifications", label: "Xác minh ví" },
+                { key: "paylaters", label: "Ví trả sau" },
+                { key: "paylater-applications", label: "Đơn ví trả sau" },
             ],
         },
         {
             key: "transactions",
             label: "Quản lý giao dịch",
-            icon: <UsergroupAddOutlined />,
+            icon: <TransactionOutlined />,
         },
         {
-            key: "ai-training-data",
-            label: "Nội dung AI",
-            icon: <UsergroupAddOutlined />,
+            key: "notifications",
+            label: "Quản lý thông báo",
+            icon: <BellOutlined />,
+            subMenu: [
+                { key: "list", label: "Danh sách thông báo" },
+                { key: "log-mails", label: "Nhật ký email" },
+            ],
         },
-        {
-            key: "credit-policy",
-            label: "Chính sách tín dụng",
-            icon: <UsergroupAddOutlined />,
-        },
+
+        // {
+        //     key: "ai-training-data",
+        //     label: "Nội dung AI",
+        //     icon: <UsergroupAddOutlined />,
+        // },
+        // {
+        //     key: "credit-policy",
+        //     label: "Chính sách tín dụng",
+        //     icon: <UsergroupAddOutlined />,
+        // },
     ];
 
     const handleMenuClick = (item: any) => {
@@ -65,9 +91,16 @@ const DashboardLayout = () => {
     };
 
     const handleSubMenuClick = (parentKey: string, key: string) => {
+        if (key === "logout") {
+            logout();
+            return;
+        }
+
         setSelectedKey(`${parentKey}/${key}`);
         navigate({ to: `/manage/${parentKey}/${key}` });
     };
+
+
 
     return (
         <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -88,7 +121,7 @@ const DashboardLayout = () => {
                 <nav className="flex-1 px-3 py-4 overflow-y-auto">
                     {mainMenuItems.map((item) => (
                         <div key={item.key}>
-                            <div                                
+                            <div
                                 className={`flex items-center pl-4 py-3 mb-2 rounded-md cursor-pointer transition-all duration-200`}
                                 style={{
                                     background:
@@ -120,7 +153,7 @@ const DashboardLayout = () => {
 
 
                             {item.subMenu && openMenuKey === item.key && (
-                                <div className="ml-4 pl-2" style={{borderLeft: `2px solid ${colors.blue.b1}`}}>
+                                <div className="ml-4 pl-2" style={{ borderLeft: `2px solid ${colors.blue.b1}` }}>
                                     {item.subMenu.map((subItem) => (
                                         <div
                                             key={subItem.key}
@@ -156,7 +189,7 @@ const DashboardLayout = () => {
             {/* MAIN CONTENT */}
             <div
                 className="flex-1 flex flex-col bg-gray-100 rounded-[10px] z-0"
-                
+
 
             >
                 {/* HEADER */}

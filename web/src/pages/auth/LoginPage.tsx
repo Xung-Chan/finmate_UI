@@ -1,8 +1,9 @@
 // src/pages/auth/LoginPage.tsx
 import React from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { Button, Form, Input } from "antd";
 import { Link } from '@tanstack/react-router'
+import { useLogin } from "@/hooks/auth.hook";
+import type { LoginRequest } from "@/types/auth.type";
 // import { forgotPasswordRoute } from '@/routes/auth'
 
 // import { loginRoute } from '@/routes/auth';
@@ -10,14 +11,17 @@ import { Link } from '@tanstack/react-router'
 // import { ILoginRequestDto } from "@/types/auth.type";
 
 const LoginPage: React.FC = () => {
-    // const { useLogin } = useAuth();
-    // const { mutate, status } = useLogin();
-    // const { title } = loginRoute.useLoaderData();
+    const [username, setUsername] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const { mutate: login, isPending } = useLogin();
 
-    // const onFinish = (values: ILoginRequestDto) => {
-    //     mutate(values);
-    // };
-    const navigate = useNavigate();
+    const handleSubmit = () => {
+        const payload: LoginRequest = {
+            username: username,
+            password: password,
+        };
+        login(payload);
+    }
     return (
         <>
             <div className="text-center mb-6">
@@ -25,28 +29,38 @@ const LoginPage: React.FC = () => {
             </div>
             <Form layout="vertical" className="w-full max-w-sm">
                 <Form.Item
-                    label="Email"
-                    name="email"
-                    rules={[{ required: true, message: "Email không được để trống!" }]}
+                    label="username"
+                    name="username"
+                    rules={[{ required: true, message: "Username không được để trống!" }]}
                 >
-                    <Input size="large" placeholder="Nhập Email" />
+                    <Input
+                        size="large"
+                        placeholder="Nhập username"
+                        onChange={(e) => setUsername(e.target.value)}
+                        disabled={isPending}
+
+                    />
                 </Form.Item>
                 <Form.Item
                     label="Mật khẩu"
                     name="password"
                     rules={[{ required: true, message: "Mật khẩu không được để trống!" }]}
                 >
-                    <Input.Password size="large" placeholder="Nhập mật khẩu" />
+                    <Input.Password
+                        size="large"
+                        placeholder="Nhập mật khẩu"
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isPending}
+                    />
                 </Form.Item>
 
                 <Form.Item>
                     <Button
-                        loading={status === "pending"}
+                        loading={isPending}
                         className="mt-4 w-full bg-green-700 text-white hover:bg-green-800"
                         size="large"
                         type="primary"
-                        htmlType="submit"
-                        onClick={() => navigate({ to: '/manage' })}
+                        onClick={handleSubmit}
                     >
                         Đăng nhập
                     </Button>
