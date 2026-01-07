@@ -36,10 +36,11 @@ export interface WalletVerificationResource {
   contactEmail?: string;
   contactPhone?: string;
 
-  /* ===== Verification ===== */
-  status: VerificationStatus;
+    /* ===== Verification ===== */
+    status: VerificationStatus;
 
-  verifiedDocuments?: string[];
+    // backend may return a JSON-stringified array or an array directly
+    verifiedDocuments?: string | string[];
 
   createdAt?: string;
   processedAt?: string;

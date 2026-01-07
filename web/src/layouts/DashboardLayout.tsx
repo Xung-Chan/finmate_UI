@@ -4,6 +4,9 @@ import { Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useLogout } from "@/hooks/auth.hook";
 import logo from "@/assets/Logomark.png";
 import { colors } from "@/theme/color";
+import MENU_PERMISSIONS from '@/config/permissions';
+import { hasAnyRole } from '@/hooks/permission.hook';
+import NoAccess from '@/components/NoAccess';
 
 function getMenuStateFromPath(pathname: string) {
     const parts = pathname.split("/").filter(Boolean);
@@ -121,6 +124,8 @@ const DashboardLayout = () => {
                 <nav className="flex-1 px-3 py-4 overflow-y-auto">
                     {mainMenuItems.map((item) => (
                         <div key={item.key}>
+                            {/* hide top-level item if user lacks any role for it */}
+                            { !hasAnyRole(MENU_PERMISSIONS[item.key]) ? null : (
                             <div
                                 className={`flex items-center pl-4 py-3 mb-2 rounded-md cursor-pointer transition-all duration-200`}
                                 style={{
@@ -151,34 +156,37 @@ const DashboardLayout = () => {
                                 <span className="ml-2 text-sm">{item.label}</span>
                             </div>
 
-
+                            )}
                             {item.subMenu && openMenuKey === item.key && (
                                 <div className="ml-4 pl-2" style={{ borderLeft: `2px solid ${colors.blue.b1}` }}>
-                                    {item.subMenu.map((subItem) => (
-                                        <div
-                                            key={subItem.key}
-                                            className="p-2 mb-1 rounded-md cursor-pointer text-sm transition-all"
-                                            style={{
-                                                background:
-                                                    selectedKey === `${item.key}/${subItem.key}`
-                                                        ? `${colors.blue.b1}22`
-                                                        : "transparent",
-                                                color:
-                                                    selectedKey === `${item.key}/${subItem.key}`
-                                                        ? colors.blue.b1
-                                                        : colors.gray.g1,
-                                            }}
-                                            onMouseEnter={(e) => (e.currentTarget.style.color = colors.blue.b1)}
-                                            onMouseLeave={(e) => {
-                                                if (selectedKey !== `${item.key}/${subItem.key}`)
-                                                    e.currentTarget.style.color = colors.gray.g1;
-                                            }}
-                                            onClick={() => handleSubMenuClick(item.key, subItem.key)}
-                                        >
-                                            {subItem.label}
-                                        </div>
-
-                                    ))}
+                                    {item.subMenu.map((subItem) => {
+                                        const mapKey = `${item.key}/${subItem.key}`;
+                                        if (!hasAnyRole(MENU_PERMISSIONS[mapKey] ?? MENU_PERMISSIONS[item.key])) return null;
+                                        return (
+                                            <div
+                                                key={subItem.key}
+                                                className="p-2 mb-1 rounded-md cursor-pointer text-sm transition-all"
+                                                style={{
+                                                    background:
+                                                        selectedKey === `${item.key}/${subItem.key}`
+                                                            ? `${colors.blue.b1}22`
+                                                            : "transparent",
+                                                    color:
+                                                        selectedKey === `${item.key}/${subItem.key}`
+                                                            ? colors.blue.b1
+                                                            : colors.gray.g1,
+                                                }}
+                                                onMouseEnter={(e) => (e.currentTarget.style.color = colors.blue.b1)}
+                                                onMouseLeave={(e) => {
+                                                    if (selectedKey !== `${item.key}/${subItem.key}`)
+                                                        e.currentTarget.style.color = colors.gray.g1;
+                                                }}
+                                                onClick={() => handleSubMenuClick(item.key, subItem.key)}
+                                            >
+                                                {subItem.label}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
@@ -206,7 +214,15 @@ const DashboardLayout = () => {
                     </div>
                 </header>
                 <main className="flex-1 p-4 overflow-y-auto z-20">
-                    <Outlet />
+                    {/* Determine selected permission key and guard rendering */}
+                    {(() => {
+                        const parts = location.pathname.split('/').filter(Boolean);
+                        const parentKey = parts[1] || 'analytics';
+                        const childKey = parts[2] || null;
+                        const mapKey = childKey ? `${parentKey}/${childKey}` : parentKey;
+                        const allowed = hasAnyRole(MENU_PERMISSIONS[mapKey] ?? MENU_PERMISSIONS[parentKey]);
+                        return allowed ? <Outlet /> : <NoAccess />;
+                    })()}
                 </main>
             </div>
         </div>

@@ -34,16 +34,16 @@ const API_ROUTES = {
         trendsForManage: `${baseURL}/api/manage/transactions/statistics/trends`,
         distributionForManage: `${baseURL}/api/manage/transactions/statistics/distribution`,
         topUsersForManage: `${baseURL}/api/manage/transactions/statistics/users/top`,
-        
-    },
-    expensetype:{
-        //both
 
-        //admin
-        createExpenseType: `${baseURL}/api/manage/expense-types/`,
-        updateExpenseType:  `${baseURL}/api/manage/expense-types/`,
-        getAllExpenseType:  `${baseURL}/api/manage/expense-types/`,
     },
+    // expensetype: {
+    //     //both
+
+    //     //admin
+    //     createExpenseType: `${baseURL}/api/manage/expense-types/`,
+    //     updateExpenseType: `${baseURL}/api/manage/expense-types/`,
+    //     getAllExpenseType: `${baseURL}/api/manage/expense-types/`,
+    // },
     wallet: {
         //both
         getWalletInfo: (walletNumber: string) => `${baseURL}/api/manage/wallets/${walletNumber}`,// done
@@ -66,8 +66,8 @@ const API_ROUTES = {
 
         //admin
         createBatchUsers: `${baseURL}/api/users/management/create-batch-users`,
-        unbanUser : `${baseURL}/api/users/management/unlock-users`,//done
-        banUser : `${baseURL}/api/users/management/ban-users`,//done
+        unbanUser: `${baseURL}/api/users/management/unlock-users`,//done
+        banUser: `${baseURL}/api/users/management/ban-users`,//done
         filterUsers: `${baseURL}/api/users/management/filter`,//done
         //staff
     }

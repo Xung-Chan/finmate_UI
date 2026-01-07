@@ -25,7 +25,7 @@ const LogMailManagementPage: React.FC = () => {
         () => ({
             mailKeyword: mailKeyword || undefined,
             size: itemsPerPage,
-            page: currentPage - 1, 
+            page: currentPage - 1,
 
         }),
         [mailKeyword, currentPage, itemsPerPage]

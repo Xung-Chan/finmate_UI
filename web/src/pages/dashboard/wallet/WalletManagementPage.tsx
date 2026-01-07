@@ -16,7 +16,7 @@ import { useFilterWallets } from "@/hooks/wallet.hook";
 import {
     walletDetailRoute,
 } from "@/routes/dashboard";
-import type { VerificationStatus, WalletStatus } from "@/enum/status";
+import type { WalletStatus } from "@/enum/status";
 const WalletManagementPage: React.FC = () => {
     const navigate = useNavigate();
 

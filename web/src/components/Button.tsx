@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Button } from "antd";
+import { RoleStatus } from '@/enum/status';
+import { hasAnyRole } from '@/hooks/permission.hook';
+
 interface CustomButtonProps {
   color?: string;   // màu chính
   hoverColor?: string; // màu hover
@@ -10,6 +13,7 @@ interface CustomButtonProps {
   size?: "large" | "middle" | "small";
   className?: string;
   htmlType?: "button" | "submit" | "reset";
+  requiredRoles?: RoleStatus | RoleStatus[]; // optional permission requirement
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -21,9 +25,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   onClick,
   size = "middle",
   className,
-  htmlType = "button", 
+  htmlType = "button",
+  requiredRoles,
 }) => {
   const [hover, setHover] = useState(false);
+
+  if (!hasAnyRole(requiredRoles)) return null;
+
   return (
     <Button
       icon={icon}

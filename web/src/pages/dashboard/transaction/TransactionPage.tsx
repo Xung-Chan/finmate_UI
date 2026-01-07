@@ -63,7 +63,7 @@ const TransactionManagementPage: React.FC = () => {
       toDate,
       sortBy: sortBy || "processed_at_desc",
       size: itemsPerPage,
-      page: currentPage - 1, 
+      page: currentPage - 1,
     }),
     [
       accountNumber,

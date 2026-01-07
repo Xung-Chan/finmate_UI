@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Row, Col, Tag, Button } from "antd";
+import { Modal, Form, Input, Row, Col, Tag, Button, Image } from "antd";
 import type { WalletVerificationResource } from "@/types/walltet.type";
 import type { VerificationStatus } from "@/enum/status";
 import { useProcessWalletVerification } from "@/hooks/wallet.hook";
@@ -36,6 +36,23 @@ const WalletVerificationDetailModal: React.FC<Props> = ({
 }) => {
   if (!verified) return null;
 
+  // normalized array of document URLs
+  const docs: string[] = (() => {
+    const d = verified.verifiedDocuments as string | string[] | undefined;
+    if (!d) return [];
+    try {
+      if (typeof d === "string") {
+        const parsed = JSON.parse(d);
+        return Array.isArray(parsed) ? parsed : [String(parsed)];
+      }
+      if (Array.isArray(d)) return d;
+      return [];
+    } catch (error) {
+      return [String(d)];
+    }
+  })();
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { mutate: processWalletVerification, isPending: isProcessing } = useProcessWalletVerification();
 
   return (
@@ -182,6 +199,26 @@ const WalletVerificationDetailModal: React.FC<Props> = ({
           <Col span={12}>
             <Form.Item label="Người xử lý">
               <Input value={verified.processedBy || "-"} />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item label="Tài liệu xác thực">
+              {docs.length > 0 ? (
+                <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                  {docs.map((url, idx) => (
+                    <Image
+                      key={idx}
+                      src={url}
+                      width={140}
+                      height={100}
+                      style={{ objectFit: "cover", borderRadius: 6 }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Input value={"-"} />
+              )}
             </Form.Item>
           </Col>
 
