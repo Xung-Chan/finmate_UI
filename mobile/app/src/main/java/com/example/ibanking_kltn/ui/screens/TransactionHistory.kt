@@ -65,10 +65,12 @@ import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.TransactionHistoryFilterDialog
+import com.example.ibanking_kltn.utils.checkMoneyFlow
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
@@ -79,9 +81,9 @@ import java.time.LocalDateTime
 @Composable
 fun TransactionHistoryScreen(
     uiState: TransactionHistoryUiState,
+    appUiState: AppUiState,
     transactions: LazyPagingItems<TransactionHistoryResponse>,
-    fullName: String,
-    avatarUrl: String?,
+    myWalletNumber: String,
     onErrorLoading: (String) -> Unit,
     onClickFilter: () -> Unit,
     onApply: (
@@ -147,16 +149,16 @@ fun TransactionHistoryScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                if (avatarUrl == null) {
+                                if (appUiState.avatarUrl == null) {
                                     DefaultImageProfile(
                                         modifier = Modifier
                                             .size(100.dp),
-                                        name =fullName
+                                        name =appUiState.fullName
                                     )
                                 } else {
 
                                     AsyncImage(
-                                        model = avatarUrl,
+                                        model = appUiState.avatarUrl,
                                         contentDescription = "Avatar",
                                         modifier = Modifier
                                             .size(100.dp)
@@ -176,7 +178,7 @@ fun TransactionHistoryScreen(
                                     style = AppTypography.bodySmall
                                 )
                                 Text(
-                                    text = "Xin chào, ${fullName}!",
+                                    text = "Xin chào, ${appUiState.fullName}!",
                                     color = White1,
                                     style = AppTypography.bodyMedium
                                 )
@@ -434,7 +436,12 @@ fun TransactionHistoryScreen(
                                                 horizontalArrangement = Arrangement.End
                                             ) {
                                                 Text(
-                                                    text = "${formatterVND(transaction.amount.toLong())} VND",
+                                                    text = "${
+                                                        checkMoneyFlow(
+                                                            transaction,
+                                                            myWalletNumber = myWalletNumber,
+                                                        )
+                                                    } ${formatterVND(transaction.amount.toLong())} VND",
                                                     style = AppTypography.bodySmall,
                                                     color = Black1,
                                                 )

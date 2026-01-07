@@ -49,7 +49,9 @@ import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -255,7 +257,7 @@ fun PayBillScreen(
                                 )
 
                                 CustomTextField(
-                                    value = uiState.dueDate,
+                                    value = formatterDateString(LocalDateTime.parse(uiState.dueDate).toLocalDate()),
                                     placeholder = {
                                         Text(
                                             text = stringResource(id = R.string.DueDate),

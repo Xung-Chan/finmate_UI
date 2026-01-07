@@ -17,7 +17,7 @@ import retrofit2.http.Query
 
 interface BillApi {
 
-    @POST("/api/bills")
+    @POST("/api/bills/")
     suspend fun createBill(
         @Body request: CreateBillRequest
     ): Response<BillResponse>

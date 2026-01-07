@@ -27,10 +27,12 @@ class MyProfileViewModel @Inject constructor(
 
 
     fun init(
+        onSuccess:(Any?)->Unit,
         onError: (message: String) -> Unit
     ) {
         clearState()
         loadUserInfo(
+            onSuccess = onSuccess,
             onError = onError
         )
         loadWalletVerification(
@@ -44,6 +46,7 @@ class MyProfileViewModel @Inject constructor(
     }
 
     fun loadUserInfo(
+        onSuccess: (Any?) -> Unit,
         onError: (message: String) -> Unit
     ) {
         var message = ""
@@ -67,6 +70,7 @@ class MyProfileViewModel @Inject constructor(
 
                             )
                         }
+                        onSuccess(apiResult.data.avatarUrl)
                         return@launch
                     }
 
@@ -124,7 +128,8 @@ class MyProfileViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 screenState = StateType.FAILED(apiResult.message),
-                            )
+                                isVerified = false,
+                                )
                         }
                         message=apiResult.message
 
@@ -138,12 +143,11 @@ class MyProfileViewModel @Inject constructor(
                     initialVerification =true,
                 )
             }
-            onError(message)
         }
 
     }
 
-    fun onUpdateImageProfile(uri: Uri, onSuccess: () -> Unit, onError: (message: String) -> Unit) {
+    fun onUpdateImageProfile(uri: Uri, onSuccess: (uri: Any) -> Unit, onError: (message: String) -> Unit) {
         _uiState.update {
             it.copy(
                 screenState = StateType.LOADING
@@ -162,16 +166,19 @@ class MyProfileViewModel @Inject constructor(
                             )
                         )
                     }
-                    onSuccess()
+                    onSuccess(apiResult.data.imageUrl)
                 }
 
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
-                            screenState = StateType.FAILED(apiResult.message)
+                            screenState = StateType.SUCCESS,
+                            userInfo = uiState.value.userInfo?.copy(
+                                avatarUrl = uri
+                            )
                         )
                     }
-                    onError(apiResult.message)
+                    onSuccess(uri)
                 }
             }
         }

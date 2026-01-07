@@ -259,28 +259,14 @@ fun AppScreen(
             )
             navController.navigate(Screens.PayLater.name)
         },
-        ServiceCategory.AIR_PLANE.name to {
-            appViewModel.addRecentService(ServiceCategory.AIR_PLANE)
-            //TODO
-            navController.navigate(Screens.BillHistory.name)
-        },
         ServiceCategory.BILL_CREATE.name to {
             appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
             createBillViewModel.init()
             navController.navigate(Screens.CreateBill.name)
         },
-        ServiceCategory.HOTEL.name to {
-            appViewModel.addRecentService(ServiceCategory.HOTEL)
-            //TODO
-            navController.navigate(Screens.BillHistory.name)
-        },
-        ServiceCategory.VERIFICATION_REQUEST.name to {
-            appViewModel.addRecentService(ServiceCategory.VERIFICATION_REQUEST)
-            navController.navigate(Screens.VerificationRequest.name)
-        }
 
 
-    )
+        )
 
     Box(
         modifier = Modifier
@@ -292,6 +278,7 @@ fun AppScreen(
         ) {
             composable(route = Screens.SignIn.name) {
                 val authUiState by authViewModel.uiState.collectAsState()
+                val homeUiState = homeViewModel.uiState.collectAsState()
                 LaunchedEffect(Unit) {
                     authViewModel.clearState()
                     authViewModel.loadLastLoginUser()
@@ -305,6 +292,10 @@ fun AppScreen(
                             onSuccess = {
                                 homeViewModel.init(
                                     onError
+                                )
+                                appViewModel.updateUserInfo(
+                                    avatarUrl =homeUiState.value.myProfile?.avatarUrl,
+                                    fullName = homeUiState.value.myProfile?.fullName
                                 )
                                 navController.navigate(Screens.Home.name) {
                                     popUpTo(Screens.SignIn.name) {
@@ -343,6 +334,10 @@ fun AppScreen(
                             onSuccess = {
                                 homeViewModel.init(
                                     onError
+                                )
+                                appViewModel.updateUserInfo(
+                                    avatarUrl =homeUiState.value.myProfile?.avatarUrl,
+                                    fullName = homeUiState.value.myProfile?.fullName
                                 )
                                 navController.navigate(Screens.Home.name) {
                                     popUpTo(Screens.SignIn.name) {
@@ -388,7 +383,6 @@ fun AppScreen(
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
-
                     homeViewModel.loadFavoriteAndRecentServices()
                 }
                 HomeScreen(
@@ -408,7 +402,8 @@ fun AppScreen(
                         homeViewModel.init(
                             onError
                         )
-                    }
+                    },
+                    appUiState = snackBarState
                 )
             }
             composable(route = Screens.Transfer.name) {
@@ -438,7 +433,7 @@ fun AppScreen(
                         confirmViewModel.init(
                             amount = transferData.amount,
                             toWalletNumber = transferData.toWalletNumber,
-                            description =removeVietnameseAccents(transferData.description.ifEmpty { "Chuyen tien den ${transferData.toMerchantName}" }),
+                            description = removeVietnameseAccents(transferData.description.ifEmpty { "Chuyen tien den ${transferData.toMerchantName}" }),
                             toMerchantName = transferData.toMerchantName,
                             expenseType = transferData.expenseType,
                             isVerified = transferData.isVerified,
@@ -495,7 +490,7 @@ fun AppScreen(
                         confirmViewModel.onOtpChange(otp = it, onSuccess = {
                             transactionResultViewModel.init(
                                 status = TransactionStatus.COMPLETED,
-                                service = service.name,
+                                service = service.serviceName,
                                 amount = confirmUiState.amount,
                                 toMerchantName = confirmUiState.toMerchantName
                             )
@@ -526,14 +521,16 @@ fun AppScreen(
                     uiState = uiState, onBackClick = {
                         navController.popBackStack()
                     }, onCheckingBill = {
-                        payBillViewModel.onCheckingBill()
+                        payBillViewModel.onCheckingBill(
+                            onError = onError
+                        )
                     }, onConfirmPayBill = {
                         confirmViewModel.clearState()
                         val billData = payBillViewModel.uiState.value
                         confirmViewModel.init(
                             amount = billData.amount,
                             toWalletNumber = billData.toWalletNumber,
-                            description =removeVietnameseAccents(billData.description.ifEmpty { "Chuyen tien den ${billData.toMerchantName}" }),
+                            description = removeVietnameseAccents(billData.description.ifEmpty { "Chuyen tien den ${billData.toMerchantName}" }),
                             toMerchantName = billData.toMerchantName,
                             billCode = billData.billCode,
                             isVerified = true,
@@ -594,16 +591,21 @@ fun AppScreen(
                 isAtRoot = true
                 tabNavigation = TabNavigation.PROFILE
                 val uiState by settingViewModel.uiState.collectAsState()
-                val homeUiState by homeViewModel.uiState.collectAsState()
+
                 LaunchedEffect(Unit) {
                     settingViewModel.init()
                 }
                 SettingScreen(
                     uiState = uiState,
-                    fullName= homeUiState.myProfile?.fullName?:"",
-                    avatarUrl = homeUiState.myProfile?.avatarUrl,
+                    appUiState = snackBarState,
                     onViewProfileClick = {
-                        myProfileViewModel.init(onError = onError)
+                        myProfileViewModel.init(
+                            onSuccess = {
+                                appViewModel.updateUserInfo(
+                                    avatarUrl = it,
+                                )
+                            },
+                            onError = onError)
                         navController.navigate(Screens.MyProfile.name)
                     },
                     onChangePasswordClick = {
@@ -765,7 +767,9 @@ fun AppScreen(
                         popUpTo(Screens.Home.name)
                     }
                     payBillViewModel.onChangeBillCode(payload.billCode)
-                    payBillViewModel.onCheckingBill()
+                    payBillViewModel.onCheckingBill(
+                        onError = onError
+                    )
                 }
                 val onTransferDetecting: (TransferPayload) -> Unit = { payload ->
                     transferViewModel.init(
@@ -948,8 +952,8 @@ fun AppScreen(
                     navigationBar = {
                         navigationBar()
                     },
-                    fullName = homeUiState.myWallet?.merchantName?:"",
-                    avatarUrl =homeUiState.myProfile?.avatarUrl
+                    appUiState = snackBarState,
+                    myWalletNumber = homeUiState.myWallet?.walletNumber ?: "",
                 )
             }
             composable(route = Screens.TransactionHistoryDetail.name) { backStackEntry ->
@@ -1052,6 +1056,7 @@ fun AppScreen(
                         myProfileViewModel.onUpdateImageProfile(
                             uri = it,
                             onSuccess = {
+                                uri->
                                 appViewModel.showSnackBarMessage(
                                     message = "Cập nhật ảnh đại diện thành công",
                                     type = SnackBarType.SUCCESS,
@@ -1060,12 +1065,20 @@ fun AppScreen(
                                         appViewModel.closeSnackBarMessage()
                                     }
                                 )
+                                appViewModel.updateUserInfo(
+                                    avatarUrl = uri
+                                )
                             },
                             onError = onError
                         )
                     },
                     onRetry = {
                         myProfileViewModel.loadUserInfo(
+                            onSuccess = {
+                                appViewModel.updateUserInfo(
+                                    avatarUrl = it
+                                )
+                            },
                             onError = onError
                         )
                     },
@@ -1074,7 +1087,7 @@ fun AppScreen(
                         navController.navigate(Screens.SavedReceiver.name)
                     },
                     onNavigateToVerificationRequest = {
-                        navigator[ServiceCategory.VERIFICATION_REQUEST.name]?.invoke()
+                        navController.navigate(Screens.VerificationRequest.name)
                     },
                     onNavigateToTermsAndConditions = {
                         navController.navigate(Screens.TermAndConditions.name)
@@ -1099,12 +1112,24 @@ fun AppScreen(
                     },
                     onLockPaylater = {
                         payLaterViewModel.lockAccountRequest(
-                            onError = onError
+                            onError = onError,
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Gửi yêu cầu khóa Paylater thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            }
                         )
                     },
                     onUnlockPaylater = {
                         payLaterViewModel.unlockAccountRequest(
-                            onError = onError
+                            onError = onError,
+                            onSuccess = {
+                                appViewModel.showSnackBarMessage(
+                                    message = "Gửi yêu cầu mở khóa Paylater thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            }
                         )
                     },
                     onRetry = {
@@ -1255,9 +1280,9 @@ fun AppScreen(
                 tabNavigation = TabNavigation.ANALYTICS
 
                 val uiState by analyticViewModel.uiState.collectAsState()
-                val homeUiState by homeViewModel.uiState.collectAsState()
                 AnalyticScreen(
                     uiState = uiState,
+                    appUiState = snackBarState,
                     navigationBar = { navigationBar() },
                     onRetry = {
                         analyticViewModel.init(
@@ -1285,13 +1310,12 @@ fun AppScreen(
                             onError = onError
                         )
                     },
-                    fullName = homeUiState.myWallet?.merchantName?:"",
-                    avatarUrl =homeUiState.myProfile?.avatarUrl
                 )
             }
             composable(route = Screens.BillingCycle.name) {
                 val uiState by billingCycleViewModel.uiState.collectAsState()
-                val billingCycles =billingCycleViewModel.billingCyclePager.collectAsLazyPagingItems()
+                val billingCycles =
+                    billingCycleViewModel.billingCyclePager.collectAsLazyPagingItems()
                 BillingCycleScreen(
                     uiState = uiState,
                     billingCycles = billingCycles,

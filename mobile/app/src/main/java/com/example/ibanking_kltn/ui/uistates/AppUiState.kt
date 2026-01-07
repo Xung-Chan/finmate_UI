@@ -2,7 +2,9 @@ package com.example.ibanking_kltn.ui.uistates
 
 import com.example.ibanking_kltn.utils.SnackBarType
 
-data class  SnackBarState(
+data class  AppUiState(
+    val avatarUrl: Any? = null,
+    val fullName: String = "",
     val isVisible: Boolean = false,
     val message: String = "",
     val type: SnackBarType = SnackBarType.INFO,

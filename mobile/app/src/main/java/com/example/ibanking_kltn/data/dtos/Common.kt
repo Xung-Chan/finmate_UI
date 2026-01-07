@@ -2,12 +2,10 @@ package com.example.ibanking_kltn.data.dtos
 
 import androidx.compose.ui.graphics.Color
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.ui.theme.Blue2
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Orange1
-import com.example.ibanking_kltn.ui.theme.Orange2
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red2
 import kotlinx.serialization.Serializable
@@ -75,6 +73,7 @@ enum class BillStatus(val status: String) {
     ACTIVE("Chưa thanh toán"),
     PAID("Đã thanh toán"),
     OVERDUE("Quá hạn"),
+    PENDING("Đang xử lý"),
     CANCELED("Đã hủy")
 }
 
@@ -117,11 +116,8 @@ enum class ServiceCategory(val serviceName: String, val icon: Int,val color: ULo
     BILL_PAYMENT(serviceName="Thanh toán hóa đơn", icon = R.drawable.pay_bill_service, color = Blue5.value),
     DEPOSIT(serviceName="Nạp tiền trực tuyến", icon = R.drawable.deposit_service, color = Orange1.value),
     PAY_LATER(serviceName="Ví trả sau", icon = R.drawable.paylater, color = Green2.value),
-    HOTEL(serviceName="Đặt phòng khách sạn", icon = R.drawable.hotel_service, color = Orange2.value),
-    AIR_PLANE(serviceName="Đặt vé máy bay", icon = R.drawable.airplane_service, color = Blue2.value),
     BILL_CREATE(serviceName="Tạo hóa đơn", icon = R.drawable.bill_create_service, color = Green1.value),
     BILL_HISTORY(serviceName="Lịch sử hóa đơn", icon = R.drawable.bill_history_service, color = Red2.value),
-    VERIFICATION_REQUEST(serviceName="Yêu cầu xác thực", icon = R.drawable.wallet_regular, color = Blue5.value)
 }
 
 

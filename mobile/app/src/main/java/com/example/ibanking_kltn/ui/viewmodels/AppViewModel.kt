@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceItem
-import com.example.ibanking_kltn.ui.uistates.SnackBarState
+import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.utils.SnackBarType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -22,13 +22,21 @@ import kotlinx.coroutines.launch
 class AppViewModel @Inject constructor(
     private val serviceManager: ServiceManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(SnackBarState())
-    val uiState: StateFlow<SnackBarState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(AppUiState())
+    val uiState: StateFlow<AppUiState> = _uiState.asStateFlow()
 
     private var snackBarJob: Job? = null
     fun closeSnackBarMessage() {
         snackBarJob?.cancel()
-        _uiState.value = SnackBarState()
+        _uiState.update {
+            it.copy(
+                isVisible = false,
+                message = "",
+                type = SnackBarType.INFO,
+                actionLabel = null,
+                onAction = {}
+            )
+        }
     }
 
     fun showSnackBarMessage(
@@ -57,11 +65,33 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    fun updateUserInfo(
+        avatarUrl: Any?=null,
+        fullName: String?=null
+    ) {
+        if (avatarUrl != null) {
+            _uiState.update {
+                it.copy(
+                    avatarUrl = avatarUrl,
+                )
+            }
+        }
+        if (fullName != null) {
+            _uiState.update {
+                it.copy(
+                    fullName = fullName
+                )
+            }
+        }
+    }
+
     fun addRecentService(service: ServiceCategory) {
-        serviceManager.addRecentService(ServiceItem(
-            service = service.name,
-            lastUsed = System.currentTimeMillis()
-        ))
+        serviceManager.addRecentService(
+            ServiceItem(
+                service = service.name,
+                lastUsed = System.currentTimeMillis()
+            )
+        )
     }
 
 }

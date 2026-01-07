@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,8 +47,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.MoneyFlowType
-import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -61,7 +58,7 @@ import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AnalyticUiState
-import com.example.ibanking_kltn.ui.uistates.HomeUiState
+import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomBarChart
 import com.example.ibanking_kltn.utils.CustomPieChart
@@ -85,8 +82,7 @@ import java.time.YearMonth
 @Composable
 fun AnalyticScreen(
     uiState: AnalyticUiState,
-    fullName:String,
-    avatarUrl:String?,
+    appUiState: AppUiState,
     navigationBar: @Composable () -> Unit,
     onRetry: () -> Unit,
     onMinusMonth: () -> Unit,
@@ -159,16 +155,16 @@ fun AnalyticScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
-                                    if (avatarUrl == null) {
+                                    if (appUiState.avatarUrl == null) {
                                         DefaultImageProfile(
                                             modifier = Modifier
                                                 .size(100.dp),
-                                            name =fullName
+                                            name =appUiState.fullName
                                         )
                                     } else {
 
                                         AsyncImage(
-                                            model = avatarUrl,
+                                            model = appUiState.avatarUrl,
                                             contentDescription = "Avatar",
                                             modifier = Modifier
                                                 .size(100.dp)
@@ -188,7 +184,7 @@ fun AnalyticScreen(
                                         style = AppTypography.bodySmall
                                     )
                                     Text(
-                                        text = "Xin chào, ${fullName}!",
+                                        text = "Xin chào, ${appUiState.fullName}!",
                                         color = White1,
                                         style = AppTypography.bodyMedium
                                     )
@@ -803,55 +799,53 @@ private fun AnalyzeRow(
 )
 @Composable
 fun AnalyticPreview() {
-    AnalyticScreen(
-        uiState = AnalyticUiState(
-            trendStatistic = TrendStatisticResponse().apply {
-                addAll(
-                    listOf(
-//                        TrendStatisticResponseItem(
-//                            date = "2025-01",
-//                            totalTransactions = 0,
-//                            totalValue = 100000L
-//                        ),
-//                        TrendStatisticResponseItem(
-//                            date = "2025-02",
-//                            totalTransactions = 0,
-//                            totalValue = 100000L
-//                        ),
-                    )
-                )
-            },
-            distributionStatistic = DistributionStatisticResponse(
-                analyticId = "1",
-                distributions = listOf(
-//                    Distribution(
-//                        label = "Ăn uống",
-//                        expenseName = "Ăn uống",
-//                        expenseTag = "an_uong",
-//                        totalTransactions = 10,
-//                        totalValue = 500000L
-//                    ),
-//                    Distribution(
-//                        label = "Sức khỏe",
-//                        expenseName = "Sức khỏe",
-//                        expenseTag = "suc_khoe",
-//                        totalTransactions = 10,
-//                        totalValue = 5000000L
-//                    ),
-                )
-            ),
-            initialedDistributionStatistic = true,
-            initialedTrendStatistic = true,
-
-            ),
-        navigationBar = {},
-        onRetry = {},
-        onMinusMonth = {},
-        onPlusMonth = {},
-        onAnalyze = {},
-        onChangeMoneyFlowType = {},
-        fullName = "Nguyễn Văn A",
-        avatarUrl = null,
-    )
+//    AnalyticScreen(
+//        uiState = AnalyticUiState(
+//            trendStatistic = TrendStatisticResponse().apply {
+//                addAll(
+//                    listOf(
+////                        TrendStatisticResponseItem(
+////                            date = "2025-01",
+////                            totalTransactions = 0,
+////                            totalValue = 100000L
+////                        ),
+////                        TrendStatisticResponseItem(
+////                            date = "2025-02",
+////                            totalTransactions = 0,
+////                            totalValue = 100000L
+////                        ),
+//                    )
+//                )
+//            },
+//            distributionStatistic = DistributionStatisticResponse(
+//                analyticId = "1",
+//                distributions = listOf(
+////                    Distribution(
+////                        label = "Ăn uống",
+////                        expenseName = "Ăn uống",
+////                        expenseTag = "an_uong",
+////                        totalTransactions = 10,
+////                        totalValue = 500000L
+////                    ),
+////                    Distribution(
+////                        label = "Sức khỏe",
+////                        expenseName = "Sức khỏe",
+////                        expenseTag = "suc_khoe",
+////                        totalTransactions = 10,
+////                        totalValue = 5000000L
+////                    ),
+//                )
+//            ),
+//            initialedDistributionStatistic = true,
+//            initialedTrendStatistic = true,
+//
+//            ),
+//        navigationBar = {},
+//        onRetry = {},
+//        onMinusMonth = {},
+//        onPlusMonth = {},
+//        onAnalyze = {},
+//        onChangeMoneyFlowType = {},
+//    )
 
 }

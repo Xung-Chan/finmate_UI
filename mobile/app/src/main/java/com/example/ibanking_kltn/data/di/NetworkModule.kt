@@ -26,6 +26,7 @@ import jakarta.inject.Singleton
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.crypto.AEADBadTagException
 
 
 @Module
@@ -41,13 +42,25 @@ object NetworkModule {
         val masterKey = MasterKey.Builder(context)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
             .build()
-        val sharedPrefs = EncryptedSharedPreferences.create(
-            context, SHARED_PREFS_KEY, masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        try {
 
-        return sharedPrefs
+            val sharedPrefs = EncryptedSharedPreferences.create(
+                context, SHARED_PREFS_KEY, masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+
+            return sharedPrefs
+        } catch (e: AEADBadTagException) {
+            context.deleteSharedPreferences(SHARED_PREFS_KEY)
+            return EncryptedSharedPreferences.create(
+                context,
+                SHARED_PREFS_KEY,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
     }
 
     @Singleton

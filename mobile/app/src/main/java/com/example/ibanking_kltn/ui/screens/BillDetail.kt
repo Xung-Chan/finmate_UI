@@ -28,12 +28,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.data.dtos.BillPayload
+import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Green1
+import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -81,7 +83,7 @@ fun BillDetailScreen(
                 )
             }, modifier = Modifier.systemBarsPadding(), containerColor = White3
         ) { paddingValues ->
-            if ( uiState.bill == null) {
+            if (uiState.bill == null) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -122,11 +124,8 @@ fun BillDetailScreen(
                         ) {
 
                             QrCodeImage(
-                                //                            content = BillPayload(
-                                //                                billCode = bill.qrIdentifier,
-                                //                            ),
-                                content = TransferPayload(
-                                    toWalletNumber = "01319652331"
+                                content = BillPayload(
+                                    billCode = uiState.bill.qrIdentifier,
                                 ),
                                 size = 200.dp,
                                 onSavedSuccess = {
@@ -157,7 +156,7 @@ fun BillDetailScreen(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text =  uiState.bill.qrIdentifier,
+                                    text = uiState.bill.qrIdentifier,
                                     style = AppTypography.bodySmall,
                                     color = Black1,
                                     textAlign = TextAlign.End
@@ -187,7 +186,7 @@ fun BillDetailScreen(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text =  uiState.bill.merchantName,
+                                    text = uiState.bill.merchantName,
                                     style = AppTypography.bodySmall,
                                     color = Black1,
                                 )
@@ -214,7 +213,7 @@ fun BillDetailScreen(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text =  uiState.bill.walletNumber,
+                                    text = uiState.bill.walletNumber,
                                     style = AppTypography.bodySmall,
                                     color = Black1,
                                 )
@@ -240,7 +239,7 @@ fun BillDetailScreen(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text =  uiState.bill.description,
+                                    text = uiState.bill.description,
                                     style = AppTypography.bodySmall,
                                     color = Black1,
                                     textAlign = TextAlign.End
@@ -269,7 +268,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = formatterDateString(
-                                        LocalDateTime.parse( uiState.bill.dueDate).toLocalDate()
+                                        LocalDateTime.parse(uiState.bill.dueDate).toLocalDate()
                                     ),
                                     style = AppTypography.bodySmall,
                                     color = Black1,
@@ -297,17 +296,11 @@ fun BillDetailScreen(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = when ( uiState.bill.billStatus) {
-                                        "ACTIVE" -> "Chưa thanh toán"
-                                        "PAID" -> "Đã thanh toán"
-                                        "CANCELLED" -> "Đã hủy"
-                                        "OVERDUE" -> "Quá hạn"
-                                        else ->  uiState.bill.billStatus
-                                    },
+                                    text = uiState.bill.billStatus.status,
                                     style = AppTypography.bodyMedium,
-                                    color = when ( uiState.bill.billStatus) {
-                                        "ACTIVE" -> Red1
-                                        "PAID" -> Green1
+                                    color = when (uiState.bill.billStatus) {
+                                        BillStatus.ACTIVE -> Orange1
+                                        BillStatus.PAID -> Green1
                                         else -> Gray1
                                     },
                                 )
@@ -346,7 +339,7 @@ fun BillDetailScreen(
                             ) {
                                 Text(
                                     text = "${
-                                        formatterVND( uiState.bill.amount)
+                                        formatterVND(uiState.bill.amount)
                                     } VND",
                                     style = AppTypography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
@@ -355,7 +348,7 @@ fun BillDetailScreen(
                                 )
                             }
                         }
-                        if ( uiState.bill.billStatus == "ACTIVE") {
+                        if (uiState.bill.billStatus == BillStatus.ACTIVE) {
 
                             Row(
                                 modifier = Modifier
@@ -403,7 +396,7 @@ fun BillDetailPreview() {
                 merchantName = "Công ty ABC",
                 amount = 250000,
                 dueDate = "2024-10-15T14:30:00",
-                billStatus = "PAID",
+                billStatus = BillStatus.ACTIVE,
                 description = "Thanh toán dịch vụ Internet tháng 12",
                 metadata = mapOf("orderId" to "ORD-123456"),
                 qrIdentifier = "01KCNM2ZWMGEFHK4QJFBSC6K7Z",

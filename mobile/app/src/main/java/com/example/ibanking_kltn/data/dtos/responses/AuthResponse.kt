@@ -36,13 +36,13 @@ data class UpdateAvatarResponse(
 )
 
 data class UserInfoResponse(
-    val id: String,
+    val id: String?,
     val username: String,
     val fullName: String,
     val mail: String,
     val status: UserStatusEnum,
     val phoneNumber: String,
-    val avatarUrl: String?,
+    val avatarUrl: Any?,
     val dateOfBirth: String,
     val gender: String,
     val address: String,

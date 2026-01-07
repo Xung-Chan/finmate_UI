@@ -1,14 +1,10 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.repositories.BillRepository
-import com.example.ibanking_kltn.data.repositories.PayLaterRepository
-import com.example.ibanking_kltn.data.repositories.TransactionRepository
-import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.uistates.BillUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -24,29 +20,14 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class BillViewModel @Inject constructor(
 
-    private val transactionRepository: TransactionRepository,
     private val billRepository: BillRepository,
-    private val walletRepository: WalletRepository,
-    private val payLaterRepository: PayLaterRepository,
-    private val sharedPreferences: SharedPreferences,
     @ApplicationContext private val context: Context
-) : ViewModel(), IViewModel {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(BillUiState())
     val uiState: StateFlow<BillUiState> = _uiState.asStateFlow()
 
-    override fun error(message: String) {
-        _uiState.update {
-            it.copy(screenState = StateType.FAILED(message = message))
-        }
-        Toast.makeText(
-            context,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 
-
-    override fun clearState() {
+    fun clearState() {
         _uiState.value = BillUiState()
     }
 
@@ -55,8 +36,9 @@ class BillViewModel @Inject constructor(
     }
 
 
-
-    fun onCheckingBill() {
+    fun onCheckingBill(
+        onError: (String) -> Unit
+    ) {
         _uiState.update {
             it.copy(screenState = StateType.LOADING)
         }
@@ -68,7 +50,15 @@ class BillViewModel @Inject constructor(
             )
             when (billResult) {
                 is ApiResult.Success -> {
+
                     val data = billResult.data
+                    if (data.billStatus != BillStatus.ACTIVE) {
+                        _uiState.update {
+                            it.copy(screenState = StateType.FAILED(message = "Hóa đơn không hợp lệ"))
+                        }
+                        onError("Hóa đơn không hợp lệ")
+                        return@launch
+                    }
                     _uiState.update {
                         it.copy(
                             screenState = StateType.SUCCESS,
@@ -83,7 +73,10 @@ class BillViewModel @Inject constructor(
                 }
 
                 is ApiResult.Error -> {
-                    error(billResult.message)
+                    _uiState.update {
+                        it.copy(screenState = StateType.FAILED(message = billResult.message))
+                    }
+                    onError(billResult.message)
                 }
             }
         }

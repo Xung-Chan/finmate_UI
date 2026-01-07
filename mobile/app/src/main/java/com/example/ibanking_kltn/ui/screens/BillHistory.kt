@@ -50,13 +50,15 @@ import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.Green1
-import com.example.ibanking_kltn.ui.theme.Red1
+import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.BillHistoryUiState
 import com.example.ibanking_kltn.utils.BillFilterDialog
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -223,7 +225,7 @@ fun BillHistoryScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = bill.dueDate,
+                                                text = formatterDateString( LocalDateTime.parse(bill.dueDate).toLocalDate()),
                                                 style = AppTypography.bodySmall,
                                                 color = Gray1,
                                             )
@@ -249,17 +251,11 @@ fun BillHistoryScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = when (bill.billStatus) {
-                                                    "ACTIVE" -> "Chưa thanh toán"
-                                                    "PAID" -> "Đã thanh toán"
-                                                    "CANCELLED" -> "Đã hủy"
-                                                    "OVERDUE" -> "Quá hạn"
-                                                    else -> bill.billStatus
-                                                },
+                                                text =bill.billStatus.status,
                                                 style = AppTypography.bodySmall,
                                                 color = when (bill.billStatus) {
-                                                    "ACTIVE" -> Red1
-                                                    "PAID" -> Green1
+                                                    BillStatus.ACTIVE -> Orange1
+                                                    BillStatus.PAID -> Green1
                                                     else -> Gray1
                                                 },
                                             )

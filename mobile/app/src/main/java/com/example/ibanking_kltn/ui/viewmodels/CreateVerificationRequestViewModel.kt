@@ -109,10 +109,10 @@ class CreateVerificationRequestViewModel @Inject constructor(
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
-                            screenState = StateType.FAILED(apiResult.message)
+                            screenState = StateType.SUCCESS
                         )
                     }
-                    onError(apiResult.message)
+                    onSuccess()
                 }
             }
         }

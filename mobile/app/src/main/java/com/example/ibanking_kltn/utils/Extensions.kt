@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Gray2
@@ -338,4 +340,19 @@ fun colorFromLabel(label: String): Color {
     val g = (hash shr 8 and 0xFF) / 255f
     val b = (hash and 0xFF) / 255f
     return Color(r, g, b)
+}
+
+
+fun checkMoneyFlow(transaction: TransactionHistoryResponse, myWalletNumber: String) : String{
+    if( transaction.transactionType == ServiceType.CASH_DEPOSIT ||
+        transaction.transactionType == ServiceType.E_GATEWAY_DEPOSIT){
+        return "+"
+    }
+    if(transaction.transactionType == ServiceType.CASH_WITHDRAW ){
+        return "-"
+    }
+    if(transaction.toWalletNumber == myWalletNumber){
+        return "+"
+    }
+    return "-"
 }

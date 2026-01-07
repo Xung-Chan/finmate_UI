@@ -9,6 +9,7 @@ import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.ui.uistates.CreateBillUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.removeVietnameseAccents
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -60,6 +61,11 @@ class CreateBillViewModel @Inject constructor(
                 }
 
                 is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.FAILED(apiResult.message),
+                        )
+                    }
 //                    error(apiResult.message)
                 }
             }
@@ -87,7 +93,7 @@ class CreateBillViewModel @Inject constructor(
         viewModelScope.launch {
             val request = CreateBillRequest(
                 amount = uiState.value.amount,
-                description = uiState.value.description,
+                description = removeVietnameseAccents(uiState.value.description),
                 dueDate = LocalDateTime.of(uiState.value.expiryDate, LocalTime.now()).toString(),
 
                 expenseTypeId = uiState.value.selectedExpenseType!!.id,

@@ -57,6 +57,7 @@ import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.DefaultImageProfile
@@ -71,6 +72,7 @@ import java.time.LocalDate
 @Composable
 fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
+    appUiState: AppUiState,
     navigationBar: @Composable () -> Unit,
     onChangeVisibleBalance: () -> Unit,
     onNavigateTo: Map<String, () -> Unit>,
@@ -135,16 +137,16 @@ fun HomeScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center
                                 ) {
-                                    if (homeUiState.myProfile.avatarUrl == null) {
+                                    if (appUiState.avatarUrl == null) {
                                         DefaultImageProfile(
                                             modifier = Modifier
                                                 .size(100.dp),
-                                            name = homeUiState.myProfile.fullName
+                                            name =appUiState.fullName
                                         )
                                     } else {
 
                                         AsyncImage(
-                                            model = homeUiState.myProfile.avatarUrl,
+                                            model = appUiState.avatarUrl,
                                             contentDescription = "Avatar",
                                             modifier = Modifier
                                                 .size(100.dp)
@@ -164,7 +166,7 @@ fun HomeScreen(
                                         style = AppTypography.bodySmall
                                     )
                                     Text(
-                                        text = "Xin chào, ${homeUiState.myWallet.merchantName}!",
+                                        text = "Xin chào, ${appUiState.fullName}!",
                                         color = White1,
                                         style = AppTypography.bodyMedium
                                     )
@@ -687,5 +689,6 @@ fun HomePreview() {
         ),
         onNavigateServiceList = {},
         onRetry = {},
+        appUiState = AppUiState()
     )
 }

@@ -1,7 +1,10 @@
 package com.example.ibanking_kltn.data.dtos.responses
+
+import com.example.ibanking_kltn.data.dtos.BillStatus
+
 data class BillResponse(
     val amount: Long,
-    val billStatus: String,
+    val billStatus: BillStatus,
     val description: String,
     val dueDate: String,
     val merchantName: String,

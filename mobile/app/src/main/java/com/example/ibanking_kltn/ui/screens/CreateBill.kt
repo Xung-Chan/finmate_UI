@@ -258,7 +258,7 @@ fun CreateBillScreen(
                         .padding(20.dp)
                         .pointerInput(Unit) {}) {
                     CustomDatePicker(
-                        minDate = LocalDate.now(),
+                        minDate = LocalDate.now().plusDays(1),
                         maxDate = LocalDate.now().plusYears(2),
                         onSelectedDate = {
                             onDateChange(it)

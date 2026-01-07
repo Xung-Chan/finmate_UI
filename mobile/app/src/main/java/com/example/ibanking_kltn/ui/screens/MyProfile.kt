@@ -206,7 +206,8 @@ fun MyProfileScreen(
                             ),
                             color = Blue1,
                         )
-                        if (uiState.isVerified)
+                        if (uiState.isVerified) {
+
                             Spacer(Modifier.width(10.dp))
                             Icon(
                                 painter = painterResource(R.drawable.ok_status_bold),
@@ -215,6 +216,7 @@ fun MyProfileScreen(
                                 modifier = Modifier
                                     .size(20.dp)
                             )
+                        }
                     }
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -640,6 +642,7 @@ fun PersonalInfoSkeleton(lines: Int = 7) {
         }
     }
 }
+
 @Composable
 fun UtilityMenuSkeleton(items: Int = 4) {
     Column(
@@ -695,7 +698,6 @@ fun ProfileScreenSkeleton(
         UtilityMenuSkeleton()
     }
 }
-
 
 
 //@Preview(

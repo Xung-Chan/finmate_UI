@@ -58,6 +58,7 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
@@ -74,8 +75,7 @@ import java.time.LocalDate
 @Composable
 fun SettingScreen(
     uiState: SettingUiState,
-    fullName:String,
-    avatarUrl:String?,
+    appUiState: AppUiState,
     onViewProfileClick: () -> Unit,
     onChangePasswordClick: () -> Unit,
     onClickBiometric: () -> Unit,
@@ -140,16 +140,16 @@ fun SettingScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                if (avatarUrl == null) {
+                                if (appUiState.avatarUrl == null) {
                                     DefaultImageProfile(
                                         modifier = Modifier
                                             .size(100.dp),
-                                        name =fullName
+                                        name =appUiState.fullName
                                     )
                                 } else {
 
                                     AsyncImage(
-                                        model = avatarUrl,
+                                        model = appUiState.avatarUrl,
                                         contentDescription = "Avatar",
                                         modifier = Modifier
                                             .size(100.dp)
@@ -169,7 +169,7 @@ fun SettingScreen(
                                     style = AppTypography.bodySmall
                                 )
                                 Text(
-                                    text = "Xin chào, ${fullName}!",
+                                    text = "Xin chào, ${appUiState.fullName}!",
                                     color = White1,
                                     style = AppTypography.bodyMedium
                                 )
@@ -227,16 +227,16 @@ fun SettingScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            if (avatarUrl == null) {
+                            if (appUiState.avatarUrl == null) {
                                 DefaultImageProfile(
                                     modifier = Modifier
                                         .size(100.dp),
-                                    name =fullName
+                                    name =appUiState.fullName
                                 )
                             } else {
 
                                 AsyncImage(
-                                    model = avatarUrl,
+                                    model = appUiState.avatarUrl,
                                     contentDescription = "Avatar",
                                     modifier = Modifier
                                         .size(100.dp)
@@ -250,7 +250,7 @@ fun SettingScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = fullName,
+                                text = appUiState.fullName,
                                 style = AppTypography.headlineSmall.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -472,16 +472,16 @@ fun SettingScreen(
 )
 @Composable
 fun SettingPreview() {
-    SettingScreen(
-        uiState = SettingUiState(),
-        onViewProfileClick = {},
-        onChangePasswordClick = {},
-        onClickBiometric = {},
-        onLogout = {},
-        onChangePassword = {},
-        navigationBar = {},
-        onError = {},
-        fullName = "Nguyễn Văn A",
-        avatarUrl = null
-    )
+//    SettingScreen(
+//        uiState = SettingUiState(),
+//        onViewProfileClick = {},
+//        onChangePasswordClick = {},
+//        onClickBiometric = {},
+//        onLogout = {},
+//        onChangePassword = {},
+//        navigationBar = {},
+//        onError = {},
+//        fullName = "Nguyễn Văn A",
+//        avatarUrl = null
+//    )
 }

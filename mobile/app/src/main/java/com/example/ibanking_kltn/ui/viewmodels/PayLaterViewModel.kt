@@ -128,6 +128,7 @@ class PayLaterViewModel @Inject constructor(
     }
 
     fun lockAccountRequest(
+        onSuccess: () -> Unit,
         onError: (message: String) -> Unit
     ) {
         _uiState.update {
@@ -147,6 +148,7 @@ class PayLaterViewModel @Inject constructor(
                             screenState = StateType.SUCCESS,
                         )
                     }
+                    onSuccess()
                     return@launch
                 }
 
@@ -166,6 +168,7 @@ class PayLaterViewModel @Inject constructor(
     }
 
     fun unlockAccountRequest(
+        onSuccess: () -> Unit,
         onError: (message: String) -> Unit
     ) {
 
@@ -186,6 +189,7 @@ class PayLaterViewModel @Inject constructor(
                             screenState = StateType.SUCCESS,
                         )
                     }
+                    onSuccess()
                     return@launch
                 }
 

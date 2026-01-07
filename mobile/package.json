@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "start:gateway": "json-server --watch gateway.json --port 9000",
-    "start:auth": "json-server --watch auth.json --port 8888"
-  },
-  "devDependencies": {
-    "json-server": "^1.0.0-beta.3"
-  }
-}
