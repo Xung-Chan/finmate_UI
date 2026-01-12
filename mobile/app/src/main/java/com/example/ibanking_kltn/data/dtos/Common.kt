@@ -175,3 +175,13 @@ enum class MoneyFlowType {
     OUTGOING,
     INCOMING
 }
+
+enum class RequestOtpPurpose {
+    PASSWORD_RESET,
+    EMAIL_VERIFICATION
+}
+
+enum class NotificationType {
+    SYSTEM,
+    PERSONAL,
+}

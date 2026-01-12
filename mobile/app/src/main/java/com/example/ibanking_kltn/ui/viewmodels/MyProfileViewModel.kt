@@ -27,12 +27,15 @@ class MyProfileViewModel @Inject constructor(
 
 
     fun init(
-        onSuccess:(Any?)->Unit,
+        onSuccess:(Any?,String)->Unit,
         onError: (message: String) -> Unit
     ) {
         clearState()
         loadUserInfo(
-            onSuccess = onSuccess,
+            onSuccess = {
+                avatarUrl, fullName ->
+                onSuccess(avatarUrl,fullName)
+            },
             onError = onError
         )
         loadWalletVerification(
@@ -46,7 +49,7 @@ class MyProfileViewModel @Inject constructor(
     }
 
     fun loadUserInfo(
-        onSuccess: (Any?) -> Unit,
+        onSuccess: (Any?,String) -> Unit,
         onError: (message: String) -> Unit
     ) {
         var message = ""
@@ -70,7 +73,7 @@ class MyProfileViewModel @Inject constructor(
 
                             )
                         }
-                        onSuccess(apiResult.data.avatarUrl)
+                        onSuccess(apiResult.data.avatarUrl, apiResult.data.fullName)
                         return@launch
                     }
 

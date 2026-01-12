@@ -3,7 +3,6 @@ package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +43,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.BillingCycleStatus
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
 import com.example.ibanking_kltn.ui.theme.AppTypography
@@ -53,6 +53,7 @@ import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
+import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.BillingCycleUiState
@@ -74,6 +75,7 @@ fun BillingCycleScreen(
     onErrorLoading: (String) -> Unit,
     onChangeSortOption: () -> Unit,
     onSelectBillingCycle: (BillingCycleResonse?) -> Unit,
+    onConfirmPayment: (BillingCycleResonse, payAmount: Long, totalDept: Long) -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
     LoadingScaffold(
@@ -193,9 +195,7 @@ fun BillingCycleScreen(
                                             ambientColor = Black1.copy(alpha = 0.25f),
                                             spotColor = Black1.copy(alpha = 0.25f)
                                         )
-                                        .clickable {
-                                            onSelectBillingCycle(billingCycle)
-                                        }
+
                                         .background(
                                             color = White1, shape = RoundedCornerShape(20.dp)
                                         )
@@ -235,7 +235,7 @@ fun BillingCycleScreen(
                                         ) {
                                             TextButton(
                                                 onClick = {
-                                                    //todo view detail
+                                                    onSelectBillingCycle(billingCycle)
                                                 }
                                             ) {
                                                 Text(
@@ -313,70 +313,101 @@ fun BillingCycleScreen(
                                                 .fillMaxWidth()
                                         )
                                     }
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .weight(1f)
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = Blue5,
-                                                    shape = RoundedCornerShape(12.dp)
-                                                )
-                                                .customClick(
-                                                    shape = RoundedCornerShape(12.dp)
-                                                ) {
-                                                    //todo payment action
-                                                }
-                                                .padding(vertical = 5.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally
+                                    if (billingCycle.status != BillingCycleStatus.PAID) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
-                                            Text(
-                                                text = "Trả toàn bộ",
-                                                style = AppTypography.bodySmall,
-                                                color = Blue1,
-                                            )
-                                            Text(
-                                                text = formatterVND(totalDebt),
-                                                style = AppTypography.bodyMedium.copy(
-                                                    fontWeight = FontWeight.SemiBold
-                                                ),
-                                                color = Blue1,
-                                            )
+                                            Column(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .border(
+                                                        width = 1.dp,
+                                                        color = Blue5,
+                                                        shape = RoundedCornerShape(12.dp)
+                                                    )
+                                                    .customClick(
+                                                        shape = RoundedCornerShape(12.dp)
+                                                    ) {
+                                                        onConfirmPayment(
+                                                            billingCycle,
+                                                            totalDebt,
+                                                            totalDebt
+                                                        )
+                                                    }
+                                                    .padding(vertical = 5.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = "Trả toàn bộ",
+                                                    style = AppTypography.bodySmall,
+                                                    color = Blue1,
+                                                )
+                                                Text(
+                                                    text = formatterVND(totalDebt),
+                                                    style = AppTypography.bodyMedium.copy(
+                                                        fontWeight = FontWeight.SemiBold
+                                                    ),
+                                                    color = Blue1,
+                                                )
 
+                                            }
+                                            Column(
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .border(
+                                                        width = 1.dp,
+                                                        color = Blue5,
+                                                        shape = RoundedCornerShape(12.dp)
+                                                    )
+                                                    .customClick(
+                                                        shape = RoundedCornerShape(12.dp)
+                                                    ) {
+                                                        onConfirmPayment(
+                                                            billingCycle,
+                                                            billingCycle.minimumPayment.toLong(),
+                                                            totalDebt
+                                                        )
+                                                    }
+                                                    .padding(vertical = 5.dp),
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = "Trả tối thiểu",
+                                                    style = AppTypography.bodySmall,
+                                                    color = Blue1,
+                                                )
+                                                Text(
+                                                    text = formatterVND(billingCycle.minimumPayment.toLong()),
+                                                    style = AppTypography.bodyMedium.copy(
+                                                        fontWeight = FontWeight.SemiBold
+                                                    ),
+                                                    color = Blue1,
+                                                )
+
+                                            }
                                         }
-                                        Column(
+                                    } else {
+                                        Row(
                                             modifier = Modifier
-                                                .weight(1f)
+                                                .fillMaxWidth()
                                                 .border(
                                                     width = 1.dp,
-                                                    color = Blue5,
+                                                    color = Green1,
                                                     shape = RoundedCornerShape(12.dp)
                                                 )
-                                                .customClick(
-                                                    shape = RoundedCornerShape(12.dp)
-                                                ) {
-                                                    //todo payment action
-                                                }
-                                                .padding(vertical = 5.dp),
-                                            horizontalAlignment = Alignment.CenterHorizontally
+                                                .padding(
+                                                    vertical = 10.dp
+                                                ),
+                                            horizontalArrangement = Arrangement.Center,
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "Trả tối thiểu",
-                                                style = AppTypography.bodySmall,
-                                                color = Blue1,
+                                                text = "Đã trả đủ",
+                                                style = AppTypography.bodyMedium,
+                                                color = Green1,
                                             )
-                                            Text(
-                                                text = formatterVND(billingCycle.minimumPayment.toLong()),
-                                                style = AppTypography.bodyMedium.copy(
-                                                    fontWeight = FontWeight.SemiBold
-                                                ),
-                                                color = Blue1,
-                                            )
-
                                         }
                                     }
 
@@ -440,47 +471,48 @@ fun BillingCycleScreen(
                                 .background(
                                     color = White1, shape = RoundedCornerShape(20.dp)
                                 )
-                                .padding(  20.dp)
+                                .padding(20.dp)
 
                         ) {
 
                             Row(
                                 horizontalArrangement = Arrangement.End,
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) {
                                 Row(
-                                modifier = Modifier.weight(1f),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "${
-                                        formatterDateString(
-                                            LocalDate.parse(
-                                                uiState.selectedBillingCycle.startDate
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "${
+                                            formatterDateString(
+                                                LocalDate.parse(
+                                                    uiState.selectedBillingCycle.startDate
+                                                )
                                             )
-                                        )
-                                    } - ${
-                                        formatterDateString(
-                                            LocalDate.parse(
-                                                uiState.selectedBillingCycle.endDate
+                                        } - ${
+                                            formatterDateString(
+                                                LocalDate.parse(
+                                                    uiState.selectedBillingCycle.endDate
+                                                )
                                             )
-                                        )
-                                    }",
-                                    style = AppTypography.bodyMedium,
-                                    color = Black1,
-                                )
-                            }
+                                        }",
+                                        style = AppTypography.bodyMedium,
+                                        color = Black1,
+                                    )
+                                }
 
                                 Row(
-
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .customClick(
                                             shape = RoundedCornerShape(15.dp)
                                         ) {
                                             onSelectBillingCycle(null)
                                         }
-                                        .padding(horizontal = 10.dp,vertical = 5.dp)
+                                        .padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
                                     Text(
                                         text = "Đóng",
@@ -523,6 +555,121 @@ fun BillingCycleScreen(
                                     )
                                 }
                             }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Tổng nợ tiêu dùng",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1,
+
+                                        )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = formatterVND(it.totalSpent.toLong()) + " VNĐ",
+                                        style = AppTypography.bodyLarge,
+                                        color = Black1,
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Tổng lãi",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1,
+
+                                        )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = formatterVND(it.totalInterest.toLong()) + " VNĐ",
+                                        style = AppTypography.bodyLarge,
+                                        color = Black1,
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Đã trả",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1,
+
+                                        )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = formatterVND((it.paidInterest + it.paidPrincipal).toLong()) + " VNĐ",
+                                        style = AppTypography.bodyLarge,
+                                        color = Black1,
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    modifier = Modifier.weight(1f),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Lãi suất",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1,
+
+                                        )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    Text(
+                                        text = "${it.lateInterestRate}%/tháng",
+                                        style = AppTypography.bodyLarge,
+                                        color = Black1,
+                                    )
+                                }
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                DashedDivider(
+                                    color = Gray1,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -549,80 +696,94 @@ fun BillingCycleScreen(
                                     )
                                 }
                             }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                DashedDivider(
-                                    color = Gray1,
+                            if (it.status != BillingCycleStatus.PAID) {
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .border(
+                                                width = 1.dp,
+                                                color = Blue5,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .customClick(
+                                                shape = RoundedCornerShape(12.dp)
+                                            ) {
+                                                //todo payment action
+                                            }
+                                            .padding(vertical = 5.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Trả toàn bộ",
+                                            style = AppTypography.bodySmall,
+                                            color = Blue1,
+                                        )
+                                        Text(
+                                            text = formatterVND(totalDebt),
+                                            style = AppTypography.bodyMedium.copy(
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                            color = Blue1,
+                                        )
+
+                                    }
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .border(
+                                                width = 1.dp,
+                                                color = Blue5,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .customClick(
+                                                shape = RoundedCornerShape(12.dp)
+                                            ) {
+                                                //todo payment action
+                                            }
+                                            .padding(vertical = 5.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Trả tối thiểu",
+                                            style = AppTypography.bodySmall,
+                                            color = Blue1,
+                                        )
+                                        Text(
+                                            text = formatterVND(uiState.selectedBillingCycle.minimumPayment.toLong()),
+                                            style = AppTypography.bodyMedium.copy(
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                            color = Blue1,
+                                        )
+
+                                    }
+                                }
+                            } else {
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                )
-                            }
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
                                         .border(
                                             width = 1.dp,
-                                            color = Blue5,
+                                            color = Green1,
                                             shape = RoundedCornerShape(12.dp)
                                         )
-                                        .customClick(
-                                            shape = RoundedCornerShape(12.dp)
-                                        ) {
-                                            //todo payment action
-                                        }
-                                        .padding(vertical = 5.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                        .padding(
+                                            vertical = 10.dp
+                                        ),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Trả toàn bộ",
-                                        style = AppTypography.bodySmall,
-                                        color = Blue1,
+                                        text = "Đã trả đủ",
+                                        style = AppTypography.bodyMedium,
+                                        color = Green1,
                                     )
-                                    Text(
-                                        text = formatterVND(totalDebt),
-                                        style = AppTypography.bodyMedium.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                        color = Blue1,
-                                    )
-
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .border(
-                                            width = 1.dp,
-                                            color = Blue5,
-                                            shape = RoundedCornerShape(12.dp)
-                                        )
-                                        .customClick(
-                                            shape = RoundedCornerShape(12.dp)
-                                        ) {
-                                            //todo payment action
-                                        }
-                                        .padding(vertical = 5.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "Trả tối thiểu",
-                                        style = AppTypography.bodySmall,
-                                        color = Blue1,
-                                    )
-                                    Text(
-                                        text = formatterVND(uiState.selectedBillingCycle.minimumPayment.toLong()),
-                                        style = AppTypography.bodyMedium.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                        color = Blue1,
-                                    )
-
                                 }
                             }
                         }
@@ -683,6 +844,10 @@ fun BillingCyclePreview() {
         onBackClick = {},
         onErrorLoading = {},
         onChangeSortOption = {},
-        onSelectBillingCycle = {}
-    )
+        onSelectBillingCycle = {},
+        onConfirmPayment = {
+
+        } as (BillingCycleResonse, Long, Long) -> Unit,
+
+        )
 }

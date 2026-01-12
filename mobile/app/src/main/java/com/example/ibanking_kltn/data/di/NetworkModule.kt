@@ -10,6 +10,7 @@ import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
 import com.example.ibanking_kltn.data.api.BiometricApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
+import com.example.ibanking_kltn.data.api.NotificationApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
 import com.example.ibanking_kltn.data.api.TransactionApi
 import com.example.ibanking_kltn.data.api.WalletApi
@@ -163,6 +164,15 @@ object NetworkModule {
         retrofit: Retrofit
     ): BillApi {
         return retrofit.create(BillApi::class.java)
+
+    }
+
+    @Provides
+    fun provideNotificationApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): NotificationApi {
+        return retrofit.create(NotificationApi::class.java)
 
     }
 

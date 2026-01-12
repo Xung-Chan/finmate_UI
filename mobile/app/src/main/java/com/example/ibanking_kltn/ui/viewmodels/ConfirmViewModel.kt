@@ -1,7 +1,6 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.AccountType
@@ -9,12 +8,14 @@ import com.example.ibanking_kltn.data.dtos.PaymentAccount
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
+import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
 import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
 import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.ConfirmUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -35,66 +36,40 @@ class ConfirmViewModel @Inject constructor(
     private val billRepository: BillRepository,
 
     @ApplicationContext private val context: Context
-) : ViewModel(), IViewModel {
+) : ViewModel() {
     private val _uiState = MutableStateFlow(ConfirmUiState())
     val uiState: StateFlow<ConfirmUiState> = _uiState.asStateFlow()
 
-    override fun error(message: String) {
-        _uiState.update {
-            it.copy(screenState = StateType.FAILED(message = message))
-        }
-        Toast.makeText(
-            context,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 
     fun init(
-        amount: Long,
-        toWalletNumber: String,
-        description: String,
-        toMerchantName: String,
-        expenseType: String? = null,
-        billCode: String? = null,
         service: ServiceType,
-        isVerified: Boolean = false
+        amount: Long,
+        isVerified: Boolean = false,
+        confirmContent: ConfirmContent,
     ) {
+        loadAvailableAccount(isVerified)
+
         loadPaymentInfo(
             amount = amount,
-            toWalletNumber = toWalletNumber,
-            description = description,
-            toMerchantName = toMerchantName,
-            expenseType = expenseType,
-            billCode = billCode,
             service = service,
+            confirmContent = confirmContent
         )
-        loadAvailableAccount(isVerified)
     }
 
-    override fun clearState() {
+    fun clearState() {
         _uiState.value = ConfirmUiState()
     }
 
     private fun loadPaymentInfo(
         amount: Long,
-        toWalletNumber: String,
-        description: String,
-        toMerchantName: String,
-        expenseType: String? = null,
-        billCode: String? = null,
         service: ServiceType,
+        confirmContent: ConfirmContent
     ) {
         _uiState.update {
             it.copy(
                 amount = amount,
-                toWalletNumber = toWalletNumber,
-                description = description,
-                toMerchantName = toMerchantName,
-                expenseType = expenseType,
                 service = service,
-                billCode = billCode
-
+                confirmContent = confirmContent
             )
         }
     }
@@ -106,50 +81,57 @@ class ConfirmViewModel @Inject constructor(
         }
         val availableAccount = mutableListOf<PaymentAccount>()
         viewModelScope.launch {
-            val apiResult = walletRepository.getMyWalletInfor()
-            when (apiResult) {
-                is ApiResult.Success -> {
-                    availableAccount.add(
-                        PaymentAccount(
-                            accountType = AccountType.WALLET,
-                            accountNumber = apiResult.data.walletNumber,
-                            merchantName = apiResult.data.merchantName,
-                            balance = apiResult.data.balance.toLong()
-                        )
-                    )
-                }
-
-                is ApiResult.Error -> {
-                    //todo retry
-                }
-            }
-            if (isVerified) {
-                val payLaterInfo = payLaterRepository.getMyPayLater()
-                when (payLaterInfo) {
+            repeat(3) {
+                val apiResult = walletRepository.getMyWalletInfor()
+                when (apiResult) {
                     is ApiResult.Success -> {
                         availableAccount.add(
                             PaymentAccount(
-                                accountType = AccountType.PAY_LATER,
-                                accountNumber = payLaterInfo.data.walletNumber,
-                                merchantName = "Pay Later",
-                                balance = (payLaterInfo.data.creditLimit - payLaterInfo.data.usedCredit).toLong()
+                                accountType = AccountType.WALLET,
+                                accountNumber = apiResult.data.walletNumber,
+                                merchantName = apiResult.data.merchantName,
+                                balance = apiResult.data.balance.toLong()
                             )
                         )
+                        return@launch
                     }
 
                     is ApiResult.Error -> {
-                        //todo retry
                     }
                 }
+            }
+        }
+        if (isVerified) {
+            viewModelScope.launch {
+                repeat(3) {
+                    val payLaterInfo = payLaterRepository.getMyPayLater()
+                    when (payLaterInfo) {
+                        is ApiResult.Success -> {
+                            availableAccount.add(
+                                PaymentAccount(
+                                    accountType = AccountType.PAY_LATER,
+                                    accountNumber = payLaterInfo.data.walletNumber,
+                                    merchantName = "Pay Later",
+                                    balance = (payLaterInfo.data.creditLimit - payLaterInfo.data.usedCredit).toLong()
+                                )
+                            )
+                            return@launch
+                        }
 
+                        is ApiResult.Error -> {
+                            //todo retry
+                        }
+                    }
+                }
             }
 
-            _uiState.update {
-                it.copy(
-                    screenState = StateType.SUCCESS,
-                    availableAccount = availableAccount
-                )
-            }
+
+        }
+        _uiState.update {
+            it.copy(
+                screenState = StateType.SUCCESS,
+                availableAccount = availableAccount
+            )
         }
 
     }
@@ -211,29 +193,40 @@ class ConfirmViewModel @Inject constructor(
         viewModelScope.launch {
             var apiResult: ApiResult<Any>
 
-            when (uiState.value.service) {
-                ServiceType.TRANSFER -> {
+            when (uiState.value.confirmContent) {
+                is ConfirmContent.TRANSFER -> {
+                    val transferData = uiState.value.confirmContent as ConfirmContent.TRANSFER
                     apiResult = transactionRepository.prepareTransfer(
                         request = PrepareTransferRequest(
                             accountType = uiState.value.accountType!!.accountType.name,
                             amount = uiState.value.amount,
-                            description = uiState.value.description,
-                            toWalletNumber = uiState.value.toWalletNumber
+                            description = transferData.description,
+                            toWalletNumber = transferData.toWalletNumber
                         )
                     )
                 }
 
-                ServiceType.BILL_PAYMENT -> {
+                is ConfirmContent.BILL_PAYMENT -> {
                     apiResult = billRepository.preparePayBill(
                         request = PreparePayBillRequest(
                             accountType = uiState.value.accountType!!.accountType.name,
-                            billerCode = uiState.value.billCode!!,
+                            billerCode = (uiState.value.confirmContent as ConfirmContent.BILL_PAYMENT).billCode,
                         )
+                    )
+                }
+
+                is ConfirmContent.BILL_REPAYMENT -> {
+                    val request = PreparePrePaymentRequest(
+                        amount = uiState.value.amount,
+                        billerCode = (uiState.value.confirmContent as ConfirmContent.BILL_REPAYMENT).billCode
+                    )
+                    apiResult = billRepository.preparePrepayment(
+                        request = request
                     )
                 }
 
                 else -> {
-                    error("Dịch vụ không hợp lệ")
+                    onError("Dịch vụ không hợp lệ")
                     return@launch
                 }
             }

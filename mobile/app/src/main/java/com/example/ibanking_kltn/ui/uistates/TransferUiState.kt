@@ -28,6 +28,5 @@ data class TransactionResultUiState(
     val screenState: StateType = StateType.NONE,
     val service: String="",
     val amount: Long= 0L,
-    val toMerchantName: String?= "",
     val status: TransactionStatus= TransactionStatus.COMPLETED,
 )

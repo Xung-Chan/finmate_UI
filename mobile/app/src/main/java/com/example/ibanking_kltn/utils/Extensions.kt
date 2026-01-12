@@ -51,10 +51,11 @@ fun removeVietnameseAccents(text: String): String {
     return normalized
 }
 
-fun formatterDateString(date: LocalDate, pattern:String = "dd/MM/yyyy"): String {
+fun formatterDateString(date: LocalDate, pattern: String = "dd/MM/yyyy"): String {
     return date.format(DateTimeFormatter.ofPattern(pattern))
 }
-fun formatterDateTimeString(date: LocalDateTime, pattern:String = "HH:mm-dd/MM/yyyy"): String {
+
+fun formatterDateTimeString(date: LocalDateTime, pattern: String = "HH:mm-dd/MM/yyyy"): String {
     return date.format(DateTimeFormatter.ofPattern(pattern))
 }
 
@@ -343,16 +344,27 @@ fun colorFromLabel(label: String): Color {
 }
 
 
-fun checkMoneyFlow(transaction: TransactionHistoryResponse, myWalletNumber: String) : String{
-    if( transaction.transactionType == ServiceType.CASH_DEPOSIT ||
-        transaction.transactionType == ServiceType.E_GATEWAY_DEPOSIT){
+fun checkMoneyFlow(transaction: TransactionHistoryResponse, myWalletNumber: String): String {
+    if (transaction.transactionType == ServiceType.CASH_DEPOSIT ||
+        transaction.transactionType == ServiceType.E_GATEWAY_DEPOSIT
+    ) {
         return "+"
     }
-    if(transaction.transactionType == ServiceType.CASH_WITHDRAW ){
+    if (transaction.transactionType == ServiceType.CASH_WITHDRAW) {
         return "-"
     }
-    if(transaction.toWalletNumber == myWalletNumber){
+    if (transaction.toWalletNumber == myWalletNumber) {
         return "+"
     }
     return "-"
+}
+
+fun LocalDateTime.formateDateTimeString(pattern: String = "dd/MM/yyyy • HH:mm"): String {
+    if (LocalDate.now() == this.toLocalDate()) {
+        return "Hôm nay • " + this.format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
+    if (LocalDate.now().minusDays(1) == this.toLocalDate()) {
+        return "Hôm qua • " + this.format(DateTimeFormatter.ofPattern("HH:mm"))
+    }
+    return this.format(DateTimeFormatter.ofPattern(pattern))
 }

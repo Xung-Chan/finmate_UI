@@ -3,6 +3,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
 import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
 import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
 import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
@@ -15,6 +16,7 @@ import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,12 +31,18 @@ class ForgotPasswordViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ForgotPasswordUiState())
     val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
 
+    fun init(purpose: RequestOtpPurpose) {
+        _uiState.value = ForgotPasswordUiState(
+            purpose = purpose
+        )
+
+    }
 
     fun clearState() {
         _uiState.value = ForgotPasswordUiState()
     }
 
-    fun  onChangeVisiblePassword(){
+    fun onChangeVisiblePassword() {
         _uiState.update {
             it.copy(
                 isShowPassword = !uiState.value.isShowPassword
@@ -52,7 +60,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val request = RequestOtpRequest(
-                purpose = "PASSWORD_RESET",
+                purpose = uiState.value.purpose.name,
                 username = uiState.value.username
             )
             val apiResult = authRepository.requestOtp(request)
@@ -100,7 +108,7 @@ class ForgotPasswordViewModel @Inject constructor(
             val request = SendOtpRequest(
                 verifyKey = uiState.value.verifyKey,
                 email = uiState.value.email,
-                purpose = "PASSWORD_RESET"
+                purpose = uiState.value.purpose.name
             )
             val apiResult = authRepository.sendOtp(
                 request = request
@@ -151,12 +159,12 @@ class ForgotPasswordViewModel @Inject constructor(
                 verifyKey = uiState.value.verifyKey,
                 email = uiState.value.email,
                 otp = uiState.value.otp,
-                purpose = "PASSWORD_RESET",
+                purpose = uiState.value.purpose.name,
             )
             val apiResult = authRepository.verifyOtp(
                 request = request
             )
-            when(apiResult){
+            when (apiResult) {
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
@@ -165,7 +173,8 @@ class ForgotPasswordViewModel @Inject constructor(
                     }
                     onError(apiResult.message)
                 }
-                is ApiResult.Success->{
+
+                is ApiResult.Success -> {
                     val response = apiResult.data
                     _uiState.update {
                         it.copy(
@@ -203,11 +212,11 @@ class ForgotPasswordViewModel @Inject constructor(
                 newPassword = uiState.value.newPassword,
                 token = uiState.value.token
             )
-            
+
             val apiResult = authRepository.resetPassword(
                 request = request
             )
-            when(apiResult){
+            when (apiResult) {
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
@@ -216,7 +225,8 @@ class ForgotPasswordViewModel @Inject constructor(
                     }
                     onError(apiResult.message)
                 }
-                is ApiResult.Success->{
+
+                is ApiResult.Success -> {
                     _uiState.update {
                         it.copy(
                             screenState = StateType.SUCCESS

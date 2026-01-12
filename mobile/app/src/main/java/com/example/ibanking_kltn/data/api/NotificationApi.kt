@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.data.api
 
+import com.example.ibanking_kltn.data.dtos.NotificationType
 import com.example.ibanking_kltn.data.dtos.Pagination
 import com.example.ibanking_kltn.data.dtos.requests.NotificationRequest
 import com.example.ibanking_kltn.data.dtos.responses.NotificationResponse
@@ -8,10 +9,6 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-enum class NotificationType {
-    SYSTEM,
-    PERSONAL,
-}
 interface NotificationApi {
     @POST("/api/notifications/filter")
     suspend fun filterNotification(
@@ -20,7 +17,7 @@ interface NotificationApi {
 
     @POST("/api/notifications/read/{type}")
     suspend fun readNotification(
-       @Path("type") type: NotificationType,
+        @Path("type") type: NotificationType,
     ): Response<Unit>
 
 

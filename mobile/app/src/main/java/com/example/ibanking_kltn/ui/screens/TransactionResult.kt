@@ -216,28 +216,6 @@ fun TransactionResultScreen(
 
                         }
                     }
-                    if (!uiState.toMerchantName.isNullOrEmpty()) {
-                        Row {
-                            Text(
-                                text = "Tên người thụ hưởng: ", style = AppTypography.bodySmall,
-                                color = Gray1
-                            )
-                            Row(
-                                modifier = Modifier.weight(1f),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                Text(
-                                    text = uiState.toMerchantName,
-                                    style = AppTypography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = Black1
-                                )
-
-                            }
-                        }
-
-                    }
                     Row {
                         Text(
                             text = "Số tiền: ", style = AppTypography.bodySmall,
@@ -360,7 +338,6 @@ fun TransferSuccessfullyPreview() {
         onBackToHomeClick = {},
         uiState = TransactionResultUiState(
             amount = 1000000L,
-            toMerchantName = "Nguyễn Văn A",
             service = "Chuyển tiền",
             status = TransactionStatus.COMPLETED
         ),

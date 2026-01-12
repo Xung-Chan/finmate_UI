@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -73,9 +74,9 @@ fun ForgotPasswordScreen(
     onBackToEnterUsernameClick: () -> Unit,
     onBackToEnterEmailClick: () -> Unit,
     onBackClick: () -> Unit,
-    onChangeVisiblePassword:()-> Unit
+    onChangeVisiblePassword: () -> Unit
 
-    ) {
+) {
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING,
     )
@@ -85,7 +86,12 @@ fun ForgotPasswordScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(text = stringResource(id = R.string.ForgotPassword_Title))
+                        Text(
+                            text = when (uiState.purpose) {
+                                RequestOtpPurpose.PASSWORD_RESET -> stringResource(id = R.string.ForgotPassword_Title)
+                                RequestOtpPurpose.EMAIL_VERIFICATION -> "Kích hoạt tài khoản"
+                            }
+                        )
                     },
                     navigationIcon = {
                         IconButton(onClick = {
@@ -142,8 +148,6 @@ fun ForgotPasswordScreen(
                             onBackToEnterEmailClick = onBackToEnterEmailClick
                         )
                     }
-
-
 
 
                     ForgotPasswordStep.RESET_PASSWORD -> {
@@ -419,7 +423,7 @@ fun EnterNewPassword(
     onNewPasswordChange: (String) -> Unit,
     onResetPasswordClick: () -> Unit,
     onBackToEnterEmailClick: () -> Unit,
-    onChangeVisiblePassword:()-> Unit
+    onChangeVisiblePassword: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -639,5 +643,5 @@ fun ForgotPasswordPreview() {
         onBackClick = {},
         onChangeVisiblePassword = {}
 
-        )
+    )
 }

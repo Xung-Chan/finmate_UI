@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -54,6 +55,7 @@ import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.customClick
 
 @Composable
 fun SignInScreen(
@@ -63,7 +65,7 @@ fun SignInScreen(
     onPasswordChange: (String) -> Unit,
     onChangeVisiblePassword: () -> Unit,
     checkEnableLogin: () -> Boolean,
-    onForgotPasswordClick: () -> Unit,
+    onRequestOtp: (RequestOtpPurpose) -> Unit,
     onBiometricClick: () -> Unit,
     onDeleteLastLoginUser: () -> Unit,
 ) {
@@ -96,7 +98,7 @@ fun SignInScreen(
                         painter = painterResource(id = R.drawable.bg_1),
                         contentDescription = null,
                         modifier = Modifier
-                            .height(200.dp)
+                            .height(180.dp)
                             .fillMaxWidth()
                     )
                 }
@@ -246,10 +248,7 @@ fun SignInScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .padding(5.dp)
-                                        .shadow(
-                                            elevation = 30.dp, shape = CircleShape
-                                        )
-                                        .clickable { onChangeVisiblePassword() }
+                                        .customClick{ onChangeVisiblePassword() }
                                 ) {
                                     Icon(
                                         imageVector = if (uiState.isPasswordShow) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -274,7 +273,7 @@ fun SignInScreen(
                             style = AppTypography.bodyMedium,
                             color = Gray2,
                             modifier = Modifier.clickable {
-                                onForgotPasswordClick()
+                                onRequestOtp(RequestOtpPurpose.PASSWORD_RESET)
                             }
                         )
 
@@ -327,6 +326,29 @@ fun SignInScreen(
                             )
                         }
                     }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 10.dp)
+                    ) {
+                        Text(
+                            text="Kích hoạt tài khoản?",
+                            style=AppTypography.bodySmall,
+                            color=Gray1
+                        )
+                        Text(
+                            text="Kích hoạt",
+                            style=AppTypography.bodyMedium,
+                            color=Blue1,
+                            modifier=Modifier.customClick {
+                                onRequestOtp(RequestOtpPurpose.EMAIL_VERIFICATION)
+                            }
+                        )
+                    }
+
 
                 }
             }
@@ -393,7 +415,7 @@ fun PreviewLogin() {
         checkEnableLogin = {
             false
         },
-        onForgotPasswordClick = { },
+        onRequestOtp = { },
         onBiometricClick = {},
         onDeleteLastLoginUser = {}
     )

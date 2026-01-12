@@ -17,15 +17,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,16 +31,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.MoneyFlowType
 import com.example.ibanking_kltn.ui.theme.AppTypography
@@ -55,20 +47,16 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Orange1
-import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AnalyticUiState
-import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomBarChart
 import com.example.ibanking_kltn.utils.CustomPieChart
-import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.ProgressBarWithLabel
 import com.example.ibanking_kltn.utils.RetryCompose
 import com.example.ibanking_kltn.utils.colorFromLabel
 import com.example.ibanking_kltn.utils.customClick
-import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
 import com.kizitonwose.calendar.core.yearMonth
 import ir.ehsannarmani.compose_charts.models.Bars
@@ -82,7 +70,7 @@ import java.time.YearMonth
 @Composable
 fun AnalyticScreen(
     uiState: AnalyticUiState,
-    appUiState: AppUiState,
+    userComponent:@Composable () -> Unit,
     navigationBar: @Composable () -> Unit,
     onRetry: () -> Unit,
     onMinusMonth: () -> Unit,
@@ -130,102 +118,7 @@ fun AnalyticScreen(
                             .verticalScroll(scrollState)
                     ) {
                         //user infor row
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    space = 10.dp,
-                                    alignment = Alignment.Start
-                                ),
-
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .background(
-                                            color = White1,
-                                            shape = CircleShape
-                                        ),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    if (appUiState.avatarUrl == null) {
-                                        DefaultImageProfile(
-                                            modifier = Modifier
-                                                .size(100.dp),
-                                            name =appUiState.fullName
-                                        )
-                                    } else {
-
-                                        AsyncImage(
-                                            model = appUiState.avatarUrl,
-                                            contentDescription = "Avatar",
-                                            modifier = Modifier
-                                                .size(100.dp)
-                                                .clip(CircleShape),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
-
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.Start,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Text(
-                                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
-                                        color = White1,
-                                        style = AppTypography.bodySmall
-                                    )
-                                    Text(
-                                        text = "Xin chào, ${appUiState.fullName}!",
-                                        color = White1,
-                                        style = AppTypography.bodyMedium
-                                    )
-                                }
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                IconButton(
-                                    onClick = {},
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .align(
-                                            Alignment.CenterVertically
-                                        )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Notifications,
-                                        contentDescription = null,
-                                        tint = White1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {},
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .align(
-                                            Alignment.CenterVertically
-                                        )
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.question),
-                                        contentDescription = null,
-                                        tint = White1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                            }
-                        }
+                        userComponent()
                         //Main container
                         Column(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -530,64 +423,65 @@ fun AnalyticScreen(
                                             },
                                         modifier = Modifier.fillMaxWidth()
                                     )
-                                }
-                            }
-                            val distributions =
-                                uiState.distributionStatistic.distributions.filter { it.totalValue > 0 }
-                            if (distributions.isNotEmpty()) {
-                                Text(
-                                    text = "Phân tích chi tiêu theo danh mục",
-                                    style = AppTypography.bodyMedium,
-                                    color = Gray1
-                                )
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
 
-                                    distributions.forEach { distribution ->
-                                        val percentage =
-                                            distribution.totalValue.toFloat() / uiState.totalValue.toFloat()
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
+                                    val distributions =
+                                        uiState.distributionStatistic.distributions.filter { it.totalValue > 0 }
+                                    if (distributions.isNotEmpty()) {
+                                        Text(
+                                            text = "Phân tích chi tiêu theo danh mục",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 10.dp),
+                                            verticalArrangement = Arrangement.spacedBy(10.dp)
                                         ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(15.dp)
-                                                    .background(
-                                                        color = colorFromLabel(distribution.expenseName),
-                                                        shape = RoundedCornerShape(3.dp)
-                                                    )
-                                            )
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Row(modifier = Modifier.fillMaxWidth()) {
-                                                    Text(
-                                                        text = distribution.expenseName,
-                                                        style = AppTypography.bodyMedium,
-                                                        color = Black1
-                                                    )
-                                                    Text(
-                                                        text = formatterVND(distribution.totalValue),
-                                                        style = AppTypography.bodyMedium,
-                                                        color = Black1,
-                                                        modifier = Modifier.weight(1f),
-                                                        textAlign = TextAlign.End
-                                                    )
-                                                }
-                                                ProgressBarWithLabel(
+
+                                            distributions.forEach { distribution ->
+                                                val percentage =
+                                                    distribution.totalValue.toFloat() / uiState.totalValue.toFloat()
+                                                Row(
                                                     modifier = Modifier.fillMaxWidth(),
-                                                    progress = percentage
-                                                )
+                                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Box(
+                                                        modifier = Modifier
+                                                            .size(15.dp)
+                                                            .background(
+                                                                color = colorFromLabel(distribution.expenseName),
+                                                                shape = RoundedCornerShape(3.dp)
+                                                            )
+                                                    )
+                                                    Column(modifier = Modifier.weight(1f)) {
+                                                        Row(modifier = Modifier.fillMaxWidth()) {
+                                                            Text(
+                                                                text = distribution.expenseName,
+                                                                style = AppTypography.bodyMedium,
+                                                                color = Black1
+                                                            )
+                                                            Text(
+                                                                text = formatterVND(distribution.totalValue),
+                                                                style = AppTypography.bodyMedium,
+                                                                color = Black1,
+                                                                modifier = Modifier.weight(1f),
+                                                                textAlign = TextAlign.End
+                                                            )
+                                                        }
+                                                        ProgressBarWithLabel(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            progress = percentage
+                                                        )
+
+                                                    }
+                                                }
 
                                             }
+
                                         }
-
                                     }
-
                                 }
                             }
                             if (uiState.analyzeResponse == null) {
@@ -793,59 +687,59 @@ private fun AnalyzeRow(
 
 }
 
-@Preview(
-    showSystemUi = true,
-    showBackground = true
-)
-@Composable
-fun AnalyticPreview() {
-//    AnalyticScreen(
-//        uiState = AnalyticUiState(
-//            trendStatistic = TrendStatisticResponse().apply {
-//                addAll(
-//                    listOf(
-////                        TrendStatisticResponseItem(
-////                            date = "2025-01",
-////                            totalTransactions = 0,
-////                            totalValue = 100000L
-////                        ),
-////                        TrendStatisticResponseItem(
-////                            date = "2025-02",
-////                            totalTransactions = 0,
-////                            totalValue = 100000L
-////                        ),
-//                    )
-//                )
-//            },
-//            distributionStatistic = DistributionStatisticResponse(
-//                analyticId = "1",
-//                distributions = listOf(
-////                    Distribution(
-////                        label = "Ăn uống",
-////                        expenseName = "Ăn uống",
-////                        expenseTag = "an_uong",
-////                        totalTransactions = 10,
-////                        totalValue = 500000L
-////                    ),
-////                    Distribution(
-////                        label = "Sức khỏe",
-////                        expenseName = "Sức khỏe",
-////                        expenseTag = "suc_khoe",
-////                        totalTransactions = 10,
-////                        totalValue = 5000000L
-////                    ),
-//                )
-//            ),
-//            initialedDistributionStatistic = true,
-//            initialedTrendStatistic = true,
+//@Preview(
+//    showSystemUi = true,
+//    showBackground = true
+//)
+//@Composable
+//fun AnalyticPreview() {
+////    AnalyticScreen(
+////        uiState = AnalyticUiState(
+////            trendStatistic = TrendStatisticResponse().apply {
+////                addAll(
+////                    listOf(
+//////                        TrendStatisticResponseItem(
+//////                            date = "2025-01",
+//////                            totalTransactions = 0,
+//////                            totalValue = 100000L
+//////                        ),
+//////                        TrendStatisticResponseItem(
+//////                            date = "2025-02",
+//////                            totalTransactions = 0,
+//////                            totalValue = 100000L
+//////                        ),
+////                    )
+////                )
+////            },
+////            distributionStatistic = DistributionStatisticResponse(
+////                analyticId = "1",
+////                distributions = listOf(
+//////                    Distribution(
+//////                        label = "Ăn uống",
+//////                        expenseName = "Ăn uống",
+//////                        expenseTag = "an_uong",
+//////                        totalTransactions = 10,
+//////                        totalValue = 500000L
+//////                    ),
+//////                    Distribution(
+//////                        label = "Sức khỏe",
+//////                        expenseName = "Sức khỏe",
+//////                        expenseTag = "suc_khoe",
+//////                        totalTransactions = 10,
+//////                        totalValue = 5000000L
+//////                    ),
+////                )
+////            ),
+////            initialedDistributionStatistic = true,
+////            initialedTrendStatistic = true,
+////
+////            ),
+////        navigationBar = {},
+////        onRetry = {},
+////        onMinusMonth = {},
+////        onPlusMonth = {},
+////        onAnalyze = {},
+////        onChangeMoneyFlowType = {},
+////    )
 //
-//            ),
-//        navigationBar = {},
-//        onRetry = {},
-//        onMinusMonth = {},
-//        onPlusMonth = {},
-//        onAnalyze = {},
-//        onChangeMoneyFlowType = {},
-//    )
-
-}
+//}

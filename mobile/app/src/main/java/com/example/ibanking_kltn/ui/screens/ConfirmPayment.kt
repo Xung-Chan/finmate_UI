@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
@@ -43,6 +44,7 @@ import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.ConfirmUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomDropdownField
@@ -129,183 +131,566 @@ fun ConfirmPaymentScreen(
                             onValueChange = {}
                         )
                     }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                ambientColor = Black1.copy(alpha = 0.25f),
-                                spotColor = Black1.copy(alpha = 0.25f)
-
-                            )
-                            .background(
-                                color = White1,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(
-                                "Thông tin người nhận",
-                                style = AppTypography.bodyMedium,
-                                color = Gray1
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row {
-                                Text(
-                                    text = "Họ tên",
-                                    style = AppTypography.bodyMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = uiState.toMerchantName,
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                enable = false,
-                                onValueChange = {}
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row {
-                                Text(
-                                    text = "Số tài khoản",
-                                    style = AppTypography.bodyMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = uiState.toWalletNumber,
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                enable = false,
-                                onValueChange = {}
-                            )
-                        }
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                ambientColor = Black1.copy(alpha = 0.25f),
-                                spotColor = Black1.copy(alpha = 0.25f)
-
-                            )
-                            .background(
-                                color = White1,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .padding(horizontal = 20.dp, vertical = 10.dp)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Text(
-                                "Thông tin giao dịch",
-                                style = AppTypography.bodyMedium,
-                                color = Gray1
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row {
-                                Text(
-                                    text = "Số tiền",
-                                    style = AppTypography.bodyMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = "${formatterVND(uiState.amount)} VND",
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                enable = false,
-                                onValueChange = {}
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Row {
-                                Text(
-                                    text = "Nội dung chuyển khoản",
-                                    style = AppTypography.bodyMedium,
-                                    color = Gray1
-                                )
-                            }
-                            CustomTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = uiState.description,
-                                keyboardOptions = KeyboardOptions(
-                                    imeAction = ImeAction.Done,
-                                    keyboardType = KeyboardType.Text
-                                ),
-                                enable = false,
-                                onValueChange = {}
-                            )
-                        }
-                        if (!uiState.expenseType.isNullOrEmpty()) {
+                    when (uiState.confirmContent) {
+                        is ConfirmContent.BILL_PAYMENT -> {
+                            val billData = uiState.confirmContent
                             Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 10.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
 
-                                Row {
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
                                     Text(
-                                        text = "Phân loại",
+                                        "Thông tin người nhận",
                                         style = AppTypography.bodyMedium,
                                         color = Gray1
                                     )
                                 }
-                                CustomTextField(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    value = uiState.expenseType,
-                                    keyboardOptions = KeyboardOptions(
-                                        imeAction = ImeAction.Done,
-                                        keyboardType = KeyboardType.Text
-                                    ),
-                                    enable = false,
-                                    onValueChange = {}
-                                )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Họ tên",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.toMerchantName,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Số tài khoản",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.toWalletNumber,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
                             }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
+
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Thông tin giao dịch",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Mã hóa đơn",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.billCode,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Số tiền",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = formatterVND(uiState.amount) + " VND",
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Nội dung",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value =billData.description,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                            }
+                        }
+                        is ConfirmContent.BILL_REPAYMENT -> {
+                            val billData = uiState.confirmContent
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
+
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Thông tin giao dịch",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Số tiền",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = "${formatterVND(uiState.amount)} VND",
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
+
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Thông tin hóa đơn",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Mã hóa đơn",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.billCode,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Kì hạn",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.term,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Tổng nợ hiện tại",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = formatterVND(billData.totalDept) + " VND",
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Tổng nợ sau khi trả",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = formatterVND(billData.afterRepayDept) + " VND",
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Hạn thanh toán",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = billData.dueDate,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                            }
+                        }
+                        is ConfirmContent.TRANSFER -> {
+                            val transferData = uiState.confirmContent
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
+
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Thông tin người nhận",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Họ tên",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = transferData.toMerchantName,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Số tài khoản",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = transferData.toWalletNumber,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                            }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 30.dp,
+                                        shape = RoundedCornerShape(20.dp),
+                                        ambientColor = Black1.copy(alpha = 0.25f),
+                                        spotColor = Black1.copy(alpha = 0.25f)
+
+                                    )
+                                    .background(
+                                        color = White1,
+                                        shape = RoundedCornerShape(20.dp)
+                                    )
+                                    .padding(horizontal = 20.dp, vertical = 10.dp)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Text(
+                                        "Thông tin giao dịch",
+                                        style = AppTypography.bodyMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Số tiền",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = "${formatterVND(uiState.amount)} VND",
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Row {
+                                        Text(
+                                            text = "Nội dung chuyển khoản",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
+                                        )
+                                    }
+                                    CustomTextField(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        value = transferData.description,
+                                        keyboardOptions = KeyboardOptions(
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
+                                        ),
+                                        enable = false,
+                                        onValueChange = {}
+                                    )
+                                }
+                                if (!transferData.expenseType.isNullOrEmpty()) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 10.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+
+                                        Row {
+                                            Text(
+                                                text = "Phân loại",
+                                                style = AppTypography.bodyMedium,
+                                                color = Gray1
+                                            )
+                                        }
+                                        CustomTextField(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            value = transferData.expenseType,
+                                            keyboardOptions = KeyboardOptions(
+                                                imeAction = ImeAction.Done,
+                                                keyboardType = KeyboardType.Text
+                                            ),
+                                            enable = false,
+                                            onValueChange = {}
+                                        )
+                                    }
+
+                                }
+
+                            }
+                        }
+                        null -> {
 
                         }
-
                     }
+
                 }
                 //navigationbar
                 Column(
@@ -318,6 +703,25 @@ fun ConfirmPaymentScreen(
                         .fillMaxWidth()
                         .padding(top = 20.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        Text(
+                            text = "Tổng tiền",
+                            style = AppTypography.bodyMedium,
+                            color = Gray1,
+                        )
+                        Text(
+                            text = formatterVND(uiState.amount) + " VND",
+                            style = AppTypography.titleMedium,
+                            color = Black1,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.End
+                        )
+
+                    }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -382,6 +786,7 @@ fun ConfirmPaymentScreen(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             text = stringResource(R.string.Confirm),
+                            style = AppTypography.titleMedium,
                         )
 
                     }

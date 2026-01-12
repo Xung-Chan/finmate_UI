@@ -15,7 +15,7 @@ data class PreparePayBillRequest(
 )
 
 data class PreparePrePaymentRequest(
-    val amount: Int,
+    val amount: Long,
     val billerCode: String
 )
 

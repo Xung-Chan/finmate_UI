@@ -3,10 +3,22 @@ package com.example.ibanking_kltn.ui
 import android.app.Activity
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,6 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
@@ -29,6 +43,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.AsyncImage
 import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
@@ -52,6 +67,7 @@ import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
 import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.MyProfileScreen
+import com.example.ibanking_kltn.ui.screens.NotificationScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
 import com.example.ibanking_kltn.ui.screens.PayLaterApplicationHistoryScreen
 import com.example.ibanking_kltn.ui.screens.PayLaterApplicationScreen
@@ -65,6 +81,9 @@ import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
 import com.example.ibanking_kltn.ui.screens.TransferScreen
+import com.example.ibanking_kltn.ui.theme.AppTypography
+import com.example.ibanking_kltn.ui.theme.White1
+import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AnalyticViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
@@ -81,6 +100,8 @@ import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.MyProfileViewModel
+import com.example.ibanking_kltn.ui.viewmodels.NotificationEvent
+import com.example.ibanking_kltn.ui.viewmodels.NotificationViewModel
 import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationViewModel
 import com.example.ibanking_kltn.ui.viewmodels.PayLaterViewModel
@@ -91,15 +112,17 @@ import com.example.ibanking_kltn.ui.viewmodels.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
+import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
 import com.example.ibanking_kltn.utils.SnackBarType
+import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
 import java.time.LocalDate
 
 enum class Screens {
     SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword,
-
+    Notification,
     Home, Settings, Analytic,
     TransactionResult, Transfer, ConfirmPayment,
     MyProfile, TermAndConditions,
@@ -112,6 +135,7 @@ enum class Screens {
     SavedReceiver,
     PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle
 }
+
 
 @Composable
 fun AppScreen(
@@ -143,6 +167,7 @@ fun AppScreen(
     val payLaterApplicationHistoryViewModel: PayLaterApplicationHistoryViewModel = hiltViewModel()
     val analyticViewModel: AnalyticViewModel = hiltViewModel()
     val billingCycleViewModel: BillingCycleViewModel = hiltViewModel()
+    val notificationViewModel: NotificationViewModel = hiltViewModel()
 
     var service by remember { mutableStateOf(ServiceType.TRANSFER) }
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
@@ -263,11 +288,95 @@ fun AppScreen(
             appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
             createBillViewModel.init()
             navController.navigate(Screens.CreateBill.name)
-        },
+        }
 
 
-        )
+    )
+    val userComponent: @Composable () -> Unit = {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = 10.dp,
+                    alignment = Alignment.Start
+                ),
 
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .background(
+                            color = White1,
+                            shape = CircleShape
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    if (snackBarState.avatarUrl == null) {
+                        DefaultImageProfile(
+                            modifier = Modifier
+                                .size(100.dp),
+                            name = snackBarState.fullName
+                        )
+                    } else {
+
+                        AsyncImage(
+                            model = snackBarState.avatarUrl,
+                            contentDescription = "Avatar",
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+
+                }
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+                        color = White1,
+                        style = AppTypography.bodySmall
+                    )
+                    Text(
+                        text = "Xin chào, ${snackBarState.fullName}!",
+                        color = White1,
+                        style = AppTypography.bodyMedium
+                    )
+                }
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                IconButton(
+                    onClick = {
+                        navController.navigate(Screens.Notification.name)
+                    },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .align(
+                            Alignment.CenterVertically
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        tint = White1,
+                        modifier = Modifier.size(35.dp)
+                    )
+                }
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -286,15 +395,13 @@ fun AppScreen(
                 SignInScreen(
                     uiState = authUiState,
                     onLoginClick = {
-
-                        //api
                         authViewModel.onLoginClick(
                             onSuccess = {
                                 homeViewModel.init(
                                     onError
                                 )
                                 appViewModel.updateUserInfo(
-                                    avatarUrl =homeUiState.value.myProfile?.avatarUrl,
+                                    avatarUrl = homeUiState.value.myProfile?.avatarUrl,
                                     fullName = homeUiState.value.myProfile?.fullName
                                 )
                                 navController.navigate(Screens.Home.name) {
@@ -316,18 +423,6 @@ fun AppScreen(
                         )
 
                     },
-                    onEmailChange = { it -> authViewModel.onEmailChange(it) },
-                    onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
-                    onChangeVisiblePassword = {
-                        authViewModel.onChangeVisiblePassword()
-                    },
-                    checkEnableLogin = {
-                        authViewModel.checkEnableLogin()
-                    },
-
-                    onForgotPasswordClick = {
-                        navController.navigate(Screens.ForgotPassword.name)
-                    },
                     onBiometricClick = {
                         authViewModel.onBiometricClick(
                             fragmentActivity = context as FragmentActivity,
@@ -336,7 +431,7 @@ fun AppScreen(
                                     onError
                                 )
                                 appViewModel.updateUserInfo(
-                                    avatarUrl =homeUiState.value.myProfile?.avatarUrl,
+                                    avatarUrl = homeUiState.value.myProfile?.avatarUrl,
                                     fullName = homeUiState.value.myProfile?.fullName
                                 )
                                 navController.navigate(Screens.Home.name) {
@@ -358,6 +453,21 @@ fun AppScreen(
                                 )
                             })
 
+                    },
+                    onEmailChange = { it -> authViewModel.onEmailChange(it) },
+                    onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
+                    onChangeVisiblePassword = {
+                        authViewModel.onChangeVisiblePassword()
+                    },
+                    checkEnableLogin = {
+                        authViewModel.checkEnableLogin()
+                    },
+
+                    onRequestOtp = {
+                        forgotPasswordViewModel.init(
+                            purpose = it
+                        )
+                        navController.navigate(Screens.ForgotPassword.name)
                     },
                     onDeleteLastLoginUser = {
                         authViewModel.onDeleteLastLoginUser()
@@ -383,10 +493,28 @@ fun AppScreen(
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
+                    homeViewModel.loadUserInfo(
+                        onError = onError
+                    )
+                    if (homeUiState.myProfile?.avatarUrl != null
+                    ) {
+                        appViewModel.updateUserInfo(
+                            avatarUrl = homeUiState.myProfile!!.avatarUrl,
+                        )
+
+                    }
+                    if (homeUiState.myProfile?.fullName != null
+                    ) {
+                        appViewModel.updateUserInfo(
+                            fullName = homeUiState.myProfile!!.fullName,
+                        )
+                    }
+
                     homeViewModel.loadFavoriteAndRecentServices()
                 }
                 HomeScreen(
-                    homeUiState = homeUiState, onChangeVisibleBalance = {
+                    homeUiState = homeUiState,
+                    onChangeVisibleBalance = {
                         homeViewModel.onChangeVisibleBalance(
                             onError = onError
                         )
@@ -403,7 +531,7 @@ fun AppScreen(
                             onError
                         )
                     },
-                    appUiState = snackBarState
+                    userComponent = userComponent
                 )
             }
             composable(route = Screens.Transfer.name) {
@@ -432,12 +560,14 @@ fun AppScreen(
                         val transferData = transferViewModel.uiState.value
                         confirmViewModel.init(
                             amount = transferData.amount,
-                            toWalletNumber = transferData.toWalletNumber,
-                            description = removeVietnameseAccents(transferData.description.ifEmpty { "Chuyen tien den ${transferData.toMerchantName}" }),
-                            toMerchantName = transferData.toMerchantName,
-                            expenseType = transferData.expenseType,
+                            service = service,
                             isVerified = transferData.isVerified,
-                            service = service
+                            confirmContent = ConfirmContent.TRANSFER(
+                                toWalletNumber = transferData.toWalletNumber,
+                                description = removeVietnameseAccents(transferData.description.ifEmpty { "Chuyen tien den ${transferData.toMerchantName}" }),
+                                toMerchantName = transferData.toMerchantName,
+                                expenseType = transferData.expenseType,
+                            ),
                         )
                         if (transferData.isSaveReceiver) {
                             savedReceiverViewModel.onSaveReceiver(
@@ -492,7 +622,6 @@ fun AppScreen(
                                 status = TransactionStatus.COMPLETED,
                                 service = service.serviceName,
                                 amount = confirmUiState.amount,
-                                toMerchantName = confirmUiState.toMerchantName
                             )
                             navController.navigate(Screens.TransactionResult.name)
                         }, onError = { message ->
@@ -529,12 +658,14 @@ fun AppScreen(
                         val billData = payBillViewModel.uiState.value
                         confirmViewModel.init(
                             amount = billData.amount,
-                            toWalletNumber = billData.toWalletNumber,
-                            description = removeVietnameseAccents(billData.description.ifEmpty { "Chuyen tien den ${billData.toMerchantName}" }),
-                            toMerchantName = billData.toMerchantName,
-                            billCode = billData.billCode,
                             isVerified = true,
-                            service = service
+                            service = service,
+                            confirmContent = ConfirmContent.BILL_PAYMENT(
+                                toWalletNumber = billData.toWalletNumber,
+                                toMerchantName = billData.toMerchantName,
+                                description = removeVietnameseAccents(billData.description.ifEmpty { "Chuyen tien den ${billData.toMerchantName}" }),
+                                billCode = billData.billCode,
+                            ),
                         )
                         navController.navigate(Screens.ConfirmPayment.name)
 
@@ -600,12 +731,14 @@ fun AppScreen(
                     appUiState = snackBarState,
                     onViewProfileClick = {
                         myProfileViewModel.init(
-                            onSuccess = {
+                            onSuccess = { avatarUrl, fullName ->
                                 appViewModel.updateUserInfo(
-                                    avatarUrl = it,
+                                    avatarUrl = avatarUrl,
+                                    fullName = fullName
                                 )
                             },
-                            onError = onError)
+                            onError = onError
+                        )
                         navController.navigate(Screens.MyProfile.name)
                     },
                     onChangePasswordClick = {
@@ -643,11 +776,9 @@ fun AppScreen(
 
                 )
             }
-            composable(route = Screens.ForgotPassword.name) {
+            composable(route = Screens.ForgotPassword.name) { backStackEntry ->
+
                 val uiState by forgotPasswordViewModel.uiState.collectAsState()
-                LaunchedEffect(Unit) {
-                    forgotPasswordViewModel.clearState()
-                }
                 ForgotPasswordScreen(uiState = uiState, onFindUsernameClick = {
                     forgotPasswordViewModel.onFindUsernameClick(
                         onError = { message ->
@@ -750,7 +881,6 @@ fun AppScreen(
                                 status = it.status,
                                 service = it.service,
                                 amount = it.amount,
-                                toMerchantName = homeViewModel.uiState.value.myWallet?.merchantName
                             )
                             navController.navigate(Screens.TransactionResult.name)
                         })
@@ -952,7 +1082,7 @@ fun AppScreen(
                     navigationBar = {
                         navigationBar()
                     },
-                    appUiState = snackBarState,
+                    userComponent = userComponent,
                     myWalletNumber = homeUiState.myWallet?.walletNumber ?: "",
                 )
             }
@@ -980,7 +1110,6 @@ fun AppScreen(
                     navigator = navigator
                 )
             }
-
             composable(route = Screens.VerificationRequest.name) { backStackEntry ->
                 val uiState by createVerificationRequestViewModel.uiState.collectAsState()
                 CreateVerificationRequestScreen(
@@ -1055,8 +1184,7 @@ fun AppScreen(
                     onUpdateImageProfile = {
                         myProfileViewModel.onUpdateImageProfile(
                             uri = it,
-                            onSuccess = {
-                                uri->
+                            onSuccess = { uri ->
                                 appViewModel.showSnackBarMessage(
                                     message = "Cập nhật ảnh đại diện thành công",
                                     type = SnackBarType.SUCCESS,
@@ -1066,17 +1194,20 @@ fun AppScreen(
                                     }
                                 )
                                 appViewModel.updateUserInfo(
-                                    avatarUrl = uri
-                                )
+                                    avatarUrl = uri,
+
+                                    )
                             },
                             onError = onError
                         )
                     },
                     onRetry = {
                         myProfileViewModel.loadUserInfo(
-                            onSuccess = {
+                            onSuccess = { avatarUrl, fullName ->
                                 appViewModel.updateUserInfo(
-                                    avatarUrl = it
+                                    avatarUrl = avatarUrl,
+                                    fullName = fullName
+
                                 )
                             },
                             onError = onError
@@ -1282,7 +1413,7 @@ fun AppScreen(
                 val uiState by analyticViewModel.uiState.collectAsState()
                 AnalyticScreen(
                     uiState = uiState,
-                    appUiState = snackBarState,
+                    userComponent = userComponent,
                     navigationBar = { navigationBar() },
                     onRetry = {
                         analyticViewModel.init(
@@ -1313,6 +1444,7 @@ fun AppScreen(
                 )
             }
             composable(route = Screens.BillingCycle.name) {
+                service = ServiceType.BILL_PAYMENT
                 val uiState by billingCycleViewModel.uiState.collectAsState()
                 val billingCycles =
                     billingCycleViewModel.billingCyclePager.collectAsLazyPagingItems()
@@ -1334,6 +1466,60 @@ fun AppScreen(
                     onSelectBillingCycle = {
                         billingCycleViewModel.onSelectBillingCycle(it)
                     },
+                    onConfirmPayment = { billingCycle, payAmount, totalDept ->
+                        confirmViewModel.clearState()
+                        confirmViewModel.init(
+                            amount = payAmount,
+                            isVerified = false,
+                            service = service,
+                            confirmContent = ConfirmContent.BILL_REPAYMENT(
+                                billCode = billingCycle.code,
+                                term = "${
+                                    formatterDateString(
+                                        LocalDate.parse(
+                                            billingCycle.startDate
+                                        )
+                                    )
+                                } - ${
+                                    formatterDateString(
+                                        LocalDate.parse(
+                                            billingCycle.endDate
+                                        )
+                                    )
+                                }",
+                                dueDate = formatterDateString(
+                                    LocalDate.parse(
+                                        billingCycle.dueDate
+                                    )
+                                ),
+                                totalDept = totalDept,
+                                afterRepayDept = totalDept - payAmount
+                            ),
+                        )
+                        navController.navigate(Screens.ConfirmPayment.name)
+
+                    }
+                )
+            }
+            composable(route = Screens.Notification.name) {
+                val uiState by notificationViewModel.uiState.collectAsState()
+                val notifications =
+                    notificationViewModel.notificationPager.collectAsLazyPagingItems()
+                NotificationScreen(
+                    uiState = uiState,
+                    notifications = notifications,
+                    onChangType = {
+                        notificationViewModel.onEvent(NotificationEvent.ChangeType)
+                    },
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onErrorLoading = {
+                        appViewModel.showSnackBarMessage(
+                            message = it,
+                            type = SnackBarType.ERROR
+                        )
+                    }
                 )
             }
 

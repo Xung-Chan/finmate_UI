@@ -67,8 +67,12 @@ class BillingCycleViewModel @Inject constructor(
         }
     }
 
-    fun onSelectBillingCycle(billingCycleResonse: BillingCycleResonse?) {
-        //todo
+    fun onSelectBillingCycle(billingCycleResponse: BillingCycleResonse?) {
+        _uiState.update {
+            it.copy(
+                selectedBillingCycle = billingCycleResponse
+            )
+        }
     }
 
 

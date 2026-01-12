@@ -22,12 +22,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,14 +36,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceItem
@@ -57,22 +53,19 @@ import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
-import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.RetryCompose
-import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
-import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
-    appUiState: AppUiState,
+//    appUiState: AppUiState,
+    userComponent: @Composable () -> Unit,
     navigationBar: @Composable () -> Unit,
     onChangeVisibleBalance: () -> Unit,
     onNavigateTo: Map<String, () -> Unit>,
@@ -112,102 +105,103 @@ fun HomeScreen(
                             .verticalScroll(scrollState)
                     ) {
                         //user infor row
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    space = 10.dp,
-                                    alignment = Alignment.Start
-                                ),
-
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .size(50.dp)
-                                        .background(
-                                            color = White1,
-                                            shape = CircleShape
-                                        ),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    if (appUiState.avatarUrl == null) {
-                                        DefaultImageProfile(
-                                            modifier = Modifier
-                                                .size(100.dp),
-                                            name =appUiState.fullName
-                                        )
-                                    } else {
-
-                                        AsyncImage(
-                                            model = appUiState.avatarUrl,
-                                            contentDescription = "Avatar",
-                                            modifier = Modifier
-                                                .size(100.dp)
-                                                .clip(CircleShape),
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
-
-                                }
-                                Column(
-                                    horizontalAlignment = Alignment.Start,
-                                    verticalArrangement = Arrangement.Center,
-                                ) {
-                                    Text(
-                                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
-                                        color = White1,
-                                        style = AppTypography.bodySmall
-                                    )
-                                    Text(
-                                        text = "Xin chào, ${appUiState.fullName}!",
-                                        color = White1,
-                                        style = AppTypography.bodyMedium
-                                    )
-                                }
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                IconButton(
-                                    onClick = {},
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .align(
-                                            Alignment.CenterVertically
-                                        )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Notifications,
-                                        contentDescription = null,
-                                        tint = White1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {},
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .align(
-                                            Alignment.CenterVertically
-                                        )
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.question),
-                                        contentDescription = null,
-                                        tint = White1,
-                                        modifier = Modifier.size(35.dp)
-                                    )
-                                }
-                            }
-                        }
+//                        Row(
+//                            verticalAlignment = Alignment.CenterVertically,
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(10.dp)
+//                        ) {
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.spacedBy(
+//                                    space = 10.dp,
+//                                    alignment = Alignment.Start
+//                                ),
+//
+//                                modifier = Modifier.weight(1f)
+//                            ) {
+//                                Column(
+//                                    modifier = Modifier
+//                                        .size(50.dp)
+//                                        .background(
+//                                            color = White1,
+//                                            shape = CircleShape
+//                                        ),
+//                                    horizontalAlignment = Alignment.CenterHorizontally,
+//                                    verticalArrangement = Arrangement.Center
+//                                ) {
+//                                    if (appUiState.avatarUrl == null) {
+//                                        DefaultImageProfile(
+//                                            modifier = Modifier
+//                                                .size(100.dp),
+//                                            name =appUiState.fullName
+//                                        )
+//                                    } else {
+//
+//                                        AsyncImage(
+//                                            model = appUiState.avatarUrl,
+//                                            contentDescription = "Avatar",
+//                                            modifier = Modifier
+//                                                .size(100.dp)
+//                                                .clip(CircleShape),
+//                                            contentScale = ContentScale.Crop
+//                                        )
+//                                    }
+//
+//                                }
+//                                Column(
+//                                    horizontalAlignment = Alignment.Start,
+//                                    verticalArrangement = Arrangement.Center,
+//                                ) {
+//                                    Text(
+//                                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+//                                        color = White1,
+//                                        style = AppTypography.bodySmall
+//                                    )
+//                                    Text(
+//                                        text = "Xin chào, ${appUiState.fullName}!",
+//                                        color = White1,
+//                                        style = AppTypography.bodyMedium
+//                                    )
+//                                }
+//                            }
+//                            Row(
+//                                verticalAlignment = Alignment.CenterVertically,
+//                                horizontalArrangement = Arrangement.End
+//                            ) {
+//                                IconButton(
+//                                    onClick = {},
+//                                    modifier = Modifier
+//                                        .size(40.dp)
+//                                        .align(
+//                                            Alignment.CenterVertically
+//                                        )
+//                                ) {
+//                                    Icon(
+//                                        imageVector = Icons.Default.Notifications,
+//                                        contentDescription = null,
+//                                        tint = White1,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//                                IconButton(
+//                                    onClick = {},
+//                                    modifier = Modifier
+//                                        .size(40.dp)
+//                                        .align(
+//                                            Alignment.CenterVertically
+//                                        )
+//                                ) {
+//                                    Icon(
+//                                        painter = painterResource(R.drawable.question),
+//                                        contentDescription = null,
+//                                        tint = White1,
+//                                        modifier = Modifier.size(35.dp)
+//                                    )
+//                                }
+//                            }
+//                        }
+                        userComponent()
                         //Main container
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -689,6 +683,7 @@ fun HomePreview() {
         ),
         onNavigateServiceList = {},
         onRetry = {},
-        appUiState = AppUiState()
+//        appUiState = AppUiState()
+        userComponent = {}
     )
 }

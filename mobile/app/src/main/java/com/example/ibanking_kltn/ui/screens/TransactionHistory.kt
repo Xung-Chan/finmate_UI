@@ -15,15 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -32,12 +28,10 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -47,7 +41,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.ServiceType
@@ -65,13 +58,10 @@ import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import com.example.ibanking_kltn.utils.CustomTextField
-import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.TransactionHistoryFilterDialog
 import com.example.ibanking_kltn.utils.checkMoneyFlow
-import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
 import java.time.LocalDate
@@ -81,7 +71,7 @@ import java.time.LocalDateTime
 @Composable
 fun TransactionHistoryScreen(
     uiState: TransactionHistoryUiState,
-    appUiState: AppUiState,
+    userComponent:@Composable () -> Unit,
     transactions: LazyPagingItems<TransactionHistoryResponse>,
     myWalletNumber: String,
     onErrorLoading: (String) -> Unit,
@@ -124,102 +114,7 @@ fun TransactionHistoryScreen(
 
                 ) {
                     //user infor row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                space = 10.dp,
-                                alignment = Alignment.Start
-                            ),
-
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .background(
-                                        color = White1,
-                                        shape = CircleShape
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                if (appUiState.avatarUrl == null) {
-                                    DefaultImageProfile(
-                                        modifier = Modifier
-                                            .size(100.dp),
-                                        name =appUiState.fullName
-                                    )
-                                } else {
-
-                                    AsyncImage(
-                                        model = appUiState.avatarUrl,
-                                        contentDescription = "Avatar",
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-
-                            }
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
-                                    color = White1,
-                                    style = AppTypography.bodySmall
-                                )
-                                Text(
-                                    text = "Xin chào, ${appUiState.fullName}!",
-                                    color = White1,
-                                    style = AppTypography.bodyMedium
-                                )
-                            }
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.question),
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        }
-                    }
+                    userComponent()
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(10.dp),

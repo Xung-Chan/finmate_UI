@@ -2,7 +2,7 @@ package com.example.ibanking_kltn.ui.security
 
 import android.content.Context
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -15,7 +15,8 @@ class BiometricAuthenticator @Inject constructor(
     private val biometricManager = BiometricManager.from(context)
     private lateinit var biometricPrompt: BiometricPrompt
     fun isBiometricAuthAvilable(): BiometricAuthenticationStatus {
-        return when (biometricManager.canAuthenticate(BIOMETRIC_STRONG)) {
+        return when (biometricManager.canAuthenticate(BIOMETRIC_WEAK)) {
+//        return when (biometricManager.canAuthenticate(BIOMETRIC_STRONG)) {
             BiometricManager.BIOMETRIC_SUCCESS -> BiometricAuthenticationStatus.READY
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> BiometricAuthenticationStatus.NOT_AVAILABLE
             BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> BiometricAuthenticationStatus.TEMPORARY_NOTAVAILABLE
@@ -83,8 +84,8 @@ class BiometricAuthenticator @Inject constructor(
         promptInfor = BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setNegativeButtonText(negativeButtonText)
-//            .setConfirmationRequired(true)
-//            .setAllowedAuthenticators(BIOMETRIC_STRONG)
+            .setConfirmationRequired(false)
+            .setAllowedAuthenticators(BIOMETRIC_WEAK)
             .build()
         biometricPrompt.authenticate(promptInfor)
     }
