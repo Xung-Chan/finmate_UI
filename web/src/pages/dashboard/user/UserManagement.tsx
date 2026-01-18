@@ -53,8 +53,10 @@ const UserManagementPage: React.FC = () => {
         () => ({
             keyword: debounced.trim() || "",
             status: filterStatus || undefined,
+            size: itemsPerPage,
+            page: currentPage - 1,
         }),
-        [debounced, filterStatus]
+        [debounced, filterStatus, itemsPerPage, currentPage]
     );
 
     /* =======================
@@ -69,10 +71,6 @@ const UserManagementPage: React.FC = () => {
        PAGINATION (FE)
        ======================= */
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = users.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
 
     /* =======================
        RENDER STATUS
@@ -255,7 +253,7 @@ const UserManagementPage: React.FC = () => {
                     <>
                         <TableComponent<UserResource>
                             columns={columns}
-                            dataSource={paginatedData}
+                            dataSource={users}
                             renderActions={renderActions}
                         />
 

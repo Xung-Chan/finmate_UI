@@ -46,8 +46,10 @@ const WalletManagementPage: React.FC = () => {
             keyword: debounced.trim() || "",
             status: filterStatus || undefined,
             sort_by: sortBy,
+            size: itemsPerPage,
+            page: currentPage - 1,
         }),
-        [debounced, filterStatus, sortBy]
+        [debounced, filterStatus, sortBy, itemsPerPage, currentPage]
     );
 
 
@@ -63,10 +65,6 @@ const WalletManagementPage: React.FC = () => {
        PAGINATION (FE)
        ======================= */
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = wallets.slice(
-        startIndex,
-        startIndex + itemsPerPage
-    );
 
     /* =======================
        RENDER STATUS
@@ -280,7 +278,7 @@ const WalletManagementPage: React.FC = () => {
                     <>
                         <TableComponent<WalletResource>
                             columns={columns}
-                            dataSource={paginatedData}
+                            dataSource={wallets}
                             renderActions={renderActions}
                         />
 

@@ -47,8 +47,10 @@ const WalletVerificationManagementPage: React.FC = () => {
             keyword: debounced.trim() || undefined,
             status: filterStatus || undefined,
             sort_by: sortBy,
+            size: itemsPerPage,
+            page: currentPage - 1,
         }),
-        [debounced, filterStatus, sortBy]
+        [debounced, filterStatus, sortBy, itemsPerPage, currentPage]
     );
 
     /* =======================
@@ -63,7 +65,6 @@ const WalletVerificationManagementPage: React.FC = () => {
        PAGINATION (FE)
        ======================= */
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const paginatedData = verifications.slice(startIndex, startIndex + itemsPerPage);
 
     /* =======================
        RENDER STATUS
@@ -256,7 +257,7 @@ const WalletVerificationManagementPage: React.FC = () => {
                     <>
                         <TableComponent<WalletVerificationResource>
                             columns={columns}
-                            dataSource={paginatedData}
+                            dataSource={verifications}
                             renderActions={renderActions}
                         />
                         <PaginationComponent
