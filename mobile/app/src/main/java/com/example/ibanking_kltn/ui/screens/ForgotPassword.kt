@@ -44,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
+import com.example.ibanking_kltn.ui.event.ForgotPasswordEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -63,19 +64,8 @@ import kotlinx.coroutines.delay
 @Composable
 fun ForgotPasswordScreen(
     uiState: ForgotPasswordUiState,
-    onFindUsernameClick: () -> Unit,
-    onUsernameChange: (String) -> Unit,
-    onSendOtpClick: () -> Unit,
-    onEmailChange: (String) -> Unit,
-    onConfirmOtpClick: () -> Unit,
-    onOtpChange: (String) -> Unit,
-    onResetPasswordClick: () -> Unit,
-    onNewPasswordChange: (String) -> Unit,
-    onBackToEnterUsernameClick: () -> Unit,
-    onBackToEnterEmailClick: () -> Unit,
     onBackClick: () -> Unit,
-    onChangeVisiblePassword: () -> Unit
-
+    onEvent: (ForgotPasswordEvent) -> Unit,
 ) {
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING,
@@ -123,8 +113,12 @@ fun ForgotPasswordScreen(
                     ForgotPasswordStep.ENTER_USERNAME -> {
                         EnterUsername(
                             uiState = uiState,
-                            onFindUsernameClick = onFindUsernameClick,
-                            onUsernameChange = onUsernameChange
+                            onFindUsernameClick = {
+                                onEvent(ForgotPasswordEvent.FindByUsername)
+                            },
+                            onUsernameChange = {
+                                onEvent(ForgotPasswordEvent.ChangeUsername(it))
+                            }
                         )
                     }
 
@@ -132,9 +126,15 @@ fun ForgotPasswordScreen(
                     ForgotPasswordStep.ENTER_EMAIL -> {
                         EnterEmail(
                             uiState = uiState,
-                            onEmailChange = onEmailChange,
-                            onSendOtpClick = onSendOtpClick,
-                            onBackToEnterUsernameClick = onBackToEnterUsernameClick
+                            onEmailChange = {
+                                onEvent(ForgotPasswordEvent.ChangeEmail(it))
+                            },
+                            onSendOtpClick = {
+                                onEvent(ForgotPasswordEvent.SendOtp)
+                            },
+                            onBackToEnterUsernameClick = {
+                                onEvent(ForgotPasswordEvent.BackToEnterUsernameClick)
+                            }
                         )
 
                     }
@@ -142,10 +142,18 @@ fun ForgotPasswordScreen(
                     ForgotPasswordStep.CONFIRM_OTP -> {
                         EnterOTP(
                             uiState = uiState,
-                            onOtpChange = onOtpChange,
-                            onConfirmOtpClick = onConfirmOtpClick,
-                            onResendOtpClick = onSendOtpClick,
-                            onBackToEnterEmailClick = onBackToEnterEmailClick
+                            onOtpChange = {
+                                onEvent(ForgotPasswordEvent.ChangeOtp(it))
+                            },
+                            onConfirmOtpClick = {
+                                onEvent(ForgotPasswordEvent.ConfirmOtp)
+                            },
+                            onResendOtpClick = {
+                                onEvent(ForgotPasswordEvent.SendOtp)
+                            },
+                            onBackToEnterEmailClick = {
+                                onEvent(ForgotPasswordEvent.BackToEnterEmailClick)
+                            }
                         )
                     }
 
@@ -153,10 +161,15 @@ fun ForgotPasswordScreen(
                     ForgotPasswordStep.RESET_PASSWORD -> {
                         EnterNewPassword(
                             uiState = uiState,
-                            onNewPasswordChange = onNewPasswordChange,
-                            onResetPasswordClick = onResetPasswordClick,
-                            onBackToEnterEmailClick = onBackToEnterEmailClick,
-                            onChangeVisiblePassword = onChangeVisiblePassword
+                            onNewPasswordChange = {
+                                onEvent(ForgotPasswordEvent.ChangeNewPassword(it))
+                            },
+                            onResetPasswordClick = {
+                                onEvent(ForgotPasswordEvent.ResetPassword)
+                            },
+                            onBackToEnterEmailClick = {
+                                onEvent(ForgotPasswordEvent.BackToEnterEmailClick)
+                            },
                         )
                     }
                 }
@@ -423,10 +436,9 @@ fun EnterNewPassword(
     onNewPasswordChange: (String) -> Unit,
     onResetPasswordClick: () -> Unit,
     onBackToEnterEmailClick: () -> Unit,
-    onChangeVisiblePassword: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-
+    var isShowPassword by remember { mutableStateOf(false) }
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
@@ -460,7 +472,7 @@ fun EnterNewPassword(
             CustomTextField(
                 value = uiState.newPassword,
                 isPasswordField = true,
-                isPasswordShow = uiState.isShowPassword,
+                isPasswordShow = isShowPassword,
                 placeholder = {
                     Text(
                         text = "Mật khẩu mới",
@@ -484,10 +496,12 @@ fun EnterNewPassword(
                             .shadow(
                                 elevation = 30.dp, shape = CircleShape
                             )
-                            .clickable { onChangeVisiblePassword() }
+                            .clickable {
+                                isShowPassword=!isShowPassword
+                            }
                     ) {
                         Icon(
-                            imageVector = if (uiState.isShowPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            imageVector = if (isShowPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = null,
                             tint = Gray1,
                         )
@@ -630,18 +644,8 @@ fun ForgotPasswordPreview() {
         uiState = ForgotPasswordUiState(
             currentStep = ForgotPasswordStep.ENTER_EMAIL
         ),
-        onFindUsernameClick = {},
-        onUsernameChange = {},
-        onSendOtpClick = {},
-        onEmailChange = {},
-        onConfirmOtpClick = {},
-        onOtpChange = {},
-        onResetPasswordClick = {},
-        onNewPasswordChange = {},
-        onBackToEnterEmailClick = {},
-        onBackToEnterUsernameClick = {},
         onBackClick = {},
-        onChangeVisiblePassword = {}
+        onEvent = {}
 
     )
 }

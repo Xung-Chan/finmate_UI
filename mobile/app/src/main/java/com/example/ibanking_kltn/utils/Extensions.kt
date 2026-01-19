@@ -12,6 +12,8 @@ import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -19,6 +21,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -367,4 +373,15 @@ fun LocalDateTime.formateDateTimeString(pattern: String = "dd/MM/yyyy • HH:mm"
         return "Hôm qua • " + this.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
     return this.format(DateTimeFormatter.ofPattern(pattern))
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.getViewModel(
+    navController: NavController,
+    route: String
+): T {
+    val entry = remember(this) {
+        navController.getBackStackEntry(route)
+    }
+    return hiltViewModel<T>(entry)
 }

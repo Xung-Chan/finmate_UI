@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -53,6 +52,8 @@ import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.ui.event.ForgotPasswordEffect
+import com.example.ibanking_kltn.ui.event.LoginEffect
 import com.example.ibanking_kltn.ui.screens.AllServiceScreen
 import com.example.ibanking_kltn.ui.screens.AnalyticScreen
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
@@ -84,6 +85,7 @@ import com.example.ibanking_kltn.ui.screens.TransferScreen
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AnalyticViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
@@ -117,7 +119,9 @@ import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
 import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.formatterDateString
+import com.example.ibanking_kltn.utils.getViewModel
 import com.example.ibanking_kltn.utils.removeVietnameseAccents
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 enum class Screens {
@@ -141,6 +145,19 @@ enum class Screens {
 fun AppScreen(
     navController: NavHostController = rememberNavController()
 ) {
+
+    var snackBarInstance by remember {
+        mutableStateOf<SnackBarUiState?>(null)
+    }
+
+    LaunchedEffect(snackBarInstance) {
+        if (snackBarInstance != null) {
+            delay(3000L)
+            snackBarInstance = null
+        }
+    }
+
+
     val appViewModel: AppViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
     val homeViewModel: HomeViewModel = hiltViewModel()
@@ -148,7 +165,6 @@ fun AppScreen(
     val confirmViewModel: ConfirmViewModel = hiltViewModel()
     val payBillViewModel: BillViewModel = hiltViewModel()
     val changePasswordViewModel: ChangPasswordViewModel = hiltViewModel()
-    val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
     val depositViewModel: DepositViewModel = hiltViewModel()
     val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
     val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
@@ -179,24 +195,6 @@ fun AppScreen(
         appViewModel.showSnackBarMessage(
             message = message, type = SnackBarType.ERROR
         )
-    }
-
-    var lastBackPressed by remember { mutableLongStateOf(0L) }
-
-    var isAtRoot by remember {
-        mutableStateOf(true)
-    }
-
-    BackHandler(enabled = isAtRoot) {
-        val now = System.currentTimeMillis()
-        if (now - lastBackPressed < 2000) {
-            (context as Activity).finish()
-        } else {
-            lastBackPressed = now
-            Toast
-                .makeText(context, "Vuốt back lần nữa để thoát", Toast.LENGTH_SHORT)
-                .show()
-        }
     }
 
 
@@ -389,89 +387,36 @@ fun AppScreen(
                 val authUiState by authViewModel.uiState.collectAsState()
                 val homeUiState = homeViewModel.uiState.collectAsState()
                 LaunchedEffect(Unit) {
-                    authViewModel.clearState()
-                    authViewModel.loadLastLoginUser()
+                    authViewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            LoginEffect.LoginSuccess -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Đăng nhập thành công",
+                                    type = SnackBarType.SUCCESS,
+                                )
+                                navController.navigate(
+                                    Screens.Home.name
+                                ) {
+                                    popUpTo(Screens.SignIn.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
+
+                            is LoginEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+
+                            is LoginEffect.RequestOtp -> {
+                                navController.navigate("${Screens.ForgotPassword.name}/${effect.purpose.name}")
+                            }
+                        }
+                    }
                 }
+
                 SignInScreen(
                     uiState = authUiState,
-                    onLoginClick = {
-                        authViewModel.onLoginClick(
-                            onSuccess = {
-                                homeViewModel.init(
-                                    onError
-                                )
-                                appViewModel.updateUserInfo(
-                                    avatarUrl = homeUiState.value.myProfile?.avatarUrl,
-                                    fullName = homeUiState.value.myProfile?.fullName
-                                )
-                                navController.navigate(Screens.Home.name) {
-                                    popUpTo(Screens.SignIn.name) {
-                                        inclusive = true
-                                    }
-                                }
-                                appViewModel.showSnackBarMessage(
-                                    message = "Đăng nhập thành công",
-                                    type = SnackBarType.SUCCESS,
-                                    actionLabel = "Đóng",
-                                    onAction = {
-                                        appViewModel.closeSnackBarMessage()
-                                    })
-                            },
-                            onError = { message ->
-                                onError(message)
-                            },
-                        )
-
-                    },
-                    onBiometricClick = {
-                        authViewModel.onBiometricClick(
-                            fragmentActivity = context as FragmentActivity,
-                            onSuccess = {
-                                homeViewModel.init(
-                                    onError
-                                )
-                                appViewModel.updateUserInfo(
-                                    avatarUrl = homeUiState.value.myProfile?.avatarUrl,
-                                    fullName = homeUiState.value.myProfile?.fullName
-                                )
-                                navController.navigate(Screens.Home.name) {
-                                    popUpTo(Screens.SignIn.name) {
-                                        inclusive = true
-                                    }
-                                }
-                                appViewModel.showSnackBarMessage(
-                                    message = "Đăng nhập thành công",
-                                    type = SnackBarType.SUCCESS,
-                                    actionLabel = "Đóng",
-                                    onAction = {
-                                        appViewModel.closeSnackBarMessage()
-                                    })
-                            },
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message, type = SnackBarType.ERROR
-                                )
-                            })
-
-                    },
-                    onEmailChange = { it -> authViewModel.onEmailChange(it) },
-                    onPasswordChange = { it -> authViewModel.onPasswordChange(it) },
-                    onChangeVisiblePassword = {
-                        authViewModel.onChangeVisiblePassword()
-                    },
-                    checkEnableLogin = {
-                        authViewModel.checkEnableLogin()
-                    },
-
-                    onRequestOtp = {
-                        forgotPasswordViewModel.init(
-                            purpose = it
-                        )
-                        navController.navigate(Screens.ForgotPassword.name)
-                    },
-                    onDeleteLastLoginUser = {
-                        authViewModel.onDeleteLastLoginUser()
-                    }
+                    onEvent = authViewModel::onEvent
                 )
 
             }
@@ -489,7 +434,6 @@ fun AppScreen(
                 }, uiState = transactionResultUiState, onContactClick = {})
             }
             composable(route = Screens.Home.name) {
-                isAtRoot = true
                 val homeUiState by homeViewModel.uiState.collectAsState()
                 tabNavigation = TabNavigation.HOME
                 LaunchedEffect(Unit) {
@@ -719,7 +663,6 @@ fun AppScreen(
                     })
             }
             composable(route = Screens.Settings.name) {
-                isAtRoot = true
                 tabNavigation = TabNavigation.PROFILE
                 val uiState by settingViewModel.uiState.collectAsState()
 
@@ -761,7 +704,8 @@ fun AppScreen(
                         )
                     },
                     onLogout = {
-                        authViewModel.onLogout()
+                        //todo
+//                        authViewModel.onLogout()
                         navController.navigate(Screens.SignIn.name) {
                             popUpTo(navController.graph.id) {
                                 inclusive = true
@@ -776,59 +720,53 @@ fun AppScreen(
 
                 )
             }
-            composable(route = Screens.ForgotPassword.name) { backStackEntry ->
+            composable(
+                route = "${Screens.ForgotPassword.name}/{purpose}",
+                arguments = listOf(
+                    navArgument("purpose") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
+                val forgotPasswordViewModel: ForgotPasswordViewModel = backStackEntry.getViewModel(
+                    navController,
+                    "${Screens.ForgotPassword.name}/{purpose}"
+                )
 
                 val uiState by forgotPasswordViewModel.uiState.collectAsState()
-                ForgotPasswordScreen(uiState = uiState, onFindUsernameClick = {
-                    forgotPasswordViewModel.onFindUsernameClick(
-                        onError = { message ->
-                            appViewModel.showSnackBarMessage(
-                                message = message, type = SnackBarType.ERROR
-                            )
-                        })
-                }, onUsernameChange = {
-                    forgotPasswordViewModel.onUsernameChange(it)
-                }, onSendOtpClick = {
-                    forgotPasswordViewModel.onSendOtpClick(
-                        onError = { message ->
-                            appViewModel.showSnackBarMessage(
-                                message = message, type = SnackBarType.ERROR
-                            )
-                        })
-                }, onEmailChange = {
+                LaunchedEffect(Unit) {
+                    forgotPasswordViewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            ForgotPasswordEffect.ResetPasswordSuccess -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.",
+                                    type = SnackBarType.SUCCESS,
+                                )
+                                navController.popBackStack()
+                            }
 
-                    forgotPasswordViewModel.onEmailChange(it)
-                }, onConfirmOtpClick = {
-                    forgotPasswordViewModel.onConfirmOtpClick(
-                        onError = { message ->
-                            appViewModel.showSnackBarMessage(
-                                message = message, type = SnackBarType.ERROR
-                            )
-                        })
-                }, onOtpChange = {
-                    forgotPasswordViewModel.onOtpChange(it)
-                }, onResetPasswordClick = {
-                    forgotPasswordViewModel.onResetPasswordClick(onSuccess = {
-                        navController.navigate(Screens.SignIn.name)
-                        appViewModel.showSnackBarMessage(
-                            message = "Đổi mật khẩu thành công", type = SnackBarType.SUCCESS
-                        )
-                    }, onError = { message ->
-                        appViewModel.showSnackBarMessage(
-                            message = message, type = SnackBarType.ERROR
-                        )
-                    })
-                }, onNewPasswordChange = {
-                    forgotPasswordViewModel.onNewPasswordChange(it)
-                }, onBackToEnterEmailClick = {
-                    forgotPasswordViewModel.onBackToEnterEmailClick()
-                }, onBackToEnterUsernameClick = {
-                    forgotPasswordViewModel.onBackToEnterUsernameClick()
-                }, onBackClick = {
-                    navController.popBackStack()
-                }, onChangeVisiblePassword = {
-                    forgotPasswordViewModel.onChangeVisiblePassword()
-                })
+                            is ForgotPasswordEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+
+                            ForgotPasswordEffect.WrongPurpose -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Mục đích không hợp lệ",
+                                    type = SnackBarType.ERROR,
+                                )
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                }
+
+                ForgotPasswordScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onEvent = forgotPasswordViewModel::onEvent,
+                )
             }
             composable(route = Screens.Deposit.name) {
                 val uiState by depositViewModel.uiState.collectAsState()
@@ -1041,7 +979,6 @@ fun AppScreen(
                 )
             }
             composable(route = Screens.TransactionHistory.name) { backStackEntry ->
-                isAtRoot = true
                 tabNavigation = TabNavigation.HISTORY
                 val uiState by transactionHistoryViewModel.uiState.collectAsState()
                 val homeUiState by homeViewModel.uiState.collectAsState()
@@ -1407,7 +1344,6 @@ fun AppScreen(
             composable(
                 route = Screens.Analytic.name
             ) {
-                isAtRoot = true
                 tabNavigation = TabNavigation.ANALYTICS
 
                 val uiState by analyticViewModel.uiState.collectAsState()
@@ -1542,7 +1478,46 @@ fun AppScreen(
                 )
             }
         }
+        snackBarInstance?.let {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+            ) {
+                GradientSnackBar(
+                    message = snackBarInstance!!.message,
+                    type = snackBarInstance!!.type,
+                    onAction = {
+                        snackBarInstance = null
+                    },
+                )
+            }
+        }
 
+    }
+
+    var lastBackPressed by remember { mutableLongStateOf(0L) }
+    var isAtRoot = false
+    LaunchedEffect(navController.currentBackStackEntry?.destination?.route) {
+        isAtRoot = navController.currentBackStackEntry?.destination?.route in listOf(
+            Screens.SignIn.name,
+            Screens.Home.name,
+            Screens.Settings.name,
+            Screens.Analytic.name,
+            Screens.TransactionHistory.name
+        )
+    }
+
+    BackHandler(enabled = isAtRoot) {
+        val now = System.currentTimeMillis()
+        if (now - lastBackPressed < 2000) {
+            (context as Activity).finish()
+        } else {
+            lastBackPressed = now
+            Toast
+                .makeText(context, "Vuốt back lần nữa để thoát", Toast.LENGTH_SHORT)
+                .show()
+        }
     }
 
 }

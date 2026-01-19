@@ -5,6 +5,5 @@ data class AuthUiState(
     val fullName: String? = null,
     val username: String="",
     val password: String="",
-    val isPasswordShow: Boolean = false,
 )
 

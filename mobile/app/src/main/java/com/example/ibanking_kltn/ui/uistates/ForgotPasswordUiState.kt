@@ -24,7 +24,6 @@ data class ForgotPasswordUiState(
     val otp: String="",
     val newPassword: String="",
 
-    val isShowPassword:Boolean=false,
     val isEnableResendOtp: Boolean=true,
 )
 
