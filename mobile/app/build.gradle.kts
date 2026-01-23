@@ -77,6 +77,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 //    implementation(libs.androidx.ui)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.lifecycle.process)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

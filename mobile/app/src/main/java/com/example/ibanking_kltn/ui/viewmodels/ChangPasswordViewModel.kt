@@ -6,14 +6,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.ChangePasswordRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
+import com.example.ibanking_kltn.ui.event.ChangePasswordEffect
+import com.example.ibanking_kltn.ui.event.ChangePasswordEvent
 import com.example.ibanking_kltn.ui.uistates.ChangePasswordUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,17 +32,27 @@ class ChangPasswordViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ChangePasswordUiState())
     val uiState: StateFlow<ChangePasswordUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<ChangePasswordEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
+    fun onEvent(event: ChangePasswordEvent) {
+        when (event) {
+            ChangePasswordEvent.ConfirmChangePassword -> onConfirmChangePassword()
+            is ChangePasswordEvent.ChangeNewPassword -> onChangeNewPassword(event.newPassword)
+            is ChangePasswordEvent.ChangeOldPassword -> onChangeOldPassword(event.oldPassword)
+        }
+    }
 
     fun clearState() {
         _uiState.value = ChangePasswordUiState()
     }
 
-    fun onChangeOldPassword(newOldPassword: String) {
+
+    private fun onChangeOldPassword(newOldPassword: String) {
         _uiState.update { it.copy(oldPassword = newOldPassword) }
     }
 
-    fun onChangeNewPassword(newNewPassword: String) {
+    private fun onChangeNewPassword(newNewPassword: String) {
         _uiState.update {
             it.copy(newPassword = newNewPassword)
         }
@@ -59,16 +75,7 @@ class ChangPasswordViewModel @Inject constructor(
         }
     }
 
-
-    fun isEnableChangePassword(): Boolean {
-        return uiState.value.oldPassword.isNotEmpty() &&
-                uiState.value.newPassword.isNotEmpty() &&
-                uiState.value.isValidNewPassword
-    }
-
-    fun onConfirmChangePassword(
-        onChangeSuccess: () -> Unit, //log out
-        onError: (String) -> Unit
+    private fun onConfirmChangePassword(
     ) {
 
         _uiState.update {
@@ -89,7 +96,9 @@ class ChangPasswordViewModel @Inject constructor(
                         )
                     }
                     tokenManager.clearToken()
-                    onChangeSuccess()
+                    _uiEffect.emit(
+                        ChangePasswordEffect.ChangePasswordSuccess
+                    )
                 }
 
                 is ApiResult.Error -> {
@@ -98,21 +107,17 @@ class ChangPasswordViewModel @Inject constructor(
                             screenState = StateType.FAILED(apiResult.message)
                         )
                     }
-                    onError(apiResult.message)
+                    _uiEffect.emit(
+                        ChangePasswordEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
                 }
             }
         }
     }
 
-    fun onChangeVisibilityOldPassword() {
-        _uiState.update {
-            it.copy(isShowOldPassword = !it.isShowOldPassword)
-        }
-    }
-
-    fun onChangeVisibilityNewPassword() {
-        _uiState.update {
-            it.copy(isShowNewPassword = !it.isShowNewPassword)
-        }
-    }
 }

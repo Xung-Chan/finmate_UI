@@ -19,7 +19,19 @@ class TokenAuthenticator @Inject constructor(
     private val tokenManager: TokenManager
 ) : Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
+        if (responseCount(response) >= 2) return null
+
+
         synchronized(this) {
+            val currentToken = tokenManager.getAccessToken()
+            val requestToken = response.request.header("Authorization")
+
+            if (requestToken != null && requestToken != "Bearer $currentToken") {
+                return response.request.newBuilder()
+                    .header("Authorization", "Bearer $currentToken")
+                    .build()
+            }
+
             val refreshToken = tokenManager.getRefreshToken() ?: return null
             val newTokenResponse = refreshAccessToken(refreshToken) ?: return null
             tokenManager.updateToken(
@@ -32,6 +44,16 @@ class TokenAuthenticator @Inject constructor(
         }
 
     }
+    private fun responseCount(response: Response): Int {
+        var result = 1
+        var prior = response.priorResponse
+        while (prior != null) {
+            result++
+            prior = prior.priorResponse
+        }
+        return result
+    }
+
 
     fun refreshAccessToken(refreshToken: String): LoginResponse? {
         val response = retrofit.create(NonAuthApi::class.java)
@@ -49,3 +71,5 @@ class TokenAuthenticator @Inject constructor(
     }
 
 }
+
+

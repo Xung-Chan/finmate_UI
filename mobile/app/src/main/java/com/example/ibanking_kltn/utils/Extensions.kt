@@ -25,6 +25,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import com.example.ibanking_kltn.AppSessionEntryPoint
+import com.example.ibanking_kltn.data.di.AppSessionManager
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -37,6 +39,7 @@ import com.kizitonwose.calendar.core.atStartOfMonth
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import com.kizitonwose.calendar.core.yearMonth
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -384,4 +387,12 @@ inline fun <reified T : ViewModel> NavBackStackEntry.getViewModel(
         navController.getBackStackEntry(route)
     }
     return hiltViewModel<T>(entry)
+}
+
+fun Context.appSessionManager(): AppSessionManager {
+    val entryPoint = EntryPointAccessors.fromApplication(
+        this,
+        AppSessionEntryPoint::class.java
+    )
+    return entryPoint.appSessionManager()
 }

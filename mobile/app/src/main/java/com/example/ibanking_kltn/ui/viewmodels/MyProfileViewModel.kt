@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.uistates.MyProfileUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -21,10 +22,14 @@ import kotlinx.coroutines.launch
 class MyProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val walletRepository: WalletRepository,
+    private val userSession: UserSession
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(MyProfileUiState())
     val uiState: StateFlow<MyProfileUiState> = _uiState.asStateFlow()
 
+    init {
+
+    }
 
     fun init(
         onSuccess:(Any?,String)->Unit,

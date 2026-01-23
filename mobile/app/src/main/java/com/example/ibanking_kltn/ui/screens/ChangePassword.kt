@@ -1,7 +1,6 @@
 package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,6 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -36,9 +38,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.ChangePasswordEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -52,20 +54,23 @@ import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomTextButton
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.example.ibanking_kltn.utils.customClick
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangePasswordScreen(
     uiState: ChangePasswordUiState,
-    onChangeOldPassword: (String) -> Unit,
-    onChangeNewPassword: (String) -> Unit,
-    onConfirmChangePassword: () -> Unit,
     onBackClick: () -> Unit,
-    isEnableConfirm: Boolean,
-    onChangeVisibleOldPassword: () -> Unit,
-    onChangeVisibleNewPassword: () -> Unit
+    onEvent: (ChangePasswordEvent) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+
+    var isShowOldPassword by remember {
+        mutableStateOf(false)
+    }
+    var isShowNewPassword by remember {
+        mutableStateOf(false)
+    }
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING
     ) {
@@ -143,7 +148,7 @@ fun ChangePasswordScreen(
                                 )
                             },
                             isPasswordField = true,
-                            isPasswordShow = uiState.isShowOldPassword,
+                            isPasswordShow = isShowOldPassword,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
                                 imeAction = ImeAction.Next
@@ -153,14 +158,12 @@ fun ChangePasswordScreen(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
-                                        .padding(5.dp)
-                                        .shadow(
-                                            elevation = 30.dp, shape = CircleShape
-                                        )
-                                        .clickable { onChangeVisibleOldPassword() }
+                                        .customClick  {
+                                            isShowOldPassword = !isShowOldPassword
+                                        }
                                 ) {
                                     Icon(
-                                        imageVector = if (uiState.isShowOldPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        imageVector = if (isShowOldPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                         contentDescription = null,
                                         tint = Gray1,
                                     )
@@ -170,7 +173,9 @@ fun ChangePasswordScreen(
                                 .fillMaxWidth()
                                 .height(50.dp),
                             onValueChange = {
-                                onChangeOldPassword(it)
+                                onEvent(
+                                    ChangePasswordEvent.ChangeOldPassword(it)
+                                )
                             }
                         )
                     }
@@ -203,7 +208,7 @@ fun ChangePasswordScreen(
                                 )
                             },
                             isPasswordField = true,
-                            isPasswordShow = uiState.isShowNewPassword,
+                            isPasswordShow = isShowNewPassword,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text,
                                 imeAction = ImeAction.Done
@@ -242,13 +247,10 @@ fun ChangePasswordScreen(
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
-                                            .shadow(
-                                                elevation = 30.dp, shape = CircleShape
-                                            )
-                                            .clickable { onChangeVisibleNewPassword() }
+                                            .customClick { isShowNewPassword = !isShowNewPassword }
                                     ) {
                                         Icon(
-                                            imageVector = if (uiState.isShowNewPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                            imageVector = if (isShowNewPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                             contentDescription = null,
                                             tint = Gray1,
                                         )
@@ -260,7 +262,9 @@ fun ChangePasswordScreen(
                                 .fillMaxWidth()
                                 .height(50.dp),
                             onValueChange = {
-                                onChangeNewPassword(it)
+                                onEvent(
+                                    ChangePasswordEvent.ChangeNewPassword(it)
+                                )
                             }
                         )
                     }
@@ -285,12 +289,12 @@ fun ChangePasswordScreen(
                         CustomTextButton(
                             onClick = {
                                 focusManager.clearFocus()
-                                onConfirmChangePassword()
+                                onEvent(ChangePasswordEvent.ConfirmChangePassword)
                             },
                             modifier = Modifier
                                 .fillMaxWidth(),
                             text = stringResource(id = R.string.ChangePassword_Title),
-                            enable = isEnableConfirm
+                            enable = uiState.oldPassword.isNotEmpty() && uiState.newPassword.isNotEmpty() && uiState.isValidNewPassword
                         )
 
 
@@ -303,25 +307,25 @@ fun ChangePasswordScreen(
 }
 
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-
-)
-@Composable
-fun ChangePasswordPreview() {
-    ChangePasswordScreen(
-        uiState = ChangePasswordUiState(
-            oldPassword = "oldpassword",
-            newPassword = "newpassword",
-            isValidNewPassword = false
-        ),
-        onChangeOldPassword = {},
-        onChangeNewPassword = {},
-        onConfirmChangePassword = {},
-        onBackClick = {},
-        isEnableConfirm = true,
-        onChangeVisibleOldPassword = {},
-        onChangeVisibleNewPassword = {}
-    )
-}
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//
+//)
+//@Composable
+//fun ChangePasswordPreview() {
+//    ChangePasswordScreen(
+//        uiState = ChangePasswordUiState(
+//            oldPassword = "oldpassword",
+//            newPassword = "newpassword",
+//            isValidNewPassword = false
+//        ),
+//        onChangeOldPassword = {},
+//        onChangeNewPassword = {},
+//        onConfirmChangePassword = {},
+//        onBackClick = {},
+//        isEnableConfirm = true,
+//        onChangeVisibleOldPassword = {},
+//        onChangeVisibleNewPassword = {}
+//    )
+//}
