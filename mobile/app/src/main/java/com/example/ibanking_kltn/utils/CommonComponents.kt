@@ -726,7 +726,9 @@ fun NavigationBar(
                     onNavigateToQRScanner()
                 }, modifier = Modifier
                     .shadow(
-                        elevation = 20.dp, shape = RoundedCornerShape(40)
+                        elevation = 20.dp, shape = RoundedCornerShape(40),
+                        spotColor = Color.Transparent,
+                        ambientColor = Color.Transparent
                     )
                     .border(
                         width = 5.dp, color = White1, shape = RoundedCornerShape(40)

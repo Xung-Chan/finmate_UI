@@ -6,6 +6,8 @@ import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceItem
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 
 
@@ -17,6 +19,11 @@ class ServiceManager @Inject constructor(
     private val RECENT_SERVICE = "RECENT_SERVICE"
     private val FAVORITE_SIZE = 4
 
+    private val _favoriteServices = MutableStateFlow(getFavoriteServices())
+    val favoriteServices = _favoriteServices.asStateFlow()
+    private val _recentServices = MutableStateFlow(getRecentServices())
+    val recentServices = _recentServices.asStateFlow()
+
     fun updateFavorite(services: List<ServiceItem>) {
         val serviceJson = Json.encodeToString(services)
         if (services.size == FAVORITE_SIZE) {
@@ -24,10 +31,11 @@ class ServiceManager @Inject constructor(
                 putString(FAVORITE_SERVICE, serviceJson)
             }
         }
+        _favoriteServices.value = services
     }
 
-    fun getFavoriteServices(): List<ServiceItem> {
-        val default=listOf(
+    private fun getFavoriteServices(): List<ServiceItem> {
+        val default = listOf(
             ServiceItem(
                 service = ServiceCategory.MONEY_TRANSFER.name,
                 lastUsed = System.currentTimeMillis(),
@@ -66,13 +74,14 @@ class ServiceManager @Inject constructor(
         sharedPreferences.edit {
             putString(RECENT_SERVICE, serviceJson)
         }
+        _recentServices.value = services
     }
 
-    fun getRecentServices(): List<ServiceItem> {
+    private fun getRecentServices(): List<ServiceItem> {
         val serviceJson = sharedPreferences.getString(RECENT_SERVICE, null)
         return if (serviceJson != null) {
-            val services=Json.decodeFromString(serviceJson) as List<ServiceItem>
-            services.sortedBy { -it.lastUsed  }
+            val services = Json.decodeFromString(serviceJson) as List<ServiceItem>
+            services.sortedBy { -it.lastUsed }
         } else {
             listOf(
                 ServiceItem(

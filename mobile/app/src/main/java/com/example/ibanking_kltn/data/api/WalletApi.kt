@@ -32,6 +32,10 @@ interface WalletApi {
 
 
     @GET("/api/wallet-verifications/wallet/me")
-    suspend fun getMyVerification(
+    suspend fun getMyVerificationStatus(
     ): Response<WalletVerificationResponse>
+
+    @GET("/api/wallet-verifications/me")
+    suspend fun getMyVerificationRequest(
+    ): Response<List<WalletVerificationResponse>>
 }

@@ -116,11 +116,11 @@ class WalletRepository @Inject constructor(
 
     }
 
-    suspend fun getMyVerification(
+    suspend fun getMyVerificationStatus(
     ): ApiResult<WalletVerificationResponse> {
         return safeApiCall(
             apiCall = {
-                walletApi.getMyVerification()
+                walletApi.getMyVerificationStatus()
             }
         )
 //        delay(1000L)
@@ -144,6 +144,15 @@ class WalletRepository @Inject constructor(
 //                walletNumber = "1234567890"
 //            )
 //        )
+    }
+
+    suspend fun getMyVerification(
+    ): ApiResult<List<WalletVerificationResponse>> {
+        return safeApiCall(
+            apiCall = {
+                walletApi.getMyVerificationRequest()
+            }
+        )
     }
 
 

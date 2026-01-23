@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.SavedReceiverManager
 import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
@@ -20,10 +21,15 @@ import kotlinx.coroutines.launch
 class TransferViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val walletRepository: WalletRepository,
+    private val savedReceiverManager: SavedReceiverManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TransferUiState())
     val uiState: StateFlow<TransferUiState> = _uiState.asStateFlow()
 
+    init {
+
+
+    }
 
     fun init(
         onError: (String) -> Unit

@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
@@ -46,7 +47,6 @@ import coil.compose.AsyncImage
 import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
@@ -249,7 +249,6 @@ fun AppScreen(
             transferViewModel.init(
                 onError = onError
             )
-            savedReceiverViewModel.loadSavedReceivers()
             navController.navigate(Screens.Transfer.name)
         },
         ServiceCategory.DEPOSIT.name to {
@@ -447,7 +446,6 @@ fun AppScreen(
             changePasswordGraph(
                 navController = navController,
                 onShowSnackBar = onShowSnackBar
-
             )
             myProfileGraph(
                 navController = navController,
@@ -504,13 +502,14 @@ fun AppScreen(
                             ),
                         )
                         if (transferData.isSaveReceiver) {
-                            savedReceiverViewModel.onSaveReceiver(
-                                SavedReceiver(
-                                    memorableName = transferData.toMerchantName,
-                                    toWalletNumber = transferData.toWalletNumber,
-                                    toMerchantName = transferData.toMerchantName,
-                                )
-                            )
+                            //todo
+//                            savedReceiverViewModel.onSaveReceiver(
+//                                SavedReceiver(
+//                                    memorableName = transferData.toMerchantName,
+//                                    toWalletNumber = transferData.toWalletNumber,
+//                                    toMerchantName = transferData.toMerchantName,
+//                                )
+//                            )
                         }
 
                         navController.navigate(Screens.ConfirmPayment.name)
@@ -1154,8 +1153,12 @@ fun AppScreen(
     }
 
     var lastBackPressed by remember { mutableLongStateOf(0L) }
-    var isAtRoot = false
-    LaunchedEffect(navController.currentBackStackEntry?.destination?.route) {
+    var isAtRoot by remember{
+        mutableStateOf(false)
+    }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    LaunchedEffect(currentRoute) {
         isAtRoot = navController.currentBackStackEntry?.destination?.route in listOf(
             Screens.SignIn.name,
             Screens.Home.name,

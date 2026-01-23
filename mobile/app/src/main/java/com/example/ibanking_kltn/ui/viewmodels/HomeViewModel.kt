@@ -62,6 +62,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+
     }
 
 
@@ -135,15 +136,27 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    private fun loadFavoriteAndRecentServices() {
-        val favoriteServices = serviceManager.getFavoriteServices()
-        val recentServices = serviceManager.getRecentServices()
 
-        _uiState.update {
-            it.copy(
-                favoriteServices = favoriteServices,
-                recentServices = recentServices
-            )
+    private fun loadFavoriteAndRecentServices() {
+        viewModelScope.launch {
+
+            serviceManager.favoriteServices.collect { favoriteServices ->
+                _uiState.update {
+                    it.copy(
+                        favoriteServices = favoriteServices
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+
+            serviceManager.recentServices.collect { recentServices ->
+                _uiState.update {
+                    it.copy(
+                        recentServices = recentServices
+                    )
+                }
+            }
         }
     }
 

@@ -10,9 +10,9 @@ import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red2
 import kotlinx.serialization.Serializable
 
-enum class AccountType(val type: String,val icon: Int,val color: Color) {
-    WALLET(type="Tài khoản mặc định", icon = R.drawable.wallet_regular, color = Orange1),
-    PAY_LATER(type="Ví trả sau", icon = R.drawable.paylater, color = Green2)
+enum class AccountType(val type: String, val icon: Int, val color: Color) {
+    WALLET(type = "Tài khoản mặc định", icon = R.drawable.wallet_regular, color = Orange1),
+    PAY_LATER(type = "Ví trả sau", icon = R.drawable.paylater, color = Green2)
 }
 
 data class PaymentAccount(
@@ -21,7 +21,6 @@ data class PaymentAccount(
     val merchantName: String,
     val balance: Long
 )
-
 
 
 enum class ServiceType(val serviceName: String) {
@@ -101,7 +100,7 @@ data class Pagination<T>(
 @Serializable
 data class ServiceItem(
     val service: String,
-    val lastUsed: Long= System.currentTimeMillis(),
+    val lastUsed: Long = System.currentTimeMillis(),
 )
 
 @Serializable
@@ -111,13 +110,33 @@ data class SavedReceiver(
     val toMerchantName: String,
 )
 
-enum class ServiceCategory(val serviceName: String, val icon: Int,val color: ULong) {
-    MONEY_TRANSFER(serviceName = "Chuyển tiền", icon =  R.drawable.money_transfer_service, color = Red1.value),
-    BILL_PAYMENT(serviceName="Thanh toán hóa đơn", icon = R.drawable.pay_bill_service, color = Blue5.value),
-    DEPOSIT(serviceName="Nạp tiền trực tuyến", icon = R.drawable.deposit_service, color = Orange1.value),
-    PAY_LATER(serviceName="Ví trả sau", icon = R.drawable.paylater, color = Green2.value),
-    BILL_CREATE(serviceName="Tạo hóa đơn", icon = R.drawable.bill_create_service, color = Green1.value),
-    BILL_HISTORY(serviceName="Lịch sử hóa đơn", icon = R.drawable.bill_history_service, color = Red2.value),
+enum class ServiceCategory(val serviceName: String, val icon: Int, val color: ULong) {
+    MONEY_TRANSFER(
+        serviceName = "Chuyển tiền",
+        icon = R.drawable.money_transfer_service,
+        color = Red1.value
+    ),
+    BILL_PAYMENT(
+        serviceName = "Thanh toán hóa đơn",
+        icon = R.drawable.pay_bill_service,
+        color = Blue5.value
+    ),
+    DEPOSIT(
+        serviceName = "Nạp tiền trực tuyến",
+        icon = R.drawable.deposit_service,
+        color = Orange1.value
+    ),
+    PAY_LATER(serviceName = "Ví trả sau", icon = R.drawable.paylater, color = Green2.value),
+    BILL_CREATE(
+        serviceName = "Tạo hóa đơn",
+        icon = R.drawable.bill_create_service,
+        color = Green1.value
+    ),
+    BILL_HISTORY(
+        serviceName = "Lịch sử hóa đơn",
+        icon = R.drawable.bill_history_service,
+        color = Red2.value
+    ),
 }
 
 
@@ -135,7 +154,6 @@ data class LastLoginUser(
 )
 
 
-
 enum class PayLaterAccountStatus {
     PENDING,
     ACTIVE,
@@ -143,11 +161,12 @@ enum class PayLaterAccountStatus {
 }
 
 
-enum class  PayLaterApplicationType(val typeName: String) {
+enum class PayLaterApplicationType(val typeName: String) {
     ACTIVATION("Yêu cầu kích hoạt"), // Kích hoạt thẻ PayLater
     LIMIT_ADJUSTMENT("Yêu cầu điều chỉnh hạn mức"), // Điều chỉnh hạn mức tín dụng
     SUSPEND_REQUEST("Tạm khóa") // Yêu cầu tạm ngưng thẻ PayLater
 }
+
 enum class PayLaterApplicationStatus(val statusName: String) {
     PENDING("Đang xử lý"),
     APPROVED("Đã duyệt"),
@@ -163,12 +182,12 @@ enum class BillingCycleStatus {
     CLOSED,  //Chu kỳ đã đóng (admin can thiệp hoặc đặc biệt)
 }
 
-enum class ExpenseType( val displayName: String, icon: Int){
-    LEISURE(displayName = "Vui chơi và giai trí",icon= R.drawable.entertain),
-    TRAVEL(displayName = "Du lịch và đi lại",icon= R.drawable.plane),
-    SHOPPING(displayName = "Mua sắm",icon= R.drawable.shopping),
-    ESSENTIALS(displayName = "Sinh hoạt và Ăn uống",icon= R.drawable.food),
-    HEALTH(displayName = "Sức khỏe và thể thao",icon= R.drawable.medical),
+enum class ExpenseType(val displayName: String, icon: Int) {
+    LEISURE(displayName = "Vui chơi và giai trí", icon = R.drawable.entertain),
+    TRAVEL(displayName = "Du lịch và đi lại", icon = R.drawable.plane),
+    SHOPPING(displayName = "Mua sắm", icon = R.drawable.shopping),
+    ESSENTIALS(displayName = "Sinh hoạt và Ăn uống", icon = R.drawable.food),
+    HEALTH(displayName = "Sức khỏe và thể thao", icon = R.drawable.medical),
 }
 
 enum class MoneyFlowType {
@@ -184,4 +203,11 @@ enum class RequestOtpPurpose {
 enum class NotificationType {
     SYSTEM,
     PERSONAL,
+}
+
+enum class VerificationStatus {
+    PENDING,
+    APPROVED,
+    REJECTED,
+    CANCELLED
 }

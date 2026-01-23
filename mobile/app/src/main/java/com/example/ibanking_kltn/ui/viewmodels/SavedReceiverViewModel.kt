@@ -5,14 +5,20 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.SavedReceiverManager
 import com.example.ibanking_kltn.data.dtos.SavedReceiver
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.ui.event.SavedReceiverEffect
+import com.example.ibanking_kltn.ui.event.SavedReceiverEvent
 import com.example.ibanking_kltn.ui.uistates.SavedReceiverUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -24,17 +30,30 @@ class SavedReceiverViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SavedReceiverUiState())
     val uiState: StateFlow<SavedReceiverUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<SavedReceiverEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
-    fun init() {
-        clear()
+
+    init {
         loadSavedReceivers()
     }
 
-    fun clear() {
-        _uiState.value = SavedReceiverUiState()
+    fun onEvent(event: SavedReceiverEvent) {
+        when (event) {
+            SavedReceiverEvent.AddSavedReceiver -> onAddSavedReceiver()
+            is SavedReceiverEvent.ChangeKeyword -> onChangeKeyword(event.keyword)
+            is SavedReceiverEvent.ChangeMemorableName -> onChangeMemorableName(event.memorableName)
+            is SavedReceiverEvent.ChangeToWalletNumber -> onChangeToWalletNumber(event.walletNumber)
+            SavedReceiverEvent.ClearAddDialog -> onClearAddDialog()
+            is SavedReceiverEvent.DeleteSavedReceiver -> onDeleteSavedReceiver(event.walletNumber)
+            SavedReceiverEvent.DoneWalletNumber -> onDoneWalletNumber()
+            is SavedReceiverEvent.SaveReceiver -> onSaveReceiver(event.savedReceiver)
+            SavedReceiverEvent.Search -> onSearch()
+            is SavedReceiverEvent.SelectSavedReceiver -> onSelectSavedReceiver(event.savedReceiver)
+        }
     }
 
-    fun loadSavedReceivers() {
+    private fun loadSavedReceivers() {
         val savedServices = savedReceiverManager.getAll()
         _uiState.update {
             it.copy(
@@ -43,7 +62,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onChangeKeyword(keyword: String) {
+    private fun onChangeKeyword(keyword: String) {
         _uiState.update {
             it.copy(
                 keyword = keyword
@@ -51,7 +70,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onChangeToWalletNumber(toWalletNumber: String) {
+    private fun onChangeToWalletNumber(toWalletNumber: String) {
         _uiState.update {
             it.copy(
                 toWalletNumber = toWalletNumber
@@ -59,7 +78,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onChangeMemorableName(memorableName: String) {
+    private fun onChangeMemorableName(memorableName: String) {
         _uiState.update {
             it.copy(
                 memorableName = memorableName
@@ -67,7 +86,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onClearAddDialog() {
+    private fun onClearAddDialog() {
         _uiState.update {
             it.copy(
                 toWalletNumber = "",
@@ -77,7 +96,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onSearch() {
+    private fun onSearch() {
         _uiState.update {
             it.copy(
                 screenState = StateType.LOADING
@@ -102,8 +121,7 @@ class SavedReceiverViewModel @Inject constructor(
     }
 
 
-    fun onDoneWalletNumber(
-        onError: (String) -> Unit
+    private fun onDoneWalletNumber(
     ) {
         if (uiState.value.toWalletNumber.isEmpty()) {
             _uiState.update {
@@ -111,7 +129,17 @@ class SavedReceiverViewModel @Inject constructor(
                     toMerchantName = "",
                 )
             }
-            onError("Số ví phải gồm 10 chữ số")
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SavedReceiverEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = "Số ví không được để trống",
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
+
+            }
             return
         }
         _uiState.update {
@@ -138,15 +166,20 @@ class SavedReceiverViewModel @Inject constructor(
                             toMerchantName = "",
                         )
                     }
-                    onError(apiResult.message)
+                    _uiEffect.emit(
+                        SavedReceiverEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
                 }
             }
         }
     }
 
-    fun onAddSavedReceiver(
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
+    private fun onAddSavedReceiver(
     ) {
         _uiState.update {
             it.copy(screenState = StateType.LOADING)
@@ -164,7 +197,14 @@ class SavedReceiverViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(screenState = StateType.FAILED(message))
                 }
-                onError(message)
+                _uiEffect.emit(
+                    SavedReceiverEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
                 return@launch
             }
             _uiState.update {
@@ -176,13 +216,19 @@ class SavedReceiverViewModel @Inject constructor(
                 )
             }
             loadSavedReceivers()
-            onSuccess()
+            _uiEffect.emit(
+                SavedReceiverEffect.ShowSnackBar(
+                    snackBar = SnackBarUiState(
+                        message = "Lưu người nhận thành công",
+                        type = SnackBarType.SUCCESS
+                    )
+                )
+            )
         }
     }
 
-    fun onDeleteSavedReceiver(
+    private fun onDeleteSavedReceiver(
         walletNumber: String,
-        onSuccess: () -> Unit
     ) {
         _uiState.update {
             it.copy(
@@ -199,11 +245,18 @@ class SavedReceiverViewModel @Inject constructor(
                     screenState = StateType.SUCCESS
                 )
             }
-            onSuccess()
+            _uiEffect.emit(
+                SavedReceiverEffect.ShowSnackBar(
+                    snackBar = SnackBarUiState(
+                        message = "Xóa người nhận thành công",
+                        type = SnackBarType.SUCCESS
+                    )
+                )
+            )
         }
     }
 
-    fun onSelectSavedReceiver(savedReceiver: SavedReceiver) {
+    private fun onSelectSavedReceiver(savedReceiver: SavedReceiver) {
         _uiState.update {
             it.copy(
                 selectedSavedReceiver = savedReceiver
@@ -211,7 +264,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    fun onSaveReceiver(savedReceiver: SavedReceiver){
+    private fun onSaveReceiver(savedReceiver: SavedReceiver) {
         savedReceiverManager.add(savedReceiver)
     }
 

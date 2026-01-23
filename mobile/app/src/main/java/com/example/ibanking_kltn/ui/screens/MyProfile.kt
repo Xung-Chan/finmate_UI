@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.ui.event.MyProfileEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -75,14 +76,10 @@ import java.time.LocalDate
 @Composable
 fun MyProfileScreen(
     uiState: MyProfileUiState,
-    myWalletNumber: String,
+    onEvent: (MyProfileEvent) -> Unit,
     onBackClick: () -> Unit,
-    onUpdateImageProfile: (Uri) -> Unit,
-    onRetry: () -> Unit,
     onNavigateMyContacts: () -> Unit,
-    onNavigateToVerificationRequest: () -> Unit,
     onNavigateToTermsAndConditions: () -> Unit,
-    onSavedQrSuccess: () -> Unit,
 ) {
     val scrollState = rememberScrollState(0)
     var selectedImageUri by remember {
@@ -127,300 +124,258 @@ fun MyProfileScreen(
             modifier = Modifier.systemBarsPadding(),
             containerColor = White3
         ) { paddingValues ->
-            if (!uiState.initialedUserInfo || !uiState.initialVerification) {
-                ProfileScreenSkeleton(paddingValues)
+            when (
+                uiState.initState
+            ) {
+                is StateType.FAILED -> {
+                    RetryCompose(
+                        onRetry = {
+                            onEvent(
+                                MyProfileEvent.RetryProfileAndVerification
+                            )
+                        },
+                    )
+                }
 
-            } else if (uiState.userInfo == null) {
-                RetryCompose(
-                    onRetry = {
-                        onRetry()
-                    },
-                )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .padding(paddingValues)
-                        .padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
+                StateType.LOADING -> {
+                    ProfileScreenSkeleton(paddingValues)
+                }
+
+                else -> {
+                    if (uiState.userInfo == null) {
+                        ProfileScreenSkeleton(paddingValues)
+                        return@Scaffold
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)
+                            .padding(paddingValues)
+                            .padding(20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        Box(contentAlignment = Alignment.BottomEnd) {
-                            if (uiState.userInfo.avatarUrl == null) {
-                                DefaultImageProfile(
-                                    modifier = Modifier
-                                        .size(100.dp),
-                                    name = uiState.userInfo.fullName
-                                )
-                            } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Box(contentAlignment = Alignment.BottomEnd) {
+                                if (uiState.userInfo.avatarUrl == null) {
+                                    DefaultImageProfile(
+                                        modifier = Modifier
+                                            .size(100.dp),
+                                        name = uiState.userInfo.fullName
+                                    )
+                                } else {
 
-                                AsyncImage(
-                                    model = uiState.userInfo.avatarUrl,
-                                    contentDescription = "Avatar",
+                                    AsyncImage(
+                                        model = uiState.userInfo.avatarUrl,
+                                        contentDescription = "Avatar",
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                }
+                                Row(
                                     modifier = Modifier
-                                        .size(100.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .background(
-                                        color = Gray3,
-                                        shape = RoundedCornerShape(percent = 50)
-                                    )
-                                    .shadow(
-                                        elevation = 10.dp,
-                                        shape = RoundedCornerShape(percent = 50),
-                                        ambientColor = Color.Transparent,
-                                        spotColor = Color.Transparent,
-                                    )
-                                    .clickable {
-                                        singlePhotoPickerLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        .background(
+                                            color = Gray3,
+                                            shape = RoundedCornerShape(percent = 50)
                                         )
-                                    }
-                                    .padding(7.dp)
-                            ) {
+                                        .shadow(
+                                            elevation = 10.dp,
+                                            shape = RoundedCornerShape(percent = 50),
+                                            ambientColor = Color.Transparent,
+                                            spotColor = Color.Transparent,
+                                        )
+                                        .clickable {
+                                            singlePhotoPickerLauncher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        }
+                                        .padding(7.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.image),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                            }
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = uiState.userInfo.fullName,
+                                style = AppTypography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Blue1,
+                            )
+                            if (uiState.isVerified) {
+
+                                Spacer(Modifier.width(10.dp))
                                 Icon(
-                                    painter = painterResource(R.drawable.image),
+                                    painter = painterResource(R.drawable.ok_status_bold),
                                     contentDescription = null,
+                                    tint = Green1,
                                     modifier = Modifier
                                         .size(20.dp)
                                 )
                             }
                         }
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = uiState.userInfo.fullName,
-                            style = AppTypography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Blue1,
-                        )
-                        if (uiState.isVerified) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(
+                                    elevation = 30.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = Black1.copy(alpha = 0.25f),
+                                    spotColor = Black1.copy(alpha = 0.25f)
+                                )
+                                .background(color = White1, shape = RoundedCornerShape(20.dp))
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                text = "Thông tin cá nhân",
+                                style = AppTypography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Black1
 
-                            Spacer(Modifier.width(10.dp))
-                            Icon(
-                                painter = painterResource(R.drawable.ok_status_bold),
-                                contentDescription = null,
-                                tint = Green1,
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
                                 modifier = Modifier
-                                    .size(20.dp)
-                            )
-                        }
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                ambientColor = Black1.copy(alpha = 0.25f),
-                                spotColor = Black1.copy(alpha = 0.25f)
-                            )
-                            .background(color = White1, shape = RoundedCornerShape(20.dp))
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Thông tin cá nhân",
-                            style = AppTypography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Black1
-
-                        )
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(15.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            InformationLine(
-                                title = "Username",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.username,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Họ và tên",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.fullName,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Ngày sinh",
-                                trailing = {
-                                    Text(
-                                        text = formatterDateString(LocalDate.parse(uiState.userInfo.dateOfBirth)),
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Email",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.mail,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "CCCD",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.cardId,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Sô điện thoại",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.phoneNumber,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Địa chỉ",
-                                trailing = {
-                                    Text(
-                                        text = uiState.userInfo.address,
-                                        style = AppTypography.bodyMedium,
-                                        color = it,
-                                        textAlign = TextAlign.End
-
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-
-                        }
-
-                    }
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .shadow(
-                                elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
-                                ambientColor = Black1.copy(alpha = 0.25f),
-                                spotColor = Black1.copy(alpha = 0.25f)
-                            )
-                            .background(color = White1, shape = RoundedCornerShape(20.dp))
-                            .padding(10.dp)
-                    ) {
-                        Text(
-                            text = "Tiện ích",
-                            style = AppTypography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = Black1
-
-                        )
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(15.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                        ) {
-                            InformationLine(
-                                title = "Mã QR của tôi",
-                                color = Black1,
-                                leading = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.qr),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp),
-                                        tint = it
-                                    )
-                                },
-                                trailing = {
-                                    Icon(
-
-                                        imageVector = Icons.Default.ArrowForwardIos,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp), tint = it
-
-                                    )
-                                },
-                                enable = true,
-                                onClick = {
-//                                onNavigateMyQR()
-                                    isShowMyQr = true
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            InformationLine(
-                                title = "Người nhận đã lưu",
-                                color = Black1,
-                                leading = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.contact),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp),
-                                        tint = it
-                                    )
-                                },
-                                trailing = {
-                                    Icon(
-
-                                        imageVector = Icons.Default.ArrowForwardIos,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp), tint = it
-
-                                    )
-                                },
-                                enable = true,
-                                onClick = {
-                                    onNavigateMyContacts()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                            if (!uiState.isVerified) {
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
                                 InformationLine(
-                                    title = "Xác thực tài khoản",
+                                    title = "Username",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.username,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Họ và tên",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.fullName,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Ngày sinh",
+                                    trailing = {
+                                        Text(
+                                            text = formatterDateString(LocalDate.parse(uiState.userInfo.dateOfBirth)),
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Email",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.mail,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "CCCD",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.cardId,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Sô điện thoại",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.phoneNumber,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Địa chỉ",
+                                    trailing = {
+                                        Text(
+                                            text = uiState.userInfo.address,
+                                            style = AppTypography.bodyMedium,
+                                            color = it,
+                                            textAlign = TextAlign.End
+
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+
+                            }
+
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(
+                                    elevation = 30.dp,
+                                    shape = RoundedCornerShape(20.dp),
+                                    ambientColor = Black1.copy(alpha = 0.25f),
+                                    spotColor = Black1.copy(alpha = 0.25f)
+                                )
+                                .background(color = White1, shape = RoundedCornerShape(20.dp))
+                                .padding(10.dp)
+                        ) {
+                            Text(
+                                text = "Tiện ích",
+                                style = AppTypography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Black1
+
+                            )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(15.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(10.dp)
+                            ) {
+                                InformationLine(
+                                    title = "Mã QR của tôi",
                                     color = Black1,
                                     leading = {
                                         Icon(
-                                            painter = painterResource(R.drawable.verify),
+                                            painter = painterResource(R.drawable.qr),
                                             contentDescription = null,
                                             modifier = Modifier.size(25.dp),
                                             tint = it
@@ -437,44 +392,99 @@ fun MyProfileScreen(
                                     },
                                     enable = true,
                                     onClick = {
-                                        onNavigateToVerificationRequest()
+                                        isShowMyQr = true
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
+                                    title = "Người nhận đã lưu",
+                                    color = Black1,
+                                    leading = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.contact),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp),
+                                            tint = it
+                                        )
+                                    },
+                                    trailing = {
+                                        Icon(
+
+                                            imageVector = Icons.Default.ArrowForwardIos,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp), tint = it
+
+                                        )
+                                    },
+                                    enable = true,
+                                    onClick = {
+                                        onNavigateMyContacts()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                if (!uiState.isVerified) {
+                                    InformationLine(
+                                        title = "Xác thực tài khoản",
+                                        color = Black1,
+                                        leading = {
+                                            Icon(
+                                                painter = painterResource(R.drawable.verify),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(25.dp),
+                                                tint = it
+                                            )
+                                        },
+                                        trailing = {
+                                            Icon(
+
+                                                imageVector = Icons.Default.ArrowForwardIos,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(25.dp), tint = it
+
+                                            )
+                                        },
+                                        enable = true,
+                                        onClick = {
+                                            onEvent(
+                                                MyProfileEvent.NavigateVerifyRequest
+                                            )
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                    )
+
+                                }
+                                InformationLine(
+                                    title = "Điều khoản - Điều kiện",
+                                    color = Black1,
+                                    leading = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.note),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp),
+                                            tint = it
+                                        )
+                                    },
+                                    trailing = {
+                                        Icon(
+
+                                            imageVector = Icons.Default.ArrowForwardIos,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp), tint = it
+
+                                        )
+                                    },
+                                    enable = true,
+                                    onClick = {
+                                        onNavigateToTermsAndConditions()
                                     },
                                     modifier = Modifier.fillMaxWidth(),
                                 )
 
                             }
-                            InformationLine(
-                                title = "Điều khoản - Điều kiện",
-                                color = Black1,
-                                leading = {
-                                    Icon(
-                                        painter = painterResource(R.drawable.note),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp),
-                                        tint = it
-                                    )
-                                },
-                                trailing = {
-                                    Icon(
-
-                                        imageVector = Icons.Default.ArrowForwardIos,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(25.dp), tint = it
-
-                                    )
-                                },
-                                enable = true,
-                                onClick = {
-                                    onNavigateToTermsAndConditions()
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
 
                         }
-
                     }
                 }
-
             }
         }
 
@@ -487,7 +497,11 @@ fun MyProfileScreen(
                     selectedImageUri = null
                 },
                 onConfirm = {
-                    onUpdateImageProfile(selectedImageUri!!)
+                    onEvent(
+                        MyProfileEvent.UploadAvatar(
+                            uri = selectedImageUri!!
+                        )
+                    )
                     selectedImageUri = null
                 }
             ) {
@@ -548,12 +562,13 @@ fun MyProfileScreen(
                     ) {
                         QrCodeImage(
                             content = TransferPayload(
-                                toWalletNumber = myWalletNumber
+                                toWalletNumber = uiState.myWalletNumber ?: ""
                             ),
                             size = 200.dp,
                             onSavedSuccess = {
-
-                                onSavedQrSuccess()
+                                onEvent(
+                                    MyProfileEvent.SavedQrSuccess
+                                )
                             },
                         )
                     }

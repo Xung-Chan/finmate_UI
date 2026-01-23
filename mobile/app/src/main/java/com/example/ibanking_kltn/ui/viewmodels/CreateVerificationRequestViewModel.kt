@@ -6,17 +6,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.requests.WalletVerificationRequest
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.ui.event.CreateVerificationEffect
+import com.example.ibanking_kltn.ui.event.CreateVerificationEvent
 import com.example.ibanking_kltn.ui.uistates.CreateVerificationRequestUiState
 import com.example.ibanking_kltn.ui.uistates.FileInfo
 import com.example.ibanking_kltn.ui.uistates.IdType
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.getFileInfo
-import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,18 +32,31 @@ class CreateVerificationRequestViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateVerificationRequestUiState())
     val uiState: StateFlow<CreateVerificationRequestUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<CreateVerificationEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
 
-    fun init(
-    ) {
-        clearState()
+    fun onEvent(event: CreateVerificationEvent) {
+        when (event) {
+            is CreateVerificationEvent.AddFile -> onAddFile(event.uris)
+            is CreateVerificationEvent.ChangeBusinessAddress -> onChangeBusinessAddress(event.address)
+            is CreateVerificationEvent.ChangeBusinessCode -> onChangeBusinessCode(event.code)
+            is CreateVerificationEvent.ChangeBusinessName -> onChangeBusinessName(event.name)
+            is CreateVerificationEvent.ChangeContactEmail -> onChangeContactEmail(event.email)
+            is CreateVerificationEvent.ChangeContactPhone -> onChangeContactPhone(event.phone)
+            is CreateVerificationEvent.ChangeInvoiceDisplayName -> onChangeInvoiceDisplayName(event.name)
+            is CreateVerificationEvent.ChangeRepresentativeIdNumber -> onChangeRepresentativeIdNumber(
+                event.id
+            )
+
+            is CreateVerificationEvent.ChangeRepresentativeName -> onChangeRepresentativeName(event.name)
+            is CreateVerificationEvent.DeleteFile -> onDeleteFile(event.file)
+            is CreateVerificationEvent.SelectType -> onSelectType(event.idType)
+            CreateVerificationEvent.SubmitVerificationRequest -> onConfirmClick()
+        }
     }
 
-    fun clearState() {
-        _uiState.value = CreateVerificationRequestUiState()
-    }
-
-    fun onAddFile(uris: List<Uri>) {
+    private fun onAddFile(uris: List<Uri>) {
         val mutableList = emptyList<FileInfo>().toMutableList()
         uris.forEach { uri ->
             val info = context.getFileInfo(uri)
@@ -60,7 +76,7 @@ class CreateVerificationRequestViewModel @Inject constructor(
         }
     }
 
-    fun onDeleteFile(file: FileInfo) {
+    private fun onDeleteFile(file: FileInfo) {
         _uiState.update {
             it.copy(
                 documents = it.documents.filter { f -> f.uri != file.uri }
@@ -68,10 +84,8 @@ class CreateVerificationRequestViewModel @Inject constructor(
         }
     }
 
-    fun onConfirmClick(
-        onSuccess: () -> Unit,
-        onError: (message: String) -> Unit
-    )  {
+    private fun onConfirmClick(
+    ) {
 
         _uiState.update {
             it.copy(
@@ -96,100 +110,105 @@ class CreateVerificationRequestViewModel @Inject constructor(
                 request,
                 _uiState.value.documents.map { it.uri }
             )
-            when (apiResult) {
-                is ApiResult.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            screenState = StateType.SUCCESS
-                        )
-                    }
-                    onSuccess()
-                }
-
-                is ApiResult.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            screenState = StateType.SUCCESS
-                        )
-                    }
-                    onSuccess()
-                }
+            //todo
+//            when (apiResult) {
+//                is ApiResult.Success -> {
+//                    _uiState.update {
+//                        it.copy(
+//                            screenState = StateType.SUCCESS
+//                        )
+//                    }
+//                    _uiEffect.emit(
+//                        CreateVerificationEffect.SubmitSuccess
+//
+//                    )
+//
+//                }
+//
+//                is ApiResult.Error -> {
+//                    _uiState.update {
+//                        it.copy(
+//                            screenState = StateType.SUCCESS
+//                        )
+//                    }
+//                    _uiEffect.emit(
+//                        CreateVerificationEffect.ShowSnackBar(
+//                            snackBar = SnackBarUiState(
+//                                message = apiResult.message,
+//                                type = SnackBarType.ERROR
+//                            )
+//                        )
+//                    )
+//                }
+//            }
+            _uiState.update {
+                it.copy(
+                    screenState = StateType.SUCCESS
+                )
             }
+            _uiEffect.emit(
+                CreateVerificationEffect.SubmitSuccess
+
+            )
         }
 
     }
 
-    fun onSelectType(idType: IdType) {
+    private fun onSelectType(idType: IdType) {
         _uiState.update {
             it.copy(
                 representativeIdType = idType.name
             )
         }
     }
-    fun onChangeInvoiceDisplayName(value: String) {
+
+    private fun onChangeInvoiceDisplayName(value: String) {
         _uiState.update {
             it.copy(invoiceDisplayName = value)
         }
     }
 
-    fun onChangeBusinessName(value: String) {
+    private fun onChangeBusinessName(value: String) {
         _uiState.update {
             it.copy(businessName = value)
         }
     }
 
-    fun onChangeBusinessCode(value: String) {
+    private fun onChangeBusinessCode(value: String) {
         _uiState.update {
             it.copy(businessCode = value)
         }
     }
 
-    fun onChangeBusinessAddress(value: String) {
+    private fun onChangeBusinessAddress(value: String) {
         _uiState.update {
             it.copy(businessAddress = value)
         }
     }
 
-    fun onChangeContactEmail(value: String) {
+    private fun onChangeContactEmail(value: String) {
         _uiState.update {
             it.copy(contactEmail = value)
         }
     }
 
-    fun onChangeContactPhone(value: String) {
+    private fun onChangeContactPhone(value: String) {
         _uiState.update {
             it.copy(contactPhone = value)
         }
     }
 
-    fun onChangeRepresentativeName(value: String) {
+    private fun onChangeRepresentativeName(value: String) {
         _uiState.update {
             it.copy(representativeName = value)
         }
     }
 
-    fun onChangeRepresentativeIdNumber(value: String) {
+    private fun onChangeRepresentativeIdNumber(value: String) {
         _uiState.update {
             it.copy(representativeIdNumber = value)
         }
     }
-
-
-
-    fun isEnableConfirm():Boolean{
-        val state = _uiState.value
-        return state.documents.isNotEmpty()
-                && state.invoiceDisplayName.isNotBlank()
-                && state.businessName.isNotBlank()
-                && state.businessCode.isNotBlank()
-                && state.businessAddress.isNotBlank()
-                && state.representativeName.isNotBlank()
-                && state.representativeIdType.isNotBlank()
-                && state.representativeIdNumber.isNotBlank()
-                && state.contactEmail.isNotBlank()
-                && state.contactPhone.isNotBlank()
-    }
-
 
 
 }

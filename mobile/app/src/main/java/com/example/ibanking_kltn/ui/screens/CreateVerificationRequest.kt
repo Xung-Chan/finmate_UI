@@ -41,9 +41,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.CreateVerificationEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -54,7 +54,6 @@ import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.CreateVerificationRequestUiState
-import com.example.ibanking_kltn.ui.uistates.FileInfo
 import com.example.ibanking_kltn.ui.uistates.IdType
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomDropdownField
@@ -67,27 +66,15 @@ import com.example.ibanking_kltn.utils.formatReadableSize
 @Composable
 fun CreateVerificationRequestScreen(
     uiState: CreateVerificationRequestUiState,
-    isEnableConfirm: Boolean,
     onBackClick: () -> Unit,
-    onAddFile: (List<Uri>) -> Unit,
-    onDeleteFile: (FileInfo) -> Unit,
-    onConfirmClick: () -> Unit,
-    onSelectType: (IdType) -> Unit,
-    onChangeInvoiceDisplayName: (String) -> Unit,
-    onChangeBusinessName: (String) -> Unit,
-    onChangeBusinessCode: (String) -> Unit,
-    onChangeBusinessAddress: (String) -> Unit,
-    onChangeContactEmail: (String) -> Unit,
-    onChangeContactPhone: (String) -> Unit,
-    onChangeRepresentativeName: (String) -> Unit,
-    onChangeRepresentativeIdNumber: (String) -> Unit,
+    onEvent:(CreateVerificationEvent)->Unit,
 ) {
     val scrollState = rememberScrollState(0)
     val focusManager = LocalFocusManager.current
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris: List<Uri> ->
-        onAddFile(uris)
+        onEvent(CreateVerificationEvent.AddFile(uris))
     }
     LoadingScaffold(
         isLoading = uiState.screenState is StateType.LOADING
@@ -176,7 +163,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeInvoiceDisplayName(it)
+                                        onEvent(CreateVerificationEvent.ChangeInvoiceDisplayName(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -195,7 +182,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeBusinessName(it)
+                                        onEvent(CreateVerificationEvent.ChangeBusinessName(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -214,7 +201,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeBusinessCode(it)
+                                        onEvent(CreateVerificationEvent.ChangeBusinessCode(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -233,7 +220,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeBusinessAddress(it)
+                                        onEvent(CreateVerificationEvent.ChangeBusinessAddress(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -252,7 +239,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeContactEmail(it)
+                                        onEvent(CreateVerificationEvent.ChangeContactEmail(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -271,7 +258,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeContactPhone(it)
+                                        onEvent(CreateVerificationEvent.ChangeContactPhone(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -316,7 +303,7 @@ fun CreateVerificationRequestScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeRepresentativeName(it)
+                                        onEvent(CreateVerificationEvent.ChangeRepresentativeName(it))
                                     },
                                     placeholder = {
                                         Text(
@@ -330,7 +317,7 @@ fun CreateVerificationRequestScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     options = IdType.entries,
                                     onOptionSelected = {
-                                        onSelectType(it)
+                                        onEvent(CreateVerificationEvent.SelectType(it))
                                     },
                                     optionsComposable = {
                                         Text(
@@ -360,9 +347,17 @@ fun CreateVerificationRequestScreen(
                                         ),
                                         enable = true,
                                         onValueChange = {
-                                            onChangeRepresentativeIdNumber(it)
+                                            onEvent(CreateVerificationEvent.ChangeRepresentativeIdNumber(it))
                                         },
-                                    )
+                                        placeholder ={
+                                            Text(
+                                                text = uiState.representativeIdType,
+                                                style = AppTypography.bodyMedium,
+                                                color = Gray2
+                                            )
+                                        }
+
+                                        )
                                 }
 
                             }
@@ -418,7 +413,7 @@ fun CreateVerificationRequestScreen(
                                         fileName = it.fileName,
                                         size = it.size,
                                         onDeleteClick = {
-                                            onDeleteFile(it)
+                                            onEvent(CreateVerificationEvent.DeleteFile(it))
                                         },
                                     )
 
@@ -440,9 +435,9 @@ fun CreateVerificationRequestScreen(
                 ) {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         CustomTextButton(
-                            enable = isEnableConfirm,
+                            enable = uiState.isConfirmEnabled,
                             onClick = {
-                                onConfirmClick()
+                                onEvent(CreateVerificationEvent.SubmitVerificationRequest)
                             },
                             isLoading = false,
                             modifier = Modifier
@@ -540,41 +535,41 @@ private fun FileItem(
     }
 }
 
-@Preview(
-    showSystemUi = true,
-)
-@Composable
-fun VerificxationRequestPreview() {
-    CreateVerificationRequestScreen(
-        uiState = CreateVerificationRequestUiState(
-            documents = listOf(
-                FileInfo(
-                    uri = Uri.EMPTY,
-                    fileName = "Document1.pdf",
-                    extension = "pdf",
-                    size = 204800L
-                ),
-                FileInfo(
-                    uri = Uri.EMPTY,
-                    fileName = "Document2.docx",
-                    extension = "docx",
-                    size = 512000L
-                )
-            ),
-        ),
-        onBackClick = {},
-        onDeleteFile = {},
-        onConfirmClick = {},
-        isEnableConfirm = false,
-        onAddFile = {},
-        onSelectType = {},
-        onChangeInvoiceDisplayName = {},
-        onChangeBusinessName = {},
-        onChangeBusinessCode = {},
-        onChangeBusinessAddress = {},
-        onChangeContactEmail = {},
-        onChangeContactPhone = {},
-        onChangeRepresentativeName = {},
-        onChangeRepresentativeIdNumber = {},
-    )
-}
+//@Preview(
+//    showSystemUi = true,
+//)
+//@Composable
+//fun VerificxationRequestPreview() {
+//    CreateVerificationRequestScreen(
+//        uiState = CreateVerificationRequestUiState(
+//            documents = listOf(
+//                FileInfo(
+//                    uri = Uri.EMPTY,
+//                    fileName = "Document1.pdf",
+//                    extension = "pdf",
+//                    size = 204800L
+//                ),
+//                FileInfo(
+//                    uri = Uri.EMPTY,
+//                    fileName = "Document2.docx",
+//                    extension = "docx",
+//                    size = 512000L
+//                )
+//            ),
+//        ),
+//        onBackClick = {},
+//        onDeleteFile = {},
+//        onConfirmClick = {},
+//        isEnableConfirm = false,
+//        onAddFile = {},
+//        onSelectType = {},
+//        onChangeInvoiceDisplayName = {},
+//        onChangeBusinessName = {},
+//        onChangeBusinessCode = {},
+//        onChangeBusinessAddress = {},
+//        onChangeContactEmail = {},
+//        onChangeContactPhone = {},
+//        onChangeRepresentativeName = {},
+//        onChangeRepresentativeIdNumber = {},
+//    )
+//}

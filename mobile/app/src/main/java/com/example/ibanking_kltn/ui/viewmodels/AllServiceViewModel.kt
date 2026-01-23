@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
 import com.example.ibanking_kltn.data.dtos.ServiceItem
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AllServiceViewModel @Inject constructor(
@@ -32,15 +34,20 @@ class AllServiceViewModel @Inject constructor(
     }
 
     fun loadFavoriteServices() {
-        val savedServices = serviceManager.getFavoriteServices()
-        val favoriteServices = savedServices.map { service ->
-            ServiceCategory.valueOf(service.service)
+        viewModelScope.launch {
+            serviceManager.favoriteServices.collect {
+                savedServices ->
+                val favoriteServices = savedServices.map { service ->
+                    ServiceCategory.valueOf(service.service)
+                }
+                _uiState.update {
+                    it.copy(
+                        favoriteServices = favoriteServices
+                    )
+                }
+            }
         }
-        _uiState.update {
-            it.copy(
-                favoriteServices = favoriteServices
-            )
-        }
+
     }
 
     fun onChangeModifyFavorite() {

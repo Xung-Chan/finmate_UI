@@ -17,7 +17,20 @@ data class CreateVerificationRequestUiState(
     val contactEmail: String = "",
     val contactPhone: String = "",
 
-    )
+    ) {
+    val isConfirmEnabled: Boolean
+        get() =
+            documents.isNotEmpty()
+                    && invoiceDisplayName.isNotBlank()
+                    && businessName.isNotBlank()
+                    && businessCode.isNotBlank()
+                    && businessAddress.isNotBlank()
+                    && representativeName.isNotBlank()
+                    && representativeIdType.isNotBlank()
+                    && representativeIdNumber.isNotBlank()
+                    && contactEmail.isNotBlank()
+                    && contactPhone.isNotBlank()
+}
 
 enum class IdType {
     CCCD,
