@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.ui.event.AllServiceEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -140,9 +141,7 @@ fun ServiceComponent(
 fun AllServiceScreen(
     uiState: AllServiceUiState,
     onBackClick: () -> Unit,
-    onChangeToModifyState: () -> Unit,
-    onSaveFavoriteServices: (List<ServiceCategory>) -> Unit,
-    navigator: Map<String, () -> Unit>,
+    onEvent: (AllServiceEvent) -> Unit,
 ) {
 
     val allServices = ServiceCategory.entries
@@ -214,7 +213,11 @@ fun AllServiceScreen(
                                     if (favoriteServices.size < 4) {
                                         isShowMissingServiceDialog = true
                                     } else {
-                                        onSaveFavoriteServices(favoriteServices)
+                                        onEvent(
+                                            AllServiceEvent.SaveFavoriteServices(
+                                                favoriteServices
+                                            )
+                                        )
 
                                     }
                                 }
@@ -231,7 +234,9 @@ fun AllServiceScreen(
 
                             TextButton(
                                 onClick = {
-                                    onChangeToModifyState()
+                                    onEvent(
+                                        AllServiceEvent.ChangeModifyFavorite
+                                    )
                                 }
                             ) {
                                 Text(
@@ -320,7 +325,11 @@ fun AllServiceScreen(
                                     serviceName = serviceCategory.serviceName,
                                     color = Color(serviceCategory.color),
                                     onClick = {
-                                        navigator[serviceCategory.name]?.invoke()
+                                        onEvent(
+                                            AllServiceEvent.NavigateToServiceScreen(
+                                                serviceCategory
+                                            )
+                                        )
                                     }
                                 )
                             }
@@ -367,7 +376,11 @@ fun AllServiceScreen(
                                     serviceName = serviceCategory.serviceName,
                                     color = Color(serviceCategory.color),
                                     onClick = {
-                                        navigator[serviceCategory.name]?.invoke()
+                                        onEvent(
+                                            AllServiceEvent.NavigateToServiceScreen(
+                                                serviceCategory
+                                            )
+                                        )
                                     }
                                 )
                             } else if (isExisting) {
@@ -464,22 +477,22 @@ fun AllServiceScreen(
     }
 }
 
-@Preview(
-    showBackground = true, showSystemUi = true
-
-)
-@Composable
-fun AllServicePreview() {
-    AllServiceScreen(
-        onBackClick = {},
-        uiState = AllServiceUiState(
-            isModifyFavorite = true,
-            favoriteServices = listOf(
-                ServiceCategory.MONEY_TRANSFER
-            )
-        ),
-        navigator = emptyMap(),
-        onChangeToModifyState = {},
-        onSaveFavoriteServices = {}
-    )
-}
+//@Preview(
+//    showBackground = true, showSystemUi = true
+//
+//)
+//@Composable
+//fun AllServicePreview() {
+//    AllServiceScreen(
+//        onBackClick = {},
+//        uiState = AllServiceUiState(
+//            isModifyFavorite = true,
+//            favoriteServices = listOf(
+//                ServiceCategory.MONEY_TRANSFER
+//            )
+//        ),
+//        navigator = emptyMap(),
+//        onChangeToModifyState = {},
+//        onSaveFavoriteServices = {}
+//    )
+//}

@@ -12,6 +12,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -136,8 +137,7 @@ dependencies {
 
     //swipe
     implementation("me.saket.swipe:swipe:1.3.0")
-    implementation ("io.github.ehsannarmani:compose-charts:0.2.0")
-
+    implementation("io.github.ehsannarmani:compose-charts:0.2.0")
 
 
 }

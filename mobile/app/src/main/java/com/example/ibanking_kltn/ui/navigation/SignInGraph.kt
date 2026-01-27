@@ -20,7 +20,6 @@ import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
 import com.example.ibanking_kltn.utils.SnackBarType
-import com.example.ibanking_kltn.utils.getViewModel
 
 fun NavGraphBuilder.signInGraph(
     navController: NavController,
@@ -75,14 +74,11 @@ fun NavGraphBuilder.signInGraph(
             arguments = listOf(
                 navArgument("purpose") {
                     type = NavType.StringType
+                    nullable = false
                 }
             )
         ) { backStackEntry ->
-            val forgotPasswordViewModel: ForgotPasswordViewModel = backStackEntry.getViewModel(
-                navController,
-                "${Screens.ForgotPassword.name}/{purpose}"
-            )
-
+            val forgotPasswordViewModel: ForgotPasswordViewModel = hiltViewModel()
             val uiState by forgotPasswordViewModel.uiState.collectAsState()
             LaunchedEffect(Unit) {
                 forgotPasswordViewModel.uiEffect.collect { effect ->

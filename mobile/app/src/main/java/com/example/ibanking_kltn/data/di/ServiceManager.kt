@@ -19,10 +19,38 @@ class ServiceManager @Inject constructor(
     private val RECENT_SERVICE = "RECENT_SERVICE"
     private val FAVORITE_SIZE = 4
 
-    private val _favoriteServices = MutableStateFlow(getFavoriteServices())
+    private val _favoriteServices = MutableStateFlow<List<ServiceItem>>(emptyList())
     val favoriteServices = _favoriteServices.asStateFlow()
-    private val _recentServices = MutableStateFlow(getRecentServices())
+    private val _recentServices = MutableStateFlow<List<ServiceItem>>(emptyList())
     val recentServices = _recentServices.asStateFlow()
+
+    init {
+        val favorite = getFavoriteServices()
+        if(favorite.size != FAVORITE_SIZE) {
+            val default = listOf(
+                ServiceItem(
+                    service = ServiceCategory.MONEY_TRANSFER.name,
+                    lastUsed = System.currentTimeMillis(),
+                ),
+                ServiceItem(
+                    service = ServiceCategory.DEPOSIT.name,
+                    lastUsed = System.currentTimeMillis()
+                ),
+                ServiceItem(
+                    service = ServiceCategory.BILL_PAYMENT.name,
+                    lastUsed = System.currentTimeMillis()
+                ),
+                ServiceItem(
+                    service = ServiceCategory.BILL_HISTORY.name,
+                    lastUsed = System.currentTimeMillis()
+                ),
+            )
+            updateFavorite(default)
+        }
+        _favoriteServices.value = getFavoriteServices()
+        _recentServices.value = getRecentServices()
+    }
+
 
     fun updateFavorite(services: List<ServiceItem>) {
         val serviceJson = Json.encodeToString(services)

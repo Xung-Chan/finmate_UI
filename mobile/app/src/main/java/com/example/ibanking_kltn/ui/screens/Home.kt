@@ -66,7 +66,6 @@ fun HomeScreen(
     homeUiState: HomeUiState = HomeUiState(),
     userComponent: @Composable () -> Unit,
     navigationBar: @Composable () -> Unit,
-    onNavigateServiceList: () -> Unit,
     onEvent: (HomeEvent) -> Unit
 ) {
 
@@ -86,7 +85,7 @@ fun HomeScreen(
                     .padding(paddingValues)
 
             ) {
-                when(homeUiState.initState){
+                when (homeUiState.initState) {
                     is StateType.FAILED -> {
                         RetryCompose(
                             onRetry = {
@@ -97,11 +96,13 @@ fun HomeScreen(
                             },
                         )
                     }
+
                     StateType.LOADING -> {
                         HomeScreenSkeleton(
                             bottomBarHeight = bottomBarHeight
                         )
                     }
+
                     else -> {
                         Column(
                             modifier = Modifier
@@ -161,7 +162,7 @@ fun HomeScreen(
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             Text(
-                                                text = homeUiState.myWallet?.merchantName?:"",
+                                                text = homeUiState.myWallet?.merchantName ?: "",
                                                 color = White1,
                                                 style = AppTypography.headlineMedium
                                             )
@@ -174,7 +175,7 @@ fun HomeScreen(
                                             modifier = Modifier.fillMaxWidth()
                                         ) {
                                             Text(
-                                                text = homeUiState.myWallet?.walletNumber?:"",
+                                                text = homeUiState.myWallet?.walletNumber ?: "",
                                                 color = White1,
                                                 style = AppTypography.bodyMedium
                                             )
@@ -191,7 +192,7 @@ fun HomeScreen(
                                                 )
                                                 {
                                                     Text(
-                                                        text = "${formatterVND(homeUiState.myWallet?.balance?.toLong()?:0L)} VND",
+                                                        text = "${formatterVND(homeUiState.myWallet?.balance?.toLong() ?: 0L)} VND",
                                                         color = White1,
                                                         style = AppTypography.titleMedium,
                                                     )
@@ -275,7 +276,8 @@ fun HomeScreen(
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
                                         for (it in homeUiState.recentServices) {
-                                            val serviceCategory = ServiceCategory.valueOf(it.service)
+                                            val serviceCategory =
+                                                ServiceCategory.valueOf(it.service)
                                             Column(
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                 modifier = Modifier
@@ -311,7 +313,7 @@ fun HomeScreen(
                                                     Text(
                                                         text = ServiceCategory.valueOf(it.service).serviceName,
                                                         color = Black1,
-                                                        style = AppTypography.bodyMedium,
+                                                        style = AppTypography.bodySmall,
                                                         textAlign = TextAlign.Center
                                                     )
                                                 }
@@ -343,7 +345,7 @@ fun HomeScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             TextButton(onClick = {
-                                                onNavigateServiceList()
+                                                onEvent(HomeEvent.NavigateToAllServiceScreen)
                                             }) {
                                                 Text(
                                                     text = "Xem tất cả",
@@ -383,7 +385,9 @@ fun HomeScreen(
                                                     val serviceCategory =
                                                         ServiceCategory.valueOf(serviceItem.service)
                                                     Column(
-                                                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                                                        verticalArrangement = Arrangement.spacedBy(
+                                                            10.dp
+                                                        ),
                                                         modifier = Modifier
                                                             .weight(1f)
                                                             .fillMaxHeight()
@@ -423,7 +427,7 @@ fun HomeScreen(
                                                                 text = ServiceCategory.valueOf(
                                                                     homeUiState.favoriteServices[j].service
                                                                 ).serviceName,
-                                                                style = AppTypography.bodyMedium
+                                                                style = AppTypography.bodySmall
                                                             )
 
                                                         }
@@ -452,6 +456,7 @@ fun HomeScreen(
 
 
 }
+
 @Composable
 fun HomeScreenSkeleton(
     bottomBarHeight: Dp
@@ -664,7 +669,6 @@ fun HomePreview() {
             initState = StateType.LOADING
         ),
         navigationBar = {},
-        onNavigateServiceList = {},
         userComponent = {},
         onEvent = {},
     )

@@ -71,6 +71,7 @@ class HomeViewModel @Inject constructor(
             HomeEvent.ChangeVisibilityBalance -> onChangeVisibleBalance()
             HomeEvent.RetryLoadUserInfo -> retryLoadUserData()
             is HomeEvent.ClickService -> onSelectService(event.service)
+            HomeEvent.NavigateToAllServiceScreen -> onNavigateToAllService()
         }
     }
 
@@ -78,6 +79,14 @@ class HomeViewModel @Inject constructor(
         _uiState.value = HomeUiState()
     }
 
+
+    private fun onNavigateToAllService(){
+        viewModelScope.launch {
+            _uiEffect.emit(
+                HomeEffect.NavigateToAllServiceScreen
+            )
+        }
+    }
     private fun onSelectService(service: ServiceCategory) {
         viewModelScope.launch {
             _uiEffect.emit(

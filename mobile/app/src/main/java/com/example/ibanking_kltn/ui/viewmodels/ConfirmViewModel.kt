@@ -1,11 +1,9 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.PaymentAccount
-import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
@@ -15,15 +13,20 @@ import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.ui.event.ConfirmEffect
+import com.example.ibanking_kltn.ui.event.ConfirmEvent
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.ConfirmUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,44 +37,37 @@ class ConfirmViewModel @Inject constructor(
     private val payLaterRepository: PayLaterRepository,
     private val transactionRepository: TransactionRepository,
     private val billRepository: BillRepository,
-
-    @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConfirmUiState())
     val uiState: StateFlow<ConfirmUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<ConfirmEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
 
-    fun init(
-        service: ServiceType,
-        amount: Long,
-        isVerified: Boolean = false,
-        confirmContent: ConfirmContent,
-    ) {
-        loadAvailableAccount(isVerified)
-
-        loadPaymentInfo(
-            amount = amount,
-            service = service,
-            confirmContent = confirmContent
-        )
+    fun onEvent(event: ConfirmEvent) {
+        when (event) {
+            is ConfirmEvent.Init -> loadPaymentInfo(event.confirmContent)
+            is ConfirmEvent.SelectAccountType -> onSelectAccountType(event.account)
+            is ConfirmEvent.OtpChange -> onOtpChange(event.otp)
+            ConfirmEvent.ConfirmClick -> onConfirmClick()
+            ConfirmEvent.OtpDismiss -> onOtpDismiss()
+        }
     }
+
 
     fun clearState() {
         _uiState.value = ConfirmUiState()
     }
 
     private fun loadPaymentInfo(
-        amount: Long,
-        service: ServiceType,
         confirmContent: ConfirmContent
     ) {
         _uiState.update {
             it.copy(
-                amount = amount,
-                service = service,
-                confirmContent = confirmContent
+                confirmContent = confirmContent,
             )
         }
+        loadAvailableAccount(isVerified = uiState.value.confirmContent?.isVerified ?: false)
     }
 
     private fun loadAvailableAccount(isVerified: Boolean) {
@@ -136,10 +132,8 @@ class ConfirmViewModel @Inject constructor(
 
     }
 
-    fun onOtpChange(
+    private fun onOtpChange(
         otp: String,
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
     ) {
         _uiState.value = _uiState.value.copy(otp = otp)
         if (otp.length == 6) {
@@ -161,14 +155,23 @@ class ConfirmViewModel @Inject constructor(
                                 isOtpShow = false,
                             )
                         }
-                        onSuccess()
+                        _uiEffect.emit(
+                            ConfirmEffect.PaymentSuccess
+                        )
                     }
 
                     is ApiResult.Error -> {
                         _uiState.update {
                             it.copy(screenState = StateType.NONE)
                         }
-                        onError(apiResult.message)
+                        _uiEffect.emit(
+                            ConfirmEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = apiResult.message,
+                                    type = SnackBarType.ERROR
+                                )
+                            )
+                        )
                     }
                 }
 
@@ -177,15 +180,13 @@ class ConfirmViewModel @Inject constructor(
         }
     }
 
-    fun onOtpDismiss() {
+    private fun onOtpDismiss() {
         _uiState.update {
             it.copy(isOtpShow = false)
         }
     }
 
-    fun onConfirmClick(
-        onSentOtp: () -> Unit,
-        onError: (String) -> Unit
+    private fun onConfirmClick(
     ) {
         _uiState.update {
             it.copy(confirmState = StateType.LOADING)
@@ -199,7 +200,7 @@ class ConfirmViewModel @Inject constructor(
                     apiResult = transactionRepository.prepareTransfer(
                         request = PrepareTransferRequest(
                             accountType = uiState.value.accountType!!.accountType.name,
-                            amount = uiState.value.amount,
+                            amount = (uiState.value.confirmContent as ConfirmContent.TRANSFER).amount,
                             description = transferData.description,
                             toWalletNumber = transferData.toWalletNumber
                         )
@@ -217,7 +218,7 @@ class ConfirmViewModel @Inject constructor(
 
                 is ConfirmContent.BILL_REPAYMENT -> {
                     val request = PreparePrePaymentRequest(
-                        amount = uiState.value.amount,
+                        amount = (uiState.value.confirmContent as ConfirmContent.BILL_REPAYMENT).amount,
                         billerCode = (uiState.value.confirmContent as ConfirmContent.BILL_REPAYMENT).billCode
                     )
                     apiResult = billRepository.preparePrepayment(
@@ -226,7 +227,14 @@ class ConfirmViewModel @Inject constructor(
                 }
 
                 else -> {
-                    onError("Dịch vụ không hợp lệ")
+                    _uiEffect.emit(
+                        ConfirmEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Dịch vụ không hợp lệ",
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
                     return@launch
                 }
             }
@@ -241,7 +249,15 @@ class ConfirmViewModel @Inject constructor(
                             prepareResponse = prepareTransferResponse
                         )
                     }
-                    onSentOtp()
+                    _uiEffect.emit(
+                        ConfirmEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Chúng tôi đã gửi mã OTP đến email của bạn",
+                                type = SnackBarType.INFO
+                            )
+                        )
+                    )
+
                 }
 
                 is ApiResult.Error -> {
@@ -249,13 +265,20 @@ class ConfirmViewModel @Inject constructor(
                         it.copy(confirmState = StateType.NONE)
                     }
 
-                    onError(apiResult.message)
+                    _uiEffect.emit(
+                        ConfirmEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
                 }
             }
         }
     }
 
-    fun onSelectAccountType(account: PaymentAccount) {
+    private fun onSelectAccountType(account: PaymentAccount) {
         _uiState.update {
             it.copy(
                 accountType = account,

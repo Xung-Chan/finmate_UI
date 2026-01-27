@@ -1,6 +1,5 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -12,11 +11,11 @@ import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
+import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.pagingsources.TransactionHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,15 +25,18 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @HiltViewModel
 class TransactionHistoryViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
-    @ApplicationContext private val context: Context
+    private val userSession: UserSession
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TransactionHistoryUiState())
     val uiState: StateFlow<TransactionHistoryUiState> = _uiState.asStateFlow()
+
+
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val transactionHistoryPager = uiState
@@ -42,14 +44,14 @@ class TransactionHistoryViewModel @Inject constructor(
             FilterTransactionPara(
                 fromDate = it.fromDate,
                 toDate = it.toDate,
-                accountType =it.accountType,
+                accountType = it.accountType,
                 status = it.selectedStatus,
                 type = it.type,
                 sortBy = it.selectedSort
             )
         }
         .distinctUntilChanged()
-        .flatMapLatest { filterPara->
+        .flatMapLatest { filterPara ->
             Pager(
                 PagingConfig(
                     pageSize = 10,
@@ -60,6 +62,19 @@ class TransactionHistoryViewModel @Inject constructor(
             }.flow.cachedIn(viewModelScope)
         }
 
+    init {
+        viewModelScope.launch {
+            userSession.user.collect {
+                user->
+                    _uiState.update {
+                        it.copy(
+                            myWalletNumber = user?.wallet?.walletNumber ?: ""
+                        )
+                    }
+            }
+        }
+
+    }
 
     fun clearState() {
         _uiState.value = TransactionHistoryUiState()
@@ -113,7 +128,7 @@ class TransactionHistoryViewModel @Inject constructor(
                 screenState = StateType.LOADING,
                 isShowFilter = false,
                 selectedStatus = selectedStatus,
-                type=selectedService,
+                type = selectedService,
                 accountType = selectedAccountType,
                 selectedSort = selectedSort,
                 fromDate = selectedFromDate,

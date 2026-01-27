@@ -9,6 +9,7 @@ import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.QRPayload
 import com.example.ibanking_kltn.data.dtos.QRType
 import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.ui.event.QrScannerEffect
 import com.example.ibanking_kltn.ui.uistates.QRScannerUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.jsonInstance
@@ -18,8 +19,10 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,17 +32,18 @@ import kotlinx.coroutines.tasks.await
 class QRScannerViewModel @Inject constructor() : ViewModel() {
     private val _uiState = MutableStateFlow(QRScannerUiState())
     val uiState: StateFlow<QRScannerUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<QrScannerEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
-    fun clearState() {
-        _uiState.update {
-            it.copy(
-                state = StateType.NONE,
-                isDetectSuccess = false
-            )
-        }
-    }
 
-    fun onDetecting(
+//    fun onEvent(event: QrScannerEvent) {
+//        when (event) {
+//
+//        }
+//    }
+
+
+     fun onDetecting(
         qrCode: String,
         onBillDetecting: (BillPayload) -> Unit,
         onTransferDetecting: (TransferPayload) -> Unit,

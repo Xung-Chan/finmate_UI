@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 
 data class SavedReceiverUiState(
     val screenState: StateType = StateType.NONE,
@@ -8,6 +8,6 @@ data class SavedReceiverUiState(
     val toWalletNumber: String = "",
     val toMerchantName: String = "",
     val keyword: String = "",
-    val savedReceivers: List<SavedReceiver> = emptyList(),
-    val selectedSavedReceiver : SavedReceiver? = null
+    val savedReceivers: List<SavedReceiverInfo> = emptyList(),
+    val selectedSavedReceiver : SavedReceiverInfo? = null
 )

@@ -3,7 +3,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.SavedReceiverManager
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.event.SavedReceiverEffect
 import com.example.ibanking_kltn.ui.event.SavedReceiverEvent
@@ -186,7 +186,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
         viewModelScope.launch {
             val status = savedReceiverManager.add(
-                SavedReceiver(
+                SavedReceiverInfo(
                     memorableName = uiState.value.memorableName,
                     toWalletNumber = uiState.value.toWalletNumber,
                     toMerchantName = uiState.value.toMerchantName,
@@ -256,7 +256,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    private fun onSelectSavedReceiver(savedReceiver: SavedReceiver) {
+    private fun onSelectSavedReceiver(savedReceiver: SavedReceiverInfo) {
         _uiState.update {
             it.copy(
                 selectedSavedReceiver = savedReceiver
@@ -264,7 +264,7 @@ class SavedReceiverViewModel @Inject constructor(
         }
     }
 
-    private fun onSaveReceiver(savedReceiver: SavedReceiver) {
+    private fun onSaveReceiver(savedReceiver: SavedReceiverInfo) {
         savedReceiverManager.add(savedReceiver)
     }
 

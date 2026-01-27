@@ -41,7 +41,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.ui.event.TransferEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -63,17 +63,8 @@ import com.example.ibanking_kltn.utils.formatterVND
 @Composable
 fun TransferScreen(
     uiState: TransferUiState,
-    savedReceivers: List<SavedReceiver>,
-    onDoneWalletNumber: () -> Unit,
     onBackClick: () -> Unit,
-    onExpenseTypeChange: (String) -> Unit,
-    onConfirmClick: () -> Unit,
-    onChangeReceiveWalletNumber: (String) -> Unit,
-    onChangeAmount: (String) -> Unit,
-    onChangeDescription: (String) -> Unit,
-    isEnableContinue: Boolean,
-    onSelectSavedReceiver: (SavedReceiver) -> Unit,
-    onChangeSaveReceiver: () -> Unit
+    onEvent:(TransferEvent)-> Unit
 ) {
     val scrollState = rememberScrollState(0)
     val focusManager = LocalFocusManager.current
@@ -194,7 +185,9 @@ fun TransferScreen(
                             keyboardActions = KeyboardActions(
                                 onDone = {
                                     focusManager.clearFocus()
-                                    onDoneWalletNumber()
+                                    onEvent(
+                                        TransferEvent.DoneWalletNumber
+                                    )
                                 },
 
                                 ),
@@ -207,13 +200,19 @@ fun TransferScreen(
                                         ) {
                                             handled = true
                                         } else if (handled) {
-                                            onDoneWalletNumber()
+                                            onEvent(
+                                                TransferEvent.DoneWalletNumber
+                                            )
                                             handled = false
                                         }
                                     }
                                 ),
                             onValueChange = {
-                                onChangeReceiveWalletNumber(it)
+                                onEvent(
+                                    TransferEvent.ToWalletNumberChange(
+                                        it
+                                    )
+                                )
                             }
                         )
                         if(uiState.toMerchantName.isNotEmpty()){
@@ -281,7 +280,11 @@ fun TransferScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             onValueChange = {
-                                onChangeAmount(it)
+                                onEvent(
+                                    TransferEvent.AmountChange(
+                                        it
+                                    )
+                                )
                             }
                         )
                         CustomTextField(
@@ -298,7 +301,11 @@ fun TransferScreen(
                             ),
                             modifier = Modifier.fillMaxWidth(),
                             onValueChange = {
-                                onChangeDescription(it)
+                                onEvent(
+                                    TransferEvent.ContentChange(
+                                        it
+                                    )
+                                )
                             }
                         )
                         CustomDropdownField(
@@ -307,7 +314,11 @@ fun TransferScreen(
                                 it.name
                             },
                             onOptionSelected = {
-                                onExpenseTypeChange(it)
+                                onEvent(
+                                    TransferEvent.ExpenseTypeChange(
+                                        it
+                                    )
+                                )
                             },
                             selectedOption = uiState.expenseType,
                             placeholder = "Phân loại (Hệ thống tự động phân loại nếu để trống)"
@@ -330,14 +341,18 @@ fun TransferScreen(
                         ),
                         modifier = Modifier.fillMaxWidth()
                             .customClick{
-                                onChangeSaveReceiver()
+                                onEvent(
+                                    TransferEvent.ChangeSaveReceiver
+                                )
 
                             }
                     ) {
                         Checkbox(
                             checked = uiState.isSaveReceiver,
                             onCheckedChange = {
-                                onChangeSaveReceiver()
+                                onEvent(
+                                    TransferEvent.ChangeSaveReceiver
+                                )
                             },
                             enabled = true,
                             colors = CheckboxDefaults.colors(
@@ -349,9 +364,11 @@ fun TransferScreen(
                     }
 
                     CustomTextButton(
-                        enable = isEnableContinue,
+                        enable = uiState.isEnableContinue,
                         onClick = {
-                            onConfirmClick()
+                            onEvent(
+                                TransferEvent.ConfirmTransfer
+                            )
                         },
                         isLoading = uiState.confirmState is StateType.LOADING,
                         modifier = Modifier
@@ -364,9 +381,13 @@ fun TransferScreen(
         }
         if(isShowSavedReceiverDialog){
             SavedReceiverDialog(
-                savedReceivers = savedReceivers,
+                savedReceivers = uiState.savedReceivers,
                 onSelect = {
-                    onSelectSavedReceiver(it)
+                    onEvent(
+                        TransferEvent.SelectSavedReceiver(
+                            it
+                        )
+                    )
                     isShowSavedReceiverDialog = false
                 },
                 onDimiss = {

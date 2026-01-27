@@ -29,7 +29,7 @@ enum class ServiceType(val serviceName: String) {
     CASH_DEPOSIT("Nạp tiền"),
     CASH_WITHDRAW("Rút tiền"),
     E_GATEWAY_DEPOSIT("Nạp tiền qua ứng dụng"),
-    PAY_LATER_REPAYMENT("Trả trước"),
+    PAY_LATER_REPAYMENT("Thanh toán nợ ví trả sau"),
     BILL_UTILITY_PAYMENT("Thanh toán tiện ích")
 }
 
@@ -104,7 +104,7 @@ data class ServiceItem(
 )
 
 @Serializable
-data class SavedReceiver(
+data class SavedReceiverInfo(
     val memorableName: String,
     val toWalletNumber: String,
     val toMerchantName: String,
