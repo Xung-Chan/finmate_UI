@@ -47,6 +47,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.QrScannerEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.White1
@@ -58,10 +59,8 @@ import com.example.ibanking_kltn.utils.QRCodeAnalyzer
 @Composable
 fun QRScannerScreen(
     uiState: QRScannerUiState,
-    detecting: (String) -> Unit,
     onBackClick: () -> Unit,
-    onAnalyzeImage: (Uri) -> Unit,
-//    onError: (String) -> Unit
+    onEvent: (QrScannerEvent) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -70,7 +69,12 @@ fun QRScannerScreen(
         selectedImageUri
     ) {
         selectedImageUri?.let { uri ->
-            onAnalyzeImage(uri)
+            onEvent(
+                QrScannerEvent.AnalyzeImage(
+                    uri = uri,
+                    context = context
+                )
+            )
         }
 
     }
@@ -126,8 +130,10 @@ fun QRScannerScreen(
                                     it.setAnalyzer(
                                         ContextCompat.getMainExecutor(ctx),
                                         QRCodeAnalyzer { qrCode ->
-                                            if (uiState.state != StateType.LOADING && !uiState.isDetectSuccess)
-                                                detecting(qrCode)
+                                            if (uiState.state == StateType.NONE || uiState.state is StateType.FAILED)
+                                                onEvent(
+                                                    QrScannerEvent.Detecting(qrCode)
+                                                )
 
                                         }
                                     )
@@ -206,12 +212,12 @@ fun QRScannerScreen(
 
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun QRScannerPreview() {
-    QRScannerScreen(
-        QRScannerUiState(), detecting = {}, onBackClick = {},
-        onAnalyzeImage = {}
-
-    )
-}
+//@androidx.compose.ui.tooling.preview.Preview(showSystemUi = true, showBackground = true)
+//@Composable
+//fun QRScannerPreview() {
+//    QRScannerScreen(
+//        QRScannerUiState(), detecting = {}, onBackClick = {},
+//        onAnalyzeImage = {}
+//
+//    )
+//}

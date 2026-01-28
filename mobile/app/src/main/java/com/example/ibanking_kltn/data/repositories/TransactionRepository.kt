@@ -26,21 +26,23 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.prepareTransfer(request = request) },
         )
-        // return ApiResult.Success(
-        //     data = PrepareTransactionResponse(
-        //         retryTokenOtp = "mocked-retry-token-otp",
-        //         transactionId = "mocked-transaction-id"
-        //     )
-        // )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = PrepareTransactionResponse(
+//                retryTokenOtp = "mocked-retry-token-otp",
+//                transactionId = "mocked-transaction-id"
+//            )
+//        )
     }
 
     suspend fun confirmTransfer(request: ConfirmTransferRequest): ApiResult<Unit> {
         return safeApiCall(
             apiCall = { api.confirmTransfer(request = request) },
         )
-        // return ApiResult.Success(
-        //     data = Unit
-        // )
+//        delay(1000L)
+//         return ApiResult.Success(
+//             data = Unit
+//         )
     }
 
 
@@ -48,31 +50,32 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.getAllExpenseType() },
         )
-        // return ApiResult.Success(
-        //     data = AllExpenseTypeResponse().apply {
-        //         add(
-        //             ExpenseType(
-        //                 id = "1",
-        //                 name = "Ăn uống",
-        //                 tag = "food"
-        //             )
-        //         )
-        //         add(
-        //             ExpenseType(
-        //                 id = "2",
-        //                 name = "Mua sắm",
-        //                 tag = "shopping"
-        //             )
-        //         )
-        //         add(
-        //             ExpenseType(
-        //                 id = "3",
-        //                 name = "Giải trí",
-        //                 tag = "entertainment"
-        //             )
-        //         )
-        //     }
-        // )
+//        delay(1000L)
+//         return ApiResult.Success(
+//             data = AllExpenseTypeResponse().apply {
+//                 add(
+//                     ExpenseType(
+//                         id = "1",
+//                         name = "Ăn uống",
+//                         tag = "food"
+//                     )
+//                 )
+//                 add(
+//                     ExpenseType(
+//                         id = "2",
+//                         name = "Mua sắm",
+//                         tag = "shopping"
+//                     )
+//                 )
+//                 add(
+//                     ExpenseType(
+//                         id = "3",
+//                         name = "Giải trí",
+//                         tag = "entertainment"
+//                     )
+//                 )
+//             }
+//         )
 
     }
 
@@ -82,12 +85,13 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.createDepositTransaction(request) },
         )
-        // val url = ""
-        // return ApiResult.Success(
-        //     data = DepositTransactionResponse(
-        //         url = url
-        //     )
-        // )
+//        delay(1000L)
+//         val url = ""
+//         return ApiResult.Success(
+//             data = DepositTransactionResponse(
+//                 url = url
+//             )
+//         )
     }
 
 
@@ -98,12 +102,13 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.handleVNPayReturn(vnp_ResponseCode, vnp_TxnRef) },
         )
-        // val transactionId = ""
-        // return ApiResult.Success(
-        //     data = HandleVNPayReturnResponse(
-        //         transactionId = transactionId
-        //     )
-        // )
+//        delay(1000L)
+//         val transactionId = ""
+//         return ApiResult.Success(
+//             data = HandleVNPayReturnResponse(
+//                 transactionId = transactionId
+//             )
+//         )
     }
 
     suspend fun getTransactionStatus(
@@ -113,18 +118,20 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.getTransactionStatus(transactionId) },
         )
-        // return ApiResult.Success(
-        //     data = TransactionHistoryResponse(
-        //         id = "txn-123456",
-        //         amount = 100000.0,
-        //         description = "Deposit via VNPay",
-        //         processedAt = "2024-06-01T12:00:00",
-        //         sourceAccountNumber = "123456789",
-        //         sourceBalanceUpdated = 900000.0,
-        //         status = "COMPLETED",
-        //         toWalletNumber = "aschass as"
-        //     )
-        // )
+//        delay(1000L)
+//         return ApiResult.Success(
+//             data = TransactionHistoryResponse(
+//                 id = "txn-123456",
+//                 amount = 100000.0,
+//                 description = "Deposit via VNPay",
+//                 processedAt = "2024-06-01T12:00:00",
+//                 sourceAccountNumber = "123456789",
+//                 sourceBalanceUpdated = 900000.0,
+//                 status = "COMPLETED",
+//                 toWalletNumber = "aschass as",
+//                 transactionType = ServiceType.TRANSFER
+//             )
+//         )
     }
 
     suspend fun getTransactionHistory(
@@ -133,136 +140,41 @@ class TransactionRepository @Inject constructor(
         return safeApiCall(
             apiCall = { api.getTransactionHistory(request) },
         )
-        // delay(1000L)
-        // return ApiResult.Success(
-        //     data = Pagination<TransactionHistoryResponse>(
-        //         contents = listOf(
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-123456",
-        //                 amount = 100000.0,
-        //                 description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
-
-        //                 processedAt = "2024-06-01T12:00:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 900000.0,
-        //                 status = "COMPLETED",
-        //                 toWalletNumber = "0987654321"
-        //             ),
-        //             TransactionHistoryResponse(
-        //                 id = "txn-789012",
-        //                 amount = 200000.0,
-        //                 description = "Giao dịch 2",
-        //                 processedAt = "2024-06-02T15:30:00",
-        //                 sourceAccountNumber = "123456789",
-        //                 sourceBalanceUpdated = 700000.0,
-        //                 status = "PENDING",
-        //                 toWalletNumber = "1122334455"
-        //             )
-        //         ),
-        //         totalPages = 10,
-        //         currentPage = request.page?.let { it + 1 } ?: 1,
-        //         pageSize = 10,
-        //         totalElements = 1000,
-        //     )
-        // )
+//         delay(1000L)
+//         return ApiResult.Success(
+//             data = Pagination<TransactionHistoryResponse>(
+//                 contents = listOf(
+//                     TransactionHistoryResponse(
+//                         id = "txn-123456",
+//                         amount = 100000.0,
+//                         description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
+//                         processedAt = "2024-06-01T12:00:00",
+//                         sourceAccountNumber = "123456789",
+//                         sourceBalanceUpdated = 900000.0,
+//                         status = "COMPLETED",
+//                         toWalletNumber = "0987654321",
+//                         transactionType = ServiceType.TRANSFER
+//                     ),
+//                     TransactionHistoryResponse(
+//                         id = "txn-123456",
+//                         amount = 100000.0,
+//                         description = "Chuyên tien cho Nguyen Van A vao ngay 01/06 lý do thanh toan tien nha",
+//
+//                         processedAt = "2024-06-01T12:00:00",
+//                         sourceAccountNumber = "123456789",
+//                         sourceBalanceUpdated = 900000.0,
+//                         status = "COMPLETED",
+//                         toWalletNumber = "0987654321",
+//
+//                         transactionType = ServiceType.TRANSFER
+//                     ),
+//                 ),
+//                 totalPages = 10,
+//                 currentPage = request.page?.let { it + 1 } ?: 1,
+//                 pageSize = 10,
+//                 totalElements = 1000,
+//             )
+//         )
 
     }
 

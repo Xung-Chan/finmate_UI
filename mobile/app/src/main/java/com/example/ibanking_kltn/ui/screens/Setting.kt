@@ -23,12 +23,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,14 +49,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.SettingEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
-import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
@@ -67,22 +64,15 @@ import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.InformationLine
 import com.example.ibanking_kltn.utils.LoadingScaffold
-import com.example.ibanking_kltn.utils.formatterDateString
-import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(
     uiState: SettingUiState,
-    appUiState: AppUiState,
-    onViewProfileClick: () -> Unit,
-    onChangePasswordClick: () -> Unit,
-    onClickBiometric: () -> Unit,
-    onLogout: () -> Unit,
-    onChangePassword: (String) -> Unit,
+    userComponent: @Composable () -> Unit,
     navigationBar: @Composable () -> Unit,
-    onError: (String) -> Unit ,
+    onEvent: (SettingEvent) -> Unit,
 ) {
     var isShowConfirmLogout by remember {
         mutableStateOf(false)
@@ -115,102 +105,7 @@ fun SettingScreen(
                         .fillMaxSize()
                 ) {
                     //user infor row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                space = 10.dp,
-                                alignment = Alignment.Start
-                            ),
-
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .background(
-                                        color = White1,
-                                        shape = CircleShape
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                if (appUiState.avatarUrl == null) {
-                                    DefaultImageProfile(
-                                        modifier = Modifier
-                                            .size(100.dp),
-                                        name =appUiState.fullName
-                                    )
-                                } else {
-
-                                    AsyncImage(
-                                        model = appUiState.avatarUrl,
-                                        contentDescription = "Avatar",
-                                        modifier = Modifier
-                                            .size(100.dp)
-                                            .clip(CircleShape),
-                                        contentScale = ContentScale.Crop
-                                    )
-                                }
-
-                            }
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
-                                    color = White1,
-                                    style = AppTypography.bodySmall
-                                )
-                                Text(
-                                    text = "Xin chào, ${appUiState.fullName}!",
-                                    color = White1,
-                                    style = AppTypography.bodyMedium
-                                )
-                            }
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Notifications,
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                            IconButton(
-                                onClick = {},
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .align(
-                                        Alignment.CenterVertically
-                                    )
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.question),
-                                    contentDescription = null,
-                                    tint = White1,
-                                    modifier = Modifier.size(35.dp)
-                                )
-                            }
-                        }
-                    }
+                    userComponent()
                     //Main container
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -227,16 +122,16 @@ fun SettingScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                         ) {
-                            if (appUiState.avatarUrl == null) {
+                            if (uiState.avatarUrl == null) {
                                 DefaultImageProfile(
                                     modifier = Modifier
                                         .size(100.dp),
-                                    name =appUiState.fullName
+                                    name = uiState.fullName
                                 )
                             } else {
 
                                 AsyncImage(
-                                    model = appUiState.avatarUrl,
+                                    model = uiState.avatarUrl,
                                     contentDescription = "Avatar",
                                     modifier = Modifier
                                         .size(100.dp)
@@ -250,7 +145,7 @@ fun SettingScreen(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = appUiState.fullName,
+                                text = uiState.fullName,
                                 style = AppTypography.headlineSmall.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
@@ -275,7 +170,9 @@ fun SettingScreen(
                                 },
                                 enable = true,
                                 onClick = {
-                                        onViewProfileClick()
+                                    onEvent(
+                                        SettingEvent.NavigateToMyProfile
+                                    )
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -293,7 +190,9 @@ fun SettingScreen(
                                 },
                                 enable = true,
                                 onClick = {
-                                        onChangePasswordClick()
+                                    onEvent(
+                                        SettingEvent.NavigateToChangePasswordScreen
+                                    )
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                             )
@@ -314,7 +213,7 @@ fun SettingScreen(
                                     isShowConfirmPasswordBiometric = true
 
                                 },
-                                enable =true,
+                                enable = true,
                                 modifier = Modifier.fillMaxWidth(),
                             )
                             InformationLine(
@@ -328,9 +227,9 @@ fun SettingScreen(
                                         modifier = Modifier.size(24.dp)
                                     )
                                 },
-                                enable =true,
+                                enable = true,
                                 onClick = {
-                                        isShowConfirmLogout = true
+                                    isShowConfirmLogout = true
 
                                 },
                                 modifier = Modifier.fillMaxWidth(),
@@ -353,7 +252,9 @@ fun SettingScreen(
                     isShowConfirmLogout = false
                 },
                 onConfirm = {
-                    onLogout()
+                    onEvent(
+                        SettingEvent.Logout
+                    )
                 }
             ) {
                 Image(
@@ -388,13 +289,8 @@ fun SettingScreen(
                     isShowConfirmPasswordBiometric = false
                 },
                 onConfirm = {
-                    if (uiState.confirmPassword.isNotEmpty()) {
-                        onClickBiometric()
-                        isShowConfirmPasswordBiometric = false
-
-                    } else {
-                        onError("Mật khẩu không thể để trống")
-                    }
+                    onEvent(SettingEvent.SwitchBiometric)
+                    isShowConfirmPasswordBiometric = false
                 }
             ) {
                 Image(
@@ -432,7 +328,7 @@ fun SettingScreen(
                         ),
                         modifier = Modifier.fillMaxWidth(),
                         onValueChange = {
-                            onChangePassword(it)
+                            onEvent(SettingEvent.ChangeConfirmPassword(it))
                         },
                         trailingIcon = {
 

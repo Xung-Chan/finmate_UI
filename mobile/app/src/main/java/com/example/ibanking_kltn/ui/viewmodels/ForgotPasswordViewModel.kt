@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
@@ -9,49 +9,88 @@ import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
 import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
 import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
+import com.example.ibanking_kltn.ui.event.ForgotPasswordEffect
+import com.example.ibanking_kltn.ui.event.ForgotPasswordEvent
 import com.example.ibanking_kltn.ui.uistates.ForgotPasswordStep
 import com.example.ibanking_kltn.ui.uistates.ForgotPasswordUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
-import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ForgotPasswordViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val savedStateHandle: SavedStateHandle
+
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ForgotPasswordUiState())
     val uiState: StateFlow<ForgotPasswordUiState> = _uiState.asStateFlow()
 
-    fun init(purpose: RequestOtpPurpose) {
-        _uiState.value = ForgotPasswordUiState(
-            purpose = purpose
-        )
+    private val _uiEffect = MutableSharedFlow<ForgotPasswordEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
+
+    init {
+        val purpose = savedStateHandle.get<String>("purpose")?.let {
+            RequestOtpPurpose.valueOf(it)
+        }
+        if (purpose == null) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    ForgotPasswordEffect.WrongPurpose
+                )
+            }
+        } else {
+            _uiState.update {
+                it.copy(
+                    purpose = purpose
+                )
+            }
+        }
+    }
+
+    private suspend fun onError(message: String) {
+        _uiEffect.emit(
+            ForgotPasswordEffect.ShowSnackBar(
+                snackBar = SnackBarUiState(
+                    message,
+                    SnackBarType.ERROR
+                )
+            )
+        )
+    }
+
+    fun onEvent(event: ForgotPasswordEvent) {
+        when (event) {
+            ForgotPasswordEvent.BackToEnterEmailClick -> onBackToEnterEmailClick()
+            ForgotPasswordEvent.BackToEnterUsernameClick -> onBackToEnterUsernameClick()
+            is ForgotPasswordEvent.ChangeEmail -> onEmailChange(event.email)
+            is ForgotPasswordEvent.ChangeNewPassword -> onNewPasswordChange(event.newPassword)
+            is ForgotPasswordEvent.ChangeOtp -> onOtpChange(event.otp)
+            is ForgotPasswordEvent.ChangeUsername -> onUsernameChange(event.username)
+            ForgotPasswordEvent.ConfirmOtp -> onConfirmOtpClick()
+            ForgotPasswordEvent.FindByUsername-> onFindUsernameClick()
+            ForgotPasswordEvent.ResetPassword -> onResetPasswordClick()
+            ForgotPasswordEvent.SendOtp -> onSendOtpClick()
+        }
     }
 
     fun clearState() {
         _uiState.value = ForgotPasswordUiState()
     }
 
-    fun onChangeVisiblePassword() {
-        _uiState.update {
-            it.copy(
-                isShowPassword = !uiState.value.isShowPassword
-            )
-        }
-    }
 
-    fun onFindUsernameClick(
-        onError: (String) -> Unit
+    private fun onFindUsernameClick(
     ) {
         _uiState.update {
             it.copy(
@@ -90,7 +129,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onUsernameChange(username: String) {
+    private fun onUsernameChange(username: String) {
         _uiState.update {
             it.copy(
                 username = username
@@ -98,7 +137,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onSendOtpClick(onError: (String) -> Unit) {
+    private fun onSendOtpClick() {
         _uiState.update {
             it.copy(
                 screenState = StateType.LOADING
@@ -138,7 +177,7 @@ class ForgotPasswordViewModel @Inject constructor(
     }
 
 
-    fun onEmailChange(email: String) {
+    private fun onEmailChange(email: String) {
         _uiState.update {
             it.copy(
                 email = email
@@ -146,8 +185,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onConfirmOtpClick(
-        onError: (String) -> Unit
+    private fun onConfirmOtpClick(
     ) {
         _uiState.update {
             it.copy(
@@ -188,7 +226,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onOtpChange(otp: String) {
+    private fun onOtpChange(otp: String) {
         _uiState.update {
             it.copy(
                 otp = otp
@@ -196,9 +234,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onResetPasswordClick(
-        onSuccess: () -> Unit,
-        onError: (String) -> Unit
+    private fun onResetPasswordClick(
     ) {
         _uiState.update {
             it.copy(
@@ -232,13 +268,15 @@ class ForgotPasswordViewModel @Inject constructor(
                             screenState = StateType.SUCCESS
                         )
                     }
-                    onSuccess()
+                    _uiEffect.emit(
+                        ForgotPasswordEffect.ResetPasswordSuccess
+                    )
                 }
             }
         }
     }
 
-    fun onNewPasswordChange(newPassword: String) {
+    private fun onNewPasswordChange(newPassword: String) {
         _uiState.update {
             it.copy(
                 newPassword = newPassword
@@ -246,7 +284,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onBackToEnterEmailClick() {
+    private fun onBackToEnterEmailClick() {
         _uiState.update {
             it.copy(
                 currentStep = ForgotPasswordStep.ENTER_EMAIL
@@ -254,7 +292,7 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    fun onBackToEnterUsernameClick() {
+    private fun onBackToEnterUsernameClick() {
         _uiState.update {
             it.copy(
                 currentStep = ForgotPasswordStep.ENTER_USERNAME

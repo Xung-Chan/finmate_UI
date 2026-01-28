@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,8 +43,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
+import com.example.ibanking_kltn.ui.event.LoginEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -60,18 +63,14 @@ import com.example.ibanking_kltn.utils.customClick
 @Composable
 fun SignInScreen(
     uiState: AuthUiState,
-    onLoginClick: () -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onChangeVisiblePassword: () -> Unit,
-    checkEnableLogin: () -> Boolean,
-    onRequestOtp: (RequestOtpPurpose) -> Unit,
-    onBiometricClick: () -> Unit,
-    onDeleteLastLoginUser: () -> Unit,
+    onEvent: (LoginEvent) -> Unit,
 ) {
+    val context = LocalContext.current
+
     var isShowConfirmDeleteLastUser by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val focusManager = LocalFocusManager.current
+    var isShowPassword by remember { mutableStateOf(false) }
     Box {
         Scaffold(
             modifier = Modifier,
@@ -165,7 +164,9 @@ fun SignInScreen(
                                     imeAction = ImeAction.Next
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
-                                onValueChange = { onEmailChange(it) }
+                                onValueChange = {
+                                    onEvent(LoginEvent.ChangeUsername(it))
+                                }
                             )
                         }
                     } else {
@@ -227,7 +228,7 @@ fun SignInScreen(
                                 )
                             },
                             isPasswordField = true,
-                            isPasswordShow = uiState.isPasswordShow,
+                            isPasswordShow = isShowPassword,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
                                 imeAction = ImeAction.Done
@@ -240,7 +241,7 @@ fun SignInScreen(
                             ),
                             modifier = Modifier.fillMaxWidth(),
                             onValueChange = {
-                                onPasswordChange(it)
+                                onEvent(LoginEvent.ChangePassword(it))
                             },
                             trailingIcon = {
 
@@ -248,10 +249,12 @@ fun SignInScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .padding(5.dp)
-                                        .customClick{ onChangeVisiblePassword() }
+                                        .customClick {
+                                            isShowPassword = !isShowPassword
+                                        }
                                 ) {
                                     Icon(
-                                        imageVector = if (uiState.isPasswordShow) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        imageVector = if (isShowPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                         contentDescription = null,
                                         tint = Gray1,
                                     )
@@ -273,7 +276,9 @@ fun SignInScreen(
                             style = AppTypography.bodyMedium,
                             color = Gray2,
                             modifier = Modifier.clickable {
-                                onRequestOtp(RequestOtpPurpose.PASSWORD_RESET)
+                                onEvent(
+                                    LoginEvent.RequestOtp(RequestOtpPurpose.PASSWORD_RESET)
+                                )
                             }
                         )
 
@@ -286,10 +291,10 @@ fun SignInScreen(
                             .padding(horizontal = 10.dp)
                     ) {
                         CustomTextButton(
-                            enable = checkEnableLogin(),
+                            enable = uiState.username.isNotBlank() && uiState.password.isNotBlank() && uiState.loginState !is StateType.LOADING,
                             onClick = {
                                 focusManager.clearFocus()
-                                onLoginClick()
+                                onEvent(LoginEvent.Login)
                             },
                             isLoading = uiState.loginState is StateType.LOADING,
                             modifier = Modifier
@@ -314,7 +319,11 @@ fun SignInScreen(
                                     spotColor = Black1.copy(alpha = 0.25f)
                                 )
                                 .clickable {
-                                    onBiometricClick()
+                                    onEvent(
+                                        LoginEvent.LoginBiometric(
+                                            fragmentActivity = context as FragmentActivity
+                                        )
+                                    )
 
                                 }
                         ) {
@@ -329,22 +338,28 @@ fun SignInScreen(
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            5.dp,
+                            Alignment.CenterHorizontally
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 10.dp)
                     ) {
                         Text(
-                            text="Kích hoạt tài khoản?",
-                            style=AppTypography.bodySmall,
-                            color=Gray1
+                            text = "Kích hoạt tài khoản?",
+                            style = AppTypography.bodySmall,
+                            color = Gray1
                         )
                         Text(
-                            text="Kích hoạt",
-                            style=AppTypography.bodyMedium,
-                            color=Blue1,
-                            modifier=Modifier.customClick {
-                                onRequestOtp(RequestOtpPurpose.EMAIL_VERIFICATION)
+                            text = "Kích hoạt",
+                            style = AppTypography.bodyMedium,
+                            color = Blue1,
+                            modifier = Modifier.customClick {
+                                onEvent(
+                                    LoginEvent.RequestOtp(RequestOtpPurpose.EMAIL_VERIFICATION)
+                                )
+
                             }
                         )
                     }
@@ -361,7 +376,9 @@ fun SignInScreen(
                     isShowConfirmDeleteLastUser = false
                 },
                 onConfirm = {
-                    onDeleteLastLoginUser()
+                    onEvent(
+                        LoginEvent.DeleteLastestLogin
+                    )
                     isShowConfirmDeleteLastUser = false
                 }
             ) {
@@ -408,15 +425,6 @@ fun PreviewLogin() {
         uiState = AuthUiState(
             fullName = "Nguyen Van A"
         ),
-        onLoginClick = { },
-        onEmailChange = { },
-        onPasswordChange = { },
-        onChangeVisiblePassword = { },
-        checkEnableLogin = {
-            false
-        },
-        onRequestOtp = { },
-        onBiometricClick = {},
-        onDeleteLastLoginUser = {}
+        onEvent = {},
     )
 }

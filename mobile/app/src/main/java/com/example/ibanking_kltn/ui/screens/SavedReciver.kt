@@ -56,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.SavedReceiverEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -78,14 +79,7 @@ import com.example.ibanking_kltn.utils.customClick
 fun SavedReceiverScreen(
     uiState: SavedReceiverUiState,
     onBackClick: () -> Unit,
-    onDoneWalletNumber: () -> Unit,
-    onAddReceiver: () -> Unit,
-    onDeleteReceiver: (String) -> Unit,
-    onSearchReceiver: () -> Unit,
-    onChangeKeyword: (String) -> Unit,
-    onChangeMemorableName: (String) -> Unit,
-    onChangeToWalletNumber: (String) -> Unit,
-    onClearAddReceiverDialog: () -> Unit,
+    onEvent:(SavedReceiverEvent)->Unit,
 ) {
     val scrollState = rememberScrollState(0)
     var handled by remember {
@@ -155,7 +149,9 @@ fun SavedReceiverScreen(
                 ) {
                     CustomTextField(
                         value = uiState.keyword,
-                        onValueChange = onChangeKeyword,
+                        onValueChange = {
+                            onEvent(SavedReceiverEvent.ChangeKeyword(it))
+                        },
                         placeholder = {
                             Text(stringResource(id = R.string.SavedReceiver_SearchHint))
                         },
@@ -173,7 +169,7 @@ fun SavedReceiverScreen(
                         keyboardActions = KeyboardActions(
                             onSearch = {
                                 focusManager.clearFocus()
-                                onSearchReceiver()
+                                onEvent(SavedReceiverEvent.Search)
                             }
                         ),
                         shape = RoundedCornerShape(10.dp),
@@ -185,7 +181,7 @@ fun SavedReceiverScreen(
                     isRefreshing = uiState.screenState is StateType.LOADING,
                     state = refreshState,
                     onRefresh = {
-                        onSearchReceiver()
+                        onEvent(SavedReceiverEvent.Search)
                     },
                     indicator = {
                         Box(
@@ -234,7 +230,11 @@ fun SavedReceiverScreen(
                         uiState.savedReceivers.forEach { savedReceiver ->
                             SwipeComponent(
                                 onEndSwipe = {
-                                    onDeleteReceiver(savedReceiver.toWalletNumber)
+                                    onEvent(
+                                        SavedReceiverEvent.DeleteSavedReceiver(
+                                            walletNumber = savedReceiver.toWalletNumber
+                                        )
+                                    )
                                 },
                                 onStartSwipe = null
                             ) {
@@ -347,7 +347,7 @@ fun SavedReceiverScreen(
                                                 ) {
                                                     handled = true
                                                 } else if (handled) {
-                                                    onDoneWalletNumber()
+                                                    onEvent(SavedReceiverEvent.DoneWalletNumber)
                                                     handled = false
                                                 }
                                             }
@@ -360,12 +360,12 @@ fun SavedReceiverScreen(
                                     keyboardActions = KeyboardActions(
                                         onDone = {
                                             focusManager.clearFocus()
-                                            onDoneWalletNumber()
+                                            onEvent(SavedReceiverEvent.DoneWalletNumber)
                                         }
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeToWalletNumber(it)
+                                        onEvent(SavedReceiverEvent.ChangeToWalletNumber(it))
                                     }
                                 )
                             }
@@ -410,7 +410,7 @@ fun SavedReceiverScreen(
                                     ),
                                     enable = true,
                                     onValueChange = {
-                                        onChangeMemorableName(it)
+                                        onEvent(SavedReceiverEvent.ChangeMemorableName(it))
                                     }
                                 )
                             }
@@ -435,7 +435,9 @@ fun SavedReceiverScreen(
                                         shape = RoundedCornerShape(10.dp),
                                         enable = (uiState.toMerchantName.isNotEmpty() && uiState.memorableName.isNotEmpty() && uiState.toWalletNumber.isNotEmpty())
                                     ) {
-                                        onAddReceiver()
+                                        onEvent(
+                                            SavedReceiverEvent.AddSavedReceiver
+                                        )
                                         isShowAddDialog = false
 
                                     }
@@ -462,7 +464,7 @@ fun SavedReceiverScreen(
                             )
                             .clickable {
                                 isShowAddDialog = false
-                                onClearAddReceiverDialog()
+                                onEvent(SavedReceiverEvent.ClearAddDialog)
                             }
                     ) {
                         Icon(
@@ -479,23 +481,23 @@ fun SavedReceiverScreen(
     }
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-
-)
-@Composable
-fun SavedReceiverPreview() {
-    SavedReceiverScreen(
-        uiState = SavedReceiverUiState(),
-        onBackClick = {},
-        onDoneWalletNumber = {},
-        onAddReceiver = {},
-        onDeleteReceiver = {},
-        onSearchReceiver = {},
-        onChangeKeyword = {},
-        onChangeMemorableName = {},
-        onChangeToWalletNumber = {},
-        onClearAddReceiverDialog = {},
-    )
-}
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true
+//
+//)
+//@Composable
+//fun SavedReceiverPreview() {
+//    SavedReceiverScreen(
+//        uiState = SavedReceiverUiState(),
+//        onBackClick = {},
+//        onDoneWalletNumber = {},
+//        onAddReceiver = {},
+//        onDeleteReceiver = {},
+//        onSearchReceiver = {},
+//        onChangeKeyword = {},
+//        onChangeMemorableName = {},
+//        onChangeToWalletNumber = {},
+//        onClearAddReceiverDialog = {},
+//    )
+//}

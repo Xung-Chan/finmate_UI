@@ -36,8 +36,8 @@ class AuthRepository @Inject constructor(
 //    ): ApiResult<Unit> {
 //        return ApiResult.Success(Unit)
 //    }
-
-
+//
+//
 //    suspend fun login(
 //        request: LoginRequest
 //    ): ApiResult<LoginResponse> {
@@ -50,8 +50,8 @@ class AuthRepository @Inject constructor(
 //            )
 //        )
 //    }
-
-
+//
+//
 //    suspend fun loginViaBiometric(
 //        request: LoginViaBiometricRequest
 //    ): ApiResult<LoginResponse> {
@@ -64,8 +64,8 @@ class AuthRepository @Inject constructor(
 //            )
 //        )
 //    }
-
-
+//
+//
 //    suspend fun registerBiometric(
 //        request: RegisterBiometricRequest
 //    ): ApiResult<RegisterBiometricResponse> {
@@ -75,8 +75,8 @@ class AuthRepository @Inject constructor(
 //            )
 //        )
 //    }
-
-
+//
+//
 //    suspend fun cancelBiometric(
 //        request: RegisterBiometricRequest
 //    ): ApiResult<Unit> {
@@ -84,7 +84,8 @@ class AuthRepository @Inject constructor(
 //            data = Unit
 //        )
 //    }
-
+//
+//    suspend fun requestOtp(request: RequestOtpRequest): ApiResult<RequestOtpResponse> {
 //        return ApiResult.Success(
 //            RequestOtpResponse(
 //                maskedMail = "nmd****@gmail.com",
@@ -92,24 +93,30 @@ class AuthRepository @Inject constructor(
 //                verifyKey = "mocked-verify-key"
 //            )
 //        )
-//        return ApiResult.Error("Username koong ton tai")
-
-
+//    }
+//
+//    suspend fun sendOtp(request: SendOtpRequest): ApiResult<Unit> {
+//
+//
 //        return ApiResult.Success(
 //            data = Unit
 //        )
-
-
+//    }
+//    suspend fun verifyOtp(request: VerifyOtpRequest): ApiResult<VerifyOtpResponse> {
+//
 //        return ApiResult.Success(
 //            data = VerifyOtpResponse(
 //                email = "nmd****@gmail.com",
 //                resetPasswordToken = "mocked-verify-key",
 //            )
 //        )
-
-
-//        return ApiResult.Success(Unit)
-
+//    }
+//    suspend fun resetPassword(request: ResetPasswordRequest): ApiResult<Unit> {
+//        return ApiResult.Success(
+//            data = Unit
+//        )
+//    }
+//
 //    suspend fun getMyProfile(): ApiResult<UserInfoResponse> {
 //        return ApiResult.Success(
 //            UserInfoResponse(
@@ -127,9 +134,9 @@ class AuthRepository @Inject constructor(
 //            )
 //        )
 //    }
-
-
-    //    suspend fun updateAvatar(
+//
+//
+//    suspend fun updateAvatar(
 //        imageUrl: Uri
 //    ): ApiResult<UpdateAvatarResponse> {
 //        delay(1000L)

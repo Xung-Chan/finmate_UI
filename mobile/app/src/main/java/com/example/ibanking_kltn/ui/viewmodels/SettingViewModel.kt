@@ -1,17 +1,22 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.BiometricManager
+import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.requests.RegisterBiometricRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
+import com.example.ibanking_kltn.data.session.UserSession
+import com.example.ibanking_kltn.ui.event.SettingEffect
+import com.example.ibanking_kltn.ui.event.SettingEvent
 import com.example.ibanking_kltn.ui.uistates.SettingUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,24 +28,75 @@ import kotlinx.coroutines.launch
 class SettingViewModel @Inject constructor(
     private val biometricManager: BiometricManager,
     private val authRepository: AuthRepository,
-    @ApplicationContext private val context: Context
+    private val userSession: UserSession,
+    private val tokenManager: TokenManager
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SettingUiState())
     val uiState: StateFlow<SettingUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<SettingEffect>()
+    val uiEffect: MutableSharedFlow<SettingEffect> = _uiEffect
 
-
-    fun init(
-    ) {
-        clearState()
+    init {
         loadBiometricStatus()
+        viewModelScope.launch {
+            userSession.user.collect { user ->
+                if (user?.profile?.fullName != null && user.profile.avatarUrl != null) {
+                    _uiState.update {
+                        it.copy(
+                            fullName = user.profile.fullName,
+                            avatarUrl = user.profile.avatarUrl
+                        )
+                    }
+                }
+
+            }
+        }
     }
 
-    fun clearState() {
+    fun onEvent(event: SettingEvent) {
+        when (event) {
+            SettingEvent.SwitchBiometric -> onSwitchBiometric()
+            SettingEvent.NavigateToChangePasswordScreen -> navigateToChangePasswordScreen()
+            SettingEvent.NavigateToMyProfile -> navigateToMyProfile()
+            SettingEvent.Logout -> onLogout()
+            is SettingEvent.ChangeConfirmPassword -> onChangePasswordConfirm(event.confirmPassword)
+        }
+    }
+
+
+    private fun clearState() {
         _uiState.value = SettingUiState()
     }
 
 
-    fun loadBiometricStatus() {
+    private fun onLogout() {
+        tokenManager.clearToken()
+        userSession.clear()
+        viewModelScope.launch {
+            _uiEffect.emit(
+                SettingEffect.Logout
+            )
+
+        }
+    }
+
+    private fun navigateToChangePasswordScreen() {
+        viewModelScope.launch {
+            _uiEffect.emit(
+                SettingEffect.NavigateToChangePasswordScreen
+            )
+        }
+    }
+
+    private fun navigateToMyProfile() {
+        viewModelScope.launch {
+            _uiEffect.emit(
+                SettingEffect.NavigateToMyProfile
+            )
+        }
+    }
+
+    private fun loadBiometricStatus() {
         _uiState.update {
             it.copy(
                 isEnableBiometric = biometricManager.getBiometricKey() != null
@@ -48,10 +104,23 @@ class SettingViewModel @Inject constructor(
         }
     }
 
-    fun onSwitchBiometric(
-        onSuccess: (Boolean) -> Unit,
-        onError: (String) -> Unit,
+    private fun onSwitchBiometric(
     ) {
+        if (uiState.value.confirmPassword.isEmpty()) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SettingEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = "Vui lòng nhập mật khẩu để xác nhận",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
+
+
         if (uiState.value.isEnableBiometric) {
 
             _uiState.update {
@@ -83,7 +152,14 @@ class SettingViewModel @Inject constructor(
 
                             )
                         }
-                        onSuccess(false)
+                        _uiEffect.emit(
+                            SettingEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = "Huỷ đăng ký vân sinh trắc học thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            )
+                        )
                     }
 
                     is ApiResult.Error -> {
@@ -92,7 +168,14 @@ class SettingViewModel @Inject constructor(
                                 screenState = StateType.FAILED(apiResult.message)
                             )
                         }
-                        onError(apiResult.message)
+                        _uiEffect.emit(
+                            SettingEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = apiResult.message,
+                                    type = SnackBarType.ERROR
+                                )
+                            )
+                        )
                     }
                 }
             }
@@ -128,7 +211,14 @@ class SettingViewModel @Inject constructor(
                                 confirmPassword = ""
                             )
                         }
-                        onSuccess(true)
+                        _uiEffect.emit(
+                            SettingEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = "Đăng ký vân sinh trắc học thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            )
+                        )
                     }
 
                     is ApiResult.Error -> {
@@ -137,7 +227,14 @@ class SettingViewModel @Inject constructor(
                                 screenState = StateType.FAILED(apiResult.message)
                             )
                         }
-                        onError(apiResult.message)
+                        _uiEffect.emit(
+                            SettingEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = apiResult.message,
+                                    type = SnackBarType.ERROR
+                                )
+                            )
+                        )
                     }
                 }
             }

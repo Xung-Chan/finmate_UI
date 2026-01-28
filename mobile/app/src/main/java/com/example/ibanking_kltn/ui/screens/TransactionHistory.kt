@@ -73,7 +73,6 @@ fun TransactionHistoryScreen(
     uiState: TransactionHistoryUiState,
     userComponent:@Composable () -> Unit,
     transactions: LazyPagingItems<TransactionHistoryResponse>,
-    myWalletNumber: String,
     onErrorLoading: (String) -> Unit,
     onClickFilter: () -> Unit,
     onApply: (
@@ -290,7 +289,7 @@ fun TransactionHistoryScreen(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "Status",
+                                                    text = "Trạng thái",
                                                     style = AppTypography.bodySmall,
                                                     color = Gray1,
 
@@ -320,7 +319,7 @@ fun TransactionHistoryScreen(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "Amount",
+                                                    text = "Số tiền",
                                                     style = AppTypography.bodySmall,
                                                     color = Gray1,
 
@@ -334,7 +333,7 @@ fun TransactionHistoryScreen(
                                                     text = "${
                                                         checkMoneyFlow(
                                                             transaction,
-                                                            myWalletNumber = myWalletNumber,
+                                                            myWalletNumber = uiState.myWalletNumber,
                                                         )
                                                     } ${formatterVND(transaction.amount.toLong())} VND",
                                                     style = AppTypography.bodySmall,

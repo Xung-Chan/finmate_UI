@@ -113,7 +113,7 @@ import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
 import com.example.ibanking_kltn.data.dtos.QRPayload
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.TabNavigation
@@ -726,7 +726,9 @@ fun NavigationBar(
                     onNavigateToQRScanner()
                 }, modifier = Modifier
                     .shadow(
-                        elevation = 20.dp, shape = RoundedCornerShape(40)
+                        elevation = 20.dp, shape = RoundedCornerShape(40),
+                        spotColor = Color.Transparent,
+                        ambientColor = Color.Transparent
                     )
                     .border(
                         width = 5.dp, color = White1, shape = RoundedCornerShape(40)
@@ -1226,7 +1228,7 @@ fun TransactionHistoryFilterDialog(
                             }
 
                             CustomDropdownField(
-                                options = TransactionStatus.entries,
+                                options = TransactionStatus.entries.filter { it != TransactionStatus.PENDING },
                                 selectedOption = selectedStatus?.status ?: "",
                                 onOptionSelected = {
                                     selectedStatus = it
@@ -2765,8 +2767,8 @@ fun SwipeComponent(
 
 @Composable
 fun SavedReceiverDialog(
-    savedReceivers: List<SavedReceiver>,
-    onSelect: (savedReceiver: SavedReceiver) -> Unit,
+    savedReceivers: List<SavedReceiverInfo>,
+    onSelect: (savedReceiver: SavedReceiverInfo) -> Unit,
     onDimiss: () -> Unit
 ) {
     Box(

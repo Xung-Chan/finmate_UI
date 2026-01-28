@@ -2,9 +2,11 @@ package com.example.ibanking_kltn.data.di
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.ibanking_kltn.data.dtos.SavedReceiver
+import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 
 
@@ -12,11 +14,12 @@ import kotlinx.serialization.json.Json
 class SavedReceiverManager @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ) {
-
+    private val _savedReceivers = MutableStateFlow(getAll())
+    val savedReceivers = _savedReceivers.asStateFlow()
     private val SAVED_RECEIVER = "SAVED_RECEIVER"
     private val SIZE = 20
 
-    fun add(receiver: SavedReceiver): Boolean {
+    fun add(receiver: SavedReceiverInfo): Boolean {
 
         val savedReceivers = getAll().toMutableList()
         if (savedReceivers.size < SIZE) {
@@ -25,6 +28,7 @@ class SavedReceiverManager @Inject constructor(
             sharedPreferences.edit {
                 putString(SAVED_RECEIVER, payload)
             }
+            _savedReceivers.value=savedReceivers
             return true
         }
         return false
@@ -38,9 +42,10 @@ class SavedReceiverManager @Inject constructor(
         sharedPreferences.edit {
             putString(SAVED_RECEIVER, payload)
         }
+        _savedReceivers.value=savedReceivers
     }
 
-    fun getAll(): List<SavedReceiver> {
+    fun getAll(): List<SavedReceiverInfo> {
         val serviceJson = sharedPreferences.getString(SAVED_RECEIVER, null)
         return if (serviceJson != null) {
             Json.decodeFromString(serviceJson)

@@ -1,173 +1,211 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.di.TokenManager
 import com.example.ibanking_kltn.data.dtos.LastLoginUser
-import com.example.ibanking_kltn.data.repositories.AuthRepository
-import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.session.UserSession
+import com.example.ibanking_kltn.data.usecase.GetMyProfileUC
+import com.example.ibanking_kltn.data.usecase.GetMyWalletUC
+import com.example.ibanking_kltn.ui.event.HomeEffect
+import com.example.ibanking_kltn.ui.event.HomeEvent
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val walletRepository: WalletRepository,
-    private val authRepository: AuthRepository,
     private val serviceManager: ServiceManager,
     private val tokenManager: TokenManager,
-    @ApplicationContext private val context: Context
+    private val getMyProfileUC: GetMyProfileUC,
+    private val getMyWalletUC: GetMyWalletUC,
+    private val userSession: UserSession
+
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    private val _uiEffect = MutableSharedFlow<HomeEffect>()
+    val uiEffect = _uiEffect.asSharedFlow()
 
-    fun init(
-        onError: (String) -> Unit
-    ) {
-        clearState()
-        loadWalletInfo(
-            onError = onError
-        )
-        loadUserInfo(
-            onError = onError
-        )
+    init {
         loadFavoriteAndRecentServices()
+        retryLoadUserData()
+        viewModelScope.launch {
+
+            userSession.user.collect { user ->
+                _uiState.update {
+                    it.copy(
+                        myProfile = user?.profile,
+                        myWallet = user?.wallet,
+                    )
+                }
+                if (user?.wallet != null && user.profile != null) {
+                    tokenManager.setLastLoginUser(
+                        lastLoginUser = LastLoginUser(
+                            username = user.wallet.username,
+                            fullName = user.wallet.merchantName,
+                        )
+                    )
+                }
+            }
+        }
+
     }
 
-     fun clearState() {
+
+    fun onEvent(event: HomeEvent) {
+        when (event) {
+            HomeEvent.ChangeVisibilityBalance -> onChangeVisibleBalance()
+            HomeEvent.RetryLoadUserInfo -> retryLoadUserData()
+            is HomeEvent.ClickService -> onSelectService(event.service)
+            HomeEvent.NavigateToAllServiceScreen -> onNavigateToAllService()
+        }
+    }
+
+    fun clearState() {
         _uiState.value = HomeUiState()
     }
 
-    fun loadFavoriteAndRecentServices() {
-        val favoriteServices = serviceManager.getFavoriteServices()
-        val recentServices = serviceManager.getRecentServices()
 
-        _uiState.update {
-            it.copy(
-                favoriteServices = favoriteServices,
-                recentServices = recentServices
+    private fun onNavigateToAllService(){
+        viewModelScope.launch {
+            _uiEffect.emit(
+                HomeEffect.NavigateToAllServiceScreen
+            )
+        }
+    }
+    private fun onSelectService(service: ServiceCategory) {
+        viewModelScope.launch {
+            _uiEffect.emit(
+                HomeEffect.NavigateToServiceScreen(
+                    service = service
+                )
             )
         }
     }
 
-    fun loadWalletInfo(
-        onError: (String) -> Unit
-    ) {
-        var message = ""
+    private fun retryLoadUserData() {
+        _uiState.update {
+            it.copy(
+                initState = StateType.LOADING
+            )
+        }
         viewModelScope.launch {
-
-            repeat(3) {
+            val profile = getMyProfileUC()
+            val wallet = getMyWalletUC()
+            if (profile is ApiResult.Error) {
                 _uiState.update {
                     it.copy(
-                        state = StateType.LOADING
+                        initState = StateType.FAILED(profile.message)
                     )
                 }
+                _uiEffect.emit(
+                    HomeEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = profile.message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
+                return@launch
+            }
+            if (wallet is ApiResult.Error) {
+                _uiState.update {
+                    it.copy(
+                        initState = StateType.FAILED(wallet.message)
+                    )
+                }
+                _uiEffect.emit(
+                    HomeEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = wallet.message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
+                return@launch
+            }
+            _uiState.update {
+                it.copy(
+                    initState = StateType.SUCCESS
+                )
+            }
+        }
+    }
 
-                val apiResult = walletRepository.getMyWalletInfor()
-                when (apiResult) {
+    private fun loadFavoriteAndRecentServices() {
+        viewModelScope.launch {
+
+            serviceManager.favoriteServices.collect { favoriteServices ->
+                _uiState.update {
+                    it.copy(
+                        favoriteServices = favoriteServices
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+
+            serviceManager.recentServices.collect { recentServices ->
+                _uiState.update {
+                    it.copy(
+                        recentServices = recentServices
+                    )
+                }
+            }
+        }
+    }
+
+    private fun onChangeVisibleBalance() {
+        if (!uiState.value.isBalanceShow) {
+            _uiState.update {
+                it.copy(
+                    state = StateType.LOADING
+                )
+            }
+            viewModelScope.launch {
+                val wallet = getMyWalletUC()
+                when (wallet) {
                     is ApiResult.Success -> {
-                        val walletResponse = apiResult.data
                         _uiState.update {
                             it.copy(
-                                state = StateType.SUCCESS,
-                                myWallet = walletResponse,
-                                initialedUserWallet = true
+                                state = StateType.SUCCESS
                             )
                         }
-                        tokenManager.setLastLoginUser(
-                            lastLoginUser = LastLoginUser(
-                                username = walletResponse.username,
-                                fullName = walletResponse.merchantName,
+
+                    }
+
+                    is ApiResult.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                state = StateType.FAILED(wallet.message)
+                            )
+                        }
+                        _uiEffect.emit(
+                            HomeEffect.ShowSnackBar(
+                                snackBar = SnackBarUiState(
+                                    message = wallet.message,
+                                    type = SnackBarType.ERROR
+                                )
                             )
                         )
-                        return@launch
-                    }
-
-                    is ApiResult.Error -> {
-                        message = apiResult.message
-                        _uiState.update {
-                            it.copy(
-                                state = StateType.FAILED(message),
-                            )
-                        }
-
                     }
                 }
             }
-            _uiState.update {
-                it.copy(
-                    initialedUserWallet = true
-                )
-            }
-
-            onError(message)
         }
-    }
-    fun loadUserInfo(
-        onError: (String) -> Unit
-    ){
-        var message = ""
-        viewModelScope.launch {
-
-
-            repeat(3) {
-                _uiState.update {
-                    it.copy(
-                        state = StateType.LOADING
-                    )
-                }
-                val apiResult = authRepository.getMyProfile()
-                when (apiResult) {
-                    is ApiResult.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                state = StateType.SUCCESS,
-                                myProfile = apiResult.data,
-                                initialedUserInfo = true
-
-                            )
-                        }
-                        return@launch
-                    }
-
-                    is ApiResult.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                state = StateType.FAILED(apiResult.message),
-                            )
-                        }
-                        message = apiResult.message
-                    }
-                }
-
-            }
-            _uiState.update {
-                it.copy(
-                    state = StateType.FAILED(message),
-                    initialedUserInfo = true
-                )
-            }
-            onError(message)
-        }
-
-    }
-
-    fun onChangeVisibleBalance(
-        onError: (String) -> Unit
-    ) {
-        if (!uiState.value.isBalanceShow) loadWalletInfo(
-            onError = onError
-        )
 
         _uiState.update {
             it.copy(isBalanceShow = !it.isBalanceShow)

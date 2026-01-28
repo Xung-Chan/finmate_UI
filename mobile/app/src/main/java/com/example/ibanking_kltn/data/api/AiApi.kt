@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface AiApi {
-    @GET("/api/wallets/me")
+    @GET("/api/ai/analytics/")
     suspend fun getAnalyze(
         @Query("analyzeRequestId") analyzeRequestId: String,
     ): Response<AnalyzeResponse>

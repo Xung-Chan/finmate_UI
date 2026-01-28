@@ -11,12 +11,18 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.example.ibanking_kltn.data.di.AppSessionManager
 import com.example.ibanking_kltn.ui.AppScreen
 import com.example.ibanking_kltn.ui.theme.IBanking_KLTNTheme
 import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
+    @Inject
+    lateinit var appSessionManager: AppSessionManager
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -45,6 +51,7 @@ class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appSessionManager)
 
         //request camera permission
         requestPermissionLauncher.launch(Manifest.permission.CAMERA)

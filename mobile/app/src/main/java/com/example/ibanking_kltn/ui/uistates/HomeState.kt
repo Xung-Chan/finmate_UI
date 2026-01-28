@@ -6,11 +6,10 @@ import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
 
 data class HomeUiState(
     val state: StateType = StateType.NONE,
-    val initialedUserWallet: Boolean = false,
-    val initialedUserInfo: Boolean = false,
+    val initState: StateType = StateType.NONE,
 
     val myWallet: WalletResponse? = null,
-    val myProfile: UserInfoResponse?=null,
+    val myProfile: UserInfoResponse? = null,
     val favoriteServices: List<ServiceItem> = emptyList(),
     val recentServices: List<ServiceItem> = emptyList(),
     val isBalanceShow: Boolean = false,

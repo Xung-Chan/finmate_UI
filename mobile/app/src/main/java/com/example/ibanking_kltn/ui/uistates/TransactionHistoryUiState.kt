@@ -12,9 +12,10 @@ data class TransactionHistoryUiState(
     val isShowFilter: Boolean = false,
 
     val fromDate: LocalDate = LocalDate.now().minusMonths(1),
-    val toDate: LocalDate= LocalDate.now(),
+    val toDate: LocalDate = LocalDate.now(),
     val accountType: AccountType = AccountType.WALLET,
     val type: ServiceType? = null,
     val selectedStatus: TransactionStatus? = null,
-    val selectedSort: SortOption = SortOption.NEWEST
+    val selectedSort: SortOption = SortOption.NEWEST,
+    val myWalletNumber: String = ""
 )

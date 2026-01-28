@@ -36,16 +36,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.BillingCycleStatus
 import com.example.ibanking_kltn.data.dtos.SortOption
 import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.ui.event.BillingCycleEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -63,7 +61,6 @@ import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
-import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,9 +70,7 @@ fun BillingCycleScreen(
     billingCycles: LazyPagingItems<BillingCycleResonse>,
     onBackClick: () -> Unit,
     onErrorLoading: (String) -> Unit,
-    onChangeSortOption: () -> Unit,
-    onSelectBillingCycle: (BillingCycleResonse?) -> Unit,
-    onConfirmPayment: (BillingCycleResonse, payAmount: Long, totalDept: Long) -> Unit
+    onEvent:(BillingCycleEvent)->Unit
 ) {
     val refreshState = rememberPullToRefreshState()
     LoadingScaffold(
@@ -106,7 +101,9 @@ fun BillingCycleScreen(
                             Row(
                                 modifier = Modifier
                                     .customClick {
-                                        onChangeSortOption()
+                                       onEvent(
+                                             BillingCycleEvent.ChangeSortingOption
+                                       )
                                     }
                                     .padding(5.dp)
                             ) {
@@ -235,7 +232,7 @@ fun BillingCycleScreen(
                                         ) {
                                             TextButton(
                                                 onClick = {
-                                                    onSelectBillingCycle(billingCycle)
+                                                    onEvent(BillingCycleEvent.SelectBillingCycle(billingCycle))
                                                 }
                                             ) {
                                                 Text(
@@ -330,10 +327,11 @@ fun BillingCycleScreen(
                                                     .customClick(
                                                         shape = RoundedCornerShape(12.dp)
                                                     ) {
-                                                        onConfirmPayment(
-                                                            billingCycle,
-                                                            totalDebt,
-                                                            totalDebt
+                                                        onEvent(
+                                                            BillingCycleEvent.RepayBill(
+                                                                billingCycle,
+                                                                totalDebt,
+                                                                totalDebt)
                                                         )
                                                     }
                                                     .padding(vertical = 5.dp),
@@ -364,10 +362,11 @@ fun BillingCycleScreen(
                                                     .customClick(
                                                         shape = RoundedCornerShape(12.dp)
                                                     ) {
-                                                        onConfirmPayment(
-                                                            billingCycle,
-                                                            billingCycle.minimumPayment.toLong(),
-                                                            totalDebt
+                                                        onEvent(
+                                                            BillingCycleEvent.RepayBill(
+                                                                billingCycle,
+                                                                billingCycle.minimumPayment.toLong(),
+                                                                totalDebt)
                                                         )
                                                     }
                                                     .padding(vertical = 5.dp),
@@ -510,7 +509,7 @@ fun BillingCycleScreen(
                                         .customClick(
                                             shape = RoundedCornerShape(15.dp)
                                         ) {
-                                            onSelectBillingCycle(null)
+                                            onEvent(BillingCycleEvent.SelectBillingCycle(null))
                                         }
                                         .padding(horizontal = 10.dp, vertical = 5.dp)
                                 ) {
@@ -714,7 +713,12 @@ fun BillingCycleScreen(
                                             .customClick(
                                                 shape = RoundedCornerShape(12.dp)
                                             ) {
-                                                //todo payment action
+                                                onEvent(
+                                                    BillingCycleEvent.RepayBill(
+                                                        uiState.selectedBillingCycle,
+                                                        totalDebt,
+                                                        totalDebt)
+                                                )
                                             }
                                             .padding(vertical = 5.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally
@@ -744,7 +748,12 @@ fun BillingCycleScreen(
                                             .customClick(
                                                 shape = RoundedCornerShape(12.dp)
                                             ) {
-                                                //todo payment action
+                                                onEvent(
+                                                    BillingCycleEvent.RepayBill(
+                                                        uiState.selectedBillingCycle,
+                                                        uiState.selectedBillingCycle.minimumPayment.toLong(),
+                                                        totalDebt)
+                                                )
                                             }
                                             .padding(vertical = 5.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally
@@ -797,57 +806,57 @@ fun BillingCycleScreen(
     }
 }
 
-@Preview(
-    showBackground = true, showSystemUi = true
-
-)
-@Composable
-fun BillingCyclePreview() {
-
-    val pagingData = PagingData.from(
-        listOf(
-            BillingCycleResonse(
-                code = "BC202401",
-                startDate = "2024-01-01",
-                endDate = "2024-01-31",
-                dueDate = "2024-02-15",
-                totalSpent = 5_000_000.0,
-                paidPrincipal = 2_000_000.0,
-                minimumPayment = 500_000.0,
-                totalInterest = 200_000.0,
-                paidInterest = 100_000.0,
-                lateInterestRate = 0.05,
-                penaltyFee = null,
-                penaltyApplied = false,
-                status = com.example.ibanking_kltn.data.dtos.BillingCycleStatus.PAID
-            ),
-            BillingCycleResonse(
-                code = "BC202402",
-                startDate = "2024-02-01",
-                endDate = "2024-02-29",
-                dueDate = "2024-03-15",
-                totalSpent = 3_000_000.0,
-                paidPrincipal = 1_000_000.0,
-                minimumPayment = 300_000.0,
-                totalInterest = 150_000.0,
-                paidInterest = 50_000.0,
-                lateInterestRate = 0.05,
-                penaltyFee = 50_000.0,
-                penaltyApplied = true,
-                status = com.example.ibanking_kltn.data.dtos.BillingCycleStatus.OVERDUE
-            ),
-        )
-    )
-    BillingCycleScreen(
-        uiState = BillingCycleUiState(),
-        billingCycles = flowOf(pagingData).collectAsLazyPagingItems(),
-        onBackClick = {},
-        onErrorLoading = {},
-        onChangeSortOption = {},
-        onSelectBillingCycle = {},
-        onConfirmPayment = {
-
-        } as (BillingCycleResonse, Long, Long) -> Unit,
-
-        )
-}
+//@Preview(
+//    showBackground = true, showSystemUi = true
+//
+//)
+//@Composable
+//fun BillingCyclePreview() {
+//
+//    val pagingData = PagingData.from(
+//        listOf(
+//            BillingCycleResonse(
+//                code = "BC202401",
+//                startDate = "2024-01-01",
+//                endDate = "2024-01-31",
+//                dueDate = "2024-02-15",
+//                totalSpent = 5_000_000.0,
+//                paidPrincipal = 2_000_000.0,
+//                minimumPayment = 500_000.0,
+//                totalInterest = 200_000.0,
+//                paidInterest = 100_000.0,
+//                lateInterestRate = 0.05,
+//                penaltyFee = null,
+//                penaltyApplied = false,
+//                status = com.example.ibanking_kltn.data.dtos.BillingCycleStatus.PAID
+//            ),
+//            BillingCycleResonse(
+//                code = "BC202402",
+//                startDate = "2024-02-01",
+//                endDate = "2024-02-29",
+//                dueDate = "2024-03-15",
+//                totalSpent = 3_000_000.0,
+//                paidPrincipal = 1_000_000.0,
+//                minimumPayment = 300_000.0,
+//                totalInterest = 150_000.0,
+//                paidInterest = 50_000.0,
+//                lateInterestRate = 0.05,
+//                penaltyFee = 50_000.0,
+//                penaltyApplied = true,
+//                status = com.example.ibanking_kltn.data.dtos.BillingCycleStatus.OVERDUE
+//            ),
+//        )
+//    )
+//    BillingCycleScreen(
+//        uiState = BillingCycleUiState(),
+//        billingCycles = flowOf(pagingData).collectAsLazyPagingItems(),
+//        onBackClick = {},
+//        onErrorLoading = {},
+//        onChangeSortOption = {},
+//        onSelectBillingCycle = {},
+//        onConfirmPayment = {
+//
+//        } as (BillingCycleResonse, Long, Long) -> Unit,
+//
+//        )
+//}

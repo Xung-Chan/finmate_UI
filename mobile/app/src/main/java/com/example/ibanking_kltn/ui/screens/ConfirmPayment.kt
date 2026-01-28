@@ -33,11 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.PaymentAccount
-import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.ui.event.ConfirmEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -59,12 +57,8 @@ import com.example.ibanking_kltn.utils.formatterVND
 fun ConfirmPaymentScreen(
     uiState: ConfirmUiState,
     onBackClick: () -> Unit,
-    onConfirmClick: () -> Unit,
-    onOtpChange: (String) -> Unit,
-    onOtpDismiss: () -> Unit,
-    onAccountTypeChange: (PaymentAccount) -> Unit,
-
-    ) {
+    onEvent: (ConfirmEvent) -> Unit
+) {
     val scrollState = rememberScrollState(0)
 
     LoadingScaffold(
@@ -96,6 +90,25 @@ fun ConfirmPaymentScreen(
                 .systemBarsPadding(),
             containerColor = White3
         ) { paddingValues ->
+            if (uiState.confirmContent == null) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 20.dp),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Dữ liệu không hợp lệ",
+                        style = AppTypography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Gray1,
+                        textAlign = TextAlign.Center
+                    )
+                }
+                return@Scaffold
+            }
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -122,7 +135,7 @@ fun ConfirmPaymentScreen(
                         }
                         CustomTextField(
                             modifier = Modifier.fillMaxWidth(),
-                            value = uiState.service?.serviceName ?: "",
+                            value = uiState.confirmContent.service.serviceName,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 keyboardType = KeyboardType.Text
@@ -272,7 +285,7 @@ fun ConfirmPaymentScreen(
                                     }
                                     CustomTextField(
                                         modifier = Modifier.fillMaxWidth(),
-                                        value = formatterVND(uiState.amount) + " VND",
+                                        value = formatterVND(billData.amount) + " VND",
                                         keyboardOptions = KeyboardOptions(
                                             imeAction = ImeAction.Done,
                                             keyboardType = KeyboardType.Text
@@ -296,7 +309,7 @@ fun ConfirmPaymentScreen(
                                     }
                                     CustomTextField(
                                         modifier = Modifier.fillMaxWidth(),
-                                        value =billData.description,
+                                        value = billData.description,
                                         keyboardOptions = KeyboardOptions(
                                             imeAction = ImeAction.Done,
                                             keyboardType = KeyboardType.Text
@@ -307,6 +320,7 @@ fun ConfirmPaymentScreen(
                                 }
                             }
                         }
+
                         is ConfirmContent.BILL_REPAYMENT -> {
                             val billData = uiState.confirmContent
                             Column(
@@ -349,7 +363,7 @@ fun ConfirmPaymentScreen(
                                     }
                                     CustomTextField(
                                         modifier = Modifier.fillMaxWidth(),
-                                        value = "${formatterVND(uiState.amount)} VND",
+                                        value = "${formatterVND(billData.amount)} VND",
                                         keyboardOptions = KeyboardOptions(
                                             imeAction = ImeAction.Done,
                                             keyboardType = KeyboardType.Text
@@ -506,6 +520,7 @@ fun ConfirmPaymentScreen(
                                 }
                             }
                         }
+
                         is ConfirmContent.TRANSFER -> {
                             val transferData = uiState.confirmContent
                             Column(
@@ -622,7 +637,7 @@ fun ConfirmPaymentScreen(
                                     }
                                     CustomTextField(
                                         modifier = Modifier.fillMaxWidth(),
-                                        value = "${formatterVND(uiState.amount)} VND",
+                                        value = "${formatterVND(transferData.amount)} VND",
                                         keyboardOptions = KeyboardOptions(
                                             imeAction = ImeAction.Done,
                                             keyboardType = KeyboardType.Text
@@ -686,12 +701,11 @@ fun ConfirmPaymentScreen(
 
                             }
                         }
-                        null -> {
 
-                        }
                     }
 
                 }
+
                 //navigationbar
                 Column(
                     verticalArrangement = Arrangement.spacedBy(
@@ -714,7 +728,7 @@ fun ConfirmPaymentScreen(
                             color = Gray1,
                         )
                         Text(
-                            text = formatterVND(uiState.amount) + " VND",
+                            text = formatterVND(uiState.confirmContent.amount) + " VND",
                             style = AppTypography.titleMedium,
                             color = Black1,
                             modifier = Modifier.weight(1f),
@@ -731,11 +745,13 @@ fun ConfirmPaymentScreen(
                             style = AppTypography.bodyMedium,
                             color = Gray1
                         )
-                        CustomDropdownField<PaymentAccount>(
+                        CustomDropdownField(
                             modifier = Modifier.fillMaxWidth(),
                             options = uiState.availableAccount,
                             onOptionSelected = {
-                                onAccountTypeChange(it)
+                                onEvent(
+                                    ConfirmEvent.SelectAccountType(it)
+                                )
                             },
                             optionsComposable = {
                                 Row(
@@ -780,7 +796,7 @@ fun ConfirmPaymentScreen(
                         CustomTextButton(
                             enable = uiState.confirmState !is StateType.LOADING && uiState.accountType != null,
                             onClick = {
-                                onConfirmClick()
+                                onEvent(ConfirmEvent.ConfirmClick)
                             },
                             isLoading = uiState.confirmState is StateType.LOADING,
                             modifier = Modifier
@@ -802,28 +818,32 @@ fun ConfirmPaymentScreen(
         OtpDialogCustom(
             otpLength = 6,
             otpValue = uiState.otp,
-            onOtpChange = { onOtpChange(it) },
-            onDismiss = { onOtpDismiss() }
+            onOtpChange = {
+                onEvent(ConfirmEvent.OtpChange(it))
+            },
+            onDismiss = {
+                onEvent(ConfirmEvent.OtpDismiss)
+            }
         )
     }
 
 
 }
-
-@Preview(
-    showSystemUi = true,
-)
-@Composable
-fun ConfirmPreview() {
-    ConfirmPaymentScreen(
-        uiState = ConfirmUiState(
-            isOtpShow = true,
-            service = ServiceType.TRANSFER
-        ),
-        onBackClick = { },
-        onConfirmClick = { },
-        onOtpChange = { },
-        onOtpDismiss = {},
-        onAccountTypeChange = {},
-    )
-}
+//
+//@Preview(
+//    showSystemUi = true,
+//)
+//@Composable
+//fun ConfirmPreview() {
+//    ConfirmPaymentScreen(
+//        uiState = ConfirmUiState(
+//            isOtpShow = true,
+//            service = ServiceType.TRANSFER
+//        ),
+//        onBackClick = { },
+//        onConfirmClick = { },
+//        onOtpChange = { },
+//        onOtpDismiss = {},
+//        onAccountTypeChange = {},
+//    )
+//}

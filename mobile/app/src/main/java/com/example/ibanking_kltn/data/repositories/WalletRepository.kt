@@ -24,18 +24,19 @@ class WalletRepository @Inject constructor(
        return safeApiCall(
            apiCall = { walletApi.getMyWallet() }
        )
-        // return ApiResult.Success(
-        //     data = WalletResponse(
-        //         walletNumber = "1234567890",
-        //         id = "ID",
-        //         mail = "sbakjsbask",
-        //         balance = 100000000.0,
-        //         merchantName = "Nguyen Van A",
-        //         status = "ACTIVE",
-        //         username = "avsjhsbasa",
-        //         verified = true
-        //     )
-        // )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = WalletResponse(
+//                walletNumber = "1234567890",
+//                id = "ID",
+//                mail = "sbakjsbask",
+//                balance = 100000000.0,
+//                merchantName = "Nguyen Van A",
+//                status = "ACTIVE",
+//                username = "avsjhsbasa",
+//                verified = true
+//            )
+//        )
     }
 
 
@@ -43,19 +44,20 @@ class WalletRepository @Inject constructor(
        return safeApiCall(
            apiCall = { walletApi.getInfoByWalletNumber(walletNumber = walletNumber) }
        )
-        // return ApiResult.Success(
-        //     data = WalletResponse(
-        //         walletNumber = "1234567890",
-        //         id = "ID",
-        //         mail = "sbakjsbask",
-        //         balance = 10000.0,
-        //         merchantName = "Nguyen Van A",
-        //         status = "ACTIVE",
-        //         username = "avsjhsbasa",
-        //         verified = true
-
-        //     )
-        // )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = WalletResponse(
+//                walletNumber = "1234567890",
+//                id = "ID",
+//                mail = "sbakjsbask",
+//                balance = 10000.0,
+//                merchantName = "Nguyen Van A",
+//                status = "ACTIVE",
+//                username = "avsjhsbasa",
+//                verified = true
+//
+//            )
+//        )
 
     }
 
@@ -84,27 +86,27 @@ class WalletRepository @Inject constructor(
                    )
                }
            )
-            // delay(1000L)
-            // return ApiResult.Success(
-            //     data = WalletVerificationResponse(
-            //         businessAddress = "address",
-            //         businessCode = "code",
-            //         businessName = "name",
-            //         contactEmail = "email",
-            //         contactPhone = "phone",
-            //         createdAt = "date",
-            //         id = "id",
-            //         invoiceDisplayName = "displayname",
-            //         processedAt = "18/06/2024",
-            //         processedBy = "admin",
-            //         representativeIdNumber = "idnumber",
-            //         representativeIdType = "idtype",
-            //         representativeName = "repname",
-            //         status = "PENDING",
-            //         verifiedDocuments = listOf(),
-            //         walletNumber = "1234567890"
-            //     )
-            // )
+//            delay(1000L)
+//            return ApiResult.Success(
+//                data = WalletVerificationResponse(
+//                    businessAddress = "address",
+//                    businessCode = "code",
+//                    businessName = "name",
+//                    contactEmail = "email",
+//                    contactPhone = "phone",
+//                    createdAt = "date",
+//                    id = "id",
+//                    invoiceDisplayName = "displayname",
+//                    processedAt = "18/06/2024",
+//                    processedBy = "admin",
+//                    representativeIdNumber = "idnumber",
+//                    representativeIdType = "idtype",
+//                    representativeName = "repname",
+//                    status = "PENDING",
+//                    verifiedDocuments = "listOf()",
+//                    walletNumber = "1234567890"
+//                )
+//            )
 
         } catch (e: Exception) {
             Log.e("WalletVerificationRepo", "Error uploading", e)
@@ -114,11 +116,41 @@ class WalletRepository @Inject constructor(
 
     }
 
-    suspend fun getMyVerification(
+    suspend fun getMyVerificationStatus(
     ): ApiResult<WalletVerificationResponse> {
         return safeApiCall(
             apiCall = {
-                walletApi.getMyVerification()
+                walletApi.getMyVerificationStatus()
+            }
+        )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = WalletVerificationResponse(
+//                businessAddress = "address",
+//                businessCode = "code",
+//                businessName = "name",
+//                contactEmail = "email",
+//                contactPhone = "phone",
+//                createdAt = "date",
+//                id = "id",
+//                invoiceDisplayName = "displayname",
+//                processedAt = "18/06/2024",
+//                processedBy = "admin",
+//                representativeIdNumber = "idnumber",
+//                representativeIdType = "idtype",
+//                representativeName = "repname",
+//                status = "PENDING",
+//                verifiedDocuments = "listOf()",
+//                walletNumber = "1234567890"
+//            )
+//        )
+    }
+
+    suspend fun getMyVerification(
+    ): ApiResult<List<WalletVerificationResponse>> {
+        return safeApiCall(
+            apiCall = {
+                walletApi.getMyVerificationRequest()
             }
         )
     }

@@ -12,6 +12,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -20,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.ibanking_kltn"
-        minSdk = 26
+        minSdk = 27
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -77,6 +78,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 //    implementation(libs.androidx.ui)
     implementation(libs.androidx.browser)
+    implementation(libs.androidx.lifecycle.process)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -135,8 +137,7 @@ dependencies {
 
     //swipe
     implementation("me.saket.swipe:swipe:1.3.0")
-    implementation ("io.github.ehsannarmani:compose-charts:0.2.0")
-
+    implementation("io.github.ehsannarmani:compose-charts:0.2.0")
 
 
 }

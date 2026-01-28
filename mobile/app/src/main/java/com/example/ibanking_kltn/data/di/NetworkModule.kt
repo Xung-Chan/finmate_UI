@@ -4,7 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.example.ibanking_kltn.BuildConfig
+import com.example.ibanking_kltn.BuildConfig.GATEWAY_URL
+import com.example.ibanking_kltn.BuildConfig.SHARED_PREFS_KEY
 import com.example.ibanking_kltn.data.api.AiApi
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
@@ -33,9 +34,6 @@ import javax.crypto.AEADBadTagException
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    const val GATEWAY_URL = BuildConfig.GATEWAY_URL
-    const val SHARED_PREFS_KEY = BuildConfig.SHARED_PREFS_KEY
-
 
     @Singleton
     @Provides

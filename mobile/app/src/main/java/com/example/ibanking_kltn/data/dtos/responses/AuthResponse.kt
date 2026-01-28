@@ -32,7 +32,7 @@ enum class UserStatusEnum {
 
 data class UpdateAvatarResponse(
 
-    val imageUrl: String
+    val avatarUrl: String
 )
 
 data class UserInfoResponse(

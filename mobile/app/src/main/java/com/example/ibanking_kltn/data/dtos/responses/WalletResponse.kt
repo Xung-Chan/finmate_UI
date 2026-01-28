@@ -1,5 +1,7 @@
 package com.example.ibanking_kltn.data.dtos.responses
 
+import com.example.ibanking_kltn.data.dtos.VerificationStatus
+
 data class WalletResponse(
     val id: String,
     val mail: Any,
@@ -25,7 +27,7 @@ data class WalletVerificationResponse(
     val representativeIdNumber: String,
     val representativeIdType: String,
     val representativeName: String,
-    val status: String,
+    val status: VerificationStatus,
     val verifiedDocuments: String,
     val walletNumber: Any
 )

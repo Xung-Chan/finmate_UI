@@ -12,6 +12,8 @@ import android.text.format.Formatter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -19,6 +21,12 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import com.example.ibanking_kltn.AppSessionEntryPoint
+import com.example.ibanking_kltn.data.di.AppSessionManager
 import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -31,6 +39,7 @@ import com.kizitonwose.calendar.core.atStartOfMonth
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import com.kizitonwose.calendar.core.yearMonth
+import dagger.hilt.android.EntryPointAccessors
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -367,4 +376,23 @@ fun LocalDateTime.formateDateTimeString(pattern: String = "dd/MM/yyyy • HH:mm"
         return "Hôm qua • " + this.format(DateTimeFormatter.ofPattern("HH:mm"))
     }
     return this.format(DateTimeFormatter.ofPattern(pattern))
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.getViewModel(
+    navController: NavController,
+    route: String
+): T {
+    val entry = remember(this) {
+        navController.getBackStackEntry(route)
+    }
+    return hiltViewModel<T>(entry)
+}
+
+fun Context.appSessionManager(): AppSessionManager {
+    val entryPoint = EntryPointAccessors.fromApplication(
+        this,
+        AppSessionEntryPoint::class.java
+    )
+    return entryPoint.appSessionManager()
 }
