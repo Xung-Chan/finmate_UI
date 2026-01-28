@@ -44,13 +44,10 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.ibanking_kltn.data.dtos.BillPayload
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
 import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
 import com.example.ibanking_kltn.data.dtos.ServiceCategory
-import com.example.ibanking_kltn.data.dtos.ServiceType
 import com.example.ibanking_kltn.data.dtos.TabNavigation
-import com.example.ibanking_kltn.data.dtos.TransferPayload
 import com.example.ibanking_kltn.ui.event.AllServiceEffect
 import com.example.ibanking_kltn.ui.event.AnalyticEffect
 import com.example.ibanking_kltn.ui.event.BillingCycleEffect
@@ -58,6 +55,7 @@ import com.example.ibanking_kltn.ui.event.ConfirmEffect
 import com.example.ibanking_kltn.ui.event.ConfirmEvent
 import com.example.ibanking_kltn.ui.event.HomeEffect
 import com.example.ibanking_kltn.ui.event.PayBillEffect
+import com.example.ibanking_kltn.ui.event.QrScannerEffect
 import com.example.ibanking_kltn.ui.event.SettingEffect
 import com.example.ibanking_kltn.ui.event.TransferEffect
 import com.example.ibanking_kltn.ui.navigation.changePasswordGraph
@@ -622,6 +620,38 @@ fun AppScreen(
                     onEvent = payBillViewModel::onEvent
                 )
             }
+
+            composable(route = Screens.QRScanner.name) { backStackEntry ->
+                val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
+                val uiState by qrScannerViewModel.uiState.collectAsState()
+
+                LaunchedEffect(Unit) {
+                    qrScannerViewModel.uiEffect.collect { effect ->
+                        when (effect) {
+
+                            is QrScannerEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+
+                            is QrScannerEffect.Navigate ->{
+                                navController.navigate(effect.route) {
+                                    popUpTo(Screens.Home.name) {
+                                        inclusive = false
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
+                        }
+                    }
+                }
+                QRScannerScreen(
+                    uiState = uiState,
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onEvent = qrScannerViewModel::onEvent,
+                )
+            }
             composable(route = Screens.BillingCycle.name) { backStackEntry ->
                 val billingCycleViewModel: BillingCycleViewModel = hiltViewModel()
                 val uiState by billingCycleViewModel.uiState.collectAsState()
@@ -728,71 +758,7 @@ fun AppScreen(
 
 
             }
-            composable(route = Screens.QRScanner.name) { backStackEntry ->
-                val qrScannerViewModel: QRScannerViewModel = hiltViewModel()
-                val uiState by qrScannerViewModel.uiState.collectAsState()
-                val onBillDetecting: (BillPayload) -> Unit = { payload ->
-                    //todo
-//                    payBillViewModel.init()
-//                    navController.navigate(Screens.PayBill.name) {
-//                        launchSingleTop = true
-//                        popUpTo(Screens.Home.name)
-//                    }
-//                    payBillViewModel.onChangeBillCode(payload.billCode)
-//                    payBillViewModel.onCheckingBill(
-//                        onError = onError
-//                    )
-                }
-                val onTransferDetecting: (TransferPayload) -> Unit = { payload ->
-                    //todo
-//                    transferViewModel.init(
-//                        onError = onError
-//                    )
-//                    transferViewModel.onToWalletNumberChange(payload.toWalletNumber)
-//                    payload.amount?.let { amount ->
-//                        transferViewModel.onAmountChange(amount.toString())
-//                    }
-//                    navController.navigate(Screens.Transfer.name) {
-//                        launchSingleTop = true
-//                        popUpTo(Screens.Home.name)
-//
-//                    }
-//                    transferViewModel.onDoneWalletNumber(
-//                        onError = onError
-//                    )
 
-                }
-                QRScannerScreen(
-                    uiState = uiState,
-                    detecting = {
-                        qrScannerViewModel.onDetecting(
-                            qrCode = it,
-                            onBillDetecting = onBillDetecting,
-                            onTransferDetecting = onTransferDetecting,
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message, type = SnackBarType.INFO
-                                )
-                            }
-                        )
-                    },
-                    onAnalyzeImage = {
-                        qrScannerViewModel.onAnalyzeImage(
-                            context = context, uri = it,
-                            onBillDetecting = onBillDetecting,
-                            onTransferDetecting = onTransferDetecting,
-                            onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message, type = SnackBarType.INFO
-                                )
-                            }
-                        )
-                    },
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
             composable(route = Screens.CreateBill.name) { backStackEntry ->
                 val uiState by createBillViewModel.uiState.collectAsState()
                 CreateBillScreen(

@@ -37,9 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.dtos.BillStatus
 import com.example.ibanking_kltn.data.dtos.SortOption
@@ -58,6 +61,7 @@ import com.example.ibanking_kltn.utils.BillFilterDialog
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
+import kotlinx.coroutines.flow.flowOf
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,29 +160,28 @@ fun BillHistoryScreen(
                         },
                         modifier = Modifier
                             .weight(1f)
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .padding(horizontal = 20.dp)
 
                     ) {
+                        if (bills.itemCount == 0) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Không có hóa đơn nào",
+                                    style = AppTypography.bodyMedium,
+                                    color = Gray1,
+                                )
+                            }
+                        }
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
 
-                            ) {
-                            if (bills.itemCount == 0) {
-                                item {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = "Không có hóa đơn nào",
-                                            style = AppTypography.bodyMedium,
-                                            color = Gray1,
-                                        )
-                                    }
-                                }
-                            }
                             items(
                                 count = bills.itemCount,
                             ) { item ->
@@ -225,7 +228,9 @@ fun BillHistoryScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text = formatterDateString( LocalDateTime.parse(bill.dueDate).toLocalDate()),
+                                                text = formatterDateString(
+                                                    LocalDateTime.parse(bill.dueDate).toLocalDate()
+                                                ),
                                                 style = AppTypography.bodySmall,
                                                 color = Gray1,
                                             )
@@ -251,7 +256,7 @@ fun BillHistoryScreen(
                                             horizontalArrangement = Arrangement.End
                                         ) {
                                             Text(
-                                                text =bill.billStatus.status,
+                                                text = bill.billStatus.status,
                                                 style = AppTypography.bodySmall,
                                                 color = when (bill.billStatus) {
                                                     BillStatus.ACTIVE -> Orange1
@@ -390,22 +395,25 @@ fun BillHistoryScreen(
     }
 }
 
-//@Preview(
-//    showBackground = true, showSystemUi = true
-//
-//)
-//@Composable
-//fun BillHistoryPreview() {
-//    BillHistoryScreen(
-//        uiState = BillHistoryUiState(
-//            isShowFilter = false, filterCount = 2
-//        ),
-//        onSelectStatus = {},
-//        onSelectSort = {},
-//        onResetStatusFilter = {},
-//        onResetSortFilter = {},
-//        onResetAll = {},
-//        onApply = {},
-//        bills =
-//    )
-//}
+@Preview(
+    showBackground = true, showSystemUi = true
+
+)
+@Composable
+fun BillHistoryPreview() {
+    val pagingData = PagingData.from(emptyList<BillResponse>())
+    BillHistoryScreen(
+        uiState = BillHistoryUiState(
+            isShowFilter = false,
+        ),
+        bills = flowOf(pagingData).collectAsLazyPagingItems(),
+        onResetAll = {},
+        onApply = { a, b ->
+
+        },
+        onErrorLoading = {},
+        onClickFilter = {},
+        onViewDetail = {},
+        onBackClick = {},
+    )
+}

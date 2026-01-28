@@ -62,7 +62,7 @@ data class BillPayload(
 data class TransferPayload(
     override val qrType: String = QRType.TRANSFER.name,
     val toWalletNumber: String,
-    val amount: Long? = null,
+    val amount: Long = 0L,
     val description: String? = null,
     val expenseType: String? = null
 ) : QRPayload()

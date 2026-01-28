@@ -159,7 +159,7 @@ class AuthViewModel @Inject constructor(
         val isAllowBiometricAuthenticator = biometricManager.getBiometricKey() != null
         if (!isAllowBiometricAuthenticator) {
             viewModelScope.launch {
-                onError("Chưa đăng ký đăng nhập bằng sinh trắc học")
+                onError("Chưa kích hoạt đăng nhập bằng sinh trắc học")
             }
             return
         }
@@ -193,9 +193,9 @@ class AuthViewModel @Inject constructor(
             val biometricPayload = biometricManager.getBiometricKey()
             if (biometricPayload == null) {
                 _uiState.update {
-                    it.copy(loginState = StateType.FAILED("Chưa đăng ký đăng nhập bằng sinh trắc học"))
+                    it.copy(loginState = StateType.FAILED("Chưa kích hoạt đăng nhập bằng sinh trắc học"))
                 }
-                onError("Chưa đăng ký đăng nhập bằng sinh trắc học")
+                onError("Chưa kích hoạt đăng nhập bằng sinh trắc học")
                 return@launch
             }
             val request = LoginViaBiometricRequest(

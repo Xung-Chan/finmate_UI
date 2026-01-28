@@ -41,7 +41,7 @@ class TransferViewModel @Inject constructor(
 
 
     init {
-        val walletNumber = savedStateHandle.get<String>("walletNumber")
+        val walletNumber = savedStateHandle.get<String>("toWalletNumber")
         if (!walletNumber.isNullOrEmpty()) {
             _uiState.update {
                 it.copy(toWalletNumber = walletNumber)
