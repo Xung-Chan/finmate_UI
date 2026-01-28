@@ -23,6 +23,7 @@ sealed class ConfirmContent(
         val toMerchantName: String,
         val description: String = "",
         val expenseType: String? = null,
+        val expenseTypeId: String?=null
     ) : ConfirmContent(
         amount = amount,
         service = service,
@@ -72,7 +73,6 @@ data class ConfirmUiState(
     val accountType: PaymentAccount? = null,
     val balance: Long = 0L,
 
-//    val service: ServiceType? = null,
 
     val confirmContent: ConfirmContent? = null,
 //    val toMerchantName: String = "",

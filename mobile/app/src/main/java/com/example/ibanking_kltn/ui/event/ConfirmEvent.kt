@@ -16,5 +16,5 @@ sealed class ConfirmEvent {
 
 sealed class ConfirmEffect {
     data class ShowSnackBar(val snackBar: SnackBarUiState) : ConfirmEffect()
-    object PaymentSuccess : ConfirmEffect()
+    data class PaymentSuccess(val route :String) : ConfirmEffect()
 }

@@ -10,7 +10,8 @@ data class PrepareTransferRequest(
     val accountType: String,
     val amount: Long,
     val description: String,
-    val toWalletNumber: String
+    val toWalletNumber: String,
+    val expenseTypeId: String? = null
 )
 
 data class ConfirmTransferRequest(
@@ -46,6 +47,7 @@ data class TrendStatisticRequest(
     val moneyFlowType: String,
     val year: Int
 )
+
 data class DistributionStatisticRequest(
     val referenceDate: String
 )

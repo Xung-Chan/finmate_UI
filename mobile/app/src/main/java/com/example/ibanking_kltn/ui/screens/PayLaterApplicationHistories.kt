@@ -225,7 +225,7 @@ fun PayLaterApplicationHistoryScreen(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = "Mã đơn đăng ký",
+                                            text = "Loại đơn",
                                             style = AppTypography.bodyMedium,
                                             color = Gray1,
 
@@ -237,7 +237,7 @@ fun PayLaterApplicationHistoryScreen(
                                         horizontalArrangement = Arrangement.End
                                     ) {
                                         Text(
-                                            text = application.id,
+                                            text = application.type.typeName,
                                             style = AppTypography.bodyMedium,
                                             color = Black1,
                                         )

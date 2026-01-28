@@ -158,7 +158,6 @@ fun AppScreen(
 
     val appViewModel: AppViewModel = hiltViewModel()
     val depositViewModel: DepositViewModel = hiltViewModel()
-    val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
     val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
@@ -560,12 +559,12 @@ fun AppScreen(
                                 snackBarInstance = effect.snackBar
                             }
 
-                            ConfirmEffect.PaymentSuccess -> {
+                           is ConfirmEffect.PaymentSuccess -> {
                                 snackBarInstance = SnackBarUiState(
                                     message = "Thanh toán thành công",
                                     type = SnackBarType.SUCCESS
                                 )
-                                navController.navigate(Screens.TransactionResult.name) {
+                                navController.navigate(effect.route) {
                                     popUpTo(Screens.Home.name) {
                                         inclusive = false
                                     }
@@ -633,7 +632,7 @@ fun AppScreen(
                                 snackBarInstance = effect.snackBar
                             }
 
-                            is QrScannerEffect.Navigate ->{
+                            is QrScannerEffect.Navigate -> {
                                 navController.navigate(effect.route) {
                                     popUpTo(Screens.Home.name) {
                                         inclusive = false
@@ -692,7 +691,21 @@ fun AppScreen(
                 )
             }
             //todo done
-            composable(route = Screens.TransactionResult.name) {
+            composable(
+                route = "${Screens.TransactionResult.name}?status={status}&service={service}&amount={amount}",
+                arguments = listOf(
+                    navArgument("status") {
+                        type = NavType.StringType
+                    },
+                    navArgument("service") {
+                        type = NavType.StringType
+                    },
+                    navArgument("amount") {
+                        type = NavType.LongType
+                    }
+                )
+            ) {
+                val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
                 val transactionResultUiState by transactionResultViewModel.uiState.collectAsState()
                 TransactionResultScreen(onBackToHomeClick = {
                     navController.navigate(Screens.Home.name) {
@@ -747,11 +760,6 @@ fun AppScreen(
                             )
                         },
                         onNavigateToTransactionResult = {
-                            transactionResultViewModel.init(
-                                status = it.status,
-                                service = it.service,
-                                amount = it.amount,
-                            )
                             navController.navigate(Screens.TransactionResult.name)
                         })
                 }

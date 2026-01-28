@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.dtos.AccountType
 import com.example.ibanking_kltn.data.dtos.PaymentAccount
+import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
@@ -13,6 +14,7 @@ import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.ui.Screens
 import com.example.ibanking_kltn.ui.event.ConfirmEffect
 import com.example.ibanking_kltn.ui.event.ConfirmEvent
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
@@ -149,6 +151,8 @@ class ConfirmViewModel @Inject constructor(
                 )
                 when (apiResult) {
                     is ApiResult.Success -> {
+                        val route =
+                            "${Screens.TransactionResult.name}?status=${TransactionStatus.COMPLETED}&service=${uiState.value.confirmContent?.service?.serviceName}&amount=${uiState.value.confirmContent?.amount}"
                         _uiState.update {
                             it.copy(
                                 screenState = StateType.NONE,
@@ -156,7 +160,7 @@ class ConfirmViewModel @Inject constructor(
                             )
                         }
                         _uiEffect.emit(
-                            ConfirmEffect.PaymentSuccess
+                            ConfirmEffect.PaymentSuccess(route)
                         )
                     }
 
@@ -202,7 +206,8 @@ class ConfirmViewModel @Inject constructor(
                             accountType = uiState.value.accountType!!.accountType.name,
                             amount = (uiState.value.confirmContent as ConfirmContent.TRANSFER).amount,
                             description = transferData.description,
-                            toWalletNumber = transferData.toWalletNumber
+                            toWalletNumber = transferData.toWalletNumber,
+                            expenseTypeId = transferData.expenseTypeId
                         )
                     )
                 }

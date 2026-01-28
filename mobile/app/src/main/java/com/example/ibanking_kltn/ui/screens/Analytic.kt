@@ -88,7 +88,7 @@ fun AnalyticScreen(
     val scrollState = rememberScrollState(0)
 
     var selectedStatisticType by remember {
-        mutableStateOf(StatisticType.TREND)
+        mutableStateOf(StatisticType.DISTRIBUTION)
     }
     LoadingScaffold(
         isLoading = uiState.state == StateType.LOADING

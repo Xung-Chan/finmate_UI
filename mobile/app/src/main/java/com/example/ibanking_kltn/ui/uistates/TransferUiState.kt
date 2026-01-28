@@ -3,13 +3,14 @@ package com.example.ibanking_kltn.ui.uistates
 import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 import com.example.ibanking_kltn.data.dtos.TransactionStatus
 import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
+import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
 
 data class TransferUiState(
     val screenState: StateType = StateType.NONE,
     val confirmState: StateType = StateType.NONE,
     val isOtpShow: Boolean = false,
 
-    val expenseType: String = "",
+    val expenseType: ExpenseType? =null ,
     val allExpenseTypeResponse: AllExpenseTypeResponse = AllExpenseTypeResponse(),
 
 

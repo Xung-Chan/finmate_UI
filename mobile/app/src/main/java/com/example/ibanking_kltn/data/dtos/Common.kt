@@ -182,13 +182,13 @@ enum class BillingCycleStatus {
     CLOSED,  //Chu kỳ đã đóng (admin can thiệp hoặc đặc biệt)
 }
 
-enum class ExpenseType(val displayName: String, icon: Int) {
-    LEISURE(displayName = "Vui chơi và giai trí", icon = R.drawable.entertain),
-    TRAVEL(displayName = "Du lịch và đi lại", icon = R.drawable.plane),
-    SHOPPING(displayName = "Mua sắm", icon = R.drawable.shopping),
-    ESSENTIALS(displayName = "Sinh hoạt và Ăn uống", icon = R.drawable.food),
-    HEALTH(displayName = "Sức khỏe và thể thao", icon = R.drawable.medical),
-}
+//enum class ExpenseType(val displayName: String, icon: Int) {
+//    LEISURE(displayName = "Vui chơi và giai trí", icon = R.drawable.entertain),
+//    TRAVEL(displayName = "Du lịch và đi lại", icon = R.drawable.plane),
+//    SHOPPING(displayName = "Mua sắm", icon = R.drawable.shopping),
+//    ESSENTIALS(displayName = "Sinh hoạt và Ăn uống", icon = R.drawable.food),
+//    HEALTH(displayName = "Sức khỏe và thể thao", icon = R.drawable.medical),
+//}
 
 enum class MoneyFlowType {
     OUTGOING,

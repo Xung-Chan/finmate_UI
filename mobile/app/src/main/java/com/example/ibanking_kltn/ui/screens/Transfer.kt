@@ -310,9 +310,7 @@ fun TransferScreen(
                         )
                         CustomDropdownField(
                             modifier = Modifier.fillMaxWidth(),
-                            options = uiState.allExpenseTypeResponse.map {
-                                it.name
-                            },
+                            options = uiState.allExpenseTypeResponse,
                             onOptionSelected = {
                                 onEvent(
                                     TransferEvent.ExpenseTypeChange(
@@ -320,7 +318,14 @@ fun TransferScreen(
                                     )
                                 )
                             },
-                            selectedOption = uiState.expenseType,
+                            optionsComposable = {
+                                Text(
+                                    text = it.name,
+                                    style = AppTypography.bodySmall,
+                                    color = Black1
+                                )
+                            },
+                            selectedOption = uiState.expenseType?.name?:"",
                             placeholder = "Phân loại (Hệ thống tự động phân loại nếu để trống)"
                         )
                     }

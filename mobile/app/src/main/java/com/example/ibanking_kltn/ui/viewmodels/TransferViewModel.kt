@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.SavedReceiverManager
 import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
 import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.event.TransferEffect
@@ -143,7 +144,8 @@ class TransferViewModel @Inject constructor(
             toWalletNumber = uiState.value.toWalletNumber,
             toMerchantName = uiState.value.toMerchantName,
             description = removeVietnameseAccents(uiState.value.description.ifEmpty { "Chuyen tien den ${uiState.value.toMerchantName}" }),
-            expenseType = uiState.value.expenseType,
+            expenseType = uiState.value.expenseType?.name,
+            expenseTypeId = uiState.value.expenseType?.id,
         )
         viewModelScope.launch {
             _uiEffect.emit(
@@ -216,9 +218,12 @@ class TransferViewModel @Inject constructor(
     }
 
 
-    private fun onExpenseTypeChange(expenseType: String) {
+    private fun onExpenseTypeChange(expenseType: ExpenseType) {
         _uiState.update {
-            it.copy(expenseType = expenseType)
+            it.copy(
+                expenseType = expenseType,
+
+            )
         }
     }
 
