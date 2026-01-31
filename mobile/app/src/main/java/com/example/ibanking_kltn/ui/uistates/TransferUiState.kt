@@ -1,9 +1,8 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
-import com.example.ibanking_kltn.data.dtos.TransactionStatus
-import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
-import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
+import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
+import com.example.ibanking_kltn.dtos.responses.AllExpenseTypeResponse
+import com.example.ibanking_kltn.dtos.responses.ExpenseType
 
 data class TransferUiState(
     val screenState: StateType = StateType.NONE,
@@ -33,9 +32,3 @@ data class TransferUiState(
                 && amount > 0L
 }
 
-data class TransactionResultUiState(
-    val screenState: StateType = StateType.NONE,
-    val service: String = "",
-    val amount: Long = 0L,
-    val status: TransactionStatus = TransactionStatus.COMPLETED,
-)

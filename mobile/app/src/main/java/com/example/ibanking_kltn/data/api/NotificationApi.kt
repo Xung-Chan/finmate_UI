@@ -1,9 +1,9 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.NotificationType
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.NotificationRequest
-import com.example.ibanking_kltn.data.dtos.responses.NotificationResponse
+import com.example.ibanking_kltn.dtos.definitions.NotificationType
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.NotificationRequest
+import com.example.ibanking_kltn.dtos.responses.NotificationResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

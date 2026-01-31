@@ -6,10 +6,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.example.ibanking_kltn.data.dtos.BillStatus
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillParam
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.requests.FilterBillParam
+import com.example.ibanking_kltn.dtos.requests.FilterBillRequest
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.ui.pagingsources.BillHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.BillHistoryUiState

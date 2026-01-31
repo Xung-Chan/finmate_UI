@@ -45,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
+import com.example.ibanking_kltn.dtos.definitions.RequestOtpPurpose
 import com.example.ibanking_kltn.ui.event.LoginEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1

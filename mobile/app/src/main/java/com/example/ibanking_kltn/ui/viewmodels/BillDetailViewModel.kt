@@ -2,9 +2,8 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.BillStatus
-import com.example.ibanking_kltn.data.dtos.requests.CancelBillRequest
-import com.example.ibanking_kltn.data.dtos.responses.BillResponse
+import com.example.ibanking_kltn.dtos.requests.CancelBillRequest
+import com.example.ibanking_kltn.dtos.responses.BillResponse
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.ui.uistates.BillDetailUiState
 import com.example.ibanking_kltn.ui.uistates.StateType

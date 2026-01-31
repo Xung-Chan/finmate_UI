@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.ui.event
 
 import androidx.fragment.app.FragmentActivity
-import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
+import com.example.ibanking_kltn.dtos.definitions.RequestOtpPurpose
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 
 

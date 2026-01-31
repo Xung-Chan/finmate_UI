@@ -1,11 +1,11 @@
 package com.example.ibanking_kltn.data.repositories
 
 import com.example.ibanking_kltn.data.api.NotificationApi
-import com.example.ibanking_kltn.data.dtos.NotificationType
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.NotificationRequest
-import com.example.ibanking_kltn.data.dtos.responses.NotificationResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.definitions.NotificationType
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.NotificationRequest
+import com.example.ibanking_kltn.dtos.responses.NotificationResponse
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
 

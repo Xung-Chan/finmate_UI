@@ -2,9 +2,9 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.MoneyFlowType
-import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
-import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
+import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
+import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
+import com.example.ibanking_kltn.dtos.requests.TrendStatisticRequest
 import com.example.ibanking_kltn.data.repositories.AiRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.usecase.GetDistributionStatisticUC

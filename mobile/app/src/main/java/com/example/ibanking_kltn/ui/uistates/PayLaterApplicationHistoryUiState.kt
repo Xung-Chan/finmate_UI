@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
 import java.time.LocalDate
 
 data class PayLaterApplicationHistoryUiState(

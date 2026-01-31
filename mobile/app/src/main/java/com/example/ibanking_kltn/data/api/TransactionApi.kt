@@ -1,19 +1,19 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
-import com.example.ibanking_kltn.data.dtos.requests.DepositTransactionRequest
-import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
-import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
-import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
-import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
-import com.example.ibanking_kltn.data.dtos.responses.DepositTransactionResponse
-import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
-import com.example.ibanking_kltn.data.dtos.responses.HandleVNPayReturnResponse
-import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.ConfirmTransferRequest
+import com.example.ibanking_kltn.dtos.requests.DepositTransactionRequest
+import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
+import com.example.ibanking_kltn.dtos.requests.FilterTransactionRequest
+import com.example.ibanking_kltn.dtos.requests.PrepareTransferRequest
+import com.example.ibanking_kltn.dtos.requests.TrendStatisticRequest
+import com.example.ibanking_kltn.dtos.responses.AllExpenseTypeResponse
+import com.example.ibanking_kltn.dtos.responses.DepositTransactionResponse
+import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
+import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.responses.TransactionResponse
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -33,7 +33,7 @@ interface TransactionApi {
     @POST("/api/transactions/transfer/confirm")
     suspend fun confirmTransfer(
         @Body request: ConfirmTransferRequest
-    ): Response<Unit>
+    ): Response<TransactionResponse>
 
     @GET("/api/expense-types/")
     suspend fun getAllExpenseType(
@@ -51,7 +51,7 @@ interface TransactionApi {
     suspend fun handleVNPayReturn(
         @Query("vnp_ResponseCode") vnp_ResponseCode: String,
         @Query("vnp_TxnRef") vnp_TxnRef: String,
-    ): Response<HandleVNPayReturnResponse>
+    ): Response<TransactionResponse>
 
 
     @GET("/api/transactions/{transactionId}")

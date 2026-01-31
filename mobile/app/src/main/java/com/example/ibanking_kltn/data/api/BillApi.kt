@@ -1,13 +1,13 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.CancelBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.CreateBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
-import com.example.ibanking_kltn.data.dtos.responses.BillResponse
-import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.CancelBillRequest
+import com.example.ibanking_kltn.dtos.requests.CreateBillRequest
+import com.example.ibanking_kltn.dtos.requests.FilterBillRequest
+import com.example.ibanking_kltn.dtos.requests.PreparePayBillRequest
+import com.example.ibanking_kltn.dtos.requests.PreparePrePaymentRequest
+import com.example.ibanking_kltn.dtos.responses.BillResponse
+import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

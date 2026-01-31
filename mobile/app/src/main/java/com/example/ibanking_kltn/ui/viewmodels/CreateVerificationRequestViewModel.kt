@@ -4,7 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.requests.WalletVerificationRequest
+import com.example.ibanking_kltn.dtos.requests.WalletVerificationRequest
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.event.CreateVerificationEffect
 import com.example.ibanking_kltn.ui.event.CreateVerificationEvent

@@ -3,7 +3,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.SavedReceiverManager
-import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
+import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.ui.event.SavedReceiverEffect
 import com.example.ibanking_kltn.ui.event.SavedReceiverEvent

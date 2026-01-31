@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.TokenManager
-import com.example.ibanking_kltn.data.dtos.requests.ChangePasswordRequest
+import com.example.ibanking_kltn.dtos.requests.ChangePasswordRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.ui.event.ChangePasswordEffect
 import com.example.ibanking_kltn.ui.event.ChangePasswordEvent

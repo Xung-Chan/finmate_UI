@@ -1,21 +1,21 @@
 package com.example.ibanking_kltn.data.repositories
 
 import com.example.ibanking_kltn.data.api.TransactionApi
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.ConfirmTransferRequest
-import com.example.ibanking_kltn.data.dtos.requests.DepositTransactionRequest
-import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
-import com.example.ibanking_kltn.data.dtos.requests.PrepareTransferRequest
-import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
-import com.example.ibanking_kltn.data.dtos.responses.AllExpenseTypeResponse
-import com.example.ibanking_kltn.data.dtos.responses.DepositTransactionResponse
-import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
-import com.example.ibanking_kltn.data.dtos.responses.HandleVNPayReturnResponse
-import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.data.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.ConfirmTransferRequest
+import com.example.ibanking_kltn.dtos.requests.DepositTransactionRequest
+import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
+import com.example.ibanking_kltn.dtos.requests.FilterTransactionRequest
+import com.example.ibanking_kltn.dtos.requests.PrepareTransferRequest
+import com.example.ibanking_kltn.dtos.requests.TrendStatisticRequest
+import com.example.ibanking_kltn.dtos.responses.AllExpenseTypeResponse
+import com.example.ibanking_kltn.dtos.responses.DepositTransactionResponse
+import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
+import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.responses.TransactionResponse
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 import javax.inject.Inject
 
@@ -35,7 +35,7 @@ class TransactionRepository @Inject constructor(
 //        )
     }
 
-    suspend fun confirmTransfer(request: ConfirmTransferRequest): ApiResult<Unit> {
+    suspend fun confirmTransfer(request: ConfirmTransferRequest): ApiResult<TransactionResponse> {
         return safeApiCall(
             apiCall = { api.confirmTransfer(request = request) },
         )
@@ -98,7 +98,7 @@ class TransactionRepository @Inject constructor(
     suspend fun handleVNPayReturn(
         vnp_ResponseCode: String,
         vnp_TxnRef: String,
-    ): ApiResult<HandleVNPayReturnResponse> {
+    ): ApiResult<TransactionResponse> {
         return safeApiCall(
             apiCall = { api.handleVNPayReturn(vnp_ResponseCode, vnp_TxnRef) },
         )

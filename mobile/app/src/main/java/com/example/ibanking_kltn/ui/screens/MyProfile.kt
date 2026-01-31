@@ -51,7 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.TransferPayload
+import com.example.ibanking_kltn.dtos.definitions.TransferPayload
 import com.example.ibanking_kltn.ui.event.MyProfileEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1

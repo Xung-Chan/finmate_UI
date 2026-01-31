@@ -45,9 +45,9 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
-import com.example.ibanking_kltn.data.dtos.responses.PayLaterApplicationResponse
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.responses.PayLaterApplicationResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3

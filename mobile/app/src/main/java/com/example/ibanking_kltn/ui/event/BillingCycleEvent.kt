@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.event
 
-import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.dtos.responses.BillingCycleResonse
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 

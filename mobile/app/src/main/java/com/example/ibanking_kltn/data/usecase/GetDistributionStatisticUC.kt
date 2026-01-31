@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.data.usecase
 
-import com.example.ibanking_kltn.data.dtos.requests.DistributionStatisticRequest
-import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
+import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
+import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.example.ibanking_kltn.data.dtos.NotificationType
+import com.example.ibanking_kltn.dtos.definitions.NotificationType
 import com.example.ibanking_kltn.data.repositories.NotificationRepository
 import com.example.ibanking_kltn.ui.pagingsources.NotificationPagingSource
 import com.example.ibanking_kltn.ui.uistates.NotificationUiState

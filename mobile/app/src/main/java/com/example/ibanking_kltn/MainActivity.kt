@@ -6,15 +6,18 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.ibanking_kltn.data.di.AppSessionManager
 import com.example.ibanking_kltn.ui.AppScreen
 import com.example.ibanking_kltn.ui.theme.IBanking_KLTNTheme
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import jakarta.inject.Inject
 
@@ -23,55 +26,70 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var appSessionManager: AppSessionManager
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private val multiplePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val cameraGranted = permissions[Manifest.permission.CAMERA] ?: false
+        val notificationGranted =
+            permissions[Manifest.permission.POST_NOTIFICATIONS] ?: false
+
+        if (!cameraGranted) {
             Toast.makeText(this, "Camera permission denied", Toast.LENGTH_LONG).show()
-            finish()
+        }
+
+        if (!notificationGranted) {
+            Toast.makeText(this, "Notification permission denied", Toast.LENGTH_LONG).show()
         }
     }
 
     fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                "default_channel",
-                "Thông báo",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Thông báo hệ thống"
-            }
-
-            val manager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
+        val channel = NotificationChannel(
+            "default_channel",
+            "Thông báo",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Thông báo hệ thống"
         }
+
+        val manager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(channel)
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         ProcessLifecycleOwner.get().lifecycle.addObserver(appSessionManager)
 
-        //request camera permission
-        requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        multiplePermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        )
         val context = this.applicationContext
         createNotificationChannel(context)
-        enableEdgeToEdge()
-        try {
 
-            setContent {
-                IBanking_KLTNTheme {
-                    AppScreen()
-                }
+        registerFcmTokenIfNeeded()
+
+        enableEdgeToEdge()
+        setContent {
+            IBanking_KLTNTheme {
+                AppScreen()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(
-                this,
-                "Đã có lỗi xảy ra, vui lòng thử lại sau!",
-                Toast.LENGTH_LONG
-            ).show()
         }
     }
+
+    fun registerFcmTokenIfNeeded() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@addOnCompleteListener
+            }
+            val token = task.result
+            Log.d("FCM", token)
+        }
+    }
+
 }

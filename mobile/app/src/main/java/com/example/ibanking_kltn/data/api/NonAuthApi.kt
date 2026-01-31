@@ -1,15 +1,15 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
-import com.example.ibanking_kltn.data.dtos.requests.LoginViaBiometricRequest
-import com.example.ibanking_kltn.data.dtos.requests.RefreshTokenRequest
-import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
-import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
-import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
-import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
-import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
-import com.example.ibanking_kltn.data.dtos.responses.RequestOtpResponse
-import com.example.ibanking_kltn.data.dtos.responses.VerifyOtpResponse
+import com.example.ibanking_kltn.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.dtos.requests.LoginViaBiometricRequest
+import com.example.ibanking_kltn.dtos.requests.RefreshTokenRequest
+import com.example.ibanking_kltn.dtos.requests.RequestOtpRequest
+import com.example.ibanking_kltn.dtos.requests.ResetPasswordRequest
+import com.example.ibanking_kltn.dtos.requests.SendOtpRequest
+import com.example.ibanking_kltn.dtos.requests.VerifyOtpRequest
+import com.example.ibanking_kltn.dtos.responses.LoginResponse
+import com.example.ibanking_kltn.dtos.responses.RequestOtpResponse
+import com.example.ibanking_kltn.dtos.responses.VerifyOtpResponse
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body

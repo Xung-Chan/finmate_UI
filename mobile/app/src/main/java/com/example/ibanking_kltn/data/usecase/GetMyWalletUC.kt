@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.data.usecase
 
-import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
+import com.example.ibanking_kltn.dtos.responses.WalletResponse
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.uistates.UserSessionUS

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.BiometricManager
 import com.example.ibanking_kltn.data.di.TokenManager
-import com.example.ibanking_kltn.data.dtos.requests.RegisterBiometricRequest
+import com.example.ibanking_kltn.dtos.requests.RegisterBiometricRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.event.SettingEffect

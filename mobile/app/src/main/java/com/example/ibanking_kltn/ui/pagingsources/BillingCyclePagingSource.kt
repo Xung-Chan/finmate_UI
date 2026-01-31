@@ -2,9 +2,9 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillingCyclesRequest
-import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.requests.FilterBillingCyclesRequest
+import com.example.ibanking_kltn.dtos.responses.BillingCycleResonse
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 

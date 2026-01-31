@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.data.dtos.responses
+package com.example.ibanking_kltn.dtos.responses
 
 data class AnalyzeResponse(
     val canh_bao: String,

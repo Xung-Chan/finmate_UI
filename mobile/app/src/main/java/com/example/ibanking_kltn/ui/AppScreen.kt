@@ -41,13 +41,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navDeepLink
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil.compose.AsyncImage
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
-import com.example.ibanking_kltn.data.dtos.ServiceCategory
-import com.example.ibanking_kltn.data.dtos.TabNavigation
+import com.example.ibanking_kltn.dtos.definitions.AppGraph
+import com.example.ibanking_kltn.dtos.definitions.NavKey
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.definitions.Screens
+import com.example.ibanking_kltn.dtos.definitions.ServiceCategory
+import com.example.ibanking_kltn.dtos.definitions.TabNavigation
 import com.example.ibanking_kltn.ui.event.AllServiceEffect
 import com.example.ibanking_kltn.ui.event.AnalyticEffect
 import com.example.ibanking_kltn.ui.event.BillingCycleEffect
@@ -57,8 +59,10 @@ import com.example.ibanking_kltn.ui.event.HomeEffect
 import com.example.ibanking_kltn.ui.event.PayBillEffect
 import com.example.ibanking_kltn.ui.event.QrScannerEffect
 import com.example.ibanking_kltn.ui.event.SettingEffect
+import com.example.ibanking_kltn.ui.event.TransactionResultEffect
 import com.example.ibanking_kltn.ui.event.TransferEffect
 import com.example.ibanking_kltn.ui.navigation.changePasswordGraph
+import com.example.ibanking_kltn.ui.navigation.depositGraph
 import com.example.ibanking_kltn.ui.navigation.myProfileGraph
 import com.example.ibanking_kltn.ui.navigation.signInGraph
 import com.example.ibanking_kltn.ui.screens.AllServiceScreen
@@ -68,7 +72,6 @@ import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
 import com.example.ibanking_kltn.ui.screens.BillingCycleScreen
 import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.CreateBillScreen
-import com.example.ibanking_kltn.ui.screens.GatewayDeposit
 import com.example.ibanking_kltn.ui.screens.HomeScreen
 import com.example.ibanking_kltn.ui.screens.NotificationScreen
 import com.example.ibanking_kltn.ui.screens.PayBillScreen
@@ -94,7 +97,6 @@ import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
 import com.example.ibanking_kltn.ui.viewmodels.BillingCycleViewModel
 import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
 import com.example.ibanking_kltn.ui.viewmodels.CreateBillViewModel
-import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
 import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
 import com.example.ibanking_kltn.ui.viewmodels.NotificationEvent
 import com.example.ibanking_kltn.ui.viewmodels.NotificationViewModel
@@ -116,29 +118,6 @@ import com.example.ibanking_kltn.utils.formatterDateString
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 
-enum class Screens {
-    SignIn, ChangePassword, ChangePasswordSuccess, ForgotPassword,
-    Notification,
-    Home, Settings, Analytic,
-    TransactionResult, Transfer, ConfirmPayment,
-    MyProfile, TermAndConditions,
-    PayBill, CreateBill, BillHistory, BillDetail,
-    TransactionHistory, TransactionHistoryDetail,
-    Deposit, HandleDepositResult,
-    QRScanner,
-    AllService,
-    VerificationRequest,
-    SavedReceiver,
-    PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle
-}
-
-enum class AppGraph {
-    SignInGraph,
-    ChangePasswordGraph,
-    MyProfileGraph,
-    HomeGraph,
-}
-
 @Composable
 fun AppScreen(
     navController: NavHostController = rememberNavController()
@@ -157,7 +136,6 @@ fun AppScreen(
 
 
     val appViewModel: AppViewModel = hiltViewModel()
-    val depositViewModel: DepositViewModel = hiltViewModel()
     val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
@@ -234,7 +212,7 @@ fun AppScreen(
         },
         ServiceCategory.DEPOSIT.name to {
             appViewModel.addRecentService(ServiceCategory.DEPOSIT)
-            navController.navigate(Screens.Deposit.name)
+            navController.navigate(AppGraph.DepositGraph.name)
         },
         ServiceCategory.BILL_PAYMENT.name to {
             appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
@@ -501,7 +479,7 @@ fun AppScreen(
                             }
 
                             is TransferEffect.NavigateToConfirmScreen -> {
-                                backStackEntry.savedStateHandle["confirmContent"] =
+                                backStackEntry.savedStateHandle[NavKey.CONFIRM_CONTENT.name] =
                                     effect.confirmContent
                                 navController.navigate(
                                     Screens.ConfirmPayment.name
@@ -527,25 +505,13 @@ fun AppScreen(
                     navController.previousBackStackEntry!!
                 }
                 val confirmContent =
-                    previousEntry.savedStateHandle.get<ConfirmContent>("confirmContent")
+                    previousEntry.savedStateHandle.get<ConfirmContent>(NavKey.CONFIRM_CONTENT.name)
                 LaunchedEffect(confirmContent) {
                     confirmContent?.let {
                         confirmViewModel.onEvent(
                             ConfirmEvent.Init(confirmContent = it)
                         )
-                        previousEntry.savedStateHandle.remove<ConfirmContent>("confirmContent")
-                    }
-                }
-
-                LaunchedEffect(Unit) {
-                    val previousEntry = navController.previousBackStackEntry
-                    val content = previousEntry
-                        ?.savedStateHandle
-                        ?.get<ConfirmContent>("confirmContent")
-
-                    content?.let {
-                        confirmViewModel.onEvent(ConfirmEvent.Init(it))
-                        previousEntry.savedStateHandle.remove<ConfirmContent>("confirmContent")
+                        previousEntry.savedStateHandle.remove<ConfirmContent>(NavKey.CONFIRM_CONTENT.name)
                     }
                 }
 
@@ -564,7 +530,7 @@ fun AppScreen(
                                     message = "Thanh toán thành công",
                                     type = SnackBarType.SUCCESS
                                 )
-                                navController.navigate(effect.route) {
+                                navController.navigate("${Screens.TransactionResult.name}/${effect.transactionId}") {
                                     popUpTo(Screens.Home.name) {
                                         inclusive = false
                                     }
@@ -602,7 +568,7 @@ fun AppScreen(
                             }
 
                             is PayBillEffect.NavigateToConfirmScreen -> {
-                                backStackEntry.savedStateHandle["confirmContent"] =
+                                backStackEntry.savedStateHandle[NavKey.CONFIRM_CONTENT.name] =
                                     effect.confirmContent
                                 navController.navigate(
                                     Screens.ConfirmPayment.name
@@ -660,7 +626,7 @@ fun AppScreen(
                     billingCycleViewModel.uiEffect.collect { effect ->
                         when (effect) {
                             is BillingCycleEffect.NavigateToConfirmScreen -> {
-                                backStackEntry.savedStateHandle["confirmContent"] =
+                                backStackEntry.savedStateHandle[NavKey.CONFIRM_CONTENT.name] =
                                     effect.confirmContent
                                 navController.navigate(
                                     Screens.ConfirmPayment.name
@@ -690,82 +656,57 @@ fun AppScreen(
 
                 )
             }
-            //todo done
             composable(
-                route = "${Screens.TransactionResult.name}?status={status}&service={service}&amount={amount}",
+                route = "${Screens.TransactionResult.name}/{${NavKey.TRANSACTION_ID.name}}",
                 arguments = listOf(
-                    navArgument("status") {
+                    navArgument(NavKey.TRANSACTION_ID.name) {
                         type = NavType.StringType
-                    },
-                    navArgument("service") {
-                        type = NavType.StringType
-                    },
-                    navArgument("amount") {
-                        type = NavType.LongType
                     }
                 )
-            ) {
+            ) { backStackEntry ->
                 val transactionResultViewModel: TransactionResultViewModel = hiltViewModel()
                 val transactionResultUiState by transactionResultViewModel.uiState.collectAsState()
-                TransactionResultScreen(onBackToHomeClick = {
-                    navController.navigate(Screens.Home.name) {
-                        popUpTo(Screens.Home.name) {
-                            inclusive = true
-                        }
-                    }
-                }, uiState = transactionResultUiState, onContactClick = {})
-            }
-
-            composable(route = Screens.Deposit.name) {
-                val uiState by depositViewModel.uiState.collectAsState()
-                GatewayDeposit(
-                    onBackClick = {
-                        navController.navigate(Screens.Home.name)
-                    }, onContinuePayment = {
-                        depositViewModel.onContinuePayment(
-                            context = context, onError = { message ->
-                                appViewModel.showSnackBarMessage(
-                                    message = message, type = SnackBarType.ERROR
-                                )
-                            })
-                    }, uiState = uiState, onChangeAmount = {
-                        depositViewModel.onAmountChange(it)
-                    }, isEnableContinue = depositViewModel.isEnableContinuePayment()
-                )
-            }
-            composable(
-                route = "${Screens.HandleDepositResult.name}?vnp_TxnRef={vnp_TxnRef}&vnp_ResponseCode={vnp_ResponseCode}",
-                deepLinks = listOf(
-                    navDeepLink {
-                        uriPattern =
-                            "ibanking://vnpay-return?vnp_Amount={vnp_Amount}&vnp_BankCode={vnp_BankCode}&vnp_BankTranNo={vnp_BankTranNo}&vnp_CardType={vnp_CardType}&vnp_OrderInfo={vnp_OrderInfo}&vnp_PayDate={vnp_PayDate}&vnp_ResponseCode={vnp_ResponseCode}&vnp_TmnCode={vnp_TmnCode}&vnp_TransactionNo={vnp_TransactionNo}&vnp_TransactionStatus={vnp_TransactionStatus}&vnp_TxnRef={vnp_TxnRef}&vnp_SecureHash={vnp_SecureHash}"
-                    }),
-                arguments = listOf(
-                    navArgument("vnp_TxnRef") { type = NavType.StringType; nullable = true },
-                    navArgument("vnp_ResponseCode") {
-                        type = NavType.StringType; nullable = true
-                    })
-            ) { backStackEntry ->
 
                 LaunchedEffect(Unit) {
-                    val txnRef = backStackEntry.arguments?.getString("vnp_TxnRef") ?: ""
-                    val responseCode = backStackEntry.arguments?.getString("vnp_ResponseCode") ?: ""
+                    transactionResultViewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            TransactionResultEffect.InitFailed -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Không tìm thấy giao dịch",
+                                    type = SnackBarType.ERROR
+                                )
+                                navController.navigate(Screens.Home.name){
+                                    popUpTo(Screens.Home.name) {
+                                        inclusive = true
+                                    }
+                                }
+                            }
 
-                    depositViewModel.handleVNPayReturn(
-                        vnp_ResponseCode = responseCode,
-                        vnp_TxnRef = txnRef,
-                        onError = {
-                            appViewModel.showSnackBarMessage(
-                                message = it, type = SnackBarType.ERROR
-                            )
-                        },
-                        onNavigateToTransactionResult = {
-                            navController.navigate(Screens.TransactionResult.name)
-                        })
+                            is TransactionResultEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+                        }
+                    }
                 }
 
-
+                TransactionResultScreen(
+                    onBackToHomeClick = {
+                        navController.navigate(Screens.Home.name) {
+                            popUpTo(Screens.Home.name) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    uiState = transactionResultUiState,
+                )
             }
+
+            //todo done
+            depositGraph(
+                navController = navController,
+                onShowSnackBar = onShowSnackBar
+            )
+
 
             composable(route = Screens.CreateBill.name) { backStackEntry ->
                 val uiState by createBillViewModel.uiState.collectAsState()

@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.responses.UserInfoResponse
+import com.example.ibanking_kltn.dtos.responses.UserInfoResponse
 
 data class MyProfileUiState(
     val screenState: StateType = StateType.NONE,

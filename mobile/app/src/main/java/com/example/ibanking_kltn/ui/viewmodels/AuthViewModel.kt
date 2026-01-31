@@ -5,11 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.BiometricManager
 import com.example.ibanking_kltn.data.di.TokenManager
-import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
-import com.example.ibanking_kltn.data.dtos.requests.LoginRequest
-import com.example.ibanking_kltn.data.dtos.requests.LoginViaBiometricRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
-import com.example.ibanking_kltn.data.usecase.GetMyProfileUC
+import com.example.ibanking_kltn.dtos.definitions.RequestOtpPurpose
+import com.example.ibanking_kltn.dtos.requests.LoginRequest
+import com.example.ibanking_kltn.dtos.requests.LoginViaBiometricRequest
 import com.example.ibanking_kltn.ui.event.LoginEffect
 import com.example.ibanking_kltn.ui.event.LoginEvent
 import com.example.ibanking_kltn.ui.security.BiometricAuthenticator
@@ -35,7 +34,6 @@ class AuthViewModel @Inject constructor(
     private val tokenManager: TokenManager,
     private val biometricManager: BiometricManager,
     private val biometricAuthenticator: BiometricAuthenticator,
-    private val getMyProfileUC: GetMyProfileUC,
 ) : ViewModel() {
 
 

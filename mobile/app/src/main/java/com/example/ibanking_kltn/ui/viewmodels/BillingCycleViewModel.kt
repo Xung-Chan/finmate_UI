@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.responses.BillingCycleResonse
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.ui.event.BillingCycleEffect
 import com.example.ibanking_kltn.ui.event.BillingCycleEvent

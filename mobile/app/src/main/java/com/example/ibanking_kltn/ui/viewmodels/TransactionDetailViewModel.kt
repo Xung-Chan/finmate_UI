@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -2,7 +2,7 @@ package com.example.ibanking_kltn.data.di
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
+import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow

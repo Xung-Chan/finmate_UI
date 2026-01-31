@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { DashboardOutlined, TeamOutlined, WalletOutlined, TransactionOutlined, BellOutlined } from "@ant-design/icons";
+import { DashboardOutlined, TeamOutlined, WalletOutlined, TransactionOutlined, BellOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "@tanstack/react-router";
 import { useLogout } from "@/hooks/auth.hook";
+import { useGetProfile } from "@/hooks/user.hook";
 import logo from "@/assets/Logomark.png";
 import { colors } from "@/theme/color";
 import MENU_PERMISSIONS from '@/config/permissions';
@@ -24,6 +25,7 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const logout = useLogout();
+    const { data: profile } = useGetProfile();
     useEffect(() => {
         const { selectedKey, openMenuKey } = getMenuStateFromPath(location.pathname);
         setSelectedKey(selectedKey);
@@ -40,10 +42,6 @@ const DashboardLayout = () => {
             key: "users",
             label: "Quản lý người dùng",
             icon: <TeamOutlined />,
-            subMenu: [
-                { key: "list", label: "Danh sách người dùng" },
-                { key: "logout", label: "Đăng xuất" },
-            ],
         },
         {
             key: "wallets-management",
@@ -71,6 +69,12 @@ const DashboardLayout = () => {
             ],
         },
 
+        {
+            key: "logout",
+            label: "Đăng xuất",
+            icon: <LogoutOutlined />,
+        },
+
         // {
         //     key: "ai-training-data",
         //     label: "Nội dung AI",
@@ -88,16 +92,16 @@ const DashboardLayout = () => {
         if (item.subMenu) {
             setOpenMenuKey(openMenuKey === item.key ? null : item.key);
         } else {
+            if (item.key === "logout") {
+                logout();
+                return;
+            }
             setOpenMenuKey(null);
             navigate({ to: `/manage/${item.key}` });
         }
     };
 
     const handleSubMenuClick = (parentKey: string, key: string) => {
-        if (key === "logout") {
-            logout();
-            return;
-        }
 
         setSelectedKey(`${parentKey}/${key}`);
         navigate({ to: `/manage/${parentKey}/${key}` });
@@ -125,36 +129,36 @@ const DashboardLayout = () => {
                     {mainMenuItems.map((item) => (
                         <div key={item.key}>
                             {/* hide top-level item if user lacks any role for it */}
-                            { !hasAnyRole(MENU_PERMISSIONS[item.key]) ? null : (
-                            <div
-                                className={`flex items-center pl-4 py-3 mb-2 rounded-md cursor-pointer transition-all duration-200`}
-                                style={{
-                                    background:
-                                        selectedKey === item.key || selectedKey.startsWith(`${item.key}/`)
-                                            ? `linear-gradient(to right, ${colors.blue.b1}22, ${colors.blue.b6}11)` // đuôi "22" và "11" là opacity (hex)
-                                            : "transparent",
-                                    color:
-                                        selectedKey === item.key || selectedKey.startsWith(`${item.key}/`)
-                                            ? colors.blue.b1
-                                            : colors.gray.g1,
-                                }}
-                                onMouseEnter={(e) => {
-                                    (e.currentTarget.style.background = `linear-gradient(to right, ${colors.blue.b1}22, ${colors.blue.b6}11)`);
-                                    (e.currentTarget.style.color = colors.blue.b1);
-                                }}
-                                onMouseLeave={(e) => {
-                                    if (
-                                        !(selectedKey === item.key || selectedKey.startsWith(`${item.key}/`))
-                                    ) {
-                                        e.currentTarget.style.background = "transparent";
-                                        e.currentTarget.style.color = colors.gray.g1;
-                                    }
-                                }}
-                                onClick={() => handleMenuClick(item)}
-                            >
-                                <span className="text-lg">{item.icon}</span>
-                                <span className="ml-2 text-sm">{item.label}</span>
-                            </div>
+                            {!hasAnyRole(MENU_PERMISSIONS[item.key]) ? null : (
+                                <div
+                                    className={`flex items-center pl-4 py-3 mb-2 rounded-md cursor-pointer transition-all duration-200`}
+                                    style={{
+                                        background:
+                                            selectedKey === item.key || selectedKey.startsWith(`${item.key}/`)
+                                                ? `linear-gradient(to right, ${colors.blue.b1}22, ${colors.blue.b6}11)` // đuôi "22" và "11" là opacity (hex)
+                                                : "transparent",
+                                        color:
+                                            selectedKey === item.key || selectedKey.startsWith(`${item.key}/`)
+                                                ? colors.blue.b1
+                                                : colors.gray.g1,
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        (e.currentTarget.style.background = `linear-gradient(to right, ${colors.blue.b1}22, ${colors.blue.b6}11)`);
+                                        (e.currentTarget.style.color = colors.blue.b1);
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        if (
+                                            !(selectedKey === item.key || selectedKey.startsWith(`${item.key}/`))
+                                        ) {
+                                            e.currentTarget.style.background = "transparent";
+                                            e.currentTarget.style.color = colors.gray.g1;
+                                        }
+                                    }}
+                                    onClick={() => handleMenuClick(item)}
+                                >
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span className="ml-2 text-sm">{item.label}</span>
+                                </div>
 
                             )}
                             {item.subMenu && openMenuKey === item.key && (
@@ -205,12 +209,18 @@ const DashboardLayout = () => {
                     className="fixed top-0 left-0 w-full h-20 flex items-center justify-end px-12 z-10"
                 >
                     <div className="flex items-center space-x-3 text-gray-700 font-bold">
-                        <span className="font-medium">Nguyen Van A</span>
-                        <img
-                            src={logo}
-                            alt="Avatar"
-                            className="w-9 h-9 rounded-full border border-white/30"
-                        />
+                        <span className="font-medium">{profile?.fullName || 'Người dùng'}</span>
+                        {profile?.avatarUrl ? (
+                            <img
+                                src={profile.avatarUrl}
+                                alt={profile?.fullName || 'Avatar'}
+                                className="w-9 h-9 rounded-full border border-white/30 object-cover"
+                            />
+                        ) : (
+                            <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold">
+                                {(profile?.fullName || 'U').charAt(0).toUpperCase()}
+                            </div>
+                        )}
                     </div>
                 </header>
                 <main className="flex-1 p-4 overflow-y-auto z-20">

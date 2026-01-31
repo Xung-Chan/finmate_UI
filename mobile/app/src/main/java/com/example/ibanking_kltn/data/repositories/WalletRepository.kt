@@ -4,10 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.example.ibanking_kltn.data.api.WalletApi
-import com.example.ibanking_kltn.data.dtos.requests.WalletVerificationRequest
-import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
-import com.example.ibanking_kltn.data.dtos.responses.WalletVerificationResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.requests.WalletVerificationRequest
+import com.example.ibanking_kltn.dtos.responses.WalletResponse
+import com.example.ibanking_kltn.dtos.responses.WalletVerificationResponse
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
 import com.google.gson.Gson

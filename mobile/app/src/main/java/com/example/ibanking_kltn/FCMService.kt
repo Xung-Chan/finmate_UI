@@ -2,30 +2,44 @@ package com.example.ibanking_kltn
 
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.example.ibanking_kltn.data.di.TokenManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import jakarta.inject.Inject
 
-class MyFirebaseMessagingService : FirebaseMessagingService() {
+@AndroidEntryPoint
+class FCMService : FirebaseMessagingService() {
+    //    @Inject
+//    lateinit var appScope: AppCoroutineScope
+//
+//    @Inject
+//    lateinit var fcmRepository: FCMRepository
+//
+//    @Inject
+//    lateinit var biometricManager: BiometricManager
+    @Inject
+    lateinit var tokenManager: TokenManager
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-
-        // TODO: gửi token này lên server
-        Log.d("FCM", "New token: $token")
+        tokenManager.setFcmToken(token)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-
-        val title = remoteMessage.data["title"]
-        val body = remoteMessage.data["body"]
-        val screen = remoteMessage.data["screen"]
-
-        showNotification(title, body, screen)
+        val data = remoteMessage.notification
+        Log.d(
+            "FCM",
+            "Message received from: ${remoteMessage.from}, data: ${data?.body}, title: ${data?.title}"
+        )
+        if (data != null) {
+            showNotification(data.title, data.body, null)
+            return
+        }
     }
 
     private fun showNotification(
@@ -54,7 +68,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .build()
 
         val manager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         manager.notify(System.currentTimeMillis().toInt(), notification)
     }

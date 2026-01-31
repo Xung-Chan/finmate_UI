@@ -63,6 +63,7 @@ const API_ROUTES = {
         // both
         createSingleUser: `${baseURL}/api/users/management/`, //done
         getStatsUsers: `${baseURL}/api/users/statistics/summary`,
+        getProfile: `${baseURL}/api/accounts/profile/me`, //done
 
         //admin
         createBatchUsers: `${baseURL}/api/users/management/create-batch-users`,

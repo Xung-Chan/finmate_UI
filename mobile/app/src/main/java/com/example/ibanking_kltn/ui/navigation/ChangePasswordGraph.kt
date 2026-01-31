@@ -8,8 +8,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.example.ibanking_kltn.ui.AppGraph
-import com.example.ibanking_kltn.ui.Screens
+import com.example.ibanking_kltn.dtos.definitions.AppGraph
+import com.example.ibanking_kltn.dtos.definitions.Screens
 import com.example.ibanking_kltn.ui.event.ChangePasswordEffect
 import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
 import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen

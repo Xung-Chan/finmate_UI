@@ -1,8 +1,8 @@
 package com.example.ibanking_kltn.data.repositories
 
 import com.example.ibanking_kltn.data.api.AiApi
-import com.example.ibanking_kltn.data.dtos.responses.AnalyzeResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.responses.AnalyzeResponse
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
 

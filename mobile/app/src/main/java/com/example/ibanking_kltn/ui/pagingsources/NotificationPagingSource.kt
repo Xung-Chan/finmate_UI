@@ -2,9 +2,9 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.ibanking_kltn.data.dtos.NotificationType
-import com.example.ibanking_kltn.data.dtos.requests.NotificationRequest
-import com.example.ibanking_kltn.data.dtos.responses.NotificationResponse
+import com.example.ibanking_kltn.dtos.definitions.NotificationType
+import com.example.ibanking_kltn.dtos.requests.NotificationRequest
+import com.example.ibanking_kltn.dtos.responses.NotificationResponse
 import com.example.ibanking_kltn.data.repositories.NotificationRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 import java.time.LocalDate

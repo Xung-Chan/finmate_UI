@@ -1,6 +1,6 @@
 package com.example.ibanking_kltn.ui.event
 
-import com.example.ibanking_kltn.data.dtos.MoneyFlowType
+import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 
 

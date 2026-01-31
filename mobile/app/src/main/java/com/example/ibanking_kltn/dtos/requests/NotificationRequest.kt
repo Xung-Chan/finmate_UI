@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.data.dtos.requests
+package com.example.ibanking_kltn.dtos.requests
 
 data class NotificationRequest(
     val fromDate: String,

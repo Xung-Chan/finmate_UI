@@ -1,8 +1,8 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.requests.ChangePasswordRequest
-import com.example.ibanking_kltn.data.dtos.responses.UpdateAvatarResponse
-import com.example.ibanking_kltn.data.dtos.responses.UserInfoResponse
+import com.example.ibanking_kltn.dtos.requests.ChangePasswordRequest
+import com.example.ibanking_kltn.dtos.responses.UpdateAvatarResponse
+import com.example.ibanking_kltn.dtos.responses.UserInfoResponse
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body

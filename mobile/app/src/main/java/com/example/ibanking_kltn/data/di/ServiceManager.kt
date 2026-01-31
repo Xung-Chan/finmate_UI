@@ -2,8 +2,8 @@ package com.example.ibanking_kltn.data.di
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.ibanking_kltn.data.dtos.ServiceCategory
-import com.example.ibanking_kltn.data.dtos.ServiceItem
+import com.example.ibanking_kltn.dtos.definitions.ServiceCategory
+import com.example.ibanking_kltn.dtos.definitions.ServiceItem
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow

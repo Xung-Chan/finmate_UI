@@ -1,9 +1,9 @@
-package com.example.ibanking_kltn.data.dtos.responses
+package com.example.ibanking_kltn.dtos.responses
 
-import com.example.ibanking_kltn.data.dtos.BillingCycleStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterAccountStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.definitions.BillingCycleStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterAccountStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
 
 data class PayLaterResponse(
     val approvedAt: String,

@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.ui.event
 
-import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
-import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
+import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
+import com.example.ibanking_kltn.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 

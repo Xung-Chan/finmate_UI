@@ -2,7 +2,7 @@ package com.example.ibanking_kltn.data.di
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.example.ibanking_kltn.data.dtos.LastLoginUser
+import com.example.ibanking_kltn.dtos.definitions.LastLoginUser
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.serialization.json.Json
@@ -16,6 +16,16 @@ class TokenManager @Inject constructor(
 
     private val LAST_LOGIN = "LAST_LOGIN_USER"
 
+    private val FCM_TOKEN ="FCM_TOKEN"
+
+    fun setFcmToken(fcmToken: String) {
+        sharedPreferences.edit {
+            putString(FCM_TOKEN, fcmToken)
+        }
+    }
+    fun getFcmToken(): String? {
+        return sharedPreferences.getString(FCM_TOKEN, null)
+    }
     fun getAccessToken(): String? {
         return sharedPreferences.getString(ACCESS_KEY, null)
     }

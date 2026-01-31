@@ -1,7 +1,7 @@
-package com.example.ibanking_kltn.data.dtos.requests
+package com.example.ibanking_kltn.dtos.requests
 
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
 import java.time.LocalDate
 
 data class PayLaterApplicationRequest(

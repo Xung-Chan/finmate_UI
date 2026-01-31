@@ -2,11 +2,11 @@ package com.example.ibanking_kltn.ui.pagingsources
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.ibanking_kltn.data.dtos.AccountType
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionRequest
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.definitions.AccountType
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.requests.FilterTransactionPara
+import com.example.ibanking_kltn.dtos.requests.FilterTransactionRequest
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 import java.time.LocalDate

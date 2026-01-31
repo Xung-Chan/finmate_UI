@@ -1,7 +1,6 @@
 // src/pages/auth/LoginPage.tsx
 import React from "react";
 import { Button, Form, Input } from "antd";
-import { Link } from '@tanstack/react-router'
 import { useLogin } from "@/hooks/auth.hook";
 import type { LoginRequest } from "@/types/auth.type";
 // import { forgotPasswordRoute } from '@/routes/auth'
@@ -65,15 +64,6 @@ const LoginPage: React.FC = () => {
                         Đăng nhập
                     </Button>
                 </Form.Item>
-
-                <div className="flex justify-center">
-                    {/* <Link to={forgotPasswordRoute.to} className="text-gray-600 hover:text-green-700 hover:underline">
-                        Quên mật khẩu?
-                    </Link> */}
-                    <Link to={"/forgot-password"} className="text-gray-600 hover:text-green-700 hover:underline">
-                        Quên mật khẩu?
-                    </Link>
-                </div>
             </Form>
         </>
     );

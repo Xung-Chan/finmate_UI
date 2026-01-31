@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.BillingCycleStatus
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.dtos.definitions.BillingCycleStatus
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.responses.BillingCycleResonse
 import com.example.ibanking_kltn.ui.event.BillingCycleEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1

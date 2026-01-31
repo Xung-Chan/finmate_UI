@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.example.ibanking_kltn.data.dtos.AccountType
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.TransactionStatus
-import com.example.ibanking_kltn.data.dtos.requests.FilterTransactionPara
+import com.example.ibanking_kltn.dtos.definitions.AccountType
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
+import com.example.ibanking_kltn.dtos.requests.FilterTransactionPara
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.pagingsources.TransactionHistoryPagingSource

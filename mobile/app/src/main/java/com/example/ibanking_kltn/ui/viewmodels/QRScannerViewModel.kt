@@ -5,11 +5,11 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.BillPayload
-import com.example.ibanking_kltn.data.dtos.QRPayload
-import com.example.ibanking_kltn.data.dtos.QRType
-import com.example.ibanking_kltn.data.dtos.TransferPayload
-import com.example.ibanking_kltn.ui.Screens
+import com.example.ibanking_kltn.dtos.definitions.BillPayload
+import com.example.ibanking_kltn.dtos.definitions.QRPayload
+import com.example.ibanking_kltn.dtos.definitions.QRType
+import com.example.ibanking_kltn.dtos.definitions.TransferPayload
+import com.example.ibanking_kltn.dtos.definitions.Screens
 import com.example.ibanking_kltn.ui.event.QrScannerEffect
 import com.example.ibanking_kltn.ui.event.QrScannerEvent
 import com.example.ibanking_kltn.ui.uistates.QRScannerUiState

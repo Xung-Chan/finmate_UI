@@ -1,6 +1,6 @@
-package com.example.ibanking_kltn.data.dtos.requests
+package com.example.ibanking_kltn.dtos.requests
 
-import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
 
 data class CreateBillRequest(
     val amount: Long,

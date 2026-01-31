@@ -4,11 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.SavedReceiverManager
-import com.example.ibanking_kltn.data.dtos.SavedReceiverInfo
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.responses.ExpenseType
+import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.event.TransferEffect
 import com.example.ibanking_kltn.ui.event.TransferEvent
 import com.example.ibanking_kltn.ui.uistates.ConfirmContent
@@ -33,6 +34,7 @@ class TransferViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val walletRepository: WalletRepository,
     private val savedReceiverManager: SavedReceiverManager,
+    private val userSession: UserSession,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(TransferUiState())
@@ -188,6 +190,25 @@ class TransferViewModel @Inject constructor(
             when (apiResult) {
                 is ApiResult.Success -> {
                     val walletResponse = apiResult.data
+                    if(walletResponse.walletNumber == userSession.user.value?.wallet?.walletNumber){
+                        val message = "Không thể chuyển tiền cho chính mình"
+                        _uiState.update {
+                            it.copy(
+                                screenState = StateType.FAILED(message),
+                                toMerchantName = "",
+                            )
+                        }
+                        _uiEffect.emit(
+                            TransferEffect.ShowSnackBar(
+                                SnackBarUiState(
+                                    message = message,
+                                    type = SnackBarType.ERROR
+                                )
+                            )
+                        )
+                        return@launch
+                    }
+
                     _uiState.update {
                         it.copy(
                             screenState = StateType.SUCCESS,

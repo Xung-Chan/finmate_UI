@@ -3,8 +3,8 @@ package com.example.ibanking_kltn.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.di.ServiceManager
-import com.example.ibanking_kltn.data.dtos.ServiceCategory
-import com.example.ibanking_kltn.data.dtos.ServiceItem
+import com.example.ibanking_kltn.dtos.definitions.ServiceCategory
+import com.example.ibanking_kltn.dtos.definitions.ServiceItem
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.uistates.AppUiState
 import com.example.ibanking_kltn.utils.SnackBarType

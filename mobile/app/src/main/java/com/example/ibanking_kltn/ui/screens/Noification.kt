@@ -39,8 +39,8 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.NotificationType
-import com.example.ibanking_kltn.data.dtos.responses.NotificationResponse
+import com.example.ibanking_kltn.dtos.definitions.NotificationType
+import com.example.ibanking_kltn.dtos.responses.NotificationResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1

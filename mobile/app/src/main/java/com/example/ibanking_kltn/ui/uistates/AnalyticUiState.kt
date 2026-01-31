@@ -1,9 +1,9 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.MoneyFlowType
-import com.example.ibanking_kltn.data.dtos.responses.AnalyzeResponse
-import com.example.ibanking_kltn.data.dtos.responses.DistributionStatisticResponse
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
+import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
+import com.example.ibanking_kltn.dtos.responses.AnalyzeResponse
+import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
 import java.time.LocalDate
 
 data class AnalyticUiState(

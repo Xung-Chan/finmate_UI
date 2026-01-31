@@ -2,8 +2,8 @@ package com.example.ibanking_kltn.data.security
 
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.di.TokenManager
-import com.example.ibanking_kltn.data.dtos.requests.RefreshTokenRequest
-import com.example.ibanking_kltn.data.dtos.responses.LoginResponse
+import com.example.ibanking_kltn.dtos.requests.RefreshTokenRequest
+import com.example.ibanking_kltn.dtos.responses.LoginResponse
 import jakarta.inject.Inject
 import jakarta.inject.Named
 import jakarta.inject.Singleton

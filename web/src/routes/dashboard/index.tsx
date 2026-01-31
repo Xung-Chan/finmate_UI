@@ -22,25 +22,20 @@ export const usermanagementRoute = createRoute({
     component: () => <div><Outlet /></div>
 });
 
-export const userListRoute = createRoute({
-    getParentRoute: () => usermanagementRoute,
-    path: "list",
-    component: () => <div><Outlet /></div>
-});
 export const userListIndexRoute = createRoute({
-    getParentRoute: () => userListRoute,
+    getParentRoute: () => usermanagementRoute,
     path: "/",
     component: UserManagementPage,
 });
 
 export const addUserDetailRoute = createRoute({
-    getParentRoute: () => userListRoute,
+    getParentRoute: () => usermanagementRoute,
     path: "detail",
     component: UserDetailPage,
 });
 
 export const editUserDetailRoute = createRoute({
-    getParentRoute: () => userListRoute,
+    getParentRoute: () => usermanagementRoute,
     path: "detail/$userId/edit",
     component: UserDetailPage,
 });

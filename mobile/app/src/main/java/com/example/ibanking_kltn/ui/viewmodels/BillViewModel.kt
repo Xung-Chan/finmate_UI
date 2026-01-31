@@ -3,9 +3,10 @@ package com.example.ibanking_kltn.ui.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.BillStatus
-import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
 import com.example.ibanking_kltn.data.repositories.BillRepository
+import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.event.PayBillEffect
 import com.example.ibanking_kltn.ui.event.PayBillEvent
 import com.example.ibanking_kltn.ui.uistates.BillUiState
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class BillViewModel @Inject constructor(
     private val billRepository: BillRepository,
+    private val userSession: UserSession,
     private val savedStateHandle: SavedStateHandle
 
 ) : ViewModel() {
@@ -65,9 +67,8 @@ class BillViewModel @Inject constructor(
             )
             when (billResult) {
                 is ApiResult.Success -> {
-
                     val data = billResult.data
-                    if (data.billStatus != BillStatus.ACTIVE) {
+                    if (data.billStatus != BillStatus.ACTIVE || data.walletNumber == userSession.user.value?.wallet?.walletNumber) {
                         _uiState.update {
                             it.copy(screenState = StateType.FAILED(message = "Hóa đơn không hợp lệ"))
                         }

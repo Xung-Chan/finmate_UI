@@ -1,12 +1,12 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillingCyclesRequest
-import com.example.ibanking_kltn.data.dtos.requests.FilterPayLaterApplicationRequest
-import com.example.ibanking_kltn.data.dtos.requests.PayLaterApplicationRequest
-import com.example.ibanking_kltn.data.dtos.responses.BillingCycleResonse
-import com.example.ibanking_kltn.data.dtos.responses.PayLaterApplicationResponse
-import com.example.ibanking_kltn.data.dtos.responses.PayLaterResponse
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.FilterBillingCyclesRequest
+import com.example.ibanking_kltn.dtos.requests.FilterPayLaterApplicationRequest
+import com.example.ibanking_kltn.dtos.requests.PayLaterApplicationRequest
+import com.example.ibanking_kltn.dtos.responses.BillingCycleResonse
+import com.example.ibanking_kltn.dtos.responses.PayLaterApplicationResponse
+import com.example.ibanking_kltn.dtos.responses.PayLaterResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET

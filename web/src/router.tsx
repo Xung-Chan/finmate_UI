@@ -6,7 +6,6 @@ import { rootRoute } from "@/routes/root";
 import {
     usermanagementRoute,
     userListIndexRoute,
-    userListRoute,
     addUserDetailRoute,
     editUserDetailRoute,
     walletNormalManagementRoute,
@@ -40,11 +39,9 @@ export const routeTree = rootRoute.addChildren([
     dashboardLayoutRoute.addChildren([
         transactionAnalyticsRoute,
         usermanagementRoute.addChildren([
-            userListRoute.addChildren([
-                userListIndexRoute,
-                addUserDetailRoute,
-                editUserDetailRoute,
-            ]),
+            userListIndexRoute,
+            addUserDetailRoute,
+            editUserDetailRoute,
         ]),
         walletManagementRoute.addChildren([
             walletNormalManagementRoute.addChildren([

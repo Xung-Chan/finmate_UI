@@ -6,6 +6,7 @@ import type {
     CreateSingleUserRequest,
     CreateBatchUserRequest,
     UpdateStatusUserRequest,
+    ProfileResponse
 } from "@/types/user.type";
 import type { AxiosError } from "axios";
 import type { ErrorResponse } from "@/types/error.type";
@@ -132,8 +133,15 @@ export function useUnbanUser() {
     },
   });
 }
-
-
+export function useGetProfile() {
+    return useQuery<ProfileResponse>({
+        queryKey: ['getProfile'],
+        queryFn: async () => {
+            const res = await userService.getProfile();
+            return res;
+        }
+    });
+}
 // helpers
 function updateUserStatusInCache(
   queryClient: ReturnType<typeof useQueryClient>,

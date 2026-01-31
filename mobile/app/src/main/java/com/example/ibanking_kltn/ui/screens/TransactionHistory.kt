@@ -42,11 +42,11 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.AccountType
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.TransactionStatus
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.definitions.AccountType
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -300,11 +300,11 @@ fun TransactionHistoryScreen(
                                                 horizontalArrangement = Arrangement.End
                                             ) {
                                                 Text(
-                                                    text = TransactionStatus.entries.first { t -> t.name == transaction.status }.status,
+                                                    text = transaction.status.status,
                                                     style = AppTypography.bodySmall,
                                                     color = when (transaction.status) {
-                                                        TransactionStatus.COMPLETED.name -> Green1
-                                                        TransactionStatus.PENDING.name -> Orange1
+                                                        TransactionStatus.COMPLETED -> Green1
+                                                        TransactionStatus.PENDING -> Orange1
                                                         else -> Red1
                                                     },
                                                 )

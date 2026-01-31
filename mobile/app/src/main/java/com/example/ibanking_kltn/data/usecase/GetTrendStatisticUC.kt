@@ -1,8 +1,8 @@
 package com.example.ibanking_kltn.data.usecase
 
-import com.example.ibanking_kltn.data.dtos.MoneyFlowType
-import com.example.ibanking_kltn.data.dtos.requests.TrendStatisticRequest
-import com.example.ibanking_kltn.data.dtos.responses.TrendStatisticResponse
+import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
+import com.example.ibanking_kltn.dtos.requests.TrendStatisticRequest
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject

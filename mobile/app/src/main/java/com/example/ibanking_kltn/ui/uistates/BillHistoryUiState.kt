@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.ui.uistates
 
-import com.example.ibanking_kltn.data.dtos.SortOption
-import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.SortOption
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
 
 data class BillHistoryUiState(
     val screenState: StateType = StateType.NONE,

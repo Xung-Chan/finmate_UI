@@ -102,7 +102,6 @@ dependencies {
     //Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
     implementation("com.google.firebase:firebase-analytics")
-    // https://mvnrepository.com/artifact/com.google.firebase/firebase-messaging-ktx
     implementation("com.google.firebase:firebase-messaging-ktx:24.1.1")
 
     //biometric

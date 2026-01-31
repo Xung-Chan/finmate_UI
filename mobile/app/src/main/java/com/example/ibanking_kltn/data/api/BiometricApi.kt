@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.requests.RegisterBiometricRequest
-import com.example.ibanking_kltn.data.dtos.responses.RegisterBiometricResponse
+import com.example.ibanking_kltn.dtos.requests.RegisterBiometricRequest
+import com.example.ibanking_kltn.dtos.responses.RegisterBiometricResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST

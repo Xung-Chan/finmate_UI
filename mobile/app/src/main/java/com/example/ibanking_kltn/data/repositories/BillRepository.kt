@@ -1,15 +1,15 @@
 package com.example.ibanking_kltn.data.repositories
 
 import com.example.ibanking_kltn.data.api.BillApi
-import com.example.ibanking_kltn.data.dtos.Pagination
-import com.example.ibanking_kltn.data.dtos.requests.CancelBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.CreateBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.FilterBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.PreparePayBillRequest
-import com.example.ibanking_kltn.data.dtos.requests.PreparePrePaymentRequest
-import com.example.ibanking_kltn.data.dtos.responses.BillResponse
-import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
-import com.example.ibanking_kltn.ui.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.definitions.Pagination
+import com.example.ibanking_kltn.dtos.requests.CancelBillRequest
+import com.example.ibanking_kltn.dtos.requests.CreateBillRequest
+import com.example.ibanking_kltn.dtos.requests.FilterBillRequest
+import com.example.ibanking_kltn.dtos.requests.PreparePayBillRequest
+import com.example.ibanking_kltn.dtos.requests.PreparePrePaymentRequest
+import com.example.ibanking_kltn.dtos.responses.BillResponse
+import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
 

@@ -27,8 +27,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.example.ibanking_kltn.AppSessionEntryPoint
 import com.example.ibanking_kltn.data.di.AppSessionManager
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Gray2

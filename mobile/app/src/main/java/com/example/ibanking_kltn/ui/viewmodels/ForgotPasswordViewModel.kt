@@ -3,11 +3,11 @@ package com.example.ibanking_kltn.ui.viewmodels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.RequestOtpPurpose
-import com.example.ibanking_kltn.data.dtos.requests.RequestOtpRequest
-import com.example.ibanking_kltn.data.dtos.requests.ResetPasswordRequest
-import com.example.ibanking_kltn.data.dtos.requests.SendOtpRequest
-import com.example.ibanking_kltn.data.dtos.requests.VerifyOtpRequest
+import com.example.ibanking_kltn.dtos.definitions.RequestOtpPurpose
+import com.example.ibanking_kltn.dtos.requests.RequestOtpRequest
+import com.example.ibanking_kltn.dtos.requests.ResetPasswordRequest
+import com.example.ibanking_kltn.dtos.requests.SendOtpRequest
+import com.example.ibanking_kltn.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.ui.event.ForgotPasswordEffect
 import com.example.ibanking_kltn.ui.event.ForgotPasswordEvent

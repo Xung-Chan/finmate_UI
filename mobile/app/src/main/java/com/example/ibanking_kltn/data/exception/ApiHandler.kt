@@ -1,6 +1,6 @@
-package com.example.ibanking_kltn.ui.exception
+package com.example.ibanking_kltn.data.exception
 
-import com.example.ibanking_kltn.data.dtos.responses.ErrorResponse
+import com.example.ibanking_kltn.dtos.responses.ErrorResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +12,6 @@ import java.net.URL
 
 suspend fun <T> safeApiCall(
     apiCall: suspend () -> Response<T>,
-//    dictionary: ErrorDictionary
 ): ApiResult<T> {
     try {
         if (!hasInternetConnection()) {

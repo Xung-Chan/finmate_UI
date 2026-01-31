@@ -32,14 +32,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.event.DepositEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -59,12 +60,10 @@ import com.example.ibanking_kltn.utils.formatterVND
 fun GatewayDeposit(
     uiState: DepositUiState,
     onBackClick: () -> Unit,
-    onContinuePayment: () -> Unit,
-    onChangeAmount: (String) -> Unit,
-    isEnableContinue: Boolean,
+    onEvent: (DepositEvent) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
-
+    val context = LocalContext.current
     LoadingScaffold(isLoading = uiState.screenState is StateType.LOADING) {
         Scaffold(
             topBar = {
@@ -146,7 +145,7 @@ fun GatewayDeposit(
                                     imeAction = ImeAction.Done
 
                                 ),
-                                keyboardActions = KeyboardActions (
+                                keyboardActions = KeyboardActions(
                                     onDone = {
                                         focusManager.clearFocus()
                                     }
@@ -162,7 +161,7 @@ fun GatewayDeposit(
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 onValueChange = {
-                                    onChangeAmount(it)
+                                    onEvent(DepositEvent.AmountChange(it))
                                 }
                             )
                         }
@@ -173,7 +172,11 @@ fun GatewayDeposit(
                         ) {
                             HintAmount(
                                 onAmountClick = { amount ->
-                                    onChangeAmount(formatterVND(amount))
+                                    onEvent(
+                                        DepositEvent.AmountChange(
+                                            formatterVND(amount)
+                                        )
+                                    )
                                     focusManager.clearFocus()
                                 }
                             )
@@ -191,9 +194,9 @@ fun GatewayDeposit(
                 ) {
 
                     CustomTextButton(
-                        enable = isEnableContinue,
+                        enable = uiState.isEnableContinue,
                         onClick = {
-                            onContinuePayment()
+                            onEvent(DepositEvent.ContinuePayment(context))
                         },
                         isLoading = false,
                         modifier = Modifier
@@ -258,17 +261,17 @@ fun HintAmount(
     }
 }
 
-@Composable
-@Preview(showSystemUi = true)
-fun PreviewDeposit() {
-    GatewayDeposit(
-        uiState = DepositUiState(
-            screenState = StateType.NONE,
-            amount = 0L,
-        ),
-        onBackClick = {},
-        onContinuePayment = {},
-        onChangeAmount = {},
-        isEnableContinue = false
-    )
-}
+//@Composable
+//@Preview(showSystemUi = true)
+//fun PreviewDeposit() {
+//    GatewayDeposit(
+//        uiState = DepositUiState(
+//            screenState = StateType.NONE,
+//            amount = 0L,
+//        ),
+//        onBackClick = {},
+//        onContinuePayment = {},
+//        onChangeAmount = {},
+//        isEnableContinue = false
+//    )
+//}

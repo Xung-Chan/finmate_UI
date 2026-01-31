@@ -8,7 +8,8 @@ import type {
     CreateSingleUserRequest,
     CreateBatchUserRequest,
     UpdateStatusUserRequest,
-    UserPaginationResponse
+    UserPaginationResponse,
+    ProfileResponse
 } from "@/types/user.type";
 
 export const userService = {
@@ -33,5 +34,9 @@ export const userService = {
         },
     unbanUser: async(data: UpdateStatusUserRequest): Promise<void> => {    
         await httpClient.post<void>(API_ROUTES.user.unbanUser, data);
+    },
+    getProfile: async(): Promise<ProfileResponse> => {    
+        const response: AxiosResponse<ProfileResponse> = await httpClient.get<ProfileResponse>(API_ROUTES.user.getProfile);
+        return response.data;
     }
 }

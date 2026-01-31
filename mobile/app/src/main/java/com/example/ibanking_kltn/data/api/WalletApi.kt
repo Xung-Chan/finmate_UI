@@ -1,7 +1,7 @@
 package com.example.ibanking_kltn.data.api
 
-import com.example.ibanking_kltn.data.dtos.responses.WalletResponse
-import com.example.ibanking_kltn.data.dtos.responses.WalletVerificationResponse
+import com.example.ibanking_kltn.dtos.responses.WalletResponse
+import com.example.ibanking_kltn.dtos.responses.WalletVerificationResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response

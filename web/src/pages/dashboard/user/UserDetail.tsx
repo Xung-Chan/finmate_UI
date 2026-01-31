@@ -12,7 +12,7 @@ import NumberInput from "@/components/NumberInput";
 import Section from "@/components/Section";
 import { colors } from "@/theme/color";
 import dayjs from "dayjs";
-import { userListRoute } from "@/routes/dashboard";
+import { usermanagementRoute } from "@/routes/dashboard";
 import { useCreateSingleUser } from "@/hooks/user.hook";
 
 const UserDetailPage: React.FC = () => {
@@ -51,7 +51,7 @@ const UserDetailPage: React.FC = () => {
       <h2 className="text-2xl text-black font-bold flex items-center">
         <ArrowLeftOutlined
           className="mr-4 cursor-pointer"
-          onClick={() => navigate({ to: userListRoute.to })}
+          onClick={() => navigate({ to: usermanagementRoute.to })}
         />
         Tạo tài khoản mới
       </h2>

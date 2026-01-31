@@ -10,6 +10,7 @@ import com.example.ibanking_kltn.data.api.AiApi
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
 import com.example.ibanking_kltn.data.api.BiometricApi
+import com.example.ibanking_kltn.data.api.FCMApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.NotificationApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
@@ -112,6 +113,15 @@ object NetworkModule {
         retrofit: Retrofit
     ): NonAuthApi {
         return retrofit.create(NonAuthApi::class.java)
+
+    }
+    @Singleton
+    @Provides
+    fun provideFcmApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): FCMApi {
+        return retrofit.create(FCMApi::class.java)
 
     }
 

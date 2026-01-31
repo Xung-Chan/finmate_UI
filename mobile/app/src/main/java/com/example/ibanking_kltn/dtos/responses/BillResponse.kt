@@ -1,6 +1,6 @@
-package com.example.ibanking_kltn.data.dtos.responses
+package com.example.ibanking_kltn.dtos.responses
 
-import com.example.ibanking_kltn.data.dtos.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
 
 data class BillResponse(
     val amount: Long,

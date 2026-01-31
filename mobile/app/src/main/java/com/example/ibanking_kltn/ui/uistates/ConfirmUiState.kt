@@ -1,9 +1,9 @@
 package com.example.ibanking_kltn.ui.uistates
 
 import android.os.Parcelable
-import com.example.ibanking_kltn.data.dtos.PaymentAccount
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.responses.PrepareTransactionResponse
+import com.example.ibanking_kltn.dtos.definitions.PaymentAccount
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
 import kotlinx.parcelize.Parcelize
 
 

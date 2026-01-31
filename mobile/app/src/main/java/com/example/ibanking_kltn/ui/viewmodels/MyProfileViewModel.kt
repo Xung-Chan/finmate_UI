@@ -3,7 +3,7 @@ package com.example.ibanking_kltn.ui.viewmodels
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.VerificationStatus
+import com.example.ibanking_kltn.dtos.definitions.VerificationStatus
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.data.session.UserSession
@@ -206,8 +206,7 @@ class MyProfileViewModel @Inject constructor(
                                 )
                             )
                         )
-                    }
-                    else {
+                    } else {
                         _uiEffect.emit(
                             MyProfileEffect.NavigateToVerificationRequest
                         )
@@ -217,11 +216,16 @@ class MyProfileViewModel @Inject constructor(
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
-                            screenState = StateType.SUCCESS
+                            screenState = StateType.FAILED(verification.message)
                         )
                     }
                     _uiEffect.emit(
-                        MyProfileEffect.NavigateToVerificationRequest
+                        MyProfileEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Kết nối mạng không ổn định. Vui lòng thử lại sau.",
+                                type = SnackBarType.ERROR
+                            )
+                        )
                     )
                 }
             }

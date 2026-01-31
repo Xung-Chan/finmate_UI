@@ -2,13 +2,16 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.ibanking_kltn.data.di.BiometricManager
 import com.example.ibanking_kltn.data.di.ServiceManager
 import com.example.ibanking_kltn.data.di.TokenManager
-import com.example.ibanking_kltn.data.dtos.LastLoginUser
-import com.example.ibanking_kltn.data.dtos.ServiceCategory
+import com.example.ibanking_kltn.data.repositories.FCMRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.data.usecase.GetMyProfileUC
 import com.example.ibanking_kltn.data.usecase.GetMyWalletUC
+import com.example.ibanking_kltn.dtos.definitions.LastLoginUser
+import com.example.ibanking_kltn.dtos.definitions.ServiceCategory
+import com.example.ibanking_kltn.dtos.requests.RegisterFcmRequest
 import com.example.ibanking_kltn.ui.event.HomeEffect
 import com.example.ibanking_kltn.ui.event.HomeEvent
 import com.example.ibanking_kltn.ui.uistates.HomeUiState
@@ -30,8 +33,10 @@ import kotlinx.coroutines.launch
 class HomeViewModel @Inject constructor(
     private val serviceManager: ServiceManager,
     private val tokenManager: TokenManager,
+    private val biometricManager: BiometricManager,
     private val getMyProfileUC: GetMyProfileUC,
     private val getMyWalletUC: GetMyWalletUC,
+    private val fcmRepository: FCMRepository,
     private val userSession: UserSession
 
 ) : ViewModel() {
@@ -137,6 +142,28 @@ class HomeViewModel @Inject constructor(
                     )
                 )
                 return@launch
+            }
+            var deviceId = biometricManager.getDeviceToken()
+            if(deviceId==null){
+                deviceId = biometricManager.generateDeviceToken()
+            }
+            val fcmToken = tokenManager.getFcmToken()
+            val fcmResult = fcmRepository.registerFcm(
+                request = RegisterFcmRequest(
+                    deviceId =deviceId,
+                    fcmToken = fcmToken?:"",
+                    deviceType = "Android"
+                )
+            )
+            if(fcmResult is ApiResult.Error){
+                _uiEffect.emit(
+                    HomeEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = fcmResult.message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
             }
             _uiState.update {
                 it.copy(

@@ -26,12 +26,10 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.data.dtos.ServiceType
-import com.example.ibanking_kltn.data.dtos.TransactionStatus
-import com.example.ibanking_kltn.data.dtos.responses.TransactionHistoryResponse
+import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
+import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -86,7 +84,7 @@ fun TransactionDetailScreen(
                 ) {
                     Text(
                         "Lỗi tải thông tin giao dịch",
-                        style = AppTypography.titleSmall,
+                        style = AppTypography.bodySmall,
                         color = Red1
                     )
                 }
@@ -114,7 +112,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Mã giao dịch",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1
 
                         )
@@ -126,7 +124,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.id,
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                         )
                     }
@@ -140,7 +138,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Tài khoản nguồn",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -152,7 +150,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.sourceAccountNumber,
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                         )
                     }
@@ -168,7 +166,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Tài khoản đích",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -180,7 +178,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.toWalletNumber,
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                         )
                     }
@@ -195,7 +193,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Nội dung",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -207,7 +205,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.description,
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                             textAlign = TextAlign.End
                         )
@@ -222,7 +220,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Ngày",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -236,7 +234,7 @@ fun TransactionDetailScreen(
                             text = formatterDateTimeString(
                                 LocalDateTime.parse(transaction.processedAt)
                             ),
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                         )
                     }
@@ -251,7 +249,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Dịch vụ",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -263,7 +261,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = transaction.transactionType.serviceName,
-                            style = AppTypography.titleSmall,
+                            style = AppTypography.bodySmall,
                             color = Black1,
                         )
                     }
@@ -277,7 +275,7 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = "Trạng thái",
-                            style = AppTypography.bodyLarge,
+                            style = AppTypography.bodyMedium,
                             color = Gray1,
 
                             )
@@ -289,17 +287,17 @@ fun TransactionDetailScreen(
                     ) {
                         Text(
                             text = when (transaction.status) {
-                                TransactionStatus.COMPLETED.name -> "Thành công"
-                                TransactionStatus.PENDING.name -> "Đang xử lý"
-                                TransactionStatus.CANCELED.name -> "Đã hủy"
+                                TransactionStatus.COMPLETED -> "Thành công"
+                                TransactionStatus.PENDING -> "Đang xử lý"
+                                TransactionStatus.CANCELED -> "Đã hủy"
                                 else -> "Thất bại"
                             },
-                            style = AppTypography.titleSmall.copy(
+                            style = AppTypography.bodySmall.copy(
                                 fontWeight = FontWeight.SemiBold
                             ),
                             color = when (transaction.status) {
-                                TransactionStatus.COMPLETED.name -> Green1
-                                TransactionStatus.PENDING.name -> Orange1
+                                TransactionStatus.COMPLETED -> Green1
+                                TransactionStatus.PENDING -> Orange1
                                 else -> Red1
                             },
                         )
@@ -354,24 +352,24 @@ fun TransactionDetailScreen(
     }
 }
 
-@Preview(
-    showBackground = true, showSystemUi = true
-
-)
-@Composable
-fun TransactionDetailPreview() {
-    TransactionDetailScreen(
-        transaction = TransactionHistoryResponse(
-            id = "TX123456789",
-            amount = 1500000.0,
-            description = "Chuyển tiền cho Nguyễn Văn A",
-            processedAt = "2024-06-15T10:30:00",
-            sourceAccountNumber = "1234567890",
-            sourceBalanceUpdated = 5000000.0,
-            status = "COMPLETED",
-            toWalletNumber = "0987654321",
-            transactionType = ServiceType.TRANSFER
-        ),
-        onBackClick = {}
-    )
-}
+//@Preview(
+//    showBackground = true, showSystemUi = true
+//
+//)
+//@Composable
+//fun TransactionDetailPreview() {
+//    TransactionDetailScreen(
+//        transaction = TransactionHistoryResponse(
+//            id = "TX123456789",
+//            amount = 1500000.0,
+//            description = "Chuyển tiền cho Nguyễn Văn A",
+//            processedAt = "2024-06-15T10:30:00",
+//            sourceAccountNumber = "1234567890",
+//            sourceBalanceUpdated = 5000000.0,
+//            status = "COMPLETED",
+//            toWalletNumber = "0987654321",
+//            transactionType = ServiceType.TRANSFER
+//        ),
+//        onBackClick = {}
+//    )
+//}

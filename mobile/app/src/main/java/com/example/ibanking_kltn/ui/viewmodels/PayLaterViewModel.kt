@@ -2,8 +2,8 @@ package com.example.ibanking_kltn.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
-import com.example.ibanking_kltn.data.dtos.requests.PayLaterApplicationRequest
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.requests.PayLaterApplicationRequest
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.ui.uistates.PayLaterUiState

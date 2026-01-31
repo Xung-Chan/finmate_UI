@@ -28,9 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.ibanking_kltn.data.dtos.BillPayload
-import com.example.ibanking_kltn.data.dtos.BillStatus
-import com.example.ibanking_kltn.data.dtos.responses.BillResponse
+import com.example.ibanking_kltn.dtos.definitions.BillPayload
+import com.example.ibanking_kltn.dtos.definitions.BillStatus
+import com.example.ibanking_kltn.dtos.responses.BillResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1

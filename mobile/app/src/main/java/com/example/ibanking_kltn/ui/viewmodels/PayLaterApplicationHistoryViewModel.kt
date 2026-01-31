@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationStatus
-import com.example.ibanking_kltn.data.dtos.PayLaterApplicationType
-import com.example.ibanking_kltn.data.dtos.requests.FilterPayLaterApplicationPara
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
+import com.example.ibanking_kltn.dtos.requests.FilterPayLaterApplicationPara
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.ui.pagingsources.PayLaterApplicationHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.PayLaterApplicationHistoryUiState

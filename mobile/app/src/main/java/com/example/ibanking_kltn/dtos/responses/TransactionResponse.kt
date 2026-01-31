@@ -1,6 +1,7 @@
-package com.example.ibanking_kltn.data.dtos.responses
+package com.example.ibanking_kltn.dtos.responses
 
-import com.example.ibanking_kltn.data.dtos.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
+import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
 
 data class PrepareTransactionResponse(
     val retryTokenOtp: String,
@@ -19,7 +20,7 @@ data class DepositTransactionResponse(
     val url: String
 )
 
-data class HandleVNPayReturnResponse(
+data class TransactionResponse(
     val transactionId: String
 )
 
@@ -31,7 +32,7 @@ data class  TransactionHistoryResponse(
     val processedAt: String,
     val sourceAccountNumber: String,
     val sourceBalanceUpdated: Double,
-    val status: String,
+    val status: TransactionStatus,
     val toWalletNumber: String?,
     val transactionType: ServiceType
 )

@@ -11,7 +11,7 @@ export interface UserResource {
     gender?: "MALE" | "FEMALE";
     address?: string;
     cardId?: string;
-    status: UserStatus;
+    status?: UserStatus;
 }
 
 export interface FilterUsers {
@@ -33,6 +33,7 @@ export interface UpdateStatusUserRequest {
     usernames: [string];
 }
 
+export type ProfileResponse = UserResource;
 export interface CreateBatchUserRequest extends CreateSingleUserRequest { }
 
 export type UserPaginationResponse = PaginationResponse<UserResource>;
