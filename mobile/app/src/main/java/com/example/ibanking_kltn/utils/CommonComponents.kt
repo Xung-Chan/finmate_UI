@@ -37,6 +37,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -124,6 +126,7 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Blue5
+import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.ErrorGradient
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
@@ -2324,6 +2327,251 @@ fun CustomDatePicker(
     }
 }
 
+@Composable
+fun CustomMonthYearPicker(
+    initialDate: LocalDate = LocalDate.now(),
+    minDate: LocalDate = LocalDate.now().minusYears(10),
+    maxDate: LocalDate = LocalDate.now().plusYears(10),
+    onSelectedDate: (LocalDate) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedYear by remember { mutableStateOf(initialDate.year) }
+    var selectedMonth by remember { mutableStateOf(initialDate.monthValue) }
+
+    val months = listOf(
+        "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+        "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+        "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+    )
+
+    val minYear = minDate.year
+    val maxYear = maxDate.year
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = White1,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Header
+        Text(
+            text = "Chọn tháng và năm",
+            style = AppTypography.bodyLarge.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            color = Black1
+        )
+
+        // Year selector
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = {
+                    if (selectedYear > minYear) selectedYear--
+                },
+                enabled = selectedYear > minYear
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.arrow_left),
+                    contentDescription = "Previous year",
+                    tint = if (selectedYear > minYear) Blue1 else Gray1
+                )
+            }
+
+            Text(
+                text = "Năm $selectedYear",
+                style = AppTypography.bodyLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = Blue1
+            )
+
+            IconButton(
+                onClick = {
+                    if (selectedYear < maxYear) selectedYear++
+                },
+                enabled = selectedYear < maxYear
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.arrow_right),
+                    contentDescription = "Next year",
+                    tint = if (selectedYear < maxYear) Blue1 else Gray1
+                )
+            }
+        }
+
+        // Month grid
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(12) { index ->
+                val monthValue = index + 1
+                val isSelected = selectedMonth == monthValue
+                val isEnabled = isMonthEnabled(selectedYear, monthValue, minDate, maxDate)
+
+                Box(
+                    modifier = Modifier
+                        .aspectRatio(1.5f)
+                        .background(
+                            color = when {
+                                isSelected -> Blue1
+                                !isEnabled -> Gray2.copy(alpha = 0.3f)
+                                else -> Blue6.copy(alpha = 0.3f)
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = if (isSelected) 2.dp else 0.dp,
+                            color = if (isSelected) Blue3 else Color.Transparent,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .then(
+                            if (isEnabled) {
+                                Modifier.customClick(
+                                    onClick = {
+                                        selectedMonth = monthValue
+                                    },
+                                    shape = RoundedCornerShape(12.dp)
+                                )
+                            } else {
+                                Modifier
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = months[index],
+                        style = AppTypography.bodyMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        ),
+                        color = when {
+                            isSelected -> White1
+                            !isEnabled -> Gray1
+                            else -> Black1
+                        }
+                    )
+                }
+            }
+        }
+
+        // Action buttons
+//        Row(
+//            modifier = Modifier.fillMaxWidth(),
+//            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally)
+//        ) {
+//            Row(
+//
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .customClick(onClick = onDismiss)
+//            ) {
+//                Text(
+//                    text = "Hủy",
+//                    color = Black1,
+//                    style = AppTypography.bodyMedium
+//                )
+//            }
+//
+//            TextButton(
+//                onClick = {
+//                    val selectedDate = LocalDate.of(selectedYear, selectedMonth, 1)
+//                    onSelectedDate(selectedDate)
+//                },
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .background(
+//                        color = Blue1,
+//                        shape = RoundedCornerShape(12.dp)
+//                    )
+//            ) {
+//                Text(
+//                    text = "Xác nhận",
+//                    color = White1,
+//                    style = AppTypography.bodyMedium.copy(
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                )
+//            }
+//        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        onDismiss()
+                    }
+                    .padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "Hủy",
+                    style = AppTypography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Blue5
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .background(
+                        color = Blue5,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = RoundedCornerShape(10.dp),
+                        ambientColor = Color.Transparent,
+                        spotColor = Color.Transparent
+                    )
+                    .clickable {
+                        val selectedDate = LocalDate.of(selectedYear, selectedMonth, 1)
+                        onSelectedDate(selectedDate)
+                    }
+                    .padding(vertical = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = "Xác nhận",
+                    style = AppTypography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = White1
+                )
+            }
+        }
+    }
+}
+
+private fun isMonthEnabled(
+    year: Int,
+    month: Int,
+    minDate: LocalDate,
+    maxDate: LocalDate
+): Boolean {
+    val date = LocalDate.of(year, month, 1)
+    val minYearMonth = LocalDate.of(minDate.year, minDate.monthValue, 1)
+    val maxYearMonth = LocalDate.of(maxDate.year, maxDate.monthValue, 1)
+    return !date.isBefore(minYearMonth) && !date.isAfter(maxYearMonth)
+}
+
 //@Preview(heightDp = 800)
 //@Composable
 //private fun Example2Preview() {
@@ -3150,6 +3398,12 @@ fun SkeletonBox(
                 shape = shape
             )
     )
+}
+
+@Composable
+fun Modifier.shimmerEffect(): Modifier {
+    val brush = shimmerBrush()
+    return this.background(brush)
 }
 
 @Composable

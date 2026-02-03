@@ -14,6 +14,7 @@ import com.example.ibanking_kltn.data.api.FCMApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.NotificationApi
 import com.example.ibanking_kltn.data.api.PayLaterApi
+import com.example.ibanking_kltn.data.api.SpendingApi
 import com.example.ibanking_kltn.data.api.TransactionApi
 import com.example.ibanking_kltn.data.api.WalletApi
 import com.example.ibanking_kltn.data.security.AuthInterceptor
@@ -201,6 +202,15 @@ object NetworkModule {
         retrofit: Retrofit
     ): AiApi {
         return retrofit.create(AiApi::class.java)
+
+    }
+    @Singleton
+    @Provides
+    fun provideSpendingApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): SpendingApi {
+        return retrofit.create(SpendingApi::class.java)
 
     }
 

@@ -28,5 +28,6 @@ enum class AppGraph {
 
 enum class NavKey{
     CONFIRM_CONTENT,
-    TRANSACTION_ID
+    TRANSACTION_ID,
+    SPENDING_SNAPSHOT_ID,
 }

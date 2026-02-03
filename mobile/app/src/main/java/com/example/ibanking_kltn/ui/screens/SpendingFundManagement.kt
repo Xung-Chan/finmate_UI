@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -47,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotResponse
+import com.example.ibanking_kltn.ui.event.SpendingManagementEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue6
@@ -54,13 +56,15 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.ui.uistates.SpendingFundState
-import com.example.ibanking_kltn.ui.uistates.SpendingFundUiState
+import com.example.ibanking_kltn.ui.uistates.SpendingManagementState
+import com.example.ibanking_kltn.ui.uistates.SpendingUiState
 import com.example.ibanking_kltn.utils.CustomClickField
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
-import com.example.ibanking_kltn.utils.CustomDatePicker
+import com.example.ibanking_kltn.utils.CustomMonthYearPicker
 import com.example.ibanking_kltn.utils.CustomTextField
+import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.colorFromLabel
+import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_kltn.utils.formatterVND
 import java.math.BigDecimal
@@ -68,18 +72,20 @@ import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SpendingFundManagement(
-    uiState: SpendingFundUiState = SpendingFundUiState(),
-    onBackClick: () -> Unit = {},
-
-    ) {
-    var isShowAddDialog by remember { mutableStateOf(false) }
+fun SpendingManagement(
+    uiState: SpendingUiState,
+    onBackClick: () -> Unit,
+    onEvent: (SpendingManagementEvent) -> Unit
+) {
     var isShowMonthlyPicker by remember { mutableStateOf(false) }
-    var spendingSnapshotname by remember { mutableStateOf("") }
+    var spendingSnapshotName by remember { mutableStateOf("") }
     var spendingBudget by remember { mutableLongStateOf(0L) }
     var monthlySpending by remember { mutableStateOf(LocalDate.now()) }
+    val refreshState = rememberPullToRefreshState()
 
-    Box {
+    LoadingScaffold(
+        isLoading = uiState.screenState == SpendingManagementState.LOADING
+    ) {
 
 
         Scaffold(
@@ -111,7 +117,7 @@ fun SpendingFundManagement(
         ) { paddingValues ->
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(paddingValues)
             ) {
                 Image(
@@ -125,19 +131,30 @@ fun SpendingFundManagement(
 
                 Column(
                     modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                         .padding(horizontal = 20.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Row(
                         modifier = Modifier
+                            .padding(vertical = 10.dp)
                             .fillMaxWidth()
                             .shadow(
                                 elevation = 30.dp,
-                                shape = RoundedCornerShape(20.dp),
+                                shape = RoundedCornerShape(15.dp),
                                 ambientColor = Black1.copy(alpha = 0.25f),
                                 spotColor = Black1.copy(alpha = 0.25f)
                             )
-                            .background(color = White1, shape = RoundedCornerShape(20.dp))
+                            .background(color = White1, shape = RoundedCornerShape(15.dp))
+                            .customClick(
+                                shape = RoundedCornerShape(15.dp),
+                                onClick = {
+                                    onEvent(
+                                        SpendingManagementEvent.ChangeAddDialogState
+                                    )
+                                }
+                            )
                             .padding(10.dp)
                     ) {
                         Row(
@@ -149,7 +166,10 @@ fun SpendingFundManagement(
                                     shape = RoundedCornerShape(10.dp)
                                 )
                                 .padding(vertical = 10.dp),
-                            horizontalArrangement = Arrangement.Center,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                5.dp,
+                                Alignment.CenterHorizontally
+                            ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -166,19 +186,27 @@ fun SpendingFundManagement(
                         }
                     }
                     PullToRefreshBox(
-                        isRefreshing = uiState.screenState == SpendingFundState.LOADING,
+                        isRefreshing = uiState.screenState == SpendingManagementState.REFRESHING,
                         onRefresh = {
-                            //todo
-                        }
+                            onEvent(
+                                SpendingManagementEvent.RefreshSpendingSnapshots
+                            )
+                        },
+                        state = refreshState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
                     ) {
-                        LazyColumn {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
                             items(
-                                items = uiState.spendingFunds,
+                                items = uiState.spendingSnapshots,
                             ) { spending ->
                                 SpendingSnapshotCompose(
                                     spending = spending,
-                                    modifier = Modifier
-                                        .padding(vertical = 5.dp)
+                                    onEvent=onEvent
                                 )
                             }
                         }
@@ -186,16 +214,23 @@ fun SpendingFundManagement(
                 }
             }
         }
-        if (isShowAddDialog) {
+        if (uiState.isShowAddDialog) {
             CustomConfirmDialog(
                 dimissText = "Hủy",
                 confirmText = "Xác nhận",
                 onDimiss = {
-                    isShowAddDialog = false
+                    onEvent(
+                        SpendingManagementEvent.ChangeAddDialogState
+                    )
                 },
                 onConfirm = {
-                    //todo
-                    isShowAddDialog = false
+                    onEvent(
+                        SpendingManagementEvent.CreateSpendingSnapshot(
+                            snapshotName = spendingSnapshotName,
+                            budgetAmount = spendingBudget,
+                            monthlySpending = monthlySpending
+                        )
+                    )
                 }
             ) {
                 Column(
@@ -212,14 +247,14 @@ fun SpendingFundManagement(
                     CustomTextField(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        value = spendingSnapshotname,
+                        value = spendingSnapshotName,
                         keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Next,
+                            imeAction = ImeAction.Done,
                             keyboardType = KeyboardType.Text
                         ),
                         enable = true,
                         onValueChange = {
-                            spendingSnapshotname = it
+                            spendingSnapshotName = it
                         }
                     )
                 }
@@ -239,7 +274,7 @@ fun SpendingFundManagement(
                         value = formatterVND(spendingBudget),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Next,
-                            keyboardType = KeyboardType.Text
+                            keyboardType = KeyboardType.Number
                         ),
                         enable = true,
                         onValueChange = {
@@ -289,7 +324,7 @@ fun SpendingFundManagement(
         }
         if (isShowMonthlyPicker) {
             Box(
-                contentAlignment = Alignment.BottomEnd,
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
@@ -297,8 +332,9 @@ fun SpendingFundManagement(
                     )
                     .padding(20.dp)
                     .pointerInput(Unit) {}) {
-                CustomDatePicker(
-                    minDate = LocalDate.now().plusDays(1),
+                CustomMonthYearPicker(
+                    initialDate = monthlySpending,
+                    minDate = LocalDate.now(),
                     maxDate = LocalDate.now().plusYears(2),
                     onSelectedDate = {
                         monthlySpending = it
@@ -317,62 +353,165 @@ fun SpendingFundManagement(
 @Composable
 private fun SpendingSnapshotCompose(
     spending: SpendingSnapshotResponse,
+    onEvent: (SpendingManagementEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val color = colorFromLabel(
         label = spending.snapshotName + spending.id
     )
     val cornerShape = RoundedCornerShape(15.dp)
+    val usedPercentage = if (spending.budgetAmount.toLong() > 0) {
+        (spending.usedAmount.toFloat() / spending.budgetAmount.toFloat()).coerceIn(0f, 1f)
+    } else {
+        0f
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .shadow(
-                elevation = 30.dp,
+            .customClick(
                 shape = cornerShape,
-                ambientColor = Black1.copy(alpha = 0.25f),
-                spotColor = Black1.copy(alpha = 0.25f)
+                onClick = {
+                    onEvent(
+                        SpendingManagementEvent.NavigateToDetail(spending.id)
+                    )
+                }
             )
             .border(
-                width = 1.dp,
+                width = 2.dp,
                 color = color,
                 shape = cornerShape
             )
             .background(
                 color = color.copy(
-                    alpha = 0.1f
+                    alpha = 0.08f
                 ), shape = cornerShape
             )
             .padding(
                 vertical = 15.dp,
                 horizontal = 20.dp
             ),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = spending.snapshotName,
-                style = AppTypography.bodyMedium,
-                color = Black1,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = spending.monthlySpending,
-                style = AppTypography.bodySmall,
-                color = Black1
-            )
-        }
+        // Header row with name and month
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = formatterVND(spending.budgetAmount.toLong()) + " đ",
-                style = AppTypography.bodySmall.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = Black1
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .background(color = color, shape = RoundedCornerShape(2.dp))
+                )
+                Text(
+                    text = spending.snapshotName,
+                    style = AppTypography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Black1
+                )
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.calendar),
+                    contentDescription = null,
+                    tint = Gray1,
+                    modifier = Modifier.size(14.dp)
+                )
+                Text(
+                    text = spending.monthlySpending,
+                    style = AppTypography.bodySmall,
+                    color = Gray1
+                )
+            }
+        }
+
+        // Budget and used amount
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Column {
+                Text(
+                    text = "Đã dùng",
+                    style = AppTypography.labelSmall,
+                    color = Gray1
+                )
+                Text(
+                    text = formatterVND(spending.usedAmount.toLong()) + " đ",
+                    style = AppTypography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = color
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "Ngân sách",
+                    style = AppTypography.labelSmall,
+                    color = Gray1
+                )
+                Text(
+                    text = formatterVND(spending.budgetAmount.toLong()) + " đ",
+                    style = AppTypography.bodyMedium.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Black1
+                )
+            }
+
+        }
+
+        // Progress bar
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(
+                        color = Gray1.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(usedPercentage)
+                        .height(8.dp)
+                        .background(
+                            color = color,
+                            shape = RoundedCornerShape(4.dp)
+                        )
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${(usedPercentage * 100).toInt()}% đã sử dụng",
+                    style = AppTypography.labelSmall,
+                    color = Gray1
+                )
+                Text(
+                    text = "Còn lại ${formatterVND((spending.budgetAmount - spending.usedAmount).toLong())} đ",
+                    style = AppTypography.labelSmall,
+                    color = Gray1
+                )
+            }
         }
     }
 }
@@ -384,10 +523,10 @@ private fun SpendingSnapshotCompose(
 )
 @Composable
 fun SpendingFundPreview() {
-    SpendingFundManagement(
-        uiState = SpendingFundUiState(
-            screenState = SpendingFundState.NONE,
-            spendingFunds = listOf(
+    SpendingManagement(
+        uiState = SpendingUiState(
+            screenState = SpendingManagementState.NONE,
+            spendingSnapshots = listOf(
                 SpendingSnapshotResponse(
                     id = "1",
                     monthlySpending = "8/2025",
@@ -413,7 +552,9 @@ fun SpendingFundPreview() {
                     budgetAmount = BigDecimal("4000000")
                 )
             )
-        )
+        ),
+        onBackClick = { /*TODO*/ },
+        onEvent = { /*TODO*/ }
     )
 }
 

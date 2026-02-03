@@ -13,14 +13,17 @@ enum class SpendingDetailTab {
 
 enum class SpendingDetailState {
     INIT,
+    INIT_FAILED,
     NONE,
     LOADING,
-    INIT_FAILED
+    REFRESHING,
 }
 
 data class SpendingDetailUiState(
+    val snapshotId: String? = null,
     val screenState: SpendingDetailState = SpendingDetailState.NONE,
     val spendingSnapshot: SpendingSnapshotDetailResponse? = null,
     val chartType: ChartType = ChartType.PIE,
-    val selectedTab: SpendingDetailTab = SpendingDetailTab.OVERVIEW
+    val selectedTab: SpendingDetailTab = SpendingDetailTab.OVERVIEW,
+    val isShowCategoriesDialog: Boolean = false
 )
