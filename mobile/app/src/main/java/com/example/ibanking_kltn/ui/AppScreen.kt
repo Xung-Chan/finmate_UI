@@ -65,6 +65,7 @@ import com.example.ibanking_kltn.ui.navigation.changePasswordGraph
 import com.example.ibanking_kltn.ui.navigation.depositGraph
 import com.example.ibanking_kltn.ui.navigation.myProfileGraph
 import com.example.ibanking_kltn.ui.navigation.signInGraph
+import com.example.ibanking_kltn.ui.navigation.spendingGraph
 import com.example.ibanking_kltn.ui.screens.AllServiceScreen
 import com.example.ibanking_kltn.ui.screens.AnalyticScreen
 import com.example.ibanking_kltn.ui.screens.BillDetailScreen
@@ -143,7 +144,6 @@ fun AppScreen(
     val payLaterViewModel: PayLaterViewModel = hiltViewModel()
     val payLaterApplicationViewModel: PayLaterApplicationViewModel = hiltViewModel()
     val payLaterApplicationHistoryViewModel: PayLaterApplicationHistoryViewModel = hiltViewModel()
-    val notificationViewModel: NotificationViewModel = hiltViewModel()
     var tabNavigation by remember { mutableStateOf(TabNavigation.HOME) }
 
     val appUiState by appViewModel.uiState.collectAsState()
@@ -330,7 +330,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-            navController = navController, startDestination = AppGraph.SignInGraph.name
+            navController = navController, startDestination = AppGraph.SpendingGraph    .name
         ) {
             signInGraph(
                 navController = navController,
@@ -525,7 +525,7 @@ fun AppScreen(
                                 snackBarInstance = effect.snackBar
                             }
 
-                           is ConfirmEffect.PaymentSuccess -> {
+                            is ConfirmEffect.PaymentSuccess -> {
                                 snackBarInstance = SnackBarUiState(
                                     message = "Thanh toán thành công",
                                     type = SnackBarType.SUCCESS
@@ -675,7 +675,7 @@ fun AppScreen(
                                     message = "Không tìm thấy giao dịch",
                                     type = SnackBarType.ERROR
                                 )
-                                navController.navigate(Screens.Home.name){
+                                navController.navigate(Screens.Home.name) {
                                     popUpTo(Screens.Home.name) {
                                         inclusive = true
                                     }
@@ -700,6 +700,11 @@ fun AppScreen(
                     uiState = transactionResultUiState,
                 )
             }
+
+            spendingGraph(
+                navController = navController,
+                onShowSnackBar = onShowSnackBar
+            )
 
             //todo done
             depositGraph(
@@ -961,6 +966,7 @@ fun AppScreen(
 
 
             composable(route = Screens.Notification.name) {
+                val notificationViewModel: NotificationViewModel = hiltViewModel()
                 val uiState by notificationViewModel.uiState.collectAsState()
                 val notifications =
                     notificationViewModel.notificationPager.collectAsLazyPagingItems()

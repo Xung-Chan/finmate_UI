@@ -13,7 +13,8 @@ enum class Screens {
     AllService,
     VerificationRequest,
     SavedReceiver,
-    PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle
+    PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle,
+    SpendingManagement, SpendingSnapshotDetail
 }
 
 enum class AppGraph {
@@ -21,6 +22,7 @@ enum class AppGraph {
     ChangePasswordGraph,
     MyProfileGraph,
     DepositGraph,
+    SpendingGraph,
     HomeGraph,
 }
 

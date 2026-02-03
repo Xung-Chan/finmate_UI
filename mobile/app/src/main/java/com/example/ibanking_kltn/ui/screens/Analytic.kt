@@ -45,6 +45,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
+import com.example.ibanking_kltn.dtos.responses.Distribution
+import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
+import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponseItem
 import com.example.ibanking_kltn.ui.event.AnalyticEvent
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -88,7 +92,7 @@ fun AnalyticScreen(
     val scrollState = rememberScrollState(0)
 
     var selectedStatisticType by remember {
-        mutableStateOf(StatisticType.DISTRIBUTION)
+        mutableStateOf(StatisticType.TREND)
     }
     LoadingScaffold(
         isLoading = uiState.state == StateType.LOADING
@@ -955,53 +959,48 @@ private fun AnalyzeSkeleton() {
 )
 @Composable
 fun AnalyticPreview() {
-//    AnalyticScreen(
-//        uiState = AnalyticUiState(
-//            trendStatistic = TrendStatisticResponse().apply {
-//                addAll(
-//                    listOf(
-////                        TrendStatisticResponseItem(
-////                            date = "2025-01",
-////                            totalTransactions = 0,
-////                            totalValue = 100000L
-////                        ),
-////                        TrendStatisticResponseItem(
-////                            date = "2025-02",
-////                            totalTransactions = 0,
-////                            totalValue = 100000L
-////                        ),
-//                    )
-//                )
-//            },
-//            distributionStatistic = DistributionStatisticResponse(
-//                analyticId = "1",
-//                distributions = listOf(
-////                    Distribution(
-////                        label = "Ăn uống",
-////                        expenseName = "Ăn uống",
-////                        expenseTag = "an_uong",
-////                        totalTransactions = 10,
-////                        totalValue = 500000L
-////                    ),
-////                    Distribution(
-////                        label = "Sức khỏe",
-////                        expenseName = "Sức khỏe",
-////                        expenseTag = "suc_khoe",
-////                        totalTransactions = 10,
-////                        totalValue = 5000000L
-////                    ),
-//                )
-//            ),
-//            initialedDistributionStatistic = true,
-//            initialedTrendStatistic = true,
-//
-//            ),
-//        navigationBar = {},
-//        onRetry = {},
-//        onMinusMonth = {},
-//        onPlusMonth = {},
-//        onAnalyze = {},
-//        onChangeMoneyFlowType = {},
-//    )
+    AnalyticScreen(
+        uiState = AnalyticUiState(
+            trendStatistic = TrendStatisticResponse().apply {
+                addAll(
+                    listOf(
+                        TrendStatisticResponseItem(
+                            date = "2025-01",
+                            totalTransactions = 12,
+                            totalValue = 100000L
+                        ),
+                        TrendStatisticResponseItem(
+                            date = "2025-02",
+                            totalTransactions = 0,
+                            totalValue = 100000L
+                        ),
+                    )
+                )
+            },
+            distributionStatistic = DistributionStatisticResponse(
+                analyticId = "1",
+                distributions = listOf(
+                    Distribution(
+                        label = "Ăn uống",
+                        expenseName = "Ăn uống",
+                        expenseTag = "an_uong",
+                        totalTransactions = 10,
+                        totalValue = 500000L
+                    ),
+//                    Distribution(
+//                        label = "Sức khỏe",
+//                        expenseName = "Sức khỏe",
+//                        expenseTag = "suc_khoe",
+//                        totalTransactions = 10,
+//                        totalValue = 5000000L
+//                    ),
+                )
+            ),
+
+            ),
+        navigationBar = {},
+        userComponent = {},
+        onEvent = {},
+    )
 
 }

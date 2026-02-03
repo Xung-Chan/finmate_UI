@@ -103,7 +103,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.times
 import com.commandiron.wheel_picker_compose.WheelDatePicker
 import com.commandiron.wheel_picker_compose.core.SelectorProperties
 import com.example.ibanking_kltn.R
@@ -2511,20 +2510,29 @@ fun ProgressBarWithLabel(
 
     val percentage = (animatedProgress * 100).toInt()
 
+    // Keep measured widths in px
+    val progressBarWidthPx = remember { mutableStateOf(0) }
+    val labelWidthPx = remember { mutableStateOf(0) }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(progressHeight + 40.dp)
     ) {
+        // Background bar - measure its width
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(progressHeight)
                 .align(Alignment.CenterStart)
+                .onGloballyPositioned { coordinates ->
+                    progressBarWidthPx.value = coordinates.size.width
+                }
                 .clip(RoundedCornerShape(progressHeight / 2))
                 .background(backgroundColor)
         )
 
+        // Progress fill
         Box(
             modifier = Modifier
                 .fillMaxWidth(animatedProgress)
@@ -2541,17 +2549,34 @@ fun ProgressBarWithLabel(
                 )
         )
 
+        // Compute offset for label: center it at (animatedProgress * barWidth)
+        val offsetXDp = with(LocalDensity.current) {
+            if (progressBarWidthPx.value == 0) {
+                0.dp
+            } else {
+                // desired center in px
+                val desiredCenterPx = animatedProgress * progressBarWidthPx.value
+                // label width in px (may be 0 until measured)
+                val lw = labelWidthPx.value.toFloat()
+                // compute left x so that label is centered on desiredCenterPx
+                var leftPx = desiredCenterPx - lw / 2f
+                // clamp to stay inside the progress bar
+                val maxLeftPx = (progressBarWidthPx.value - lw).toFloat().coerceAtLeast(0f)
+                leftPx = leftPx.coerceIn(0f, maxLeftPx)
+                leftPx.toDp()
+            }
+        }
+
         Box(
             modifier = Modifier
-                .align(Alignment.Center)
-                .offset(
-                    x = (animatedProgress - 0.5f) * with(LocalDensity.current) {
-                        (modifier.fillMaxWidth().toString().length * 2).dp // Approximate width
-                    }
-                )
+                .align(Alignment.CenterStart)
+                .offset(x = offsetXDp)
         ) {
             Box(
                 modifier = Modifier
+                    .onGloballyPositioned { coords ->
+                        labelWidthPx.value = coords.size.width
+                    }
                     .background(
                         color = labelBackgroundColor,
                         shape = RoundedCornerShape(16.dp)
@@ -2975,6 +3000,7 @@ fun CustomPieChart(
                                 5.dp,
                                 Alignment.CenterHorizontally
                             ),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
@@ -3134,3 +3160,4 @@ fun Preview() {
     )
 
 }
+

@@ -49,44 +49,6 @@ fun TransactionResultScreen(
     onBackToHomeClick: () -> Unit,
 ) {
     Scaffold(
-//        floatingActionButton = {
-//            TextButton(
-//                onClick = {
-//                    onContactClick()
-//                }
-//            ) {
-//                Row(
-//                    modifier = Modifier
-//                        .background(
-//                            color = White1,
-//                            shape = RoundedCornerShape(percent = 30)
-//                        )
-//                        .border(
-//                            width = 2.dp,
-//                            color = Blue1,
-//                            shape = RoundedCornerShape(percent = 30)
-//                        )
-//                        .padding(horizontal = 20.dp, vertical = 10.dp),
-//                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Icon(
-//                        painter = painterResource(R.drawable.support),
-//                        contentDescription = null,
-//                        tint = Blue1,
-//                        modifier = Modifier.size(30.dp)
-//
-//                    )
-//                    Text(
-//                        text = "Liên hệ hỗ trợ",
-//                        style = AppTypography.bodyMedium.copy(
-//                            fontWeight = FontWeight.Bold
-//                        ),
-//                        color = Blue1
-//                    )
-//                }
-//            }
-//        },
         topBar = {
             TopAppBar(
                 title = {
