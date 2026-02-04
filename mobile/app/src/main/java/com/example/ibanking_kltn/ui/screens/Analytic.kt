@@ -22,6 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,16 +37,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.dtos.definitions.MoneyFlowType
+import com.example.ibanking_kltn.dtos.responses.AnalyzeResponse
 import com.example.ibanking_kltn.dtos.responses.Distribution
 import com.example.ibanking_kltn.dtos.responses.DistributionStatisticResponse
 import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
@@ -58,6 +63,7 @@ import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Orange1
+import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.AnalyticUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -595,98 +601,49 @@ fun AnalyticScreen(
                                         }
 
                                     } else {
-                                        Text(
-                                            text = "Phân tích chi tiêu của bạn",
-                                            style = AppTypography.bodyMedium,
-                                            color = Gray1
-                                        )
                                         Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth(),
-                                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalArrangement = Arrangement.spacedBy(16.dp)
                                         ) {
-                                            AnalyzeRow(
-                                                backgroundColor = Blue5
+                                            // Header with AI badge
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    modifier = Modifier.weight(0.3f)
-                                                ) {
-
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.trend),
-                                                        contentDescription = null,
-                                                        tint = Blue5,
-                                                        modifier = Modifier.size(25.dp)
-                                                    )
-                                                    Text(
-                                                        text = "Xu hướng",
-                                                        style = AppTypography.bodySmall,
-                                                        color = Blue5,
-                                                    )
-                                                }
                                                 Text(
-                                                    text = uiState.analyzeResponse.xu_huong,
-                                                    style = AppTypography.bodyMedium,
-                                                    color = Blue5,
-                                                    modifier = Modifier.weight(0.7f),
-                                                    textAlign = TextAlign.Justify
+                                                    text = "Phân tích chi tiêu của bạn",
+                                                    style = AppTypography.titleMedium,
+                                                    color = Black1
                                                 )
                                             }
-                                            AnalyzeRow(
-                                                backgroundColor = Green1
-                                            ) {
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    modifier = Modifier.weight(0.3f),
 
-                                                    ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.percent),
-                                                        contentDescription = null,
-                                                        tint = Green1,
-                                                        modifier = Modifier.size(25.dp)
-                                                    )
-                                                    Text(
-                                                        text = "Tỉ trọng",
-                                                        style = AppTypography.bodySmall,
-                                                        color = Green1,
-                                                    )
-                                                }
-                                                Text(
-                                                    text = uiState.analyzeResponse.ty_trong,
-                                                    style = AppTypography.bodyMedium,
-                                                    color = Green1,
-                                                    modifier = Modifier.weight(0.7f),
-                                                    textAlign = TextAlign.Justify
+                                            // Analysis Cards
+                                            Column(
+                                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                // Xu hướng Card
+                                                AnalyzeCard(
+                                                    title = "Xu hướng",
+                                                    content = uiState.analyzeResponse.xu_huong,
+                                                    icon = R.drawable.trend,
+                                                    color = Blue5
                                                 )
-                                            }
-                                            AnalyzeRow(
-                                                backgroundColor = Orange1
-                                            ) {
-                                                Column(
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    modifier = Modifier.weight(0.3f),
 
-                                                    ) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.warning),
-                                                        contentDescription = null,
-                                                        tint = Orange1,
-                                                        modifier = Modifier.size(25.dp)
-                                                    )
-                                                    Text(
-                                                        text = "Cảnh báo",
-                                                        style = AppTypography.bodySmall,
-                                                        color = Orange1,
-                                                    )
-                                                }
-                                                Text(
-                                                    text = uiState.analyzeResponse.canh_bao,
-                                                    style = AppTypography.bodyMedium,
-                                                    color = Orange1,
-                                                    modifier = Modifier.weight(0.7f),
-                                                    textAlign = TextAlign.Justify
+                                                // Tỉ trọng Card
+                                                AnalyzeCard(
+                                                    title = "Tỉ trọng",
+                                                    content = uiState.analyzeResponse.ty_trong,
+                                                    icon = R.drawable.percent,
+                                                    color = Green1
+                                                )
+
+                                                // Cảnh báo Card
+                                                AnalyzeCard(
+                                                    title = "Cảnh báo",
+                                                    content = uiState.analyzeResponse.canh_bao,
+                                                    icon = R.drawable.warning,
+                                                    color = Orange1
                                                 )
                                             }
                                         }
@@ -746,6 +703,76 @@ private fun AnalyzeRow(
         content()
     }
 
+}
+
+@Composable
+private fun AnalyzeCard(
+    title: String,
+    content: String,
+    icon: Int,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 6.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Black1.copy(alpha = 0.08f),
+                spotColor = Black1.copy(alpha = 0.08f)
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = White1
+        ),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Icon Container
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        color = color.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            // Content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = AppTypography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = color
+                )
+                Text(
+                    text = content,
+                    style = AppTypography.bodyMedium,
+                    color = Black1,
+                    textAlign = TextAlign.Justify
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -996,6 +1023,11 @@ fun AnalyticPreview() {
 //                    ),
                 )
             ),
+            analyzeResponse = AnalyzeResponse(
+                xu_huong = "Chi tiêu của bạn trong tháng này tăng nhẹ so với tháng trước, chủ yếu do các khoản chi cho ăn uống và giải trí.",
+                ty_trong = "Phân bổ chi tiêu của bạn khá hợp lý, với 40% cho ăn uống, 30% cho nhà ở và 20% cho giải trí.",
+                canh_bao = "Hãy chú ý đến các khoản chi tiêu không cần thiết trong danh mục giải trí để duy trì ngân sách ổn định."
+            )
 
             ),
         navigationBar = {},

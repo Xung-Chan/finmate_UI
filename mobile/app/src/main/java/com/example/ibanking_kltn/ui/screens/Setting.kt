@@ -246,9 +246,9 @@ fun SettingScreen(
 
         if (isShowConfirmLogout) {
             CustomConfirmDialog(
-                dimissText = "Không",
+                dismissText = "Không",
                 confirmText = "Đăng xuất",
-                onDimiss = {
+                onDismiss = {
                     isShowConfirmLogout = false
                 },
                 onConfirm = {
@@ -283,9 +283,9 @@ fun SettingScreen(
         }
         if (isShowConfirmPasswordBiometric) {
             CustomConfirmDialog(
-                dimissText = "Hủy",
+                dismissText = "Hủy",
                 confirmText = "Xác nhận",
-                onDimiss = {
+                onDismiss = {
                     isShowConfirmPasswordBiometric = false
                 },
                 onConfirm = {

@@ -370,9 +370,9 @@ fun SignInScreen(
         }
         if (isShowConfirmDeleteLastUser) {
             CustomConfirmDialog(
-                dimissText = "Không",
+                dismissText = "Không",
                 confirmText = "Đăng xuất",
-                onDimiss = {
+                onDismiss = {
                     isShowConfirmDeleteLastUser = false
                 },
                 onConfirm = {

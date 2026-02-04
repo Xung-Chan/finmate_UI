@@ -330,7 +330,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-            navController = navController, startDestination = AppGraph.SpendingGraph    .name
+            navController = navController, startDestination = AppGraph.SignInGraph.name
         ) {
             signInGraph(
                 navController = navController,

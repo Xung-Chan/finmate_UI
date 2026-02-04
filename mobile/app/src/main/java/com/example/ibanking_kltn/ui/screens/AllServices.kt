@@ -431,9 +431,9 @@ fun AllServiceScreen(
         }
         if (isShowMissingServiceDialog) {
             CustomConfirmDialog(
-                dimissText = "Không",
+                dismissText = "Không",
                 confirmText = "Được, hãy giúp tôi",
-                onDimiss = {
+                onDismiss = {
                     isShowMissingServiceDialog = false
                 },
                 onConfirm = {

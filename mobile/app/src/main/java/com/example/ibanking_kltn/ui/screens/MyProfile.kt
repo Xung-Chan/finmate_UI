@@ -491,9 +491,9 @@ fun MyProfileScreen(
 
         if (selectedImageUri != null) {
             CustomConfirmDialog(
-                dimissText = "Không",
+                dismissText = "Không",
                 confirmText = "Cập nhật",
-                onDimiss = {
+                onDismiss = {
                     selectedImageUri = null
                 },
                 onConfirm = {

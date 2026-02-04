@@ -2628,9 +2628,9 @@ fun CustomClickField(
 
 @Composable
 fun CustomConfirmDialog(
-    dimissText: String,
+    dismissText: String,
     confirmText: String,
-    onDimiss: () -> Unit,
+    onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     message: @Composable () -> Unit,
 ) {
@@ -2673,13 +2673,13 @@ fun CustomConfirmDialog(
                         modifier = Modifier
                             .weight(1f)
                             .clickable {
-                                onDimiss()
+                                onDismiss()
                             }
                             .padding(vertical = 10.dp),
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = dimissText,
+                            text = dismissText,
                             style = AppTypography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold
                             ),
@@ -2724,7 +2724,7 @@ fun CustomConfirmDialog(
                         spotColor = Color.Transparent
                     )
                     .clickable {
-                        onDimiss()
+                        onDismiss()
                     }
             ) {
                 Icon(

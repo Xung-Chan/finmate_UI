@@ -3,16 +3,29 @@ package com.example.ibanking_kltn.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -23,25 +36,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.dtos.definitions.ServiceType
 import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
 import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
+import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Gray1
+import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Green1
+import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
+import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.utils.DashedDivider
 import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
 import java.time.LocalDateTime
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +74,10 @@ fun TransactionDetailScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = stringResource(R.string.TransactionDetail_Title))
+                    Text(
+                        text = stringResource(R.string.TransactionDetail_Title),
+                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.SemiBold)
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = {
@@ -67,15 +91,19 @@ fun TransactionDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    titleContentColor = Black1, containerColor = White3
+                    titleContentColor = Black1,
+                    containerColor = White3
                 ),
             )
-        }, modifier = Modifier.systemBarsPadding(), containerColor = White3
+        },
+        modifier = Modifier.systemBarsPadding(),
+        containerColor = White3
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(horizontal = 20.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             if (transaction == null) {
                 Row(
@@ -90,286 +118,259 @@ fun TransactionDetailScreen(
                 }
                 return@Column
             }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(15.dp),
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Status Card with Icon
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(
-                        elevation = 30.dp,
+                        elevation = 8.dp,
                         shape = RoundedCornerShape(20.dp),
-                        ambientColor = Black1.copy(alpha = 0.25f),
-                        spotColor = Black1.copy(alpha = 0.25f)
-                    )
-                    .background(color = White1, shape = RoundedCornerShape(20.dp))
-                    .padding(20.dp)
+                        ambientColor = Black1.copy(alpha = 0.1f),
+                        spotColor = Black1.copy(alpha = 0.1f)
+                    ),
+                colors = CardDefaults.cardColors(
+                    containerColor = when (transaction.status) {
+                        TransactionStatus.COMPLETED -> Green2.copy(alpha = 0.1f)
+                        TransactionStatus.PENDING -> Orange1.copy(alpha = 0.1f)
+                        TransactionStatus.CANCELED -> Gray2.copy(alpha = 0.1f)
+                        else -> Red3.copy(alpha = 0.1f)
+                    }
+                ),
+                shape = RoundedCornerShape(20.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Text(
-                            text = "Mã giao dịch",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1
-
-                        )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = transaction.id,
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Tài khoản nguồn",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = transaction.sourceAccountNumber,
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                if( transaction.toWalletNumber != null){
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Tài khoản đích",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = transaction.toWalletNumber,
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Nội dung",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = transaction.description,
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                            textAlign = TextAlign.End
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Ngày",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = formatterDateTimeString(
-                                LocalDateTime.parse(transaction.processedAt)
+                    // Status Icon
+                    Box(
+                        modifier = Modifier
+                            .size(64.dp)
+                            .background(
+                                color = when (transaction.status) {
+                                    TransactionStatus.COMPLETED -> Green1.copy(alpha = 0.2f)
+                                    TransactionStatus.PENDING -> Orange1.copy(alpha = 0.2f)
+                                    TransactionStatus.CANCELED -> Gray1.copy(alpha = 0.2f)
+                                    else -> Red1.copy(alpha = 0.2f)
+                                },
+                                shape = CircleShape
                             ),
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "Dịch vụ",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = transaction.transactionType.serviceName,
-                            style = AppTypography.bodySmall,
-                            color = Black1,
-                        )
-                    }
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Trạng thái",
-                            style = AppTypography.bodyMedium,
-                            color = Gray1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = when (transaction.status) {
-                                TransactionStatus.COMPLETED -> "Thành công"
-                                TransactionStatus.PENDING -> "Đang xử lý"
-                                TransactionStatus.CANCELED -> "Đã hủy"
-                                else -> "Thất bại"
+                        Icon(
+                            imageVector = when (transaction.status) {
+                                TransactionStatus.COMPLETED -> Icons.Default.CheckCircle
+                                TransactionStatus.PENDING -> Icons.Default.Schedule
+                                TransactionStatus.CANCELED -> Icons.Default.Cancel
+                                else -> Icons.Default.Error
                             },
-                            style = AppTypography.bodySmall.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = when (transaction.status) {
+                            contentDescription = null,
+                            tint = when (transaction.status) {
                                 TransactionStatus.COMPLETED -> Green1
                                 TransactionStatus.PENDING -> Orange1
+                                TransactionStatus.CANCELED -> Gray1
                                 else -> Red1
                             },
+                            modifier = Modifier.size(36.dp)
                         )
                     }
-                }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    DashedDivider(
-                        color = Gray1,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                    // Status Text
+                    Text(
+                        text = when (transaction.status) {
+                            TransactionStatus.COMPLETED -> "Giao dịch thành công"
+                            TransactionStatus.PENDING -> "Đang xử lý"
+                            TransactionStatus.CANCELED -> "Đã hủy"
+                            else -> "Giao dịch thất bại"
+                        },
+                        style = AppTypography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = when (transaction.status) {
+                            TransactionStatus.COMPLETED -> Green1
+                            TransactionStatus.PENDING -> Orange1
+                            TransactionStatus.CANCELED -> Gray1
+                            else -> Red1
+                        }
+                    )
+
+                    // Amount
+                    Text(
+                        text = "${formatterVND(transaction.amount.toLong())} VND",
+                        style = AppTypography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 32.sp
+                        ),
+                        color = Black1
                     )
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Tổng cộng",
-                            style =AppTypography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Black1,
-
-                            )
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "${formatterVND(transaction.amount.toLong())} VND",
-                            style = AppTypography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            color = Black1,
-                        )
-                    }
-                }
-
             }
 
+            Spacer(modifier = Modifier.height(20.dp))
 
+            // Transaction Details Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = RoundedCornerShape(20.dp),
+                        ambientColor = Black1.copy(alpha = 0.1f),
+                        spotColor = Black1.copy(alpha = 0.1f)
+                    ),
+                colors = CardDefaults.cardColors(containerColor = White1),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "Thông tin giao dịch",
+                        style = AppTypography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Black1
+                    )
+
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Gray2.copy(alpha = 0.3f)
+                    )
+
+                    // Transaction ID
+                    TransactionInfoRow(
+                        label = "Mã giao dịch",
+                        value = transaction.id,
+                        icon = R.drawable.card
+                    )
+
+                    // Service Type
+                    TransactionInfoRow(
+                        label = "Dịch vụ",
+                        value = transaction.transactionType.serviceName,
+                        icon = R.drawable.category
+                    )
+
+                    // Source Account
+                    TransactionInfoRow(
+                        label = "Tài khoản nguồn",
+                        value = transaction.sourceAccountNumber,
+                        icon = R.drawable.wallet
+                    )
+
+                    // Destination Account (if exists)
+                    if (transaction.toWalletNumber != null) {
+                        TransactionInfoRow(
+                            label = "Tài khoản đích",
+                            value = transaction.toWalletNumber,
+                            icon = R.drawable.wallet_regular
+                        )
+                    }
+
+                    // Description
+                    TransactionInfoRow(
+                        label = "Nội dung",
+                        value = transaction.description,
+                        icon = R.drawable.note,
+                        isMultiLine = true
+                    )
+
+                    // Date
+                    TransactionInfoRow(
+                        label = "Thời gian",
+                        value = formatterDateTimeString(
+                            LocalDateTime.parse(transaction.processedAt)
+                        ),
+                        icon = R.drawable.calendar
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
 
-//@Preview(
-//    showBackground = true, showSystemUi = true
-//
-//)
-//@Composable
-//fun TransactionDetailPreview() {
-//    TransactionDetailScreen(
-//        transaction = TransactionHistoryResponse(
-//            id = "TX123456789",
-//            amount = 1500000.0,
-//            description = "Chuyển tiền cho Nguyễn Văn A",
-//            processedAt = "2024-06-15T10:30:00",
-//            sourceAccountNumber = "1234567890",
-//            sourceBalanceUpdated = 5000000.0,
-//            status = "COMPLETED",
-//            toWalletNumber = "0987654321",
-//            transactionType = ServiceType.TRANSFER
-//        ),
-//        onBackClick = {}
-//    )
-//}
+@Composable
+private fun TransactionInfoRow(
+    label: String,
+    value: String,
+    icon: Int,
+    isMultiLine: Boolean = false
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = if (isMultiLine) Alignment.Top else Alignment.CenterVertically
+    ) {
+        // Icon
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = Blue3.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(10.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                tint = Blue3,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+
+        // Label and Value
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = label,
+                style = AppTypography.labelMedium,
+                color = Gray1
+            )
+            Text(
+                text = value,
+                style = AppTypography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = Black1,
+                textAlign = if (isMultiLine) TextAlign.Start else TextAlign.End
+            )
+        }
+    }
+}
+
+@Preview(
+    showBackground = true, showSystemUi = true
+
+)
+@Composable
+fun TransactionDetailPreview() {
+    TransactionDetailScreen(
+        transaction = TransactionHistoryResponse(
+            id = "TX123456789",
+            amount = 1500000.0,
+            description = "Chuyển tiền cho Nguyễn Văn A",
+            processedAt = "2024-06-15T10:30:00",
+            sourceAccountNumber = "1234567890",
+            sourceBalanceUpdated = 5000000.0,
+            status = TransactionStatus.COMPLETED,
+            toWalletNumber = "0987654321",
+            transactionType = ServiceType.TRANSFER
+        ),
+        onBackClick = {}
+    )
+}
+
