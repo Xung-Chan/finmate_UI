@@ -1,0 +1,13 @@
+package com.example.ibanking_kltn.ui.screens.pay_later.application.create
+
+import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
+import com.example.ibanking_kltn.ui.uistates.StateType
+
+data class PayLaterApplicationUiState(
+    val screenState: StateType = StateType.NONE,
+
+    val applicationType: PayLaterApplicationType = PayLaterApplicationType.ACTIVATION,
+    val requestLimit: Long = 10000000L,
+    val reason: String? = null
+
+)

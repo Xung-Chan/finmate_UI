@@ -10,11 +10,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.ibanking_kltn.dtos.definitions.AppGraph
 import com.example.ibanking_kltn.dtos.definitions.Screens
-import com.example.ibanking_kltn.ui.event.ChangePasswordEffect
-import com.example.ibanking_kltn.ui.screens.ChangePasswordScreen
-import com.example.ibanking_kltn.ui.screens.ChangePasswordSuccessfullyScreen
+import com.example.ibanking_kltn.ui.screens.auth.change_password.ChangePasswordEffect
+import com.example.ibanking_kltn.ui.screens.auth.change_password.ChangePasswordScreen
+import com.example.ibanking_kltn.ui.screens.auth.change_password.ChangePasswordSuccessfullyScreen
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
-import com.example.ibanking_kltn.ui.viewmodels.ChangPasswordViewModel
+import com.example.ibanking_kltn.ui.screens.auth.change_password.ChangPasswordViewModel
 
 fun NavGraphBuilder.changePasswordGraph(
     navController: NavController,

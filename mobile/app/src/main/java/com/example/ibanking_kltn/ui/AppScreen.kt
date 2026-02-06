@@ -50,66 +50,66 @@ import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
 import com.example.ibanking_kltn.dtos.definitions.Screens
 import com.example.ibanking_kltn.dtos.definitions.ServiceCategory
 import com.example.ibanking_kltn.dtos.definitions.TabNavigation
-import com.example.ibanking_kltn.ui.event.AllServiceEffect
-import com.example.ibanking_kltn.ui.event.AnalyticEffect
-import com.example.ibanking_kltn.ui.event.BillingCycleEffect
-import com.example.ibanking_kltn.ui.event.ConfirmEffect
-import com.example.ibanking_kltn.ui.event.ConfirmEvent
-import com.example.ibanking_kltn.ui.event.HomeEffect
-import com.example.ibanking_kltn.ui.event.PayBillEffect
-import com.example.ibanking_kltn.ui.event.QrScannerEffect
-import com.example.ibanking_kltn.ui.event.SettingEffect
-import com.example.ibanking_kltn.ui.event.TransactionResultEffect
-import com.example.ibanking_kltn.ui.event.TransferEffect
+import com.example.ibanking_kltn.ui.screens.service_management.AllServiceEffect
+import com.example.ibanking_kltn.ui.screens.analytic.AnalyticEffect
+import com.example.ibanking_kltn.ui.screens.pay_later.billing_cycle.BillingCycleEffect
+import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEffect
+import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEvent
+import com.example.ibanking_kltn.ui.screens.home.HomeEffect
+import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillEffect
+import com.example.ibanking_kltn.ui.screens.qr_scanner.QrScannerEffect
+import com.example.ibanking_kltn.ui.screens.setting.SettingEffect
+import com.example.ibanking_kltn.ui.screens.transaction_result.TransactionResultEffect
+import com.example.ibanking_kltn.ui.screens.transfer.TransferEffect
 import com.example.ibanking_kltn.ui.navigation.changePasswordGraph
 import com.example.ibanking_kltn.ui.navigation.depositGraph
 import com.example.ibanking_kltn.ui.navigation.myProfileGraph
 import com.example.ibanking_kltn.ui.navigation.signInGraph
 import com.example.ibanking_kltn.ui.navigation.spendingGraph
-import com.example.ibanking_kltn.ui.screens.AllServiceScreen
-import com.example.ibanking_kltn.ui.screens.AnalyticScreen
-import com.example.ibanking_kltn.ui.screens.BillDetailScreen
-import com.example.ibanking_kltn.ui.screens.BillHistoryScreen
-import com.example.ibanking_kltn.ui.screens.BillingCycleScreen
-import com.example.ibanking_kltn.ui.screens.ConfirmPaymentScreen
-import com.example.ibanking_kltn.ui.screens.CreateBillScreen
-import com.example.ibanking_kltn.ui.screens.HomeScreen
-import com.example.ibanking_kltn.ui.screens.NotificationScreen
-import com.example.ibanking_kltn.ui.screens.PayBillScreen
-import com.example.ibanking_kltn.ui.screens.PayLaterApplicationHistoryScreen
-import com.example.ibanking_kltn.ui.screens.PayLaterApplicationScreen
-import com.example.ibanking_kltn.ui.screens.PayLaterScreen
-import com.example.ibanking_kltn.ui.screens.QRScannerScreen
-import com.example.ibanking_kltn.ui.screens.SettingScreen
+import com.example.ibanking_kltn.ui.screens.service_management.ServiceManagementScreen
+import com.example.ibanking_kltn.ui.screens.analytic.AnalyticScreen
+import com.example.ibanking_kltn.ui.screens.bill.detail.BillDetailScreen
+import com.example.ibanking_kltn.ui.screens.bill.history.BillHistoryScreen
+import com.example.ibanking_kltn.ui.screens.pay_later.billing_cycle.BillingCycleScreen
+import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmPaymentScreen
+import com.example.ibanking_kltn.ui.screens.bill.create.CreateBillScreen
+import com.example.ibanking_kltn.ui.screens.home.HomeScreen
+import com.example.ibanking_kltn.ui.screens.notification.NotificationScreen
+import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillScreen
+import com.example.ibanking_kltn.ui.screens.pay_later.application.history.PayLaterApplicationHistoryScreen
+import com.example.ibanking_kltn.ui.screens.pay_later.application.create.PayLaterApplicationScreen
+import com.example.ibanking_kltn.ui.screens.pay_later.management.PayLaterScreen
+import com.example.ibanking_kltn.ui.screens.qr_scanner.QRScannerScreen
+import com.example.ibanking_kltn.ui.screens.setting.SettingScreen
 import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.TransactionHistoryScreen
-import com.example.ibanking_kltn.ui.screens.TransactionResultScreen
-import com.example.ibanking_kltn.ui.screens.TransferScreen
+import com.example.ibanking_kltn.ui.screens.transaction_result.TransactionResultScreen
+import com.example.ibanking_kltn.ui.screens.transfer.TransferScreen
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.White1
-import com.example.ibanking_kltn.ui.uistates.ConfirmContent
+import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmContent
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
-import com.example.ibanking_kltn.ui.viewmodels.AllServiceViewModel
-import com.example.ibanking_kltn.ui.viewmodels.AnalyticViewModel
+import com.example.ibanking_kltn.ui.screens.service_management.ServiceManagementViewModel
+import com.example.ibanking_kltn.ui.screens.analytic.AnalyticViewModel
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
-import com.example.ibanking_kltn.ui.viewmodels.BillDetailViewModel
-import com.example.ibanking_kltn.ui.viewmodels.BillHistoryViewModel
-import com.example.ibanking_kltn.ui.viewmodels.BillViewModel
-import com.example.ibanking_kltn.ui.viewmodels.BillingCycleViewModel
-import com.example.ibanking_kltn.ui.viewmodels.ConfirmViewModel
-import com.example.ibanking_kltn.ui.viewmodels.CreateBillViewModel
-import com.example.ibanking_kltn.ui.viewmodels.HomeViewModel
-import com.example.ibanking_kltn.ui.viewmodels.NotificationEvent
-import com.example.ibanking_kltn.ui.viewmodels.NotificationViewModel
-import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationHistoryViewModel
-import com.example.ibanking_kltn.ui.viewmodels.PayLaterApplicationViewModel
-import com.example.ibanking_kltn.ui.viewmodels.PayLaterViewModel
-import com.example.ibanking_kltn.ui.viewmodels.QRScannerViewModel
-import com.example.ibanking_kltn.ui.viewmodels.SettingViewModel
+import com.example.ibanking_kltn.ui.screens.bill.detail.BillDetailViewModel
+import com.example.ibanking_kltn.ui.screens.bill.history.BillHistoryViewModel
+import com.example.ibanking_kltn.ui.screens.bill.pay_bill.BillViewModel
+import com.example.ibanking_kltn.ui.screens.pay_later.billing_cycle.BillingCycleViewModel
+import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmViewModel
+import com.example.ibanking_kltn.ui.screens.bill.create.CreateBillViewModel
+import com.example.ibanking_kltn.ui.screens.home.HomeViewModel
+import com.example.ibanking_kltn.ui.screens.notification.NotificationEvent
+import com.example.ibanking_kltn.ui.screens.notification.NotificationViewModel
+import com.example.ibanking_kltn.ui.screens.pay_later.application.history.PayLaterApplicationHistoryViewModel
+import com.example.ibanking_kltn.ui.screens.pay_later.application.create.PayLaterApplicationViewModel
+import com.example.ibanking_kltn.ui.screens.pay_later.management.PayLaterViewModel
+import com.example.ibanking_kltn.ui.screens.qr_scanner.QRScannerViewModel
+import com.example.ibanking_kltn.ui.screens.setting.SettingViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.viewmodels.TransactionHistoryViewModel
-import com.example.ibanking_kltn.ui.viewmodels.TransactionResultViewModel
-import com.example.ibanking_kltn.ui.viewmodels.TransferViewModel
+import com.example.ibanking_kltn.ui.screens.transaction_result.TransactionResultViewModel
+import com.example.ibanking_kltn.ui.screens.transfer.TransferViewModel
 import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
@@ -330,7 +330,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-            navController = navController, startDestination = AppGraph.SignInGraph.name
+            navController = navController, startDestination = AppGraph.SpendingGraph.name
         ) {
             signInGraph(
                 navController = navController,
@@ -432,7 +432,7 @@ fun AppScreen(
             }
 
             composable(route = Screens.AllService.name) {
-                val allServiceViewModel: AllServiceViewModel = hiltViewModel()
+                val allServiceViewModel: ServiceManagementViewModel = hiltViewModel()
                 val uiState by allServiceViewModel.uiState.collectAsState()
                 LaunchedEffect(
                     Unit
@@ -447,7 +447,7 @@ fun AppScreen(
                         }
                     }
                 }
-                AllServiceScreen(
+                ServiceManagementScreen(
                     uiState = uiState,
                     onBackClick = {
                         navController.popBackStack()

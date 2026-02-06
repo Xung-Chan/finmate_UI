@@ -10,17 +10,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.example.ibanking_kltn.dtos.definitions.AppGraph
 import com.example.ibanking_kltn.dtos.definitions.Screens
-import com.example.ibanking_kltn.ui.event.CreateVerificationEffect
-import com.example.ibanking_kltn.ui.event.MyProfileEffect
-import com.example.ibanking_kltn.ui.event.SavedReceiverEffect
-import com.example.ibanking_kltn.ui.screens.CreateVerificationRequestScreen
-import com.example.ibanking_kltn.ui.screens.MyProfileScreen
-import com.example.ibanking_kltn.ui.screens.SavedReceiverScreen
-import com.example.ibanking_kltn.ui.screens.TermsAndConditionsScreen
+import com.example.ibanking_kltn.ui.screens.wallet.verification.CreateVerificationEffect
+import com.example.ibanking_kltn.ui.screens.profile.MyProfileEffect
+import com.example.ibanking_kltn.ui.screens.saved_receiver.SavedReceiverEffect
+import com.example.ibanking_kltn.ui.screens.wallet.verification.CreateVerificationRequestScreen
+import com.example.ibanking_kltn.ui.screens.profile.MyProfileScreen
+import com.example.ibanking_kltn.ui.screens.saved_receiver.SavedReceiverScreen
+import com.example.ibanking_kltn.ui.screens.term_condition.TermsAndConditionsScreen
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
-import com.example.ibanking_kltn.ui.viewmodels.CreateVerificationRequestViewModel
-import com.example.ibanking_kltn.ui.viewmodels.MyProfileViewModel
-import com.example.ibanking_kltn.ui.viewmodels.SavedReceiverViewModel
+import com.example.ibanking_kltn.ui.screens.wallet.verification.CreateVerificationRequestViewModel
+import com.example.ibanking_kltn.ui.screens.profile.MyProfileViewModel
+import com.example.ibanking_kltn.ui.screens.saved_receiver.SavedReceiverViewModel
 import com.example.ibanking_kltn.utils.SnackBarType
 
 fun NavGraphBuilder.myProfileGraph(

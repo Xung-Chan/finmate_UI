@@ -21,15 +21,6 @@ data class SpendingSnapshotDetailResponse(
     val spendingCategories: List<SpendingCategoryDetailResponse>
 )
 
-data class SpendingCategoryDetailResponse(
-    val categoryName: String,
-    val categoryCode: String,
-    val categoryIcon: String,
-    val textColor: String,
-    val backgroundColor: String,
-    val budgetAmount: BigDecimal,
-    val usedAmount: BigDecimal
-)
 
 data class SpendingRecordResponse(
     val id: String,
@@ -51,10 +42,20 @@ data class SpendingRecordResponse(
 data class DefinedSpendingCategoryResponse(
     val id: String,
     val name: String,
-    val icon: String?,
-    val code: String?,
+    val code: String,
+    val icon: String,
     val textColor: String?,
     val backgroundColor: String?,
-    val systemCategoryCode: String?,
-    val systemCategoryName: String?
+    val systemCategoryCode: String,
+    val systemCategoryName: String
+)
+
+data class SpendingCategoryDetailResponse(
+    val categoryName: String,
+    val categoryCode: String,
+    val categoryIcon: String,
+    val textColor: String,
+    val backgroundColor: String,
+    val budgetAmount: BigDecimal,
+    val usedAmount: BigDecimal
 )

@@ -12,13 +12,13 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.example.ibanking_kltn.dtos.definitions.AppGraph
 import com.example.ibanking_kltn.dtos.definitions.Screens
-import com.example.ibanking_kltn.ui.event.ForgotPasswordEffect
-import com.example.ibanking_kltn.ui.event.LoginEffect
-import com.example.ibanking_kltn.ui.screens.ForgotPasswordScreen
-import com.example.ibanking_kltn.ui.screens.SignInScreen
+import com.example.ibanking_kltn.ui.screens.auth.forgot_password.ForgotPasswordEffect
+import com.example.ibanking_kltn.ui.screens.auth.sign_in.LoginEffect
+import com.example.ibanking_kltn.ui.screens.auth.forgot_password.ForgotPasswordScreen
+import com.example.ibanking_kltn.ui.screens.auth.sign_in.SignInScreen
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
-import com.example.ibanking_kltn.ui.viewmodels.AuthViewModel
-import com.example.ibanking_kltn.ui.viewmodels.ForgotPasswordViewModel
+import com.example.ibanking_kltn.ui.screens.auth.sign_in.AuthViewModel
+import com.example.ibanking_kltn.ui.screens.auth.forgot_password.ForgotPasswordViewModel
 import com.example.ibanking_kltn.utils.SnackBarType
 
 fun NavGraphBuilder.signInGraph(

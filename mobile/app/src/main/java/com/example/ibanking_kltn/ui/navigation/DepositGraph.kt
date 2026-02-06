@@ -13,11 +13,11 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.example.ibanking_kltn.dtos.definitions.AppGraph
 import com.example.ibanking_kltn.dtos.definitions.Screens
-import com.example.ibanking_kltn.ui.event.HandleDepositEffect
-import com.example.ibanking_kltn.ui.screens.GatewayDeposit
+import com.example.ibanking_kltn.ui.screens.deposit.HandleDepositEffect
+import com.example.ibanking_kltn.ui.screens.deposit.GatewayDeposit
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
-import com.example.ibanking_kltn.ui.viewmodels.DepositViewModel
-import com.example.ibanking_kltn.ui.viewmodels.HandleDepositViewModel
+import com.example.ibanking_kltn.ui.screens.deposit.DepositViewModel
+import com.example.ibanking_kltn.ui.screens.deposit.HandleDepositViewModel
 import com.example.ibanking_kltn.utils.LoadingScaffold
 
 fun NavGraphBuilder.depositGraph(

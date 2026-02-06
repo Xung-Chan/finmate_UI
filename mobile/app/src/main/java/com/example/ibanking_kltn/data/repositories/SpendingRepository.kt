@@ -88,7 +88,7 @@ class SpendingRepository @Inject constructor(
 //        )
         delay(1000L)
         return ApiResult.Success(
-            SpendingSnapshotDetailResponse(
+            data=SpendingSnapshotDetailResponse(
                 id = "1",
                 snapshotName = "Chi tiêu tháng 6",
                 budgetAmount = BigDecimal(5000000),
@@ -263,9 +263,24 @@ class SpendingRepository @Inject constructor(
         )
     }
 
-    suspend fun filterDefinedSpendingCategories(): ApiResult<List<DefinedSpendingCategoryResponse>> {
-        return safeApiCall(
-            apiCall = { spendingApi.filterDefinedSpendingCategories() }
+    suspend fun getAllDefinedSpendingCategories(): ApiResult<List<DefinedSpendingCategoryResponse>> {
+//        return safeApiCall(
+//            apiCall = { spendingApi.filterDefinedSpendingCategories() }
+//        )
+        delay(1000L)
+        return ApiResult.Success(
+            data = listOf(
+                DefinedSpendingCategoryResponse(
+                    id = "defcat_001",
+                    name = "Ăn uống",
+                    code = "cook",
+                    icon = "fooog",
+                    textColor = "TODO()",
+                    backgroundColor = "TODO()",
+                    systemCategoryCode = "food",
+                    systemCategoryName = "Ăn uống",
+                ),
+            )
         )
     }
 

@@ -2641,7 +2641,12 @@ fun CustomConfirmDialog(
                 color = Gray3.copy(alpha = 0.5f),
             )
             .padding(20.dp)
-            .pointerInput(Unit) {},
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
+                onDismiss()
+            },
         contentAlignment = Alignment.Center
     ) {
         Box(
@@ -2651,6 +2656,10 @@ fun CustomConfirmDialog(
                     color = White1,
                     shape = RoundedCornerShape(10.dp)
                 )
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { }
                 .padding(10.dp)
         ) {
             Column(
@@ -2672,7 +2681,10 @@ fun CustomConfirmDialog(
                     Row(
                         modifier = Modifier
                             .weight(1f)
-                            .clickable {
+
+                            .customClick(
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
                                 onDismiss()
                             }
                             .padding(vertical = 10.dp),
@@ -2714,23 +2726,6 @@ fun CustomConfirmDialog(
                         )
                     }
                 }
-            }
-            Row(
-                modifier = Modifier
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = CircleShape,
-                        ambientColor = Color.Transparent,
-                        spotColor = Color.Transparent
-                    )
-                    .clickable {
-                        onDismiss()
-                    }
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.close), contentDescription = null,
-                    modifier = Modifier.size(25.dp)
-                )
             }
         }
 
