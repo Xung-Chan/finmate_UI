@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.viewmodels
+package com.example.ibanking_kltn.ui.screens.transaction_history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +14,6 @@ import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.ui.paging_sources.TransactionHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.StateType
-import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.event
+package com.example.ibanking_kltn.ui.screens.setting
 
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 

@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens
+package com.example.ibanking_kltn.ui.screens.transaction_history
 
 
 import androidx.compose.foundation.background
@@ -58,7 +58,6 @@ import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
-import com.example.ibanking_kltn.ui.uistates.TransactionHistoryUiState
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.TransactionHistoryFilterDialog
 import com.example.ibanking_kltn.utils.checkMoneyFlow

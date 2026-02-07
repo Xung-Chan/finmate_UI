@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.event
+package com.example.ibanking_kltn.ui.screens.transfer
 
 import com.example.ibanking_kltn.dtos.definitions.SavedReceiverInfo
 import com.example.ibanking_kltn.dtos.responses.ExpenseType

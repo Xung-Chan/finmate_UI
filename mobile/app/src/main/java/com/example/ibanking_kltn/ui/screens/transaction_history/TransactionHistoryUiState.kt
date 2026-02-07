@@ -1,9 +1,10 @@
-package com.example.ibanking_kltn.ui.uistates
+package com.example.ibanking_kltn.ui.screens.transaction_history
 
 import com.example.ibanking_kltn.dtos.definitions.AccountType
 import com.example.ibanking_kltn.dtos.definitions.ServiceType
 import com.example.ibanking_kltn.dtos.definitions.SortOption
 import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
+import com.example.ibanking_kltn.ui.uistates.StateType
 import java.time.LocalDate
 
 data class TransactionHistoryUiState(

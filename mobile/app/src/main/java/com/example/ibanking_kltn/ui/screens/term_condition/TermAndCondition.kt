@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens
+package com.example.ibanking_kltn.ui.screens.term_condition
 
 
 import androidx.compose.foundation.background
@@ -19,18 +19,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
