@@ -26,41 +26,41 @@ class SpendingRepository @Inject constructor(
     // ==================== Spending Snapshot APIs ====================
 
     suspend fun getAllSpending(): ApiResult<List<SpendingSnapshotResponse>> {
-//       return safeApiCall(
-//           apiCall = { spendingApi.getAllSpending() }
-//       )
-        delay(1000L)
-        return ApiResult.Success(
-            listOf(
-                SpendingSnapshotResponse(
-                    id = "1",
-                    snapshotName = "January 2024",
-                    budgetAmount = BigDecimal(20000000),
-                    usedAmount = BigDecimal(15000000),
-                    monthlySpending = "2024-01",
-                    description = "Spending snapshot for January 2024",
-                )
-            )
-        )
+       return safeApiCall(
+           apiCall = { spendingApi.getAllSpending() }
+       )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            listOf(
+//                SpendingSnapshotResponse(
+//                    id = "1",
+//                    snapshotName = "January 2024",
+//                    budgetAmount = BigDecimal(20000000),
+//                    usedAmount = BigDecimal(15000000),
+//                    monthlySpending = "2024-01",
+//                    description = "Spending snapshot for January 2024",
+//                )
+//            )
+//        )
     }
 
     suspend fun createSpendingSnapshot(
         request: SpendingSnapshotRequest
     ): ApiResult<SpendingSnapshotResponse> {
-//        return safeApiCall(
-//            apiCall = { spendingApi.createSpendingSnapshot(request) }
-//        )
-        delay(1000L)
-        return ApiResult.Success(
-            SpendingSnapshotResponse(
-                id = "1",
-                snapshotName = request.snapshotName,
-                budgetAmount = request.budgetAmount,
-                usedAmount = BigDecimal(0),
-                monthlySpending = request.monthlySpending,
-                description = "Spending snapshot for ${request.monthlySpending}",
-            )
+        return safeApiCall(
+            apiCall = { spendingApi.createSpendingSnapshot(request) }
         )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            SpendingSnapshotResponse(
+//                id = "1",
+//                snapshotName = request.snapshotName,
+//                budgetAmount = request.budgetAmount,
+//                usedAmount = BigDecimal(0),
+//                monthlySpending = request.monthlySpending,
+//                description = "Spending snapshot for ${request.monthlySpending}",
+//            )
+//        )
     }
 
     suspend fun updateSpendingSnapshot(

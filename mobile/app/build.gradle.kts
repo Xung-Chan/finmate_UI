@@ -138,5 +138,8 @@ dependencies {
     implementation("me.saket.swipe:swipe:1.3.0")
     implementation("io.github.ehsannarmani:compose-charts:0.2.0")
 
+    //color picker
+    implementation("com.github.skydoves:colorpicker-compose:1.0.7")
+
 
 }

@@ -6,6 +6,7 @@ import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Orange1
+import com.example.ibanking_kltn.ui.theme.Orange2
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red2
 import kotlinx.serialization.Serializable
@@ -137,6 +138,11 @@ enum class ServiceCategory(val serviceName: String, val icon: Int, val color: UL
         icon = R.drawable.bill_history_service,
         color = Red2.value
     ),
+    Spending(
+        serviceName="Quỹ chi tiêu",
+        icon=R.drawable.spending_service,
+        color= Orange2.value
+    )
 }
 
 

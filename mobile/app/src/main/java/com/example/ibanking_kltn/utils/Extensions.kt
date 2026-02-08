@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
@@ -395,4 +396,20 @@ fun Context.appSessionManager(): AppSessionManager {
         AppSessionEntryPoint::class.java
     )
     return entryPoint.appSessionManager()
+}
+
+fun Color.toHexString(): String {
+    val r = (red * 255).toInt()
+    val g = (green * 255).toInt()
+    val b = (blue * 255).toInt()
+    return String.format("#%02X%02X%02X", r, g, b)
+}
+
+fun String.toColorFromHex(): Color {
+    return try {
+        Color(this.toColorInt())
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Color.Black
+    }
 }

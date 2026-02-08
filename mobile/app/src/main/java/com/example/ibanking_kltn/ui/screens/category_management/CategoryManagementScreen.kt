@@ -27,18 +27,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -50,6 +54,7 @@ import com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
+import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -58,6 +63,8 @@ import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.colorFromLabel
 import com.example.ibanking_kltn.utils.customClick
+import com.example.ibanking_kltn.utils.toColorFromHex
+import com.example.ibanking_kltn.utils.toHexString
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +80,9 @@ fun CategoryManagement(
     var isShowBottomSheet by remember {
         mutableStateOf(false)
     }
+
+    var selectedColor by remember { mutableStateOf(Color.Red.toHexString()) }
+
 
     val mock = listOf(
         DefinedSpendingCategoryResponse(
@@ -114,14 +124,14 @@ fun CategoryManagement(
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        isShowBottomSheet=true
+                        isShowBottomSheet = true
                     },
                     containerColor = Blue3,
                     contentColor = White1,
                     shape = CircleShape
                 ) {
                     Icon(
-                        painter = painterResource(  R.drawable.add_regular),
+                        painter = painterResource(R.drawable.add_regular),
                         contentDescription = null,
                         modifier = Modifier.size(25.dp),
                     )
@@ -185,7 +195,7 @@ fun CategoryManagement(
                             )
                             Row(
                                 modifier = Modifier.customClick(
-                                    shape = CircleShape,
+                                    shape = RoundedCornerShape(7.dp),
                                     onClick = {
                                         //todo
                                     }
@@ -201,7 +211,7 @@ fun CategoryManagement(
                             }
                             Row(
                                 modifier = Modifier.customClick(
-                                    shape = CircleShape,
+                                    shape = RoundedCornerShape(7.dp),
                                     onClick = {
                                         //todo
                                     }
@@ -268,7 +278,7 @@ fun CategoryManagement(
                                 selectedIcon.toString().toIntOrNull() ?: R.drawable.unknown
                             ),
                             contentDescription = null,
-                            tint = Black1,
+                            tint = selectedColor.toColorFromHex(),
                             modifier = Modifier.size(50.dp)
                         )
                         CustomTextField(
@@ -290,22 +300,140 @@ fun CategoryManagement(
                                 )
                             },
                         )
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(4),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        Column(
                             modifier = Modifier
-                                .height(400.dp)
-                                .padding(top = 16.dp)
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(items = mock) {
+                            var sliderPosition by remember { mutableFloatStateOf(0f) }
 
+                            Text(
+                                text = "Chọn màu",
+                                style = AppTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = Gray1
+                            )
+                            Row(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Color preview box
+                                Box(
+                                    modifier = Modifier
+                                        .size(50.dp)
+                                        .background(
+                                            color = selectedColor.toColorFromHex(),
+                                            shape = CircleShape
+                                        )
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(30.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                brush = Brush.horizontalGradient(
+                                                    colors = listOf(
+                                                        Color(0xFFFF0000), // Red
+                                                        Color(0xFFFF7F00), // Orange
+                                                        Color(0xFFFFFF00), // Yellow
+                                                        Color(0xFF00FF00), // Green
+                                                        Color(0xFF0000FF), // Blue
+                                                        Color(0xFF4B0082), // Indigo
+                                                        Color(0xFF9400D3)  // Violet
+                                                    )
+                                                ),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                    )
+
+                                    // Slider
+                                    Slider(
+                                        value = sliderPosition,
+                                        onValueChange = { newValue ->
+                                            sliderPosition = newValue
+                                            // Calculate color from position
+                                            val hue = newValue * 360f
+                                            selectedColor = Color.hsl(
+                                                hue,
+                                                1f,
+                                                0.5f
+                                            ).toHexString()
+
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(horizontal = 4.dp),
+                                        colors = androidx.compose.material3.SliderDefaults.colors(
+                                            thumbColor = selectedColor.toColorFromHex(),
+                                            activeTrackColor = androidx.compose.ui.graphics.Color.Transparent,
+                                            inactiveTrackColor = androidx.compose.ui.graphics.Color.Transparent
+                                        )
+                                    )
+                                }
                             }
+                        }
+
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(400.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(
+                                text = "Chọn icon",
+                                style = AppTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = Gray1
+                            )
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(4),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxSize()
+                            ) {
+                                items(items = mock) {
+
+                                }
+                            }
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = Blue5,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .customClick(
+                                    shape = RoundedCornerShape(10.dp),
+                                    onClick = {
+                                        //todo
+                                        isShowBottomSheet = false
+                                    }
+                                )
+                                .padding(vertical = 10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Text(
+                                text = "Thêm danh mục",
+                                style = AppTypography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = White1
+                            )
                         }
                     }
 
 
                 }
+
             }
         }
     }

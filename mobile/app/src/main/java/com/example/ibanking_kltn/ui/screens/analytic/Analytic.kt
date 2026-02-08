@@ -646,9 +646,7 @@ fun AnalyticScreen(
                                             }
                                         }
                                     }
-                                    if (selectedStatisticType == StatisticType.DISTRIBUTION) {
-                                        Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
-                                    }
+                                    Spacer(modifier = Modifier.height(bottomBarHeight * 5 / 8))
 
                                 }
 
@@ -1027,7 +1025,7 @@ fun AnalyticPreview() {
                 canh_bao = "Hãy chú ý đến các khoản chi tiêu không cần thiết trong danh mục giải trí để duy trì ngân sách ổn định."
             )
 
-            ),
+        ),
         navigationBar = {},
         userComponent = {},
         onEvent = {},

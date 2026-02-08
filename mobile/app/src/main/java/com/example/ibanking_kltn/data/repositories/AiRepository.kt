@@ -15,7 +15,7 @@ class AiRepository @Inject constructor(
 //               analyzeRequestId = analyzeRequestId
 //           ) }
 //       )
-        delay(15000L)
+        delay(1000L)
         return ApiResult.Success(
             AnalyzeResponse(
                 xu_huong = "Chi tiêu của bạn đang tăng dần qua các tháng. Tháng 10 bạn tiêu 3.5 triệu, và dự kiến tháng sau có thể lên khoảng 3.8 triệu.",

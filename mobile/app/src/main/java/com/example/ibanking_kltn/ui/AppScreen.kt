@@ -68,6 +68,7 @@ import com.example.ibanking_kltn.ui.screens.bill.history.BillHistoryViewModel
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.BillViewModel
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillEffect
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillScreen
+import com.example.ibanking_kltn.ui.screens.category_management.CategoryManagement
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmContent
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEffect
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEvent
@@ -97,6 +98,7 @@ import com.example.ibanking_kltn.ui.screens.service_management.ServiceManagement
 import com.example.ibanking_kltn.ui.screens.setting.SettingEffect
 import com.example.ibanking_kltn.ui.screens.setting.SettingScreen
 import com.example.ibanking_kltn.ui.screens.setting.SettingViewModel
+import com.example.ibanking_kltn.ui.screens.transaction_history.TransactionDetailViewModel
 import com.example.ibanking_kltn.ui.screens.transaction_history.TransactionHistoryScreen
 import com.example.ibanking_kltn.ui.screens.transaction_history.TransactionHistoryViewModel
 import com.example.ibanking_kltn.ui.screens.transaction_result.TransactionResultEffect
@@ -109,7 +111,6 @@ import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.viewmodels.AppViewModel
-import com.example.ibanking_kltn.ui.screens.transaction_history.TransactionDetailViewModel
 import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.GradientSnackBar
 import com.example.ibanking_kltn.utils.NavigationBar
@@ -158,171 +159,30 @@ fun AppScreen(
         snackBarInstance = it
     }
 
-
     val navigationBar: @Composable () -> Unit = {
-        NavigationBar(
-            bottomBarHeight = 100.dp,
+        AppNavigationBar(
             currentTab = tabNavigation,
-            onNavigateToSettingScreen = {
-                navController.navigate(Screens.Settings.name) {
-                    popUpTo(Screens.Home.name) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
-                }
-            },
-
-            onNavigateToHomeScreen = {
-                navController.popBackStack(
-                    Screens.Home.name,
-                    inclusive = false
-                )
-            },
-
-            onNavigateToTransactionHistoryScreen = {
-                navController.navigate(Screens.TransactionHistory.name) {
-                    popUpTo(Screens.Home.name) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
-                }
-            },
-            onNavigateToAnalyticsScreen = {
-                navController.navigate(Screens.Analytic.name) {
-                    popUpTo(Screens.Home.name) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
-                }
-
-            },
-            onNavigateToQRScanner = {
-                navController.navigate(Screens.QRScanner.name) {
-                    popUpTo(Screens.Home.name) {
-                        inclusive = false
-                    }
-                    launchSingleTop = true
-                }
-            })
+            navController = navController
+        )
     }
-    val navigator = mapOf(
-        ServiceCategory.MONEY_TRANSFER.name to {
-            appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
-            navController.navigate(Screens.Transfer.name)
-        },
-        ServiceCategory.DEPOSIT.name to {
-            appViewModel.addRecentService(ServiceCategory.DEPOSIT)
-            navController.navigate(AppGraph.DepositGraph.name)
-        },
-        ServiceCategory.BILL_PAYMENT.name to {
-            appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
-            navController.navigate(Screens.PayBill.name)
-        },
 
-        ServiceCategory.BILL_HISTORY.name to {
-            appViewModel.addRecentService(ServiceCategory.BILL_HISTORY)
-            billHistoryViewModel.clearState()
-            navController.navigate(Screens.BillHistory.name)
-        },
-        ServiceCategory.PAY_LATER.name to {
-            appViewModel.addRecentService(ServiceCategory.PAY_LATER)
-            payLaterViewModel.init(
-                onError = onError
-            )
-            navController.navigate(Screens.PayLater.name)
-        },
-        ServiceCategory.BILL_CREATE.name to {
-            appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
-            createBillViewModel.init()
-            navController.navigate(Screens.CreateBill.name)
-        }
-
-
+    val navigator = createServiceNavigator(
+        navController = navController,
+        appViewModel = appViewModel,
+        billHistoryViewModel = billHistoryViewModel,
+        payLaterViewModel = payLaterViewModel,
+        createBillViewModel = createBillViewModel,
+        onError = onError
     )
+
     val userComponent: @Composable () -> Unit = {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(
-                    space = 10.dp,
-                    alignment = Alignment.Start
-                ),
-
-                modifier = Modifier.weight(1f)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .size(50.dp)
-                        .background(
-                            color = White1,
-                            shape = CircleShape
-                        ),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    if (appUiState.avatarUrl == null) {
-                        DefaultImageProfile(
-                            modifier = Modifier
-                                .size(100.dp),
-                            name = appUiState.fullName
-                        )
-                    } else {
-
-                        AsyncImage(
-                            model = appUiState.avatarUrl,
-                            contentDescription = "Avatar",
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clip(CircleShape),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-
-                }
-                Column(
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
-                        color = White1,
-                        style = AppTypography.bodySmall
-                    )
-                    Text(
-                        text = "Xin chào, ${appUiState.fullName}!",
-                        color = White1,
-                        style = AppTypography.bodyMedium
-                    )
-                }
+        UserHeaderComponent(
+            avatarUrl = appUiState.avatarUrl,
+            fullName = appUiState.fullName,
+            onNotificationClick = {
+                navController.navigate(Screens.Notification.name)
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(
-                    onClick = {
-                        navController.navigate(Screens.Notification.name)
-                    },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .align(
-                            Alignment.CenterVertically
-                        )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = null,
-                        tint = White1,
-                        modifier = Modifier.size(35.dp)
-                    )
-                }
-            }
-        }
+        )
     }
     Box(
         modifier = Modifier
@@ -330,7 +190,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-            navController = navController, startDestination = AppGraph.SpendingGraph.name
+            navController = navController, startDestination = AppGraph.SignInGraph.name
         ) {
             signInGraph(
                 navController = navController,
@@ -348,7 +208,7 @@ fun AppScreen(
                             }
 
                             is HomeEffect.NavigateToServiceScreen -> {
-                                navigator[effect.service.name]?.invoke()
+                                navigator[effect.service.name]?.let { it() }
                             }
 
                             HomeEffect.NavigateToAllServiceScreen -> {
@@ -441,7 +301,7 @@ fun AppScreen(
                         when (effect) {
                             is AllServiceEffect.ShowSnackBar -> snackBarInstance = effect.snackBar
                             is AllServiceEffect.NavigateToServiceScreen -> {
-                                navigator[effect.service.name]?.invoke()
+                                navigator[effect.service.name]?.let { it() }
                             }
 
                         }
@@ -965,6 +825,13 @@ fun AppScreen(
 
 
 
+            composable(route = Screens.CategoryManagement.name) {
+                CategoryManagement(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
             composable(route = Screens.Notification.name) {
                 val notificationViewModel: NotificationViewModel = hiltViewModel()
                 val uiState by notificationViewModel.uiState.collectAsState()
@@ -1065,3 +932,177 @@ fun AppScreen(
         }
     }
 }
+
+@Composable
+private fun AppNavigationBar(
+    currentTab: TabNavigation,
+    navController: NavHostController
+) {
+    NavigationBar(
+        bottomBarHeight = 100.dp,
+        currentTab = currentTab,
+        onNavigateToSettingScreen = {
+            navController.navigate(Screens.Settings.name) {
+                popUpTo(Screens.Home.name) { inclusive = false }
+                launchSingleTop = true
+            }
+        },
+        onNavigateToHomeScreen = {
+            navController.popBackStack(Screens.Home.name, inclusive = false)
+        },
+        onNavigateToTransactionHistoryScreen = {
+            navController.navigate(Screens.TransactionHistory.name) {
+                popUpTo(Screens.Home.name) { inclusive = false }
+                launchSingleTop = true
+            }
+        },
+        onNavigateToAnalyticsScreen = {
+            navController.navigate(Screens.Analytic.name) {
+                popUpTo(Screens.Home.name) { inclusive = false }
+                launchSingleTop = true
+            }
+        },
+        onNavigateToQRScanner = {
+            navController.navigate(Screens.QRScanner.name) {
+                popUpTo(Screens.Home.name) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+    )
+}
+
+@Composable
+private fun UserHeaderComponent(
+    avatarUrl: Any?,
+    fullName: String,
+    onNotificationClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.Start),
+            modifier = Modifier.weight(1f)
+        ) {
+            UserAvatar(avatarUrl = avatarUrl, name = fullName)
+            UserGreeting(fullName = fullName)
+        }
+        NotificationButton(onClick = onNotificationClick)
+    }
+}
+
+@Composable
+private fun UserAvatar(avatarUrl: Any?, name: String) {
+    Column(
+        modifier = Modifier
+            .size(50.dp)
+            .background(color = White1, shape = CircleShape),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (avatarUrl == null) {
+            DefaultImageProfile(
+                modifier = Modifier.size(100.dp),
+                name = name
+            )
+        } else {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = "Avatar",
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        }
+    }
+}
+
+@Composable
+private fun UserGreeting(fullName: String) {
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Hôm nay, ${formatterDateString(LocalDate.now())}",
+            color = White1,
+            style = AppTypography.bodySmall
+        )
+        Text(
+            text = "Xin chào, $fullName!",
+            color = White1,
+            style = AppTypography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun NotificationButton(onClick: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.End
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Notifications,
+                contentDescription = "Notifications",
+                tint = White1,
+                modifier = Modifier.size(35.dp)
+            )
+        }
+    }
+}
+
+private fun createServiceNavigator(
+    navController: NavHostController,
+    appViewModel: AppViewModel,
+    billHistoryViewModel: BillHistoryViewModel,
+    payLaterViewModel: PayLaterViewModel,
+    createBillViewModel: CreateBillViewModel,
+    onError: (String) -> Unit
+): Map<String, () -> Unit> {
+    return mapOf(
+        ServiceCategory.MONEY_TRANSFER.name to {
+            appViewModel.addRecentService(ServiceCategory.MONEY_TRANSFER)
+            navController.navigate(Screens.Transfer.name)
+        },
+        ServiceCategory.DEPOSIT.name to {
+            appViewModel.addRecentService(ServiceCategory.DEPOSIT)
+            navController.navigate(AppGraph.DepositGraph.name)
+        },
+        ServiceCategory.BILL_PAYMENT.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_PAYMENT)
+            navController.navigate(Screens.PayBill.name)
+        },
+        ServiceCategory.BILL_HISTORY.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_HISTORY)
+            billHistoryViewModel.clearState()
+            navController.navigate(Screens.BillHistory.name)
+        },
+        ServiceCategory.PAY_LATER.name to {
+            appViewModel.addRecentService(ServiceCategory.PAY_LATER)
+            payLaterViewModel.init(onError = onError)
+            navController.navigate(Screens.PayLater.name)
+        },
+        ServiceCategory.BILL_CREATE.name to {
+            appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
+            createBillViewModel.init()
+            navController.navigate(Screens.CreateBill.name)
+        },
+        ServiceCategory.Spending.name to {
+            appViewModel.addRecentService(ServiceCategory.Spending)
+            navController.navigate(AppGraph.SpendingGraph.name)
+        }
+
+
+    )
+}
+

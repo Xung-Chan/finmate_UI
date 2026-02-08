@@ -8,6 +8,7 @@ import com.example.ibanking_kltn.dtos.requests.SpendingSnapshotRequest
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotResponse
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.utils.SnackBarType
+import com.example.ibanking_kltn.utils.formatterDateString
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
@@ -39,13 +40,21 @@ class SpendingManagementViewModel @Inject constructor(
             is SpendingManagementEvent.CreateSpendingSnapshot -> createSpendingSnapshot(
                 snapshotName = event.snapshotName,
                 budgetAmount = event.budgetAmount,
-                monthlySpending = event.monthlySpending.toString()
+                monthlySpending = formatterDateString(event.monthlySpending,"yyyy/MM")
             )
-
+            is SpendingManagementEvent.UpdateSpendingSnapshot -> updateSpendingSnapshot(
+                snapshotId = event.snapshotId,
+                snapshotName = event.snapshotName,
+                budgetAmount = event.budgetAmount,
+                monthlySpending = formatterDateString(event.monthlySpending,"yyyy/MM")
+            )
+            is SpendingManagementEvent.DeleteSpendingSnapshot -> deleteSpendingSnapshot(event.snapshotId)
             is SpendingManagementEvent.RetryInitSpendingSnapshots -> reinitSpendingSnapshots()
             is SpendingManagementEvent.RefreshSpendingSnapshots -> reloadSpendingSnapshots()
             is SpendingManagementEvent.NavigateToDetail -> navigateToDetail(event.snapshotId)
-            SpendingManagementEvent.ChangeAddDialogState ->changeAddDialogState()
+            SpendingManagementEvent.ChangeAddDialogState -> changeAddDialogState()
+            is SpendingManagementEvent.ChangeEditDialogState -> changeEditDialogState(event.snapshotId)
+            is SpendingManagementEvent.ChangeDeleteDialogState -> changeDeleteDialogState(event.snapshotId)
         }
     }
 
@@ -53,6 +62,24 @@ class SpendingManagementViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isShowAddDialog = !it.isShowAddDialog
+            )
+        }
+    }
+
+    private fun changeEditDialogState(snapshotId: String?) {
+        _uiState.update {
+            it.copy(
+                isShowEditDialog = !it.isShowEditDialog,
+                selectedSnapshotId = snapshotId
+            )
+        }
+    }
+
+    private fun changeDeleteDialogState(snapshotId: String?) {
+        _uiState.update {
+            it.copy(
+                isShowDeleteDialog = !it.isShowDeleteDialog,
+                selectedSnapshotId = snapshotId
             )
         }
     }
@@ -223,6 +250,118 @@ class SpendingManagementViewModel @Inject constructor(
             }
         }
 
+    }
+
+    private fun updateSpendingSnapshot(
+        snapshotId: String,
+        snapshotName: String,
+        budgetAmount: Long,
+        monthlySpending: String
+    ) {
+        _uiState.update {
+            it.copy(
+                screenState = SpendingManagementState.LOADING
+            )
+        }
+        viewModelScope.launch {
+            if(snapshotName.isEmpty() || budgetAmount<=0L){
+                _uiState.update {
+                    it.copy(
+                        screenState = SpendingManagementState.NONE
+                    )
+                }
+                _uiEffect.emit(
+                    SpendingManagementEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = "Vui lòng điền đầy đủ thông tin",
+                            type = SnackBarType.WARNING
+                        )
+                    )
+                )
+                return@launch
+            }
+
+            val request = SpendingSnapshotRequest(
+                snapshotName = snapshotName,
+                budgetAmount = budgetAmount.toBigDecimal(),
+                monthlySpending = monthlySpending
+            )
+            val apiResult = spendingRepository.updateSpendingSnapshot(
+                snapshotId = snapshotId,
+                request = request
+            )
+            when (apiResult) {
+                is ApiResult.Success -> {
+                    _uiEffect.emit(
+                        SpendingManagementEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Cập nhật quỹ chi tiêu thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                    changeEditDialogState(null)
+                    reloadSpendingSnapshots()
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingManagementState.NONE
+                        )
+                    }
+                    _uiEffect.emit(
+                        SpendingManagementEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun deleteSpendingSnapshot(snapshotId: String) {
+        _uiState.update {
+            it.copy(
+                screenState = SpendingManagementState.LOADING
+            )
+        }
+        viewModelScope.launch {
+            val apiResult = spendingRepository.deleteSpendingSnapshot(snapshotId)
+            when (apiResult) {
+                is ApiResult.Success -> {
+                    _uiEffect.emit(
+                        SpendingManagementEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Xóa quỹ chi tiêu thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                    changeDeleteDialogState(null)
+                    reloadSpendingSnapshots()
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingManagementState.NONE
+                        )
+                    }
+                    _uiEffect.emit(
+                        SpendingManagementEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+            }
+        }
     }
 
     private fun navigateToDetail(snapshotId: String) {

@@ -10,10 +10,19 @@ sealed class SpendingManagementEvent {
         val budgetAmount: Long,
         val monthlySpending: LocalDate
     ) : SpendingManagementEvent()
+    data class UpdateSpendingSnapshot(
+        val snapshotId: String,
+        val snapshotName: String,
+        val budgetAmount: Long,
+        val monthlySpending: LocalDate
+    ) : SpendingManagementEvent()
+    data class DeleteSpendingSnapshot(val snapshotId: String) : SpendingManagementEvent()
     data class NavigateToDetail(val snapshotId: String) : SpendingManagementEvent()
     object RetryInitSpendingSnapshots : SpendingManagementEvent()
     object RefreshSpendingSnapshots : SpendingManagementEvent()
     object  ChangeAddDialogState : SpendingManagementEvent()
+    data class ChangeEditDialogState(val snapshotId: String? = null) : SpendingManagementEvent()
+    data class ChangeDeleteDialogState(val snapshotId: String? = null) : SpendingManagementEvent()
 }
 
 sealed class SpendingManagementEffect {

@@ -14,7 +14,8 @@ enum class Screens {
     VerificationRequest,
     SavedReceiver,
     PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle,
-    SpendingManagement, SpendingSnapshotDetail, SpendingCategory
+    SpendingManagement, SpendingSnapshotDetail, SpendingCategory,
+    CategoryManagement,
 }
 
 enum class AppGraph {

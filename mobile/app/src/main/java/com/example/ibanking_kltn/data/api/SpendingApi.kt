@@ -22,11 +22,11 @@ import retrofit2.http.Query
 
 
 interface SpendingApi {
-    @GET("/api/spending/snapshots")
+    @GET("/api/spending/snapshots/")
     suspend fun getAllSpending(
     ): Response<List<SpendingSnapshotResponse>>
 
-    @POST("/api/spending/snapshots")
+    @POST("/api/spending/snapshots/")
     suspend fun createSpendingSnapshot(
         @Body request: SpendingSnapshotRequest
     ): Response<SpendingSnapshotResponse>
@@ -38,7 +38,7 @@ interface SpendingApi {
         @Body request: SpendingSnapshotRequest
     ): Response<SpendingSnapshotResponse>
 
-    @DELETE("/api/spending/snapshots")
+    @DELETE("/api/spending/snapshots/")
     suspend fun deleteSpendingSnapshot(
         @Query("snapshotId") snapshotId: String,
     ): Response<Unit>
@@ -98,7 +98,7 @@ interface SpendingApi {
 
 
     // GET /system
-    @GET("/api/spending/categories/system")
+    @GET("/api/spending/categories/system/")
     suspend fun getAllSystemSpendingCategories(
 
     ):    Response<List<SpendingCategoryDetailResponse>>
