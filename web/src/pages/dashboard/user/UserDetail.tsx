@@ -61,7 +61,7 @@ const UserDetailPage: React.FC = () => {
         <Section title="Thông tin cá nhân" description="Cập nhật thông tin cơ bản của người dùng">
           <Form layout="vertical" form={form}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Form.Item label="Họ tên" name="fullName" rules={[{ required: true }]}>
+              <Form.Item label="Họ tên" name="merchantName" rules={[{ required: true }]}>
                 <Input />
               </Form.Item>
               <Form.Item label="Số điện thoại" name="phoneNumber" rules={[{ required: true }]}>

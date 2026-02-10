@@ -11,7 +11,7 @@ data class SpendingSnapshotRequest(
 )
 
 data class SpendingCategorySnapshotRequest(
-    val categoryId: UUID,
+    val categoryId: String,
     val budgetAmount: BigDecimal,
     val budgetName: String
 )
@@ -24,10 +24,9 @@ data class SpendingRecordRequest(
 )
 
 data class DefinedSpendingCategoryRequest(
-    val id: UUID? = null,
-    var username: String? = null,
+    val id: String? = null,
     val code: String,
-    val systemCategoryId: UUID? = null,
+    val systemCategoryId: String? = null,
     val name: String,
     val icon: String,
     val textColor: String,

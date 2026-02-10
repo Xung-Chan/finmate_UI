@@ -30,9 +30,13 @@ data class SpendingDetailUiState(
 
     // Category Management
     val isShowAddCategoryDialog: Boolean = false,
+    val isShowEditCategoryDialog: Boolean = false,
     val categoryId: String = "",
+    val selectedIconCode: String = "",
+    val selectedIconColor: String = "#000000",
     val categoryBudget: BigDecimal = BigDecimal.ZERO,
     val categoryBudgetName: String = "",
+    val editingCategoryCode: String? = null,
 
     val definedCategories: List<DefinedSpendingCategoryResponse> = listOf(),
 )

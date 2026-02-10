@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.management
+package com.example.ibanking_kltn.ui.screens.spending.spending_management
 
 
 import androidx.compose.foundation.Image
@@ -145,7 +145,7 @@ fun SpendingManagement(
                                 .fillMaxWidth()
                                 .weight(1f)
                                 .padding(horizontal = 20.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
                             Row(
                                 modifier = Modifier
@@ -158,23 +158,25 @@ fun SpendingManagement(
                                         spotColor = Black1.copy(alpha = 0.25f)
                                     )
                                     .background(color = White1, shape = RoundedCornerShape(15.dp))
-                                    .customClick(
-                                        shape = RoundedCornerShape(15.dp),
-                                        onClick = {
-                                            onEvent(
-                                                SpendingManagementEvent.ChangeAddDialogState
-                                            )
-                                        }
-                                    )
-                                    .padding(10.dp)
+
+                                    .padding(10.dp),
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
                                 Row(
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .weight(1f)
                                         .border(
                                             width = 1.dp,
                                             color = Black1,
                                             shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .customClick(
+                                            shape = RoundedCornerShape(15.dp),
+                                            onClick = {
+                                                onEvent(
+                                                    SpendingManagementEvent.ChangeAddDialogState
+                                                )
+                                            }
                                         )
                                         .padding(vertical = 10.dp),
                                     horizontalArrangement = Arrangement.spacedBy(
@@ -195,6 +197,41 @@ fun SpendingManagement(
                                         style = AppTypography.bodySmall
                                     )
                                 }
+                                Row(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .border(
+                                            width = 1.dp,
+                                            color = Black1,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .customClick(
+                                            shape = RoundedCornerShape(15.dp),
+                                            onClick = {
+                                                onEvent(
+                                                    SpendingManagementEvent.NavigateToCategoryManagement
+                                                )
+                                            }
+                                        )
+                                        .padding(vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(
+                                        5.dp,
+                                        Alignment.CenterHorizontally
+                                    ),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(
+                                            R.drawable.category_service
+                                        ),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(15.dp)
+                                    )
+                                    Text(
+                                        text = "Danh mục",
+                                        style = AppTypography.bodySmall
+                                    )
+                                }
                             }
                             PullToRefreshBox(
                                 isRefreshing = uiState.screenState == SpendingManagementState.REFRESHING,
@@ -208,18 +245,32 @@ fun SpendingManagement(
                                     .fillMaxWidth()
                                     .weight(1f)
                             ) {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    items(
-                                        items = uiState.spendingSnapshots,
-                                    ) { spending ->
-                                        SpendingSnapshotCompose(
-                                            spending = spending,
-                                            onEvent = onEvent
+                                if (uiState.spendingSnapshots.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "Chưa có quỹ chi tiêu.",
+                                            style = AppTypography.bodyMedium,
+                                            color = Gray1
                                         )
                                     }
+                                } else {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        items(
+                                            items = uiState.spendingSnapshots,
+                                        ) { spending ->
+                                            SpendingSnapshotCompose(
+                                                spending = spending,
+                                                onEvent = onEvent
+                                            )
+                                        }
+                                    }
+
                                 }
                             }
                         }
@@ -729,10 +780,10 @@ private fun SpendingSnapshotCompose(
                 }
             }
         }
-        Column (
+        Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(5.dp)
-        ){
+        ) {
             IconButton(
                 onClick = {
                     onEvent(SpendingManagementEvent.ChangeEditDialogState(spending.id))

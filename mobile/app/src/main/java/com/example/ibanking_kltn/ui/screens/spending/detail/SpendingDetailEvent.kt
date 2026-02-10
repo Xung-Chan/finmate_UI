@@ -10,11 +10,15 @@ sealed class SpendingDetailEvent {
     object AddTransaction : SpendingDetailEvent()
     object ViewCategories : SpendingDetailEvent()
     object ChangeVisibleAddDialog : SpendingDetailEvent()
-    object AddSpendingCategory: SpendingDetailEvent()
-    data class DeleteSpendingCategory( val categoryCode:String): SpendingDetailEvent()
-    data class ChangeCategoryName( val categoryName:String): SpendingDetailEvent()
-    data class ChangeCategoryBudget( val categoryBudget:String): SpendingDetailEvent()
-    data class ChangeCategoryIcon( val icon:String): SpendingDetailEvent()
+    object ChangeVisibleEditDialog : SpendingDetailEvent()
+    object AddSpendingCategory : SpendingDetailEvent()
+    object UpdateSpendingCategory : SpendingDetailEvent()
+    data class DeleteSpendingCategory(val categoryCode: String) : SpendingDetailEvent()
+    data class ShowEditDialog(val categoryCode: String) : SpendingDetailEvent()
+    data class ChangeCategoryName(val categoryName: String) : SpendingDetailEvent()
+    data class ChangeCategoryBudget(val categoryBudget: String) : SpendingDetailEvent()
+    data class ChangeCategoryIcon(val id: String, val code: String, val color: String) :
+        SpendingDetailEvent()
 }
 
 sealed class SpendingDetailEffect {

@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.example.ibanking_kltn.data.repositories.SpendingRepository
 import com.example.ibanking_kltn.dtos.definitions.NavKey
+import com.example.ibanking_kltn.dtos.requests.SpendingCategorySnapshotRequest
 import com.example.ibanking_kltn.ui.paging_sources.SpendingHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.utils.SnackBarType
@@ -82,17 +83,26 @@ class SpendingDetailViewModel @Inject constructor(
             SpendingDetailEvent.AddTransaction -> navigateToAddTransaction()
             SpendingDetailEvent.ViewCategories -> navigateToCategory()
             SpendingDetailEvent.AddSpendingCategory -> addCategory()
+            SpendingDetailEvent.UpdateSpendingCategory -> updateCategory()
             SpendingDetailEvent.ChangeVisibleAddDialog -> changeVisibleAddDialog()
+            SpendingDetailEvent.ChangeVisibleEditDialog -> changeVisibleEditDialog()
+            is SpendingDetailEvent.ShowEditDialog -> showEditDialog(event.categoryCode)
             is SpendingDetailEvent.ChangeCategoryBudget -> changeCategoryBudget(event.categoryBudget)
-            is SpendingDetailEvent.ChangeCategoryIcon -> changeCategoryIcon(event.icon)
+            is SpendingDetailEvent.ChangeCategoryIcon -> changeCategoryIcon(
+                id = event.id,
+                code = event.code,
+                color = event.color
+            )
+
             is SpendingDetailEvent.ChangeCategoryName -> changeCategoryName(event.categoryName)
             is SpendingDetailEvent.DeleteSpendingCategory -> deleteCategory(event.categoryCode)
         }
     }
 
     private fun retryLoadData(
+        forceReload: Boolean = false
     ) {
-        if (uiState.value.spendingSnapshot == null) {
+        if (uiState.value.spendingSnapshot == null || forceReload) {
 
 
             viewModelScope.launch {
@@ -210,11 +220,183 @@ class SpendingDetailViewModel @Inject constructor(
     }
 
     private fun addCategory() {
-        //todo
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.LOADING)
+            }
+
+
+            val request = SpendingCategorySnapshotRequest(
+                categoryId = uiState.value.categoryId,
+                budgetAmount = uiState.value.categoryBudget,
+                budgetName = uiState.value.categoryBudgetName
+            )
+
+            val result = spendingRepository.upsertSpendingCategoryDetail(
+                snapshotId = uiState.value.snapshotId!!,
+                request = request
+            )
+
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = "Thêm danh mục thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                    // Reset dialog state
+                    _uiState.update {
+                        it.copy(
+                            isShowAddCategoryDialog = false,
+                            categoryId = "",
+                            categoryBudget = BigDecimal.ZERO,
+                            categoryBudgetName = ""
+                        )
+                    }
+                    // Reload data
+                    retryLoadData(forceReload = true)
+                }
+            }
+
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.NONE)
+            }
+        }
+    }
+
+    private fun updateCategory() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.LOADING)
+            }
+
+
+            val request = SpendingCategorySnapshotRequest(
+                categoryId = uiState.value.categoryId,
+                budgetAmount = uiState.value.categoryBudget,
+                budgetName = uiState.value.categoryBudgetName
+            )
+
+            val result = spendingRepository.upsertSpendingCategoryDetail(
+                snapshotId = uiState.value.snapshotId!!,
+                request = request
+            )
+
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = "Cập nhật danh mục thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                    // Reset dialog state
+                    _uiState.update {
+                        it.copy(
+                            isShowEditCategoryDialog = false,
+                            editingCategoryCode = null,
+                            categoryId = "",
+                            categoryBudget = BigDecimal.ZERO,
+                            categoryBudgetName = ""
+                        )
+                    }
+                    // Reload data
+                    retryLoadData(forceReload = true)
+                }
+            }
+
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.NONE)
+            }
+        }
     }
 
     private fun deleteCategory(categoryCode: String) {
-        //todo
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.LOADING)
+            }
+
+            val result = spendingRepository.deleteSpendingCategoryDetail(
+                snapshotId = uiState.value.snapshotId!!,
+                categoryCode = categoryCode
+            )
+
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = "Xóa danh mục thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                    // Reload data
+                    retryLoadData(forceReload = true)
+                }
+            }
+
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.NONE)
+            }
+        }
+    }
+
+    private fun showEditDialog(categoryCode: String) {
+        val category = uiState.value.spendingSnapshot?.spendingCategories?.find {
+            it.categoryCode == categoryCode
+        }
+
+        if (category != null) {
+            _uiState.update {
+                it.copy(
+                    isShowEditCategoryDialog = true,
+                    editingCategoryCode = categoryCode,
+                    categoryId = category.categoryId,
+                    categoryBudget = category.budgetAmount,
+                    categoryBudgetName = category.categoryName
+                )
+            }
+        }
     }
 
     private fun changeCategoryName(categoryName: String) {
@@ -241,10 +423,12 @@ class SpendingDetailViewModel @Inject constructor(
 
     }
 
-    private fun changeCategoryIcon(icon: String) {
+    private fun changeCategoryIcon(id: String, code: String,color: String) {
         _uiState.update {
             it.copy(
-                //todo
+                categoryId = id,
+                selectedIconCode = code,
+                selectedIconColor = color
             )
         }
     }
@@ -252,7 +436,22 @@ class SpendingDetailViewModel @Inject constructor(
     private fun changeVisibleAddDialog() {
         _uiState.update {
             it.copy(
-                isShowAddCategoryDialog = !it.isShowAddCategoryDialog
+                isShowAddCategoryDialog = !it.isShowAddCategoryDialog,
+                categoryId = "",
+                categoryBudget = BigDecimal.ZERO,
+                categoryBudgetName = ""
+            )
+        }
+    }
+
+    private fun changeVisibleEditDialog() {
+        _uiState.update {
+            it.copy(
+                isShowEditCategoryDialog = !it.isShowEditCategoryDialog,
+                editingCategoryCode = null,
+                categoryId = "",
+                categoryBudget = BigDecimal.ZERO,
+                categoryBudgetName = ""
             )
         }
     }

@@ -3,7 +3,7 @@ import type { UserStatus, RoleStatus } from "@/enum/status";
 export interface UserResource {
     id: string;
     username?: string;
-    fullName?: string;
+    merchantName?: string;
     mail?: string;
     phoneNumber?: string;
     avatarUrl?: string;
@@ -23,7 +23,7 @@ export interface CreateSingleUserRequest {
     mail?: string;
     phoneNumber?: string;
     role?: RoleStatus;
-    fullName: string;
+    merchantName: string;
     gender: "MALE" | "FEMALE"
     dateOfBirth?: string;
     address?: string;

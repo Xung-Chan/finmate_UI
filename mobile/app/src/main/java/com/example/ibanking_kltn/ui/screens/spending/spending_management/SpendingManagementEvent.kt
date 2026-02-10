@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.management
+package com.example.ibanking_kltn.ui.screens.spending.spending_management
 
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import java.time.LocalDate
@@ -21,6 +21,7 @@ sealed class SpendingManagementEvent {
     object RetryInitSpendingSnapshots : SpendingManagementEvent()
     object RefreshSpendingSnapshots : SpendingManagementEvent()
     object  ChangeAddDialogState : SpendingManagementEvent()
+    object  NavigateToCategoryManagement : SpendingManagementEvent()
     data class ChangeEditDialogState(val snapshotId: String? = null) : SpendingManagementEvent()
     data class ChangeDeleteDialogState(val snapshotId: String? = null) : SpendingManagementEvent()
 }
@@ -28,4 +29,5 @@ sealed class SpendingManagementEvent {
 sealed class SpendingManagementEffect {
     data class ShowSnackBar(val snackBar: SnackBarUiState) : SpendingManagementEffect()
     data class NavigateToDetail(val route: String) : SpendingManagementEffect()
+    object NavigateToCategoryManagement : SpendingManagementEffect()
 }

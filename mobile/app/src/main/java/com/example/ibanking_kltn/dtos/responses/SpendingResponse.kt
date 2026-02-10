@@ -44,13 +44,14 @@ data class DefinedSpendingCategoryResponse(
     val name: String,
     val code: String,
     val icon: String,
-    val textColor: String?,
-    val backgroundColor: String?,
+    val textColor: String,
+    val backgroundColor: String,
     val systemCategoryCode: String,
     val systemCategoryName: String
 )
 
 data class SpendingCategoryDetailResponse(
+    val categoryId:String,
     val categoryName: String,
     val categoryCode: String,
     val categoryIcon: String,

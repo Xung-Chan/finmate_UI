@@ -68,7 +68,6 @@ import com.example.ibanking_kltn.ui.screens.bill.history.BillHistoryViewModel
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.BillViewModel
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillEffect
 import com.example.ibanking_kltn.ui.screens.bill.pay_bill.PayBillScreen
-import com.example.ibanking_kltn.ui.screens.category_management.CategoryManagement
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmContent
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEffect
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEvent
@@ -190,6 +189,7 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
+//            navController = navController, startDestination = Screens.CategoryManagement.name
             navController = navController, startDestination = AppGraph.SignInGraph.name
         ) {
             signInGraph(
@@ -825,13 +825,7 @@ fun AppScreen(
 
 
 
-            composable(route = Screens.CategoryManagement.name) {
-                CategoryManagement(
-                    onBackClick = {
-                        navController.popBackStack()
-                    }
-                )
-            }
+
             composable(route = Screens.Notification.name) {
                 val notificationViewModel: NotificationViewModel = hiltViewModel()
                 val uiState by notificationViewModel.uiState.collectAsState()
@@ -1097,9 +1091,13 @@ private fun createServiceNavigator(
             createBillViewModel.init()
             navController.navigate(Screens.CreateBill.name)
         },
-        ServiceCategory.Spending.name to {
-            appViewModel.addRecentService(ServiceCategory.Spending)
+        ServiceCategory.SPENDING.name to {
+            appViewModel.addRecentService(ServiceCategory.SPENDING)
             navController.navigate(AppGraph.SpendingGraph.name)
+        },
+        ServiceCategory.CATEGORY_MANAGEMENT.name to {
+            appViewModel.addRecentService(ServiceCategory.CATEGORY_MANAGEMENT)
+            navController.navigate(Screens.CategoryManagement.name)
         }
 
 

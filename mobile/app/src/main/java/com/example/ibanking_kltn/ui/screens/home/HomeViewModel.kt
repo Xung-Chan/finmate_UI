@@ -153,14 +153,15 @@ class HomeViewModel @Inject constructor(
                 )
             )
             if(fcmResult is ApiResult.Error){
-                _uiEffect.emit(
-                    HomeEffect.ShowSnackBar(
-                        snackBar = SnackBarUiState(
-                            message = fcmResult.message,
-                            type = SnackBarType.ERROR
-                        )
-                    )
-                )
+                //todo
+//                _uiEffect.emit(
+//                    HomeEffect.ShowSnackBar(
+//                        snackBar = SnackBarUiState(
+//                            message = fcmResult.message,
+//                            type = SnackBarType.ERROR
+//                        )
+//                    )
+//                )
             }
             _uiState.update {
                 it.copy(

@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.dtos.definitions.CategoryIcon
 import com.example.ibanking_kltn.dtos.responses.SpendingCategoryDetailResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotDetailResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
@@ -61,9 +62,9 @@ import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.CustomConfirmDialog
 import com.example.ibanking_kltn.utils.CustomTextField
-import com.example.ibanking_kltn.utils.colorFromLabel
 import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterVND
+import com.example.ibanking_kltn.utils.toColorFromHex
 import java.math.BigDecimal
 
 
@@ -80,6 +81,9 @@ fun SpendingCategory(
     )
     var isShowBottomSheet by remember {
         mutableStateOf(false)
+    }
+    var categoryToDelete by remember {
+        mutableStateOf<String?>(null)
     }
 
     Box {
@@ -140,6 +144,7 @@ fun SpendingCategory(
                 }
                 return@Scaffold
             }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -147,15 +152,27 @@ fun SpendingCategory(
                     .verticalScroll(scrollState)
                     .padding(horizontal = 20.dp)
             ) {
-
+                if (uiState.spendingSnapshot.spendingCategories.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Chưa có danh mục chi tiêu nào. Nhấn nút + để thêm danh mục.",
+                            style = AppTypography.bodyMedium,
+                            color = Gray1,
+                            modifier = Modifier.padding(top = 20.dp)
+                        )
+                    }
+                }
                 uiState.spendingSnapshot.spendingCategories.forEach { category ->
                     val budget = category.budgetAmount.toFloat()
                     val used = category.usedAmount.toFloat()
                     val percentUsed = if (budget > 0f) (used / budget).coerceIn(0f, 1f) else 0f
                     val percentLabel = "${(percentUsed * 100).toInt()}%"
 
-                    val iconRes = category.categoryIcon.toIntOrNull() ?: R.drawable.airplane_service
-
+                    val iconRes = CategoryIcon.fromCode(category.categoryIcon).resId
+                    val color = category.textColor.toColorFromHex()
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -175,7 +192,7 @@ fun SpendingCategory(
                             modifier = Modifier
                                 .size(40.dp)
                                 .background(
-                                    color = colorFromLabel(category.categoryName).copy(alpha = 0.15f),
+                                    color = color.copy(alpha = 0.15f),
                                     shape = RoundedCornerShape(8.dp)
                                 ),
                             contentAlignment = Alignment.Center
@@ -183,7 +200,7 @@ fun SpendingCategory(
                             Icon(
                                 painter = painterResource(id = iconRes),
                                 contentDescription = null,
-                                tint = colorFromLabel(category.categoryName),
+                                tint = color,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -239,7 +256,7 @@ fun SpendingCategory(
                                         .fillMaxWidth(percentUsed)
                                         .height(8.dp)
                                         .background(
-                                            color = colorFromLabel(category.categoryName),
+                                            color = color,
                                             shape = RoundedCornerShape(4.dp)
                                         )
                                 )
@@ -253,7 +270,11 @@ fun SpendingCategory(
                         ) {
                             IconButton(
                                 onClick = {
-                                    ///todo
+                                    onEvent(
+                                        SpendingDetailEvent.ShowEditDialog(
+                                            categoryCode = category.categoryCode
+                                        )
+                                    )
                                 },
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -266,11 +287,7 @@ fun SpendingCategory(
                             }
                             IconButton(
                                 onClick = {
-                                    onEvent(
-                                        SpendingDetailEvent.DeleteSpendingCategory(
-                                            categoryCode = category.categoryCode
-                                        )
-                                    )
+                                    categoryToDelete = category.categoryCode
                                 },
                                 modifier = Modifier.size(32.dp)
                             ) {
@@ -309,13 +326,13 @@ fun SpendingCategory(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
 
                 ) {
-                    val selectedIconRes = uiState.categoryId.toIntOrNull() ?: R.drawable.unknown
-
+                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIconCode).resId
+                    val color = uiState.selectedIconColor.toColorFromHex()
                     Box(
                         modifier = Modifier
                             .size(60.dp)
                             .background(
-                                color = Blue3.copy(alpha = 0.15f),
+                                color = color.copy(alpha = 0.15f),
                                 shape = CircleShape
                             )
                             .customClick(
@@ -329,7 +346,7 @@ fun SpendingCategory(
                         Icon(
                             painter = painterResource(selectedIconRes),
                             contentDescription = null,
-                            tint = Blue3,
+                            tint = color,
                             modifier = Modifier.size(30.dp)
                         )
                     }
@@ -361,15 +378,108 @@ fun SpendingCategory(
                     )
                     CustomTextField(
                         modifier = Modifier.fillMaxWidth(),
-                        value =formatterVND(uiState.categoryBudget.toLong()),
+                        value = formatterVND(uiState.categoryBudget.toLong()),
                         keyboardOptions = KeyboardOptions(
                             imeAction = ImeAction.Done,
                             keyboardType = KeyboardType.Number
                         ),
                         onValueChange = {
-                           onEvent(
+                            onEvent(
                                 SpendingDetailEvent.ChangeCategoryBudget(it)
-                           )
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                "Ngân sách", style = AppTypography.bodyMedium,
+                                color = Gray2
+                            )
+                        },
+                    )
+                }
+            }
+        }
+        if (uiState.isShowEditCategoryDialog) {
+            CustomConfirmDialog(
+                dismissText = "Hủy",
+                confirmText = "Cập nhật",
+                onDismiss = {
+                    onEvent(
+                        SpendingDetailEvent.ChangeVisibleEditDialog
+                    )
+                },
+                onConfirm = {
+                    onEvent(
+                        SpendingDetailEvent.UpdateSpendingCategory
+                    )
+                },
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+
+                ) {
+                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIconCode).resId
+                    val color = uiState.selectedIconColor.toColorFromHex()
+                    Box(
+                        modifier = Modifier
+                            .size(60.dp)
+                            .background(
+                                color = color.copy(alpha = 0.15f),
+                                shape = CircleShape
+                            )
+                            .customClick(
+                                shape = CircleShape,
+                                onClick = {
+                                    isShowBottomSheet = true
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(selectedIconRes),
+                            contentDescription = null,
+                            tint = color,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+
+                    Text(
+                        text = "Chọn biểu tượng",
+                        style = AppTypography.labelMedium,
+                        color = Gray1,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = uiState.categoryBudgetName,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Next,
+                            keyboardType = KeyboardType.Text
+                        ),
+                        onValueChange = {
+                            onEvent(
+                                SpendingDetailEvent.ChangeCategoryName(it)
+                            )
+                        },
+                        placeholder = {
+                            Text(
+                                "Tên danh mục", style = AppTypography.bodyMedium,
+                                color = Gray2
+                            )
+                        },
+                    )
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = formatterVND(uiState.categoryBudget.toLong()),
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                            keyboardType = KeyboardType.Number
+                        ),
+                        onValueChange = {
+                            onEvent(
+                                SpendingDetailEvent.ChangeCategoryBudget(it)
+                            )
                         },
                         placeholder = {
                             Text(
@@ -421,10 +531,11 @@ fun SpendingCategory(
                             .height(400.dp)
                             .padding(top = 16.dp)
                     ) {
-                        items(items = uiState.definedCategories.filter{
-                            !uiState.spendingSnapshot!!.spendingCategories.map { sc->sc.categoryCode }.contains(it.code)
+                        items(items = uiState.definedCategories.filter {
+                            !uiState.spendingSnapshot!!.spendingCategories.map { sc -> sc.categoryCode }
+                                .contains(it.code)
                         }) { category ->
-                            val iconRes = category.icon.toIntOrNull() ?: R.drawable.unknown
+                            val iconRes = CategoryIcon.fromCode(category.icon).resId
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -432,7 +543,11 @@ fun SpendingCategory(
                                         shape = RoundedCornerShape(12.dp),
                                         onClick = {
                                             onEvent(
-                                                SpendingDetailEvent.ChangeCategoryIcon(category.icon)
+                                                SpendingDetailEvent.ChangeCategoryIcon(
+                                                    id = category.id,
+                                                    code = category.code,
+                                                    color = category.textColor
+                                                )
                                             )
                                             isShowBottomSheet = false
                                         }
@@ -446,7 +561,8 @@ fun SpendingCategory(
                                     modifier = Modifier
                                         .size(56.dp)
                                         .background(
-                                            color = colorFromLabel(category.name).copy(alpha = 0.15f),
+                                            color = category.textColor.toColorFromHex()
+                                                .copy(alpha = 0.15f),
                                             shape = RoundedCornerShape(12.dp)
                                         ),
                                     contentAlignment = Alignment.Center
@@ -454,7 +570,7 @@ fun SpendingCategory(
                                     Icon(
                                         painter = painterResource(id = iconRes),
                                         contentDescription = null,
-                                        tint = colorFromLabel(category.name),
+                                        tint = category.textColor.toColorFromHex(),
                                         modifier = Modifier.size(28.dp)
                                     )
                                 }
@@ -463,7 +579,7 @@ fun SpendingCategory(
                                 Text(
                                     text = category.name,
                                     style = AppTypography.labelSmall,
-                                    color =  Black1,
+                                    color = Black1,
                                     maxLines = 2,
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center,
@@ -472,6 +588,45 @@ fun SpendingCategory(
                         }
                     }
 
+                }
+            }
+        }
+
+        // Delete Confirmation Dialog
+        if (categoryToDelete != null) {
+            CustomConfirmDialog(
+                dismissText = "Hủy",
+                confirmText = "Xóa",
+                onDismiss = {
+                    categoryToDelete = null
+                },
+                onConfirm = {
+                    onEvent(
+                        SpendingDetailEvent.DeleteSpendingCategory(
+                            categoryCode = categoryToDelete!!
+                        )
+                    )
+                    categoryToDelete = null
+                },
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = "Xác nhận xóa danh mục",
+                        style = AppTypography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Black1
+                    )
+                    Text(
+                        text = "Bạn có chắc chắn muốn xóa danh mục này không? Hành động này không thể hoàn tác.",
+                        style = AppTypography.bodyMedium,
+                        color = Gray1,
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
@@ -495,39 +650,52 @@ fun PreviewCategorySpending() {
                         categoryName = "Ăn uống",
                         categoryCode = "food",
                         categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#FF6B6B",
                         budgetAmount = BigDecimal(5000000),
                         usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_001"
                     ),
                     SpendingCategoryDetailResponse(
                         categoryName = "Đi lại",
-                        categoryCode = "food",
+                        categoryCode = "transport",
                         categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#4D96FF",
                         budgetAmount = BigDecimal(5000000),
                         usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_002"
                     ),
                     SpendingCategoryDetailResponse(
-                        categoryName = "Du lịch",
-                        categoryCode = "food",
+                        categoryName = "Mua sắm",
+                        categoryCode = "shopping",
                         categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
+                        textColor = "#000000",
+                        backgroundColor = "#FFD93D",
                         budgetAmount = BigDecimal(5000000),
                         usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_003"
                     ),
                     SpendingCategoryDetailResponse(
-                        categoryName = "Ăn uống",
-                        categoryCode = "food",
+                        categoryName = "Giải trí",
+                        categoryCode = "entertainment",
                         categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#6BCB77",
                         budgetAmount = BigDecimal(5000000),
                         usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_004"
                     ),
-
+                    SpendingCategoryDetailResponse(
+                        categoryName = "Sức khỏe",
+                        categoryCode = "health",
+                        categoryIcon = "",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#9D4EDD",
+                        budgetAmount = BigDecimal(5000000),
+                        usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_005"
+                    ),
                 ),
             ),
         ),

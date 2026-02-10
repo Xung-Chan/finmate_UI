@@ -7,7 +7,7 @@ import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 
 class SpendingHistoryPagingSource(
-    val api: SpendingRepository,
+    val spendingRepository: SpendingRepository,
     val monthlySpending: String
 ) : PagingSource<Int, SpendingRecordResponse>() {
     override fun getRefreshKey(state: PagingState<Int, SpendingRecordResponse>): Int? {
@@ -20,7 +20,7 @@ class SpendingHistoryPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, SpendingRecordResponse> {
         return try {
             val page = params.key ?: 0
-            val apiResult = api.getTransactionsByMonthlySpending(
+            val apiResult = spendingRepository.getTransactionsByMonthlySpending(
                 monthlySpending = monthlySpending,
                 page = page,
                 size = 10

@@ -8,7 +8,7 @@ export default defineConfig({
     server: {
     port: 5555,
     allowedHosts: [
-      "unthinkable-unedacious-julianna.ngrok-free.dev",
+      "https://unthinkable-unedacious-julianna.ngrok-free.dev",
       "https://nsqxjbdt-5555.asse.devtunnels.ms"
     ]
   },

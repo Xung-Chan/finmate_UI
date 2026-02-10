@@ -1,6 +1,5 @@
 package com.example.ibanking_kltn.data.repositories
 
-import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.data.api.SpendingApi
 import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.dtos.definitions.Pagination
@@ -16,9 +15,6 @@ import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotDetailResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
-import kotlinx.coroutines.delay
-import java.math.BigDecimal
-import java.time.LocalDateTime
 
 class SpendingRepository @Inject constructor(
     private val spendingApi: SpendingApi,
@@ -26,9 +22,9 @@ class SpendingRepository @Inject constructor(
     // ==================== Spending Snapshot APIs ====================
 
     suspend fun getAllSpending(): ApiResult<List<SpendingSnapshotResponse>> {
-       return safeApiCall(
-           apiCall = { spendingApi.getAllSpending() }
-       )
+        return safeApiCall(
+            apiCall = { spendingApi.getAllSpending() }
+        )
 //        delay(1000L)
 //        return ApiResult.Success(
 //            listOf(
@@ -83,66 +79,72 @@ class SpendingRepository @Inject constructor(
     suspend fun getDetailSpendingSnapshot(
         snapshotId: String
     ): ApiResult<SpendingSnapshotDetailResponse> {
-//        return safeApiCall(
-//            apiCall = { spendingApi.getDetailSpendingSnapshot(snapshotId) }
-//        )
-        delay(1000L)
-        return ApiResult.Success(
-            data=SpendingSnapshotDetailResponse(
-                id = "1",
-                snapshotName = "Chi tiêu tháng 6",
-                budgetAmount = BigDecimal(5000000),
-                usedAmount = BigDecimal(3500000),
-                monthlySpending = "8/2025",
-                spendingCategories = listOf(
-                    SpendingCategoryDetailResponse(
-                        categoryName = "Ăn uống",
-                        categoryCode = "food",
-                        categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
-                        budgetAmount = BigDecimal(5000000),
-                        usedAmount = BigDecimal(3500000),
-                    ),
-                    SpendingCategoryDetailResponse(
-                        categoryName = "Đi lại",
-                        budgetAmount = BigDecimal(5000000),
-                        usedAmount = BigDecimal(3500000),
-                        categoryCode = "transport",
-                        categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
-                    ),
-                    SpendingCategoryDetailResponse(
-                        categoryName = "Mua sắm",
-                        budgetAmount = BigDecimal(5000000),
-                        usedAmount = BigDecimal(3500000),
-                        categoryCode = "transport",
-                        categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
-                        ),
-                    SpendingCategoryDetailResponse(
-                        categoryName = "Giải trí",
-                        budgetAmount = BigDecimal(5000000),
-                        usedAmount = BigDecimal(3500000),
-                        categoryCode = "transport",
-                        categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
-                        ),
-                    SpendingCategoryDetailResponse(
-                        categoryName = "Sức khỏe",
-                        budgetAmount = BigDecimal(5000000),
-                        usedAmount = BigDecimal(3500000),
-                        categoryCode = "transport",
-                        categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
-                        ),
-                ),
-            )
+        return safeApiCall(
+            apiCall = { spendingApi.getDetailSpendingSnapshot(snapshotId) }
         )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = SpendingSnapshotDetailResponse(
+//                id = "1",
+//                snapshotName = "Chi tiêu tháng 6",
+//                budgetAmount = BigDecimal(5000000),
+//                usedAmount = BigDecimal(3500000),
+//                monthlySpending = "8/2025",
+//                spendingCategories = listOf(
+//                    SpendingCategoryDetailResponse(
+//                        categoryName = "Ăn uống",
+//                        categoryCode = "food",
+//                        categoryIcon = "",
+//                        textColor = "#FFFFFF",
+//                        backgroundColor = "#FF6B6B",
+//                        budgetAmount = BigDecimal(5000000),
+//                        usedAmount = BigDecimal(3500000),
+//                        categoryId = "cat_001"
+//                    ),
+//                    SpendingCategoryDetailResponse(
+//                        categoryName = "Đi lại",
+//                        categoryCode = "transport",
+//                        categoryIcon = "",
+//                        textColor = "#FFFFFF",
+//                        backgroundColor = "#4D96FF",
+//                        budgetAmount = BigDecimal(5000000),
+//                        usedAmount = BigDecimal(3500000),
+//                        categoryId = "cat_002"
+//                    ),
+//                    SpendingCategoryDetailResponse(
+//                        categoryName = "Mua sắm",
+//                        categoryCode = "shopping",
+//                        categoryIcon = "",
+//                        textColor = "#000000",
+//                        backgroundColor = "#FFD93D",
+//                        budgetAmount = BigDecimal(5000000),
+//                        usedAmount = BigDecimal(3500000),
+//                        categoryId = "cat_003"
+//                    ),
+//                    SpendingCategoryDetailResponse(
+//                        categoryName = "Giải trí",
+//                        categoryCode = "entertainment",
+//                        categoryIcon = "",
+//                        textColor = "#FFFFFF",
+//                        backgroundColor = "#6BCB77",
+//                        budgetAmount = BigDecimal(5000000),
+//                        usedAmount = BigDecimal(3500000),
+//                        categoryId = "cat_004"
+//                    ),
+//                    SpendingCategoryDetailResponse(
+//                        categoryName = "Sức khỏe",
+//                        categoryCode = "health",
+//                        categoryIcon = "",
+//                        textColor = "#FFFFFF",
+//                        backgroundColor = "#9D4EDD",
+//                        budgetAmount = BigDecimal(5000000),
+//                        usedAmount = BigDecimal(3500000),
+//                        categoryId = "cat_005"
+//                    ),
+//                )
+//                ,
+//            )
+//        )
     }
 
     // ==================== Spending Category APIs ====================
@@ -216,42 +218,42 @@ class SpendingRepository @Inject constructor(
         page: Int = 0,
         size: Int = 10
     ): ApiResult<Pagination<SpendingRecordResponse>> {
-//        return safeApiCall(
-//            apiCall = {
-//                spendingApi.getTransactionsByMonthlySpending(
-//                    monthlySpending,
-//                    page,
-//                    size
-//                )
-//            }
-//        )
-        delay(1000L)
-        return ApiResult.Success(
-            data = Pagination(
-                contents = listOf(
-                    SpendingRecordResponse(
-                        id = "rec_001",
-                        snapshotId = "snap_20260202",
-                        transactionId = "txn_889900",
-                        amount = BigDecimal("150000.00"),
-                        description = "Thanh toán tiền điện",
-                        destinationAccountName = "EVN HCMC",
-                        destinationAccountNumber = "19001001",
-                        recordType = SpendingRecordType.EXPENSE,
-                        categoryCode = "UTIL",
-                        categoryName = "Tiện ích",
-                        categoryIcon = R.drawable.airplane_service.toString(),
-                        categoryTextColor = "#FFFFFF",
-                        categoryBackgroundColor = "#FF9800",
-                        occurredAt = LocalDateTime.now().toString()
-                    )
-                ),
-                currentPage =page,
-                pageSize = size,
-                totalElements =100,
-                totalPages =10
-            )
+        return safeApiCall(
+            apiCall = {
+                spendingApi.getTransactionsByMonthlySpending(
+                    monthlySpending,
+                    page,
+                    size
+                )
+            }
         )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = Pagination(
+//                contents = listOf(
+//                    SpendingRecordResponse(
+//                        id = "rec_001",
+//                        snapshotId = "snap_20260202",
+//                        transactionId = "txn_889900",
+//                        amount = BigDecimal("150000.00"),
+//                        description = "Thanh toán tiền điện",
+//                        destinationAccountName = "EVN HCMC",
+//                        destinationAccountNumber = "19001001",
+//                        recordType = SpendingRecordType.EXPENSE,
+//                        categoryCode = "UTIL",
+//                        categoryName = "Tiện ích",
+//                        categoryIcon = R.drawable.airplane_service.toString(),
+//                        categoryTextColor = "#FFFFFF",
+//                        categoryBackgroundColor = "#FF9800",
+//                        occurredAt = LocalDateTime.now().toString()
+//                    )
+//                ),
+//                currentPage = page,
+//                pageSize = size,
+//                totalElements = 100,
+//                totalPages = 10
+//            )
+//        )
 
     }
 
@@ -264,24 +266,24 @@ class SpendingRepository @Inject constructor(
     }
 
     suspend fun getAllDefinedSpendingCategories(): ApiResult<List<DefinedSpendingCategoryResponse>> {
-//        return safeApiCall(
-//            apiCall = { spendingApi.filterDefinedSpendingCategories() }
-//        )
-        delay(1000L)
-        return ApiResult.Success(
-            data = listOf(
-                DefinedSpendingCategoryResponse(
-                    id = "defcat_001",
-                    name = "Ăn uống",
-                    code = "cook",
-                    icon = "fooog",
-                    textColor = "TODO()",
-                    backgroundColor = "TODO()",
-                    systemCategoryCode = "food",
-                    systemCategoryName = "Ăn uống",
-                ),
-            )
+        return safeApiCall(
+            apiCall = { spendingApi.filterDefinedSpendingCategories() }
         )
+//        delay(1000L)
+//        return ApiResult.Success(
+//            data = listOf(
+//                DefinedSpendingCategoryResponse(
+//                    id = "defcat_001",
+//                    name = "Ăn uống",
+//                    code = "cook",
+//                    icon = "fooog",
+//                    textColor = "TODO()",
+//                    backgroundColor = "TODO()",
+//                    systemCategoryCode = "food",
+//                    systemCategoryName = "Ăn uống",
+//                ),
+//            )
+//        )
     }
 
     suspend fun createDefinedSpendingCategories(

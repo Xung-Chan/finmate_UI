@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.management
+package com.example.ibanking_kltn.ui.screens.spending.spending_management
 
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotResponse
 

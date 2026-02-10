@@ -15,13 +15,16 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.dtos.definitions.AppGraph
 import com.example.ibanking_kltn.dtos.definitions.NavKey
 import com.example.ibanking_kltn.dtos.definitions.Screens
+import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagement
+import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagementEffect
+import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagementViewModel
 import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingCategory
 import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingDetailEffect
 import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingDetailViewModel
 import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingSnapshotDetail
-import com.example.ibanking_kltn.ui.screens.spending.management.SpendingManagement
-import com.example.ibanking_kltn.ui.screens.spending.management.SpendingManagementEffect
-import com.example.ibanking_kltn.ui.screens.spending.management.SpendingManagementViewModel
+import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagement
+import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementEffect
+import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementViewModel
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 
 fun NavGraphBuilder.spendingGraph(
@@ -29,6 +32,7 @@ fun NavGraphBuilder.spendingGraph(
     onShowSnackBar: (snakeBarUiState: SnackBarUiState) -> Unit,
 ) {
     this.navigation(
+//        startDestination = "${Screens.SpendingSnapshotDetail.name}/012",
         startDestination = Screens.SpendingManagement.name,
         route = AppGraph.SpendingGraph.name,
     ) {
@@ -42,6 +46,10 @@ fun NavGraphBuilder.spendingGraph(
                         is SpendingManagementEffect.ShowSnackBar -> onShowSnackBar(effect.snackBar)
                         is SpendingManagementEffect.NavigateToDetail -> {
                             navController.navigate(route = effect.route)
+                        }
+
+                        SpendingManagementEffect.NavigateToCategoryManagement -> {
+                            navController.navigate(Screens.CategoryManagement.name)
                         }
                     }
                 }
@@ -102,6 +110,7 @@ fun NavGraphBuilder.spendingGraph(
                         SpendingDetailEffect.NavigateToAddTransaction -> {
                             // no-op
                         }
+
                         SpendingDetailEffect.NavigateToCategory -> {
                             // no-op
                         }
@@ -116,6 +125,25 @@ fun NavGraphBuilder.spendingGraph(
                 onEvent = spendingDetailVM::onEvent
             )
 
+        }
+
+        composable(route = Screens.CategoryManagement.name) {
+            val categoryManagementViewModel = hiltViewModel<CategoryManagementViewModel>()
+            val uiState by categoryManagementViewModel.uiState.collectAsState()
+            LaunchedEffect(Unit) {
+                categoryManagementViewModel.uiEffect.collect { effect ->
+                    when (effect) {
+                        is CategoryManagementEffect.ShowSnackBar -> onShowSnackBar(effect.snackBar)
+                    }
+                }
+            }
+            CategoryManagement(
+                uiState = uiState,
+                onEvent = categoryManagementViewModel::onEvent,
+                onBackClick = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

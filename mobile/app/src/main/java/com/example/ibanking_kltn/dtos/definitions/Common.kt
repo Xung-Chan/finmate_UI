@@ -5,6 +5,7 @@ import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
+import com.example.ibanking_kltn.ui.theme.Green3
 import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Orange2
 import com.example.ibanking_kltn.ui.theme.Red1
@@ -138,10 +139,15 @@ enum class ServiceCategory(val serviceName: String, val icon: Int, val color: UL
         icon = R.drawable.bill_history_service,
         color = Red2.value
     ),
-    Spending(
+    SPENDING(
         serviceName="Quỹ chi tiêu",
         icon=R.drawable.spending_service,
         color= Orange2.value
+    ),
+    CATEGORY_MANAGEMENT(
+        serviceName="Danh mục chi tiêu",
+        icon=R.drawable.category_service,
+        color= Green3.value
     )
 }
 

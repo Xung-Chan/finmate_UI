@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.management
+package com.example.ibanking_kltn.ui.screens.spending.spending_management
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -40,14 +40,16 @@ class SpendingManagementViewModel @Inject constructor(
             is SpendingManagementEvent.CreateSpendingSnapshot -> createSpendingSnapshot(
                 snapshotName = event.snapshotName,
                 budgetAmount = event.budgetAmount,
-                monthlySpending = formatterDateString(event.monthlySpending,"yyyy/MM")
+                monthlySpending = formatterDateString(event.monthlySpending, "yyyy/MM")
             )
+
             is SpendingManagementEvent.UpdateSpendingSnapshot -> updateSpendingSnapshot(
                 snapshotId = event.snapshotId,
                 snapshotName = event.snapshotName,
                 budgetAmount = event.budgetAmount,
-                monthlySpending = formatterDateString(event.monthlySpending,"yyyy/MM")
+                monthlySpending = formatterDateString(event.monthlySpending, "yyyy/MM")
             )
+
             is SpendingManagementEvent.DeleteSpendingSnapshot -> deleteSpendingSnapshot(event.snapshotId)
             is SpendingManagementEvent.RetryInitSpendingSnapshots -> reinitSpendingSnapshots()
             is SpendingManagementEvent.RefreshSpendingSnapshots -> reloadSpendingSnapshots()
@@ -55,6 +57,7 @@ class SpendingManagementViewModel @Inject constructor(
             SpendingManagementEvent.ChangeAddDialogState -> changeAddDialogState()
             is SpendingManagementEvent.ChangeEditDialogState -> changeEditDialogState(event.snapshotId)
             is SpendingManagementEvent.ChangeDeleteDialogState -> changeDeleteDialogState(event.snapshotId)
+            SpendingManagementEvent.NavigateToCategoryManagement -> navigateToCategoryManagement()
         }
     }
 
@@ -62,6 +65,14 @@ class SpendingManagementViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 isShowAddDialog = !it.isShowAddDialog
+            )
+        }
+    }
+
+    private fun navigateToCategoryManagement() {
+        viewModelScope.launch {
+            _uiEffect.emit(
+                SpendingManagementEffect.NavigateToCategoryManagement
             )
         }
     }
@@ -83,6 +94,7 @@ class SpendingManagementViewModel @Inject constructor(
             )
         }
     }
+
     private fun reinitSpendingSnapshots() {
         viewModelScope.launch {
             _uiState.update {
@@ -193,7 +205,7 @@ class SpendingManagementViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            if(snapshotName.isEmpty() || budgetAmount<=0L){
+            if (snapshotName.isEmpty() || budgetAmount <= 0L) {
                 _uiState.update {
                     it.copy(
                         screenState = SpendingManagementState.NONE
@@ -264,7 +276,7 @@ class SpendingManagementViewModel @Inject constructor(
             )
         }
         viewModelScope.launch {
-            if(snapshotName.isEmpty() || budgetAmount<=0L){
+            if (snapshotName.isEmpty() || budgetAmount <= 0L) {
                 _uiState.update {
                     it.copy(
                         screenState = SpendingManagementState.NONE

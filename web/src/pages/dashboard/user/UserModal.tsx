@@ -57,7 +57,7 @@ const UserDetailModal: React.FC<Props> = ({
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Họ và tên">
-                            <Input value={user.fullName} />
+                            <Input value={user.merchantName} />
                         </Form.Item>
                     </Col>
 

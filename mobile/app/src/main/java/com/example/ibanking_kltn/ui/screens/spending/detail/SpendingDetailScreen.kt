@@ -52,6 +52,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.dtos.definitions.CategoryIcon
 import com.example.ibanking_kltn.dtos.definitions.SpendingRecordType
 import com.example.ibanking_kltn.dtos.responses.SpendingCategoryDetailResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
@@ -78,6 +79,7 @@ import com.example.ibanking_kltn.utils.customClick
 import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
 import com.example.ibanking_kltn.utils.shimmerEffect
+import com.example.ibanking_kltn.utils.toColorFromHex
 import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlinx.coroutines.flow.flowOf
@@ -947,6 +949,7 @@ private fun Overview(
         }
 
         ChartType.PIE -> {
+
             CustomPieChart(
                 data = uiState.spendingSnapshot.spendingCategories
                     .map { category ->
@@ -1013,8 +1016,7 @@ private fun Overview(
 
                                     ) {
                                         Icon(
-                                            //todo
-                                            painter = painterResource(R.drawable.unknown),
+                                            painter = painterResource(CategoryIcon.fromCode(category.categoryIcon).resId),
                                             contentDescription = null,
                                             modifier = Modifier.size(20.dp),
                                             tint = colorFromLabel(
@@ -1203,7 +1205,7 @@ private fun TransactionHistory(
 
 
         PullToRefreshBox(
-            state = refreshState,
+            isRefreshing = records.loadState.refresh is LoadState.Loading,
             indicator = {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -1212,7 +1214,7 @@ private fun TransactionHistory(
 
                     PullToRefreshDefaults.Indicator(
                         state = refreshState,
-                        isRefreshing = uiState.screenState == SpendingDetailState.REFRESHING,
+                        isRefreshing = records.loadState.refresh is LoadState.Loading,
                         containerColor = White1,
                         color = Blue3,
                     )
@@ -1220,7 +1222,7 @@ private fun TransactionHistory(
 
             },
 
-            isRefreshing = uiState.screenState == SpendingDetailState.REFRESHING,
+            state = refreshState,
             onRefresh = {
                 records.refresh()
             },
@@ -1236,6 +1238,14 @@ private fun TransactionHistory(
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 10.dp),
             ) {
+                if( records.itemCount == 0){
+                    Text(
+                        text = "Chưa có giao dịch chi tiêu nào",
+                        style = AppTypography.bodyMedium,
+                        color = Gray1,
+                        modifier = Modifier.padding(top=20.dp)
+                    )
+                }
                 for (i in 0 until records.itemCount) {
                     val record = records[i] ?: continue
                     Column(
@@ -1287,9 +1297,9 @@ private fun TransactionHistory(
                                     )
                                 ) {
                                     Icon(
-                                        painter = painterResource(id = record.categoryIcon.toInt()),
+                                        painter = painterResource(id = CategoryIcon.fromCode(record.categoryIcon).resId),
                                         contentDescription = null,
-                                        tint = colorFromLabel(record.categoryName),
+                                        tint = record.categoryTextColor?.toColorFromHex()?: Black1,
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
@@ -1392,12 +1402,54 @@ fun SpendingFundDetailPreview() {
                         categoryName = "Ăn uống",
                         categoryCode = "food",
                         categoryIcon = "",
-                        textColor = "TODO()",
-                        backgroundColor = "TODO()",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#FF6B6B",
                         budgetAmount = BigDecimal(5000000),
                         usedAmount = BigDecimal(3500000),
-                    )
-                ),
+                        categoryId = "cat_001"
+                    ),
+                    SpendingCategoryDetailResponse(
+                        categoryName = "Đi lại",
+                        categoryCode = "transport",
+                        categoryIcon = "",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#4D96FF",
+                        budgetAmount = BigDecimal(5000000),
+                        usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_002"
+                    ),
+                    SpendingCategoryDetailResponse(
+                        categoryName = "Mua sắm",
+                        categoryCode = "shopping",
+                        categoryIcon = "",
+                        textColor = "#000000",
+                        backgroundColor = "#FFD93D",
+                        budgetAmount = BigDecimal(5000000),
+                        usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_003"
+                    ),
+                    SpendingCategoryDetailResponse(
+                        categoryName = "Giải trí",
+                        categoryCode = "entertainment",
+                        categoryIcon = "",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#6BCB77",
+                        budgetAmount = BigDecimal(5000000),
+                        usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_004"
+                    ),
+                    SpendingCategoryDetailResponse(
+                        categoryName = "Sức khỏe",
+                        categoryCode = "health",
+                        categoryIcon = "",
+                        textColor = "#FFFFFF",
+                        backgroundColor = "#9D4EDD",
+                        budgetAmount = BigDecimal(5000000),
+                        usedAmount = BigDecimal(3500000),
+                        categoryId = "cat_005"
+                    ),
+                )
+                ,
             ),
             selectedTab = SpendingDetailTab.OVERVIEW
         ),
