@@ -37,10 +37,18 @@ class SettingViewModel @Inject constructor(
         loadBiometricStatus()
         viewModelScope.launch {
             userSession.user.collect { user ->
-                if (user?.profile?.fullName != null && user.profile.avatarUrl != null) {
+
+                if (user?.profile?.fullName != null) {
                     _uiState.update {
                         it.copy(
                             fullName = user.profile.fullName,
+                        )
+                    }
+
+                }
+                if (user?.profile?.avatarUrl != null) {
+                    _uiState.update {
+                        it.copy(
                             avatarUrl = user.profile.avatarUrl
                         )
                     }

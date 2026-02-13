@@ -4,6 +4,7 @@ import com.example.ibanking_kltn.data.api.TransactionApi
 import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.dtos.definitions.Pagination
 import com.example.ibanking_kltn.dtos.requests.ConfirmTransferRequest
+import com.example.ibanking_kltn.dtos.requests.DefineTransactionRequest
 import com.example.ibanking_kltn.dtos.requests.DepositTransactionRequest
 import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
 import com.example.ibanking_kltn.dtos.requests.FilterTransactionRequest
@@ -236,4 +237,13 @@ class TransactionRepository @Inject constructor(
 //            )
 //        )
     }
+
+    suspend fun defineTransaction(
+        request: DefineTransactionRequest
+    ): ApiResult<TransactionHistoryResponse> {
+        return safeApiCall(
+            apiCall = { api.defineTransaction(request) }
+        )
+    }
+
 }

@@ -76,7 +76,7 @@ fun NavGraphBuilder.spendingGraph(
                 spendingDetailVM.uiEffect.collect { effect ->
                     when (effect) {
                         SpendingDetailEffect.NavigateToAddTransaction -> {
-                            //todo
+                            navController.navigate(Screens.DefineTransaction.name)
                         }
 
                         SpendingDetailEffect.NavigateToCategory -> {

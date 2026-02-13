@@ -61,6 +61,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -238,6 +239,50 @@ fun CustomTextField(
         },
 
         )
+
+}
+
+@Composable
+fun CustomOutlineTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enable: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = AppTypography.bodyMedium,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(
+        keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+    ),
+    keyboardActions: KeyboardActions = KeyboardActions(),
+    singleLine: Boolean = true,
+    maxLines: Int = 1,
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Black1,
+        unfocusedTextColor = Gray2,
+        unfocusedPlaceholderColor = Gray2,
+        unfocusedBorderColor = Gray2,
+        focusedBorderColor = Blue1,
+    ),
+    trailingIcon:@Composable (() -> Unit)? = null,
+    shape: Shape = RoundedCornerShape(30),
+    label: @Composable (() -> Unit)? = null,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enable,
+        readOnly = readOnly,
+        textStyle = textStyle,
+        label = label,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        singleLine = singleLine,
+        maxLines = if (singleLine) 1 else maxLines,
+        colors = colors,
+        shape = shape,
+        trailingIcon = trailingIcon
+    )
 
 }
 

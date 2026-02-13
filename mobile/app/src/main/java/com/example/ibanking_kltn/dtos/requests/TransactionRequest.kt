@@ -51,3 +51,12 @@ data class TrendStatisticRequest(
 data class DistributionStatisticRequest(
     val referenceDate: String
 )
+
+data class DefineTransactionRequest(
+    val amount: Long,
+    val destinationAccountName: String,
+    val destinationAccountNumber: String,
+    val transactionDateTime: String,
+    val transactionDescription: String,
+    val transactionId: String
+)

@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.data.api
 
 import com.example.ibanking_kltn.dtos.definitions.Pagination
 import com.example.ibanking_kltn.dtos.requests.ConfirmTransferRequest
+import com.example.ibanking_kltn.dtos.requests.DefineTransactionRequest
 import com.example.ibanking_kltn.dtos.requests.DepositTransactionRequest
 import com.example.ibanking_kltn.dtos.requests.DistributionStatisticRequest
 import com.example.ibanking_kltn.dtos.requests.FilterTransactionRequest
@@ -75,6 +76,12 @@ interface TransactionApi {
     suspend fun getDistributionStatistic(
        @Body request : DistributionStatisticRequest
     ): Response<DistributionStatisticResponse>
+
+
+    @POST("/api/transactions/defined")
+    suspend fun defineTransaction(
+       @Body request : DefineTransactionRequest
+    ): Response<TransactionHistoryResponse>
 
 
 

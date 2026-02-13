@@ -75,6 +75,9 @@ import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEffect
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEvent
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmViewModel
+import com.example.ibanking_kltn.ui.screens.define_transaction.DefineTransactionEffect
+import com.example.ibanking_kltn.ui.screens.define_transaction.DefineTransactionScreen
+import com.example.ibanking_kltn.ui.screens.define_transaction.DefineTransactionViewModel
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycEffect
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycScreen
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycViewModel
@@ -196,6 +199,7 @@ fun AppScreen(
     ) {
         NavHost(
             navController = navController, startDestination = AppGraph.SignInGraph.name
+//            navController = navController, startDestination = Screens.DefineTransaction.name
         ) {
             signInGraph(
                 navController = navController,
@@ -598,11 +602,11 @@ fun AppScreen(
 
                             is FullEkycEffect.EkycFailed -> {
                                 snackBarInstance = SnackBarUiState(
-                                    message = effect.message+". Vui lòng đăng ký lại để tiêp tục sử dụng dịch vụ.",
+                                    message = effect.message + ". Vui lòng đăng ký lại để tiêp tục sử dụng dịch vụ.",
                                     type = SnackBarType.ERROR
                                 )
-                                navController.navigate(AppGraph.SignInGraph.name){
-                                    popUpTo(AppGraph.SignInGraph.name){
+                                navController.navigate(AppGraph.SignInGraph.name) {
+                                    popUpTo(AppGraph.SignInGraph.name) {
                                         inclusive = false
                                     }
                                 }
@@ -619,7 +623,42 @@ fun AppScreen(
                     onEvent = viewModel::onEvent,
                 )
             }
+            composable(
+                route = Screens.DefineTransaction.name,
+            ) {
+                val viewModel: DefineTransactionViewModel = hiltViewModel()
+                val uiState by viewModel.uiState.collectAsState()
+                LaunchedEffect(Unit) {
+                    viewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            DefineTransactionEffect.DefineSuccess -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Tạo giao dịch thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                                navController.navigate(Screens.Home.name) {
+                                    popUpTo(Screens.Home.name) {
+                                        inclusive = false
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
 
+                            is DefineTransactionEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+                        }
+                    }
+                }
+
+                DefineTransactionScreen(
+                    uiState = uiState,
+                    onEvent = viewModel::onEvent,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
             //todo done
             depositGraph(
                 navController = navController,

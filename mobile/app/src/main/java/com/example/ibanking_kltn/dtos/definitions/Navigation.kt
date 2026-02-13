@@ -16,7 +16,8 @@ enum class Screens {
     PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle,
     SpendingManagement, SpendingSnapshotDetail, SpendingCategory,
     CategoryManagement,
-    FullEkyc, VerifyEkyc
+    FullEkyc, VerifyEkyc,
+    DefineTransaction
 }
 
 enum class AppGraph {

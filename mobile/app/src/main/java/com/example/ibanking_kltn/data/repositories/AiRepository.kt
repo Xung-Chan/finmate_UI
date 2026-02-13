@@ -1,13 +1,21 @@
 package com.example.ibanking_kltn.data.repositories
 
+import android.content.Context
+import android.net.Uri
 import com.example.ibanking_kltn.data.api.AiApi
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.dtos.responses.AnalyzeResponse
+import com.example.ibanking_kltn.dtos.responses.ExtractTransactionResponse
+import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
+import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
 import kotlinx.coroutines.delay
 
 class AiRepository @Inject constructor(
-    private val aiApi: AiApi
+    private val aiApi: AiApi,
+    @ApplicationContext private val context: Context
+
 ) {
     suspend fun getAnalytic(analyzeRequestId: String): ApiResult<AnalyzeResponse> {
 //       return safeApiCall(
@@ -25,5 +33,23 @@ class AiRepository @Inject constructor(
         )
     }
 
+    suspend fun extractTransaction(
+        imageUrl: Uri
+    ): ApiResult<ExtractTransactionResponse> {
+        return try {
+            val file = createMultipartFromUri(
+                uri = imageUrl,
+                partName = "file",
+                context = context
+            )
+            safeApiCall {
+                aiApi.extractTransactionImage(
+                    file = file
+                )
+            }
+        } catch (e: Exception) {
+            ApiResult.Error("Exception: ${e.message}")
+        }
 
+    }
 }
