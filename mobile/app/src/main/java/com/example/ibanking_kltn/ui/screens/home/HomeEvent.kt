@@ -15,4 +15,5 @@ sealed class HomeEffect {
     data class ShowSnackBar(val snackBar: SnackBarUiState) : HomeEffect()
     data class NavigateToServiceScreen(val service: ServiceCategory) : HomeEffect()
     object NavigateToAllServiceScreen : HomeEffect()
+    object NavigateToRegisterEkycScreen : HomeEffect()
 }

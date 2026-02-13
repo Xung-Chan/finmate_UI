@@ -46,5 +46,7 @@ data class UserInfoResponse(
     val dateOfBirth: String,
     val gender: String,
     val address: String,
-    val cardId: String
+    val cardId: String,
+    val verifiedEkyc: Boolean
+
 )

@@ -16,6 +16,7 @@ enum class Screens {
     PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle,
     SpendingManagement, SpendingSnapshotDetail, SpendingCategory,
     CategoryManagement,
+    FullEkyc, VerifyEkyc
 }
 
 enum class AppGraph {
@@ -31,4 +32,5 @@ enum class NavKey{
     CONFIRM_CONTENT,
     TRANSACTION_ID,
     SPENDING_SNAPSHOT_ID,
+    EKYC_PURPOSE,
 }

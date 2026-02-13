@@ -124,6 +124,17 @@ class HomeViewModel @Inject constructor(
                 )
                 return@launch
             }
+            if(!(profile as ApiResult.Success).data.verifiedEkyc){
+                _uiState.update {
+                    it.copy(
+                        initState = StateType.FAILED("Chưa hoàn thành eKYC")
+                    )
+                }
+                _uiEffect.emit(
+                    HomeEffect.NavigateToRegisterEkycScreen
+                )
+                return@launch
+            }
             if (wallet is ApiResult.Error) {
                 _uiState.update {
                     it.copy(

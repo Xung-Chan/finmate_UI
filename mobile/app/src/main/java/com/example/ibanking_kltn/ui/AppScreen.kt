@@ -1,8 +1,10 @@
 package com.example.ibanking_kltn.ui
 
 import android.app.Activity
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,6 +75,9 @@ import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEffect
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmEvent
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmPaymentScreen
 import com.example.ibanking_kltn.ui.screens.confirm_transaction.ConfirmViewModel
+import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycEffect
+import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycScreen
+import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycViewModel
 import com.example.ibanking_kltn.ui.screens.home.HomeEffect
 import com.example.ibanking_kltn.ui.screens.home.HomeScreen
 import com.example.ibanking_kltn.ui.screens.home.HomeViewModel
@@ -119,6 +124,7 @@ import com.example.ibanking_kltn.utils.formatterDateString
 import kotlinx.coroutines.delay
 import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppScreen(
     navController: NavHostController = rememberNavController()
@@ -189,7 +195,6 @@ fun AppScreen(
             .imePadding()
     ) {
         NavHost(
-//            navController = navController, startDestination = Screens.CategoryManagement.name
             navController = navController, startDestination = AppGraph.SignInGraph.name
         ) {
             signInGraph(
@@ -213,6 +218,10 @@ fun AppScreen(
 
                             HomeEffect.NavigateToAllServiceScreen -> {
                                 navController.navigate(Screens.AllService.name)
+                            }
+
+                            HomeEffect.NavigateToRegisterEkycScreen -> {
+                                navController.navigate(Screens.FullEkyc.name)
                             }
                         }
                     }
@@ -565,6 +574,51 @@ fun AppScreen(
                 navController = navController,
                 onShowSnackBar = onShowSnackBar
             )
+
+            composable(
+                route = Screens.FullEkyc.name,
+            ) { backStackEntry ->
+                val viewModel: FullEkycViewModel = hiltViewModel()
+
+                LaunchedEffect(Unit) {
+                    viewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            FullEkycEffect.EkycCompleted -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = "Đăng ký EKYC thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                                navController.navigate(Screens.Home.name) {
+                                    popUpTo(navController.graph.id) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
+
+                            is FullEkycEffect.EkycFailed -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = effect.message+". Vui lòng đăng ký lại để tiêp tục sử dụng dịch vụ.",
+                                    type = SnackBarType.ERROR
+                                )
+                                navController.navigate(AppGraph.SignInGraph.name){
+                                    popUpTo(AppGraph.SignInGraph.name){
+                                        inclusive = false
+                                    }
+                                }
+                            }
+
+                            is FullEkycEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+
+                        }
+                    }
+                }
+                FullEkycScreen(
+                    onEvent = viewModel::onEvent,
+                )
+            }
 
             //todo done
             depositGraph(

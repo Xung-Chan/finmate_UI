@@ -10,6 +10,7 @@ import com.example.ibanking_kltn.data.api.AiApi
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BillApi
 import com.example.ibanking_kltn.data.api.BiometricApi
+import com.example.ibanking_kltn.data.api.EkycApi
 import com.example.ibanking_kltn.data.api.FCMApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
 import com.example.ibanking_kltn.data.api.NotificationApi
@@ -116,6 +117,7 @@ object NetworkModule {
         return retrofit.create(NonAuthApi::class.java)
 
     }
+
     @Singleton
     @Provides
     fun provideFcmApi(
@@ -204,6 +206,7 @@ object NetworkModule {
         return retrofit.create(AiApi::class.java)
 
     }
+
     @Singleton
     @Provides
     fun provideSpendingApi(
@@ -212,6 +215,15 @@ object NetworkModule {
     ): SpendingApi {
         return retrofit.create(SpendingApi::class.java)
 
+    }
+
+    @Singleton
+    @Provides
+    fun provideEkycApi(
+        @Named("AuthRetrofit")
+        retrofit: Retrofit
+    ): EkycApi {
+        return retrofit.create(EkycApi::class.java)
     }
 
 

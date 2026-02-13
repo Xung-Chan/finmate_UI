@@ -28,10 +28,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures {
-        viewBinding = true
-        buildConfig = true
-    }
 
     buildTypes {
         release {
@@ -63,6 +59,11 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
+        buildConfig = true
+    }
+    androidResources {
+        noCompress += listOf("bic")
     }
 }
 
@@ -141,5 +142,14 @@ dependencies {
     //color picker
     implementation("com.github.skydoves:colorpicker-compose:1.0.7")
 
-
+    //eKYC
+    implementation(files("../libs/ekyc_sdk-release-v3.6.6.aar"))
+    implementation(files("../libs/scanqr_ic_sdk-release-v1.0.6.aar"))
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.67")
+    implementation("me.dm7.barcodescanner:zxing:1.9.8") {
+        exclude(group = "com.android.support")
+    }
+    implementation("com.airbnb.android:lottie:3.4.0")
 }

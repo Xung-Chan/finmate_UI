@@ -1,6 +1,12 @@
 package com.example.ibanking_kltn.ui.screens.setting
 
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,7 +53,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import coil.compose.AsyncImage
+import com.example.ibanking_kltn.BuildConfig.VNPT_ACCESS_TOKEN
+import com.example.ibanking_kltn.BuildConfig.VNPT_TOKEN_ID
+import com.example.ibanking_kltn.BuildConfig.VNPT_TOKEN_KEY
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
@@ -62,6 +72,9 @@ import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.DefaultImageProfile
 import com.example.ibanking_kltn.utils.InformationLine
 import com.example.ibanking_kltn.utils.LoadingScaffold
+import com.vnptit.idg.sdk.activity.VnptPortraitActivity
+import com.vnptit.idg.sdk.utils.KeyIntentConstants
+import com.vnptit.idg.sdk.utils.SDKEnum
 
 
 @OptIn(ExperimentalMaterial3Api::class)

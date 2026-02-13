@@ -779,6 +779,7 @@ fun PayLaterPreview() {
                 gender = "Male",
                 address = "123 Main St, City, Country",
                 cardId = "123456789012",
+                verifiedEkyc = false
             ),
             payLaterInfo = PayLaterResponse(
                 approvedAt = "2023-01-01T00:00:00Z",
