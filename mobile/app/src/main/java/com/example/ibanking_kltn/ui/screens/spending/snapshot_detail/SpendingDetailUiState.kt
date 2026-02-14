@@ -1,6 +1,7 @@
-package com.example.ibanking_kltn.ui.screens.spending.detail
+package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 import com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse
+import com.example.ibanking_kltn.dtos.responses.SpendingAnalyzeResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotDetailResponse
 import java.math.BigDecimal
 
@@ -19,6 +20,7 @@ enum class SpendingDetailState {
     NONE,
     LOADING,
     REFRESHING,
+    ANALYZING,
 }
 
 data class SpendingDetailUiState(
@@ -39,4 +41,6 @@ data class SpendingDetailUiState(
     val editingCategoryCode: String? = null,
 
     val definedCategories: List<DefinedSpendingCategoryResponse> = listOf(),
+
+    val analyzeResponse : SpendingAnalyzeResponse? = null,
 )

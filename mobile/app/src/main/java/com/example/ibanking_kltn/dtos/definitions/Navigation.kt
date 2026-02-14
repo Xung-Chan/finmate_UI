@@ -14,7 +14,7 @@ enum class Screens {
     VerificationRequest,
     SavedReceiver,
     PayLater, PayLaterApplication, PayLaterApplicationHistory, BillingCycle,
-    SpendingManagement, SpendingSnapshotDetail, SpendingCategory,
+    SpendingManagement, SpendingSnapshotDetail, SpendingCategory, RecordDetail,
     CategoryManagement,
     FullEkyc, VerifyEkyc,
     DefineTransaction
@@ -34,4 +34,5 @@ enum class NavKey{
     TRANSACTION_ID,
     SPENDING_SNAPSHOT_ID,
     EKYC_PURPOSE,
+    RECORD_ID,
 }

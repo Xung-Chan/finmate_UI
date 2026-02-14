@@ -18,10 +18,10 @@ import com.example.ibanking_kltn.dtos.definitions.Screens
 import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagement
 import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagementEffect
 import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagementViewModel
-import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingCategory
-import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingDetailEffect
-import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingDetailViewModel
-import com.example.ibanking_kltn.ui.screens.spending.detail.SpendingSnapshotDetail
+import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingCategory
+import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingDetailEffect
+import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingDetailViewModel
+import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingSnapshotDetail
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagement
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementEffect
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementViewModel
@@ -93,8 +93,11 @@ fun NavGraphBuilder.spendingGraph(
                 onBackClick = {
                     navController.popBackStack()
                 },
-                onEvent = spendingDetailVM::onEvent
-
+                onEvent = spendingDetailVM::onEvent,
+                onRecordClick = { record ->
+                    navController.currentBackStackEntry?.savedStateHandle?.set("record", record)
+                    navController.navigate(Screens.RecordDetail.name)
+                }
             )
         }
         composable(route = Screens.SpendingCategory.name) { backStackEntry ->
@@ -125,6 +128,22 @@ fun NavGraphBuilder.spendingGraph(
                 onEvent = spendingDetailVM::onEvent
             )
 
+        }
+
+        composable(route = Screens.RecordDetail.name) { backStackEntry ->
+            val previousEntry = remember(backStackEntry) {
+                navController.previousBackStackEntry!!
+            }
+            val record = previousEntry.savedStateHandle.get<com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse>("record")
+
+            if (record != null) {
+                com.example.ibanking_kltn.ui.screens.spending.record_detail.RecordDetailScreen(
+                    record = record,
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(route = Screens.CategoryManagement.name) {

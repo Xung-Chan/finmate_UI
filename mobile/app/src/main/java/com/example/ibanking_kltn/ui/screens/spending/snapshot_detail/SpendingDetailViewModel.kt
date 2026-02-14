@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.detail
+package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.example.ibanking_kltn.data.repositories.AiRepository
 import com.example.ibanking_kltn.data.repositories.SpendingRepository
 import com.example.ibanking_kltn.dtos.definitions.NavKey
 import com.example.ibanking_kltn.dtos.requests.SpendingCategorySnapshotRequest
@@ -32,6 +33,7 @@ import java.math.BigDecimal
 @HiltViewModel
 class SpendingDetailViewModel @Inject constructor(
     private val spendingRepository: SpendingRepository,
+    private val aiRepository: AiRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(SpendingDetailUiState())
@@ -86,6 +88,7 @@ class SpendingDetailViewModel @Inject constructor(
             SpendingDetailEvent.UpdateSpendingCategory -> updateCategory()
             SpendingDetailEvent.ChangeVisibleAddDialog -> changeVisibleAddDialog()
             SpendingDetailEvent.ChangeVisibleEditDialog -> changeVisibleEditDialog()
+
             is SpendingDetailEvent.ShowEditDialog -> showEditDialog(event.categoryCode)
             is SpendingDetailEvent.ChangeCategoryBudget -> changeCategoryBudget(event.categoryBudget)
             is SpendingDetailEvent.ChangeCategoryIcon -> changeCategoryIcon(
@@ -96,6 +99,7 @@ class SpendingDetailViewModel @Inject constructor(
 
             is SpendingDetailEvent.ChangeCategoryName -> changeCategoryName(event.categoryName)
             is SpendingDetailEvent.DeleteSpendingCategory -> deleteCategory(event.categoryCode)
+            SpendingDetailEvent.Analyze -> analyze()
         }
     }
 
@@ -179,6 +183,38 @@ class SpendingDetailViewModel @Inject constructor(
 
     }
 
+    private fun analyze() {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(screenState = SpendingDetailState.ANALYZING)
+            }
+            val result = aiRepository.getSpendingAnalytic(uiState.value.snapshotId!!)
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(screenState = SpendingDetailState.NONE)
+                    }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message, type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            analyzeResponse = result.data,
+                            screenState = SpendingDetailState.NONE
+                        )
+                    }
+                }
+            }
+        }
+    }
+
     private fun changeChartType() {
         _uiState.update {
             it.copy(
@@ -220,6 +256,45 @@ class SpendingDetailViewModel @Inject constructor(
     }
 
     private fun addCategory() {
+        if (uiState.value.categoryId.isEmpty()) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng chọn biểu tượng cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
+        if (uiState.value.categoryBudgetName.isEmpty()) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng nhập tên cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
+        if (uiState.value.categoryBudget <= BigDecimal.ZERO) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng nhập ngân sách cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
         viewModelScope.launch {
             _uiState.update {
                 it.copy(screenState = SpendingDetailState.LOADING)
@@ -279,6 +354,45 @@ class SpendingDetailViewModel @Inject constructor(
     }
 
     private fun updateCategory() {
+        if (uiState.value.categoryId.isEmpty()) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng chọn biểu tượng cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
+        if (uiState.value.categoryBudgetName.isEmpty()) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng nhập tên cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
+        if (uiState.value.categoryBudget <= BigDecimal.ZERO) {
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng nhập ngân sách cho danh mục",
+                            type = SnackBarType.INFO
+                        )
+                    )
+                )
+            }
+            return
+        }
         viewModelScope.launch {
             _uiState.update {
                 it.copy(screenState = SpendingDetailState.LOADING)
@@ -393,7 +507,10 @@ class SpendingDetailViewModel @Inject constructor(
                     editingCategoryCode = categoryCode,
                     categoryId = category.categoryId,
                     categoryBudget = category.budgetAmount,
-                    categoryBudgetName = category.categoryName
+                    categoryBudgetName = category.categoryName,
+                    selectedIconCode = category.categoryCode,
+                    selectedIconColor = category.textColor
+
                 )
             }
         }
@@ -423,7 +540,7 @@ class SpendingDetailViewModel @Inject constructor(
 
     }
 
-    private fun changeCategoryIcon(id: String, code: String,color: String) {
+    private fun changeCategoryIcon(id: String, code: String, color: String) {
         _uiState.update {
             it.copy(
                 categoryId = id,
@@ -439,7 +556,9 @@ class SpendingDetailViewModel @Inject constructor(
                 isShowAddCategoryDialog = !it.isShowAddCategoryDialog,
                 categoryId = "",
                 categoryBudget = BigDecimal.ZERO,
-                categoryBudgetName = ""
+                categoryBudgetName = "",
+                selectedIconCode = "",
+                selectedIconColor = "#000000"
             )
         }
     }

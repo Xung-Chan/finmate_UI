@@ -702,7 +702,7 @@ private fun AnalyzeRow(
 }
 
 @Composable
-private fun AnalyzeCard(
+ fun AnalyzeCard(
     title: String,
     content: String,
     icon: Int,

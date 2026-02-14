@@ -1,7 +1,8 @@
-package com.example.ibanking_kltn.ui.screens.spending.detail
+package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +58,7 @@ import com.example.ibanking_kltn.dtos.definitions.SpendingRecordType
 import com.example.ibanking_kltn.dtos.responses.SpendingCategoryDetailResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotDetailResponse
+import com.example.ibanking_kltn.ui.screens.analytic.AnalyzeCard
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -65,8 +67,10 @@ import com.example.ibanking_kltn.ui.theme.Blue5
 import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
+import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Green3
+import com.example.ibanking_kltn.ui.theme.Orange1
 import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -92,7 +96,8 @@ fun SpendingSnapshotDetail(
     uiState: SpendingDetailUiState,
     records: LazyPagingItems<SpendingRecordResponse>,
     onBackClick: () -> Unit,
-    onEvent: (SpendingDetailEvent) -> Unit
+    onEvent: (SpendingDetailEvent) -> Unit,
+    onRecordClick: (SpendingRecordResponse) -> Unit = {}
 ) {
     val scrollState = rememberScrollState(0)
 
@@ -550,6 +555,7 @@ fun SpendingSnapshotDetail(
                                 SpendingDetailTab.HISTORY -> TransactionHistory(
                                     uiState = uiState,
                                     records = records,
+                                    onRecordClick = onRecordClick
                                 )
 
                             }
@@ -956,7 +962,7 @@ private fun Overview(
                         Pie(
                             label = category.categoryName,
                             data = category.budgetAmount.toDouble(),
-                            color = colorFromLabel(category.categoryName)
+                            color = category.textColor.toColorFromHex()
                         )
 
                     },
@@ -979,8 +985,9 @@ private fun Overview(
                 ) {
 
                     categories.forEach { category ->
+                        val color = category.textColor.toColorFromHex()
                         val percentage =
-                            category.budgetAmount.toFloat() / uiState.spendingSnapshot.budgetAmount.toFloat()
+                            category.usedAmount.toFloat() / category.budgetAmount.toFloat()
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(
@@ -992,9 +999,7 @@ private fun Overview(
                                 modifier = Modifier
                                     .size(15.dp)
                                     .background(
-                                        color = colorFromLabel(
-                                            category.categoryName
-                                        ),
+                                        color = color,
                                         shape = RoundedCornerShape(3.dp)
                                     )
                             )
@@ -1007,9 +1012,7 @@ private fun Overview(
                                     Box(
                                         modifier = Modifier
                                             .background(
-                                                color = colorFromLabel(
-                                                    category.categoryName
-                                                ).copy(alpha = 0.2f),
+                                                color =color.copy(alpha = 0.2f),
                                                 shape = RoundedCornerShape(10.dp)
                                             )
                                             .padding(5.dp)
@@ -1019,9 +1022,7 @@ private fun Overview(
                                             painter = painterResource(CategoryIcon.fromCode(category.categoryIcon).resId),
                                             contentDescription = null,
                                             modifier = Modifier.size(20.dp),
-                                            tint = colorFromLabel(
-                                                category.categoryName
-                                            )
+                                            tint = color
                                         )
                                     }
                                     Text(
@@ -1045,6 +1046,21 @@ private fun Overview(
                                     modifier = Modifier.fillMaxWidth(),
                                     progress = percentage
                                 )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "${(percentage * 100).toInt()}% đã sử dụng",
+                                        style = AppTypography.labelSmall,
+                                        color = Gray1
+                                    )
+                                    Text(
+                                        text = "Còn lại ${formatterVND((category.budgetAmount - category.usedAmount).toLong())} đ",
+                                        style = AppTypography.labelSmall,
+                                        color = Gray1
+                                    )
+                                }
 
                             }
                         }
@@ -1056,6 +1072,114 @@ private fun Overview(
 
         }
     }
+    if (uiState.analyzeResponse == null) {
+        Row(
+            modifier = Modifier
+                .background(
+                    color = Blue5.copy(
+                        alpha = 0.2f
+                    ),
+                    shape = RoundedCornerShape(
+                        bottomStart = 10.dp,
+                        bottomEnd = 10.dp
+                    )
+                )
+                .customClick {
+                    if (uiState.screenState != SpendingDetailState.ANALYZING)
+                        onEvent(SpendingDetailEvent.Analyze)
+                }
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(
+                10.dp,
+            ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                modifier = Modifier
+                    .border(
+                        width = 1.dp,
+                        color = Blue5,
+                        shape = RoundedCornerShape(5.dp)
+                    )
+                    .padding(5.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ai),
+                    contentDescription = null,
+                    tint = Blue5,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Phân tích chi tiêu bằng AI",
+                    style = AppTypography.bodyMedium,
+                    color = Black1
+                )
+                Text(
+                    text = if (uiState.screenState == SpendingDetailState.ANALYZING) "AI đang phân tích..." else "Để FinMate giúp bạn phân tích chi tiêu",
+                    style = AppTypography.bodySmall,
+                    color = Gray1
+                )
+            }
+            if (uiState.screenState == SpendingDetailState.ANALYZING) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(25.dp),
+                    color = Blue5,
+                    strokeWidth = 3.dp
+                )
+            }
+        }
+
+    } else {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Header with AI badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Phân tích chi tiêu của bạn",
+                    style = AppTypography.titleMedium,
+                    color = Black1
+                )
+            }
+
+            // Analysis Cards
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // Xu hướng Card
+                AnalyzeCard(
+                    title = "Xu hướng",
+                    content = uiState.analyzeResponse.trend,
+                    icon = R.drawable.trend,
+                    color = Blue5
+                )
+
+                // Tỉ trọng Card
+                AnalyzeCard(
+                    title = "Tỉ trọng",
+                    content = uiState.analyzeResponse.categoryRatio,
+                    icon = R.drawable.percent,
+                    color = Green1
+                )
+
+                // Cảnh báo Card
+                AnalyzeCard(
+                    title = "Cảnh báo",
+                    content = uiState.analyzeResponse.alert,
+                    icon = R.drawable.warning,
+                    color = Orange1
+                )
+            }
+        }
+    }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1190,6 +1314,7 @@ private fun TransactionHistorySkeleton() {
 private fun TransactionHistory(
     records: LazyPagingItems<SpendingRecordResponse>,
     uiState: SpendingDetailUiState,
+    onRecordClick: (SpendingRecordResponse) -> Unit = {}
 ) {
     val refreshState = rememberPullToRefreshState()
     if (
@@ -1258,6 +1383,10 @@ private fun TransactionHistory(
                                 spotColor = Black1.copy(alpha = 0.25f)
                             )
                             .background(color = White1, shape = RoundedCornerShape(20.dp))
+                            .customClick(
+                                onClick = { onRecordClick(record) },
+                                shape = RoundedCornerShape(20.dp)
+                            )
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -1288,7 +1417,7 @@ private fun TransactionHistory(
                                 Row(
                                     modifier = Modifier
                                         .background(
-                                            color = colorFromLabel(record.categoryName).copy(alpha = 0.2f),
+                                            color = record.categoryTextColor?.toColorFromHex()?.copy(alpha = 0.2f)?:colorFromLabel("Không xác định").copy(alpha = 0.2f),
                                             shape = RoundedCornerShape(10.dp)
                                         )
                                         .padding(5.dp),

@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.detail
+package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 
@@ -13,6 +13,7 @@ sealed class SpendingDetailEvent {
     object ChangeVisibleEditDialog : SpendingDetailEvent()
     object AddSpendingCategory : SpendingDetailEvent()
     object UpdateSpendingCategory : SpendingDetailEvent()
+    object Analyze : SpendingDetailEvent()
     data class DeleteSpendingCategory(val categoryCode: String) : SpendingDetailEvent()
     data class ShowEditDialog(val categoryCode: String) : SpendingDetailEvent()
     data class ChangeCategoryName(val categoryName: String) : SpendingDetailEvent()

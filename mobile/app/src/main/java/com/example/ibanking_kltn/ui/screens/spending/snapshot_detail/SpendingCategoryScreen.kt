@@ -1,4 +1,4 @@
-package com.example.ibanking_kltn.ui.screens.spending.detail
+package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

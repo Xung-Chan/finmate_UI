@@ -1,6 +1,8 @@
 package com.example.ibanking_kltn.dtos.responses
 
+import android.os.Parcelable
 import com.example.ibanking_kltn.dtos.definitions.SpendingRecordType
+import kotlinx.parcelize.Parcelize
 import java.math.BigDecimal
 
 data class SpendingSnapshotResponse(
@@ -22,22 +24,23 @@ data class SpendingSnapshotDetailResponse(
 )
 
 
+@Parcelize
 data class SpendingRecordResponse(
-    val id: String,
-    val snapshotId: String,
-    val transactionId: String,
+    val id: String?,
+    val snapshotId: String?,
+    val transactionId: String?,
     val amount: BigDecimal,
     val description: String,
     val destinationAccountName: String,
     val destinationAccountNumber: String,
-    val recordType: SpendingRecordType,
+    val recordType: SpendingRecordType?,
     val categoryCode: String?,
     val categoryName: String?,
     val categoryIcon: String?,
     val categoryTextColor: String?,
     val categoryBackgroundColor: String?,
     val occurredAt: String
-)
+) : Parcelable
 
 data class DefinedSpendingCategoryResponse(
     val id: String,

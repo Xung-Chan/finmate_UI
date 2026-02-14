@@ -5,7 +5,11 @@ data class AnalyzeResponse(
     val ty_trong: String,
     val xu_huong: String
 )
-
+data class  SpendingAnalyzeResponse(
+    val alert: String,
+    val categoryRatio: String,
+    val trend: String
+)
 data class ExtractTransactionResponse(
     val amount: Long,
     val destinationAccountName: String,
