@@ -3,11 +3,14 @@ package com.example.ibanking_kltn.ui.screens.profile
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.dtos.definitions.VerificationStatus
 import com.example.ibanking_kltn.data.repositories.AuthRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.data.usecase.GetMyProfileUC
+import com.example.ibanking_kltn.data.usecase.UploadFileUC
+import com.example.ibanking_kltn.dtos.definitions.PresignedFileType
+import com.example.ibanking_kltn.dtos.definitions.VerificationStatus
+import com.example.ibanking_kltn.dtos.requests.UpdateAvatarRequest
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.SnackBarType
@@ -28,8 +31,10 @@ class MyProfileViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val walletRepository: WalletRepository,
     private val userSession: UserSession,
-    private val getMyProfileUC: GetMyProfileUC
-) : ViewModel() {
+    private val getMyProfileUC: GetMyProfileUC,
+    private val uploadFileUC: UploadFileUC,
+
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(MyProfileUiState())
     val uiState: StateFlow<MyProfileUiState> = _uiState.asStateFlow()
     private val _uiEffect = MutableSharedFlow<MyProfileEffect>()
@@ -116,16 +121,40 @@ class MyProfileViewModel @Inject constructor(
                 screenState = StateType.LOADING
             )
         }
-
         viewModelScope.launch {
-            val apiResult = authRepository.updateAvatar(imageUrl = uri)
-            when (apiResult) {
+            val apiResult = uploadFileUC(
+                fileType = PresignedFileType.AVATAR,
+                uri = uri
+            )
+            if (apiResult is ApiResult.Error) {
+                _uiState.update {
+                    it.copy(
+                        screenState = StateType.FAILED(message = apiResult.message),
+                    )
+                }
+                _uiEffect.emit(
+                    MyProfileEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = apiResult.message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
+                return@launch
+            }
+            apiResult as ApiResult.Success
+            val updateProfileResult = authRepository.updateAvatar(
+                request = UpdateAvatarRequest(
+                    objectKey = apiResult.data.objectKey
+                )
+            )
+            when (updateProfileResult) {
                 is ApiResult.Success -> {
                     _uiState.update {
                         it.copy(
                             screenState = StateType.SUCCESS,
                             userInfo = uiState.value.userInfo?.copy(
-                                avatarUrl = apiResult.data.avatarUrl
+                                avatarUrl = apiResult.data.publicUrl
                             )
                         )
                     }
@@ -133,7 +162,7 @@ class MyProfileViewModel @Inject constructor(
                     userSession.setUser(
                         user = userSession.user.value!!.copy(
                             profile = userSession.user.value?.profile?.copy(
-                                avatarUrl = apiResult.data.avatarUrl
+                                avatarUrl = apiResult.data.publicUrl
                             )
                         )
                     )
@@ -150,19 +179,22 @@ class MyProfileViewModel @Inject constructor(
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
-                            screenState = StateType.FAILED(message = apiResult.message),
+                            screenState = StateType.FAILED(message = updateProfileResult.message),
                         )
                     }
                     _uiEffect.emit(
                         MyProfileEffect.ShowSnackBar(
                             snackBar = SnackBarUiState(
-                                message = apiResult.message,
+                                message = updateProfileResult.message,
                                 type = SnackBarType.ERROR
                             )
                         )
                     )
+                    return@launch
                 }
             }
+
+
         }
     }
 

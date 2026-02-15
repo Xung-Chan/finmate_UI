@@ -193,7 +193,7 @@ fun MyProfileScreen(
                                         .padding(7.dp)
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.image),
+                                        painter = painterResource(R.drawable.image_edit),
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(20.dp)

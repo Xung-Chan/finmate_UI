@@ -5,6 +5,10 @@ data class LoginRequest(
     val password : String
 )
 
+data class UpdateAvatarRequest(
+    val objectKey: String
+)
+
 data class  RefreshTokenRequest(
     val refreshToken : String
 )

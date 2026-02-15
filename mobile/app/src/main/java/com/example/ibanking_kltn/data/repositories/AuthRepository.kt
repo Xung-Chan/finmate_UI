@@ -1,10 +1,10 @@
 package com.example.ibanking_kltn.data.repositories
 
 import android.content.Context
-import android.net.Uri
 import com.example.ibanking_kltn.data.api.AuthApi
 import com.example.ibanking_kltn.data.api.BiometricApi
 import com.example.ibanking_kltn.data.api.NonAuthApi
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.dtos.requests.ChangePasswordRequest
 import com.example.ibanking_kltn.dtos.requests.LoginRequest
 import com.example.ibanking_kltn.dtos.requests.LoginViaBiometricRequest
@@ -12,6 +12,7 @@ import com.example.ibanking_kltn.dtos.requests.RegisterBiometricRequest
 import com.example.ibanking_kltn.dtos.requests.RequestOtpRequest
 import com.example.ibanking_kltn.dtos.requests.ResetPasswordRequest
 import com.example.ibanking_kltn.dtos.requests.SendOtpRequest
+import com.example.ibanking_kltn.dtos.requests.UpdateAvatarRequest
 import com.example.ibanking_kltn.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.dtos.responses.LoginResponse
 import com.example.ibanking_kltn.dtos.responses.RegisterBiometricResponse
@@ -19,8 +20,6 @@ import com.example.ibanking_kltn.dtos.responses.RequestOtpResponse
 import com.example.ibanking_kltn.dtos.responses.UpdateAvatarResponse
 import com.example.ibanking_kltn.dtos.responses.UserInfoResponse
 import com.example.ibanking_kltn.dtos.responses.VerifyOtpResponse
-import com.example.ibanking_kltn.data.exception.safeApiCall
-import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -31,7 +30,7 @@ class AuthRepository @Inject constructor(
     private val biometricApi: BiometricApi,
     @ApplicationContext private val context: Context
 ) {
-//    suspend fun changePassword(
+    //    suspend fun changePassword(
 //        request: ChangePasswordRequest
 //    ): ApiResult<Unit> {
 //        return ApiResult.Success(Unit)
@@ -147,21 +146,12 @@ class AuthRepository @Inject constructor(
 //        )
 //    }
     suspend fun updateAvatar(
-        imageUrl: Uri
+        request: UpdateAvatarRequest
     ): ApiResult<UpdateAvatarResponse> {
-        return try {
-            val file = createMultipartFromUri(
-                uri = imageUrl,
-                partName = "file",
-                context = context
+        return safeApiCall {
+            authApi.updateImageProfile(
+                request = request
             )
-            safeApiCall {
-                authApi.updateImageProfile(
-                    file = file
-                )
-            }
-        } catch (e: Exception) {
-            ApiResult.Error("Exception: ${e.message}")
         }
     }
 

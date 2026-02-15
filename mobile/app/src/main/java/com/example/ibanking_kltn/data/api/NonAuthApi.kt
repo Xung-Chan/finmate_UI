@@ -10,11 +10,14 @@ import com.example.ibanking_kltn.dtos.requests.VerifyOtpRequest
 import com.example.ibanking_kltn.dtos.responses.LoginResponse
 import com.example.ibanking_kltn.dtos.responses.RequestOtpResponse
 import com.example.ibanking_kltn.dtos.responses.VerifyOtpResponse
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Url
 
 
 interface NonAuthApi {
@@ -58,6 +61,13 @@ interface NonAuthApi {
     suspend fun verifyOtp(
         @Body request: VerifyOtpRequest
     ): Response<VerifyOtpResponse>
+
+    @PUT
+    suspend fun uploadFile(
+        @Url url: String,
+        @Header("Content-Type") contentType: String,
+        @Body body: RequestBody
+    ): Response<Unit>
 
 
 }
