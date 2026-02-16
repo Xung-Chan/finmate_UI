@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.ui.components.CustomDateTimePicker
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue1
@@ -387,6 +388,18 @@ private fun TransactionFormSection(
                 focusedBorderColor = Blue1,
                 unfocusedBorderColor = Color.Gray.copy(alpha = 0.5f)
             )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Transaction Date Time
+        CustomDateTimePicker(
+            label = "Ngày giao dịch *",
+            value = uiState.transactionDateTime,
+            onDateTimeSelected = { dateTime ->
+                onEvent(DefineTransactionEvent.UpdateDateTime(dateTime))
+            },
+            modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(8.dp))

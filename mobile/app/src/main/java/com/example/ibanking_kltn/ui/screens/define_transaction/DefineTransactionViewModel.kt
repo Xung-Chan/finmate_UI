@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 
 @HiltViewModel
 class DefineTransactionViewModel @Inject constructor(
@@ -112,7 +113,7 @@ class DefineTransactionViewModel @Inject constructor(
                             toMerchantName = extractedData.destinationAccountName,
                             amount = extractedData.amount,
                             description = extractedData.transactionDescription,
-                            transactionDateTime = extractedData.transactionDateTime,
+                            transactionDateTime = LocalDateTime.parse(extractedData.transactionDateTime),
                             isProcessingImage = false,
                         )
                     }
@@ -130,7 +131,7 @@ class DefineTransactionViewModel @Inject constructor(
                 amount = uiState.value.amount,
                 destinationAccountName = uiState.value.toMerchantName,
                 destinationAccountNumber = uiState.value.toAccountNumber,
-                transactionDateTime = uiState.value.transactionDateTime,
+                transactionDateTime = uiState.value.transactionDateTime.toString(),
                 transactionDescription = uiState.value.description,
                 transactionId = uiState.value.transactionId,
             )
@@ -169,7 +170,7 @@ class DefineTransactionViewModel @Inject constructor(
                 toMerchantName = "",
                 amount = 0L,
                 description = "",
-                transactionDateTime = "",
+                transactionDateTime = LocalDateTime.now(),
                 selectedImageUri = null
             )
         }
