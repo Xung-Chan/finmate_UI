@@ -81,6 +81,9 @@ import com.example.ibanking_kltn.ui.screens.define_transaction.DefineTransaction
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycEffect
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycScreen
 import com.example.ibanking_kltn.ui.screens.ekyc.register.FullEkycViewModel
+import com.example.ibanking_kltn.ui.screens.ekyc.transaction_verify.VerifyTransactionEkycEffect
+import com.example.ibanking_kltn.ui.screens.ekyc.transaction_verify.VerifyTransactionEkycScreen
+import com.example.ibanking_kltn.ui.screens.ekyc.transaction_verify.VerifyTransactionEkycViewModel
 import com.example.ibanking_kltn.ui.screens.home.HomeEffect
 import com.example.ibanking_kltn.ui.screens.home.HomeScreen
 import com.example.ibanking_kltn.ui.screens.home.HomeViewModel
@@ -388,6 +391,17 @@ fun AppScreen(
                     }
                 }
 
+                // Track hashedData and call verifyTransaction when it's available
+                val hashedData = backStackEntry.savedStateHandle.get<String?>(NavKey.HASHED_DATA.name)
+                LaunchedEffect(hashedData) {
+                    hashedData?.let {
+                        confirmViewModel.onEvent(
+                            ConfirmEvent.VerifyEkycTransaction(hashedData = it)
+                        )
+                        backStackEntry.savedStateHandle.remove<String>(NavKey.HASHED_DATA.name)
+                    }
+                }
+
 
                 LaunchedEffect(Unit) {
 
@@ -409,6 +423,10 @@ fun AppScreen(
                                     }
                                 }
                             }
+
+                            ConfirmEffect.NavigateVerifyEkyc -> {
+                                navController.navigate(Screens.VerifyEkyc.name)
+                            }
                         }
                     }
                 }
@@ -420,6 +438,40 @@ fun AppScreen(
                         navController.popBackStack()
                     },
                     onEvent = confirmViewModel::onEvent,
+                )
+            }
+            composable(
+                route = Screens.VerifyEkyc.name,
+            ) { backStackEntry ->
+                val verifyTransactionEkycViewModel: VerifyTransactionEkycViewModel = hiltViewModel()
+                val previousEntry = remember(backStackEntry) {
+                    navController.previousBackStackEntry!!
+                }
+                LaunchedEffect(Unit) {
+                    verifyTransactionEkycViewModel.uiEffect.collect {
+                        when (it) {
+                            is VerifyTransactionEkycEffect.ShowSnackBar -> {
+                                snackBarInstance = it.snackBar
+                            }
+
+                            is VerifyTransactionEkycEffect.BackToConfirm -> {
+                                previousEntry.savedStateHandle.set<String>(NavKey.HASHED_DATA.name, it.hashedData)
+                                navController.popBackStack()
+                            }
+
+                            is VerifyTransactionEkycEffect.VerifyFailed -> {
+                                snackBarInstance = SnackBarUiState(
+                                    message = it.message,
+                                    type = SnackBarType.ERROR
+                                )
+                                navController.popBackStack()
+                            }
+                        }
+
+                    }
+                }
+                VerifyTransactionEkycScreen(
+                    onEvent = verifyTransactionEkycViewModel::onEvent
                 )
             }
             composable(

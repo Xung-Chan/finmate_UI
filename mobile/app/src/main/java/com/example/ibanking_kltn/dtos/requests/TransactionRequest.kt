@@ -16,7 +16,8 @@ data class PrepareTransferRequest(
 
 data class ConfirmTransferRequest(
     val otp: String,
-    val transactionId: String
+    val transactionId: String,
+    val ekycKey: String? = null
 )
 
 data class DepositTransactionRequest(

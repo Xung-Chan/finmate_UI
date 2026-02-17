@@ -36,7 +36,7 @@ interface TransactionApi {
         @Body request: ConfirmTransferRequest
     ): Response<TransactionResponse>
 
-    @GET("/api/expense-types/")
+    @GET("/api/spending/categories/system")
     suspend fun getAllExpenseType(
     ): Response<AllExpenseTypeResponse>
 

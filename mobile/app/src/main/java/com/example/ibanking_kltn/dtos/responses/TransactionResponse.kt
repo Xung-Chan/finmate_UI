@@ -2,10 +2,12 @@ package com.example.ibanking_kltn.dtos.responses
 
 import com.example.ibanking_kltn.dtos.definitions.ServiceType
 import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
+import com.example.ibanking_kltn.dtos.definitions.VerifyRequirement
 
 data class PrepareTransactionResponse(
     val retryTokenOtp: String,
-    val transactionId: String
+    val transactionId: String,
+    val verifyRequirement: VerifyRequirement
 )
 
 class AllExpenseTypeResponse : ArrayList<ExpenseType>()

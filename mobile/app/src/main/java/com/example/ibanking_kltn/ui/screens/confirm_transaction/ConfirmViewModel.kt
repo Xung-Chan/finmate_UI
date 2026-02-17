@@ -3,15 +3,18 @@ package com.example.ibanking_kltn.ui.screens.confirm_transaction
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.repositories.BillRepository
+import com.example.ibanking_kltn.data.repositories.EkycRepository
 import com.example.ibanking_kltn.data.repositories.PayLaterRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.data.repositories.WalletRepository
 import com.example.ibanking_kltn.dtos.definitions.AccountType
 import com.example.ibanking_kltn.dtos.definitions.PaymentAccount
+import com.example.ibanking_kltn.dtos.definitions.VerifyRequirement
 import com.example.ibanking_kltn.dtos.requests.ConfirmTransferRequest
 import com.example.ibanking_kltn.dtos.requests.PreparePayBillRequest
 import com.example.ibanking_kltn.dtos.requests.PreparePrePaymentRequest
 import com.example.ibanking_kltn.dtos.requests.PrepareTransferRequest
+import com.example.ibanking_kltn.dtos.requests.VerifyEkycRequest
 import com.example.ibanking_kltn.dtos.responses.PrepareTransactionResponse
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
@@ -33,7 +36,9 @@ class ConfirmViewModel @Inject constructor(
     private val payLaterRepository: PayLaterRepository,
     private val transactionRepository: TransactionRepository,
     private val billRepository: BillRepository,
-) : ViewModel() {
+    private val ekycRepository: EkycRepository,
+
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(ConfirmUiState())
     val uiState: StateFlow<ConfirmUiState> = _uiState.asStateFlow()
     private val _uiEffect = MutableSharedFlow<ConfirmEffect>()
@@ -47,13 +52,10 @@ class ConfirmViewModel @Inject constructor(
             is ConfirmEvent.OtpChange -> onOtpChange(event.otp)
             ConfirmEvent.ConfirmClick -> onConfirmClick()
             ConfirmEvent.OtpDismiss -> onOtpDismiss()
+            is ConfirmEvent.VerifyEkycTransaction -> verifyEkycTransaction(event.hashedData)
         }
     }
 
-
-    fun clearState() {
-        _uiState.value = ConfirmUiState()
-    }
 
     private fun loadPaymentInfo(
         confirmContent: ConfirmContent
@@ -128,6 +130,53 @@ class ConfirmViewModel @Inject constructor(
 
     }
 
+    private fun verifyEkycTransaction(hashedData: String) {
+        _uiState.update {
+            it.copy(screenState = StateType.LOADING)
+        }
+
+        viewModelScope.launch {
+            val request = VerifyEkycRequest(
+                transactionId = uiState.value.prepareResponse!!.transactionId,
+                faceData = hashedData
+            )
+            val apiResult = ekycRepository.transactionVerify(request = request)
+            when (apiResult) {
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(screenState = StateType.NONE)
+                    }
+                    _uiEffect.emit(
+                        ConfirmEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = apiResult.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.NONE,
+                            isOtpShow = true,
+                            ekycKey = apiResult.data.ekycKey
+                        )
+                    }
+                    _uiEffect.emit(
+                        ConfirmEffect.ShowSnackBar(
+                            snackBar = SnackBarUiState(
+                                message = "Xác thực eKYC thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     private fun onOtpChange(
         otp: String,
     ) {
@@ -137,11 +186,17 @@ class ConfirmViewModel @Inject constructor(
                 it.copy(screenState = StateType.LOADING)
             }
             viewModelScope.launch {
-                val apiResult = transactionRepository.confirmTransfer(
-                    request = ConfirmTransferRequest(
-                        otp = otp,
-                        transactionId = uiState.value.prepareResponse!!.transactionId
+                var request = ConfirmTransferRequest(
+                    otp = otp,
+                    transactionId = uiState.value.prepareResponse!!.transactionId
+                )
+                uiState.value.ekycKey?.let {
+                    request = request.copy(
+                        ekycKey = it
                     )
+                }
+                val apiResult = transactionRepository.confirmTransfer(
+                    request = request
                 )
                 when (apiResult) {
                     is ApiResult.Success -> {
@@ -160,7 +215,10 @@ class ConfirmViewModel @Inject constructor(
 
                     is ApiResult.Error -> {
                         _uiState.update {
-                            it.copy(screenState = StateType.NONE)
+                            it.copy(
+                                screenState = StateType.NONE,
+                                otp = ""
+                            )
                         }
                         _uiEffect.emit(
                             ConfirmEffect.ShowSnackBar(
@@ -241,6 +299,19 @@ class ConfirmViewModel @Inject constructor(
             when (apiResult) {
                 is ApiResult.Success -> {
                     val prepareTransferResponse = apiResult.data as PrepareTransactionResponse
+                    if (prepareTransferResponse.verifyRequirement == VerifyRequirement.E_KYC) {
+                        _uiState.update {
+                            it.copy(
+                                confirmState = StateType.NONE,
+                                isOtpShow = false,
+                                prepareResponse = prepareTransferResponse
+                            )
+                        }
+                        _uiEffect.emit(
+                            ConfirmEffect.NavigateVerifyEkyc
+                        )
+                        return@launch
+                    }
                     _uiState.update {
                         it.copy(
                             confirmState = StateType.NONE,

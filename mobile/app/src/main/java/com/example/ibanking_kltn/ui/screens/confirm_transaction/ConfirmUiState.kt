@@ -76,12 +76,9 @@ data class ConfirmUiState(
 
 
     val confirmContent: ConfirmContent? = null,
-//    val toMerchantName: String = "",
-//    val toWalletNumber: String = "",
-//    val billCode:String?="",
-//    val term : String? = "",
 
     val otp: String = "",
-    val prepareResponse: PrepareTransactionResponse? = null
-
+    val prepareResponse: PrepareTransactionResponse? = null,
+    val ekycKey: String? = null,
+    val hashedData: String? = null
 )
