@@ -74,6 +74,7 @@ class HomeViewModel @Inject constructor(
             HomeEvent.RetryLoadUserInfo -> retryLoadUserData()
             is HomeEvent.ClickService -> onSelectService(event.service)
             HomeEvent.NavigateToAllServiceScreen -> onNavigateToAllService()
+            HomeEvent.NavigateToEkyc -> onNavigateToEkyc()
         }
     }
 
@@ -87,6 +88,15 @@ class HomeViewModel @Inject constructor(
             _uiEffect.emit(
                 HomeEffect.NavigateToAllServiceScreen
             )
+        }
+    }
+
+    private fun onNavigateToEkyc() {
+        _uiState.update {
+            it.copy(isShowEkycAlertDialog = false)
+        }
+        viewModelScope.launch {
+            _uiEffect.emit(HomeEffect.NavigateToRegisterEkycScreen)
         }
     }
     private fun onSelectService(service: ServiceCategory) {
@@ -127,12 +137,10 @@ class HomeViewModel @Inject constructor(
             if(!(profile as ApiResult.Success).data.verifiedEkyc){
                 _uiState.update {
                     it.copy(
-                        initState = StateType.FAILED("Chưa hoàn thành eKYC")
+                        initState = StateType.FAILED("Chưa hoàn thành eKYC"),
+                        isShowEkycAlertDialog = true
                     )
                 }
-                _uiEffect.emit(
-                    HomeEffect.NavigateToRegisterEkycScreen
-                )
                 return@launch
             }
             if (wallet is ApiResult.Error) {

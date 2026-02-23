@@ -52,6 +52,7 @@ import com.example.ibanking_kltn.ui.theme.Blue6
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.CustomAlertDialog
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.RetryCompose
 import com.example.ibanking_kltn.utils.SkeletonBox
@@ -448,6 +449,35 @@ fun HomeScreen(
                 }
                 navigationBar()
 
+            }
+        }
+        if(homeUiState.isShowEkycAlertDialog){
+            CustomAlertDialog(
+                confirmText = "Đến trang đăng ký",
+                onConfirm = {
+                    onEvent(HomeEvent.NavigateToEkyc)
+                },
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text(
+                        text = "Yêu cầu xác thực sinh trắc học",
+                        style = AppTypography.titleMedium,
+                        color = Black1,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Ứng dụng yêu cầu bắt buộc đăng ký sinh trắc học (eKYC) để sử dụng đầy đủ các tính năng. Vui lòng hoàn tất đăng ký để tiếp tục.",
+                        style = AppTypography.bodySmall,
+                        color = Black1,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }

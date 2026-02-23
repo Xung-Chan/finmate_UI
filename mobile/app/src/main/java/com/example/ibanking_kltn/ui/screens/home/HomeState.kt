@@ -14,5 +14,7 @@ data class HomeUiState(
     val favoriteServices: List<ServiceItem> = emptyList(),
     val recentServices: List<ServiceItem> = emptyList(),
     val isBalanceShow: Boolean = false,
+
+    val isShowEkycAlertDialog: Boolean = false,
 )
 

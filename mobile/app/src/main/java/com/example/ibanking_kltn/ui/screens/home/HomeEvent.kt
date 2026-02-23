@@ -9,6 +9,7 @@ sealed class HomeEvent {
     object RetryLoadUserInfo : HomeEvent()
     data class ClickService(val service: ServiceCategory) : HomeEvent()
     object NavigateToAllServiceScreen : HomeEvent()
+    object NavigateToEkyc : HomeEvent()
 }
 
 sealed class HomeEffect {
