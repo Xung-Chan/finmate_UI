@@ -216,3 +216,4 @@ enum class VerificationStatus {
     REJECTED,
     CANCELLED
 }
+enum class DatePickerMode { CALENDAR, YEAR_PICKER, MONTH_PICKER }

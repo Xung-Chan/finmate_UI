@@ -61,6 +61,7 @@ import com.example.ibanking_kltn.ui.screens.TransactionDetailScreen
 import com.example.ibanking_kltn.ui.screens.analytic.AnalyticEffect
 import com.example.ibanking_kltn.ui.screens.analytic.AnalyticScreen
 import com.example.ibanking_kltn.ui.screens.analytic.AnalyticViewModel
+import com.example.ibanking_kltn.ui.screens.bill.create.CreateBillEffect
 import com.example.ibanking_kltn.ui.screens.bill.create.CreateBillScreen
 import com.example.ibanking_kltn.ui.screens.bill.create.CreateBillViewModel
 import com.example.ibanking_kltn.ui.screens.bill.detail.BillDetailScreen
@@ -152,7 +153,6 @@ fun AppScreen(
     val billHistoryViewModel: BillHistoryViewModel = hiltViewModel()
     val billDetailViewModel: BillDetailViewModel = hiltViewModel()
     val transactionDetailViewModel: TransactionDetailViewModel = hiltViewModel()
-    val createBillViewModel: CreateBillViewModel = hiltViewModel()
     val payLaterViewModel: PayLaterViewModel = hiltViewModel()
     val payLaterApplicationViewModel: PayLaterApplicationViewModel = hiltViewModel()
     val payLaterApplicationHistoryViewModel: PayLaterApplicationHistoryViewModel = hiltViewModel()
@@ -182,7 +182,6 @@ fun AppScreen(
         appViewModel = appViewModel,
         billHistoryViewModel = billHistoryViewModel,
         payLaterViewModel = payLaterViewModel,
-        createBillViewModel = createBillViewModel,
         onError = onError
     )
 
@@ -719,37 +718,31 @@ fun AppScreen(
 
 
             composable(route = Screens.CreateBill.name) { backStackEntry ->
+                val createBillViewModel: CreateBillViewModel = hiltViewModel()
                 val uiState by createBillViewModel.uiState.collectAsState()
-                CreateBillScreen(
-                    uiState = uiState,
-                    onBackClick = {
-                        navController.popBackStack()
-                    },
-                    isEnableContinue = createBillViewModel.isEnableCreateBill(),
-                    onContinueClick = {
-                        createBillViewModel.onContinueClick(
-                            onSucess = {
-                                billDetailViewModel.init(bill = it)
+                LaunchedEffect(Unit) {
+                    createBillViewModel.uiEffect.collect { effect ->
+                        when (effect) {
+                            CreateBillEffect.NavigateBack -> {
+                                navController.popBackStack()
+                            }
+                            is CreateBillEffect.NavigateToBillDetail -> {
+                                billDetailViewModel.init(bill = effect.bill)
                                 navController.navigate(Screens.BillDetail.name) {
                                     launchSingleTop = true
                                     popUpTo(Screens.Home.name)
                                 }
-                            },
-                            onError = onError
-                        )
-                    },
-                    onChangeAmount = {
-                        createBillViewModel.onAmountChange(it)
-                    },
-                    onChangeDescription = {
-                        createBillViewModel.onDescriptionChange(it)
-                    },
-                    onExpenseTypeChange = {
-                        createBillViewModel.onExpenseTypeChange(it)
-                    },
-                    onDateChange = {
-                        createBillViewModel.onExpiryDateChange(it)
+                            }
+                            is CreateBillEffect.ShowSnackBar -> {
+                                snackBarInstance = effect.snackBar
+                            }
+                        }
                     }
+                }
+                CreateBillScreen(
+                    uiState = uiState,
+                    isEnableContinue = createBillViewModel.isEnableCreateBill(),
+                    onEvent = createBillViewModel::onEvent,
                 )
             }
             composable(route = Screens.BillHistory.name) { backStackEntry ->
@@ -1205,7 +1198,6 @@ private fun createServiceNavigator(
     appViewModel: AppViewModel,
     billHistoryViewModel: BillHistoryViewModel,
     payLaterViewModel: PayLaterViewModel,
-    createBillViewModel: CreateBillViewModel,
     onError: (String) -> Unit
 ): Map<String, () -> Unit> {
     return mapOf(
@@ -1233,7 +1225,6 @@ private fun createServiceNavigator(
         },
         ServiceCategory.BILL_CREATE.name to {
             appViewModel.addRecentService(ServiceCategory.BILL_CREATE)
-            createBillViewModel.init()
             navController.navigate(Screens.CreateBill.name)
         },
         ServiceCategory.SPENDING.name to {

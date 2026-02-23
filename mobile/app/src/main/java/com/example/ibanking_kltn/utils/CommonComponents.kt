@@ -13,7 +13,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -68,7 +67,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -106,12 +104,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.commandiron.wheel_picker_compose.WheelDatePicker
-import com.commandiron.wheel_picker_compose.core.SelectorProperties
 import com.example.ibanking_kltn.R
 import com.example.ibanking_kltn.dtos.definitions.AccountType
 import com.example.ibanking_kltn.dtos.definitions.BillPayload
 import com.example.ibanking_kltn.dtos.definitions.BillStatus
+import com.example.ibanking_kltn.dtos.definitions.DatePickerMode
 import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationStatus
 import com.example.ibanking_kltn.dtos.definitions.PayLaterApplicationType
 import com.example.ibanking_kltn.dtos.definitions.QRPayload
@@ -1567,14 +1564,13 @@ fun TransactionHistoryFilterDialog(
 
         if (isShowFromDatePicker) {
             Box(
-                contentAlignment = Alignment.BottomEnd,
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        color = Gray3.copy(alpha = 0.5f),
-                    )
+                    .background(color = Gray3.copy(alpha = 0.5f))
                     .padding(20.dp)
-                    .pointerInput(Unit) {}) {
+                    .pointerInput(Unit) {}
+            ) {
                 CustomDatePicker(
                     minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
@@ -1582,24 +1578,19 @@ fun TransactionHistoryFilterDialog(
                         selectedFromDate = it
                         isShowFromDatePicker = false
                     },
-                    onDismiss = {
-                        isShowFromDatePicker = false
-                    }
+                    onDismiss = { isShowFromDatePicker = false }
                 )
-
             }
-
         }
         if (isShowToDatePicker) {
             Box(
-                contentAlignment = Alignment.BottomEnd,
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        color = Gray3.copy(alpha = 0.5f),
-                    )
+                    .background(color = Gray3.copy(alpha = 0.5f))
                     .padding(20.dp)
-                    .pointerInput(Unit) {}) {
+                    .pointerInput(Unit) {}
+            ) {
                 CustomDatePicker(
                     minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
@@ -1607,13 +1598,9 @@ fun TransactionHistoryFilterDialog(
                         selectedToDate = it
                         isShowToDatePicker = false
                     },
-                    onDismiss = {
-                        isShowToDatePicker = false
-                    }
+                    onDismiss = { isShowToDatePicker = false }
                 )
-
             }
-
         }
 
     }
@@ -1915,14 +1902,13 @@ fun PayLaterApplicationHistoryFilterDialog(
 
         if (isShowFromDatePicker) {
             Box(
-                contentAlignment = Alignment.BottomEnd,
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        color = Gray3.copy(alpha = 0.5f),
-                    )
+                    .background(color = Gray3.copy(alpha = 0.5f))
                     .padding(20.dp)
-                    .pointerInput(Unit) {}) {
+                    .pointerInput(Unit) {}
+            ) {
                 CustomDatePicker(
                     minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
@@ -1930,24 +1916,19 @@ fun PayLaterApplicationHistoryFilterDialog(
                         selectedFromDate = it
                         isShowFromDatePicker = false
                     },
-                    onDismiss = {
-                        isShowFromDatePicker = false
-                    }
+                    onDismiss = { isShowFromDatePicker = false }
                 )
-
             }
-
         }
         if (isShowToDatePicker) {
             Box(
-                contentAlignment = Alignment.BottomEnd,
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        color = Gray3.copy(alpha = 0.5f),
-                    )
+                    .background(color = Gray3.copy(alpha = 0.5f))
                     .padding(20.dp)
-                    .pointerInput(Unit) {}) {
+                    .pointerInput(Unit) {}
+            ) {
                 CustomDatePicker(
                     minDate = LocalDate.now().minusYears(2),
                     maxDate = LocalDate.now(),
@@ -1955,13 +1936,9 @@ fun PayLaterApplicationHistoryFilterDialog(
                         selectedToDate = it
                         isShowToDatePicker = false
                     },
-                    onDismiss = {
-                        isShowToDatePicker = false
-                    }
+                    onDismiss = { isShowToDatePicker = false }
                 )
-
             }
-
         }
 
     }
@@ -2278,99 +2255,357 @@ private fun CalendarBottom(
 fun CustomDatePicker(
     minDate: LocalDate,
     maxDate: LocalDate,
+    initialDate: LocalDate = LocalDate.now(),
     onSelectedDate: (LocalDate) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
+    // ── ViewMode: CALENDAR | YEAR_PICKER | MONTH_PICKER ─────────────────
+
+    val today = LocalDate.now()
+    var selectedDate by remember { mutableStateOf(initialDate) }
+    var displayedYearMonth by remember {
+        mutableStateOf(
+            when {
+                initialDate < minDate -> minDate
+                initialDate > maxDate -> maxDate
+                else -> initialDate
+            }.withDayOfMonth(1)
+        )
+    }
+    var mode by remember { mutableStateOf(DatePickerMode.CALENDAR) }
+
+    val vietnameseMonths = listOf(
+        "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4",
+        "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8",
+        "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+    )
+    val dayHeaders = listOf("CN", "T2", "T3", "T4", "T5", "T6", "T7")
+
+    val minYear = minDate.year
+    val maxYear = maxDate.year
+    val years = (minYear..maxYear).toList()
+
+    val canGoPrev = displayedYearMonth.isAfter(minDate.withDayOfMonth(1))
+    val canGoNext = displayedYearMonth.isBefore(maxDate.withDayOfMonth(1))
+
+    val firstDayOfMonth = displayedYearMonth
+    val daysInMonth = firstDayOfMonth.lengthOfMonth()
+    val firstDowValue = firstDayOfMonth.dayOfWeek.value % 7
+    val totalCells = firstDowValue + daysInMonth
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = Black1,
-                shape = RoundedCornerShape(20.dp)
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+            .background(color = White1, shape = RoundedCornerShape(20.dp))
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        WheelDatePicker(
-            startDate = selectedDate,
-            minDate = minDate,
-            maxDate = maxDate,
-            textColor = White1,
-            selectorProperties = object : SelectorProperties {
-                @Composable
-                override fun border(): State<BorderStroke?> {
-                    return remember {
-                        mutableStateOf(
-                            BorderStroke(
-                                width = 2.dp,
-                                color = Color.Transparent
-                            )
-                        )
-                    }
-                }
-
-                @Composable
-                override fun color(): State<Color> {
-                    return remember {
-
-                        mutableStateOf(
-                            Color.Transparent
-                        )
-                    }
-                }
-
-                @Composable
-                override fun enabled(): State<Boolean> {
-                    return remember {
-                        mutableStateOf(
-                            true
-                        )
-                    }
-                }
-
-                @Composable
-                override fun shape(): State<Shape> {
-                    return remember {
-                        mutableStateOf(
-                            RoundedCornerShape(0.dp)
-                        )
-                    }
-                }
-            },
-        ) { date ->
-            selectedDate = date
-        }
-
+        // ── Header ──────────────────────────────────────────────────────
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
-
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Nút prev — ẩn khi ở year/month picker
+            IconButton(
+                onClick = { if (canGoPrev) displayedYearMonth = displayedYearMonth.minusMonths(1) },
+                enabled = canGoPrev && mode == DatePickerMode.CALENDAR
             ) {
-            TextButton(
-                onClick = {
-                    onDismiss()
-                },
-                contentPadding = PaddingValues(horizontal = 40.dp)
-            ) {
-                Text("Thoát", color = White1)
+                Icon(
+                    painter = painterResource(R.drawable.arrow_left),
+                    contentDescription = "Tháng trước",
+                    tint = if (canGoPrev && mode == DatePickerMode.CALENDAR) Blue1 else Color.Transparent,
+                    modifier = Modifier.size(20.dp)
+                )
             }
-            TextButton(
-                onClick = {
-                    onSelectedDate(selectedDate)
-                },
-                contentPadding = PaddingValues(horizontal = 40.dp)
+
+            // Tháng & Năm — click để mở picker tương ứng
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("OK", color = White1)
+                // Chip Tháng
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = if (mode == DatePickerMode.MONTH_PICKER) Blue1 else Blue1.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            mode = if (mode == DatePickerMode.MONTH_PICKER)
+                                DatePickerMode.CALENDAR else DatePickerMode.MONTH_PICKER
+                        }
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = vietnameseMonths[displayedYearMonth.monthValue - 1],
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = if (mode == DatePickerMode.MONTH_PICKER) White1 else Blue1
+                    )
+                }
+
+                // Chip Năm
+                Box(
+                    modifier = Modifier
+                        .background(
+                            color = if (mode == DatePickerMode.YEAR_PICKER) Blue1 else Blue1.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            mode = if (mode == DatePickerMode.YEAR_PICKER)
+                                DatePickerMode.CALENDAR else DatePickerMode.YEAR_PICKER
+                        }
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = displayedYearMonth.year.toString(),
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        color = if (mode == DatePickerMode.YEAR_PICKER) White1 else Blue1
+                    )
+                }
+            }
+
+            // Nút next
+            IconButton(
+                onClick = { if (canGoNext) displayedYearMonth = displayedYearMonth.plusMonths(1) },
+                enabled = canGoNext && mode == DatePickerMode.CALENDAR
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.arrow_right),
+                    contentDescription = "Tháng sau",
+                    tint = if (canGoNext && mode == DatePickerMode.CALENDAR) Blue1 else Color.Transparent,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
 
+        // ── Year Picker ──────────────────────────────────────────────────
+        if (mode == DatePickerMode.YEAR_PICKER) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(years.size) { index ->
+                    val year = years[index]
+                    val isSelected = year == displayedYearMonth.year
+                    val isInRange = year in minYear..maxYear
+                    Box(
+                        modifier = Modifier
+                            .aspectRatio(1.8f)
+                            .background(
+                                color = if (isSelected) Blue1 else if (year == today.year) Blue1.copy(alpha = 0.08f) else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .then(
+                                if (isInRange) Modifier.clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) {
+                                    displayedYearMonth = displayedYearMonth.withYear(year)
+                                        .let { ym ->
+                                            // giữ tháng trong phạm vi
+                                            when {
+                                                ym.isBefore(minDate.withDayOfMonth(1)) -> minDate.withDayOfMonth(1)
+                                                ym.isAfter(maxDate.withDayOfMonth(1)) -> maxDate.withDayOfMonth(1)
+                                                else -> ym
+                                            }
+                                        }
+                                    mode = DatePickerMode.CALENDAR
+                                } else Modifier
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = year.toString(),
+                            style = AppTypography.bodySmall.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = when {
+                                isSelected -> White1
+                                !isInRange -> Gray2
+                                else -> Black1
+                            }
+                        )
+                    }
+                }
+            }
+        }
 
+        // ── Month Picker ─────────────────────────────────────────────────
+        if (mode == DatePickerMode.MONTH_PICKER) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(3),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                items(12) { index ->
+                    val monthNum = index + 1
+                    val monthDate = displayedYearMonth.withMonth(monthNum)
+                    val isSelected = monthNum == displayedYearMonth.monthValue
+                    val isEnabled = !monthDate.isBefore(minDate.withDayOfMonth(1)) &&
+                            !monthDate.isAfter(maxDate.withDayOfMonth(1))
+                    val isCurrentMonth = monthNum == today.monthValue && displayedYearMonth.year == today.year
+                    Box(
+                        modifier = Modifier
+                            .height(44.dp)
+                            .background(
+                                color = if (isSelected) Blue1 else if (isCurrentMonth) Blue1.copy(alpha = 0.08f) else Color.Transparent,
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .then(
+                                if (isEnabled) Modifier.clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) {
+                                    displayedYearMonth = displayedYearMonth.withMonth(monthNum)
+                                    mode = DatePickerMode.CALENDAR
+                                } else Modifier
+                            )
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "T$monthNum",
+                            style = AppTypography.bodySmall.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = when {
+                                isSelected -> White1
+                                !isEnabled -> Gray2
+                                else -> Black1
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // ── Calendar view ────────────────────────────────────────────────
+        if (mode == DatePickerMode.CALENDAR) {
+            // Tên thứ
+            Row(modifier = Modifier.fillMaxWidth()) {
+                dayHeaders.forEach { label ->
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = label,
+                            style = AppTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = if (label == "CN") Color(0xFFE53935) else Gray1
+                        )
+                    }
+                }
+            }
+
+            // Lưới ngày
+            val rows = (totalCells + 6) / 7
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                for (row in 0 until rows) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        for (col in 0 until 7) {
+                            val cellIndex = row * 7 + col
+                            val dayNumber = cellIndex - firstDowValue + 1
+                            val cellDate = if (dayNumber in 1..daysInMonth)
+                                displayedYearMonth.withDayOfMonth(dayNumber) else null
+
+                            val isEnabled = cellDate != null
+                                    && !cellDate.isBefore(minDate)
+                                    && !cellDate.isAfter(maxDate)
+                            val isSelected = cellDate == selectedDate
+                            val isToday = cellDate == today
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f)
+                                    .padding(2.dp)
+                                    .then(
+                                        if (isSelected) Modifier.background(Blue1, CircleShape)
+                                        else if (isToday && isEnabled) Modifier.border(1.5.dp, Blue1, CircleShape)
+                                        else Modifier
+                                    )
+                                    .then(
+                                        if (isEnabled) Modifier.clickable(
+                                            indication = null,
+                                            interactionSource = remember { MutableInteractionSource() }
+                                        ) { selectedDate = cellDate!! }
+                                        else Modifier
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (cellDate != null) {
+                                    Text(
+                                        text = dayNumber.toString(),
+                                        style = AppTypography.bodySmall.copy(
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        ),
+                                        color = when {
+                                            isSelected -> White1
+                                            !isEnabled -> Gray2
+                                            col == 0 -> Color(0xFFE53935)
+                                            else -> Black1
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── Chú thích ngày đã chọn ───────────────────────────────────────
+        if (selectedDate in minDate..maxDate) {
+            Text(
+                text = "Đã chọn: ${selectedDate.dayOfMonth}/${selectedDate.monthValue}/${selectedDate.year}",
+                style = AppTypography.bodySmall,
+                color = Blue1,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+
+        // ── Buttons ──────────────────────────────────────────────────────
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                colors = androidx.compose.material3.ButtonDefaults.textButtonColors(contentColor = Gray1)
+            ) {
+                Text("Hủy", style = AppTypography.bodyMedium)
+            }
+            Button(
+                onClick = { onSelectedDate(selectedDate) },
+                modifier = Modifier.weight(1f),
+                enabled = selectedDate in minDate..maxDate,
+                shape = RoundedCornerShape(10.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = Blue1,
+                    contentColor = White1,
+                    disabledContainerColor = Gray2,
+                    disabledContentColor = White1
+                )
+            ) {
+                Text("Xác nhận", style = AppTypography.bodyMedium)
+            }
+        }
     }
 }
+
 
 @Composable
 fun CustomMonthYearPicker(

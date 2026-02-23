@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -41,7 +40,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.ibanking_kltn.R
-import com.example.ibanking_kltn.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.ui.theme.AppTypography
 import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Gray1
@@ -64,33 +62,23 @@ import java.time.LocalDate
 @Composable
 fun CreateBillScreen(
     uiState: CreateBillUiState,
-    onBackClick: () -> Unit,
-    onContinueClick: () -> Unit,
     isEnableContinue: Boolean,
-    onChangeAmount: (String) -> Unit,
-    onChangeDescription: (String) -> Unit,
-    onExpenseTypeChange: (ExpenseType) -> Unit,
-    onDateChange: (LocalDate) -> Unit
+    onEvent: (CreateBillEvent) -> Unit,
 ) {
     val scrollState = rememberScrollState(0)
-    val focusManager = LocalFocusManager.current
-    var isShowExpireDatePicker by remember {
-        mutableStateOf(false)
-    }
+    var isShowExpireDatePicker by remember { mutableStateOf(false) }
+
     LoadingScaffold(isLoading = uiState.screenState is StateType.LOADING) {
         Box {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = {
-                            Text(text = "Tạo hóa đơn")
-                        },
+                        title = { Text(text = "Tạo hóa đơn") },
                         navigationIcon = {
-                            IconButton(onClick = {
-                                onBackClick()
-                            }) {
+                            IconButton(onClick = { onEvent(CreateBillEvent.BackClick) }) {
                                 Icon(
-                                    Icons.Default.ArrowBackIosNew, contentDescription = null,
+                                    Icons.Default.ArrowBackIosNew,
+                                    contentDescription = null,
                                     modifier = Modifier.size(25.dp)
                                 )
                             }
@@ -126,7 +114,6 @@ fun CreateBillScreen(
                                     shape = RoundedCornerShape(20.dp),
                                     ambientColor = Black1.copy(alpha = 0.25f),
                                     spotColor = Black1.copy(alpha = 0.25f)
-
                                 )
                                 .background(
                                     color = White1,
@@ -145,7 +132,8 @@ fun CreateBillScreen(
                                 value = formatterVND(uiState.amount),
                                 placeholder = {
                                     Text(
-                                        "Số tiền", style = AppTypography.bodyMedium,
+                                        "Số tiền",
+                                        style = AppTypography.bodyMedium,
                                         color = Gray2
                                     )
                                 },
@@ -162,9 +150,7 @@ fun CreateBillScreen(
                                     )
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                onValueChange = {
-                                    onChangeAmount(it)
-                                }
+                                onValueChange = { onEvent(CreateBillEvent.AmountChange(it)) }
                             )
 
                             CustomTextField(
@@ -181,15 +167,14 @@ fun CreateBillScreen(
                                     imeAction = ImeAction.Done
                                 ),
                                 modifier = Modifier.fillMaxWidth(),
-                                onValueChange = {
-                                    onChangeDescription(it)
-                                }
+                                onValueChange = { onEvent(CreateBillEvent.DescriptionChange(it)) }
                             )
-                            CustomDropdownField<ExpenseType>(
+
+                            CustomDropdownField(
                                 modifier = Modifier.fillMaxWidth(),
                                 options = uiState.allExpenseTypeResponse,
                                 onOptionSelected = {
-                                    onExpenseTypeChange(it)
+                                    onEvent(CreateBillEvent.ExpenseTypeChange(it))
                                 },
                                 optionsComposable = {
                                     Text(
@@ -201,10 +186,9 @@ fun CreateBillScreen(
                                 selectedOption = uiState.selectedExpenseType?.name ?: "",
                                 placeholder = "Phân loại"
                             )
+
                             CustomClickField(
-                                onClick = {
-                                    isShowExpireDatePicker = true
-                                },
+                                onClick = { isShowExpireDatePicker = true },
                                 placeholder = "Hạn thanh toán",
                                 value = formatterDateString(uiState.expiryDate),
                                 trailingIcon = {
@@ -220,76 +204,55 @@ fun CreateBillScreen(
                         }
                     }
 
-                    //navigationbar
                     Column(
                         verticalArrangement = Arrangement.spacedBy(
                             10.dp,
                             alignment = Alignment.Bottom
                         ),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-
                         CustomTextButton(
                             enable = isEnableContinue,
-                            onClick = {
-                                onContinueClick()
-                            },
+                            onClick = { onEvent(CreateBillEvent.ContinueClick) },
                             isLoading = uiState.screenState is StateType.LOADING,
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             text = stringResource(R.string.Continue),
                         )
                     }
                 }
-
             }
 
             if (isShowExpireDatePicker) {
                 Box(
-                    contentAlignment = Alignment.BottomEnd,
+                    contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(
-                            color = Gray3.copy(alpha = 0.5f),
-                        )
+                        .background(color = Gray3.copy(alpha = 0.5f))
                         .padding(20.dp)
-                        .pointerInput(Unit) {}) {
+                        .pointerInput(Unit) {}
+                ) {
                     CustomDatePicker(
                         minDate = LocalDate.now().plusDays(1),
                         maxDate = LocalDate.now().plusYears(2),
                         onSelectedDate = {
-                            onDateChange(it)
+                            onEvent(CreateBillEvent.ExpiryDateChange(it))
                             isShowExpireDatePicker = false
                         },
-                        onDismiss = {
-                            isShowExpireDatePicker = false
-                        }
+                        onDismiss = { isShowExpireDatePicker = false }
                     )
-
                 }
             }
         }
     }
-
 }
 
-@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CreateBillPreview() {
     CreateBillScreen(
-        uiState = CreateBillUiState(
-        ),
-        onBackClick = {},
+        uiState = CreateBillUiState(),
         isEnableContinue = false,
-        onContinueClick = {},
-        onChangeAmount = {},
-        onChangeDescription = {},
-        onExpenseTypeChange = {},
-        onDateChange = {}
+        onEvent = {},
     )
 }
