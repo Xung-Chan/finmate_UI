@@ -391,7 +391,8 @@ fun AppScreen(
                 }
 
                 // Track hashedData and call verifyTransaction when it's available
-                val hashedData = backStackEntry.savedStateHandle.get<String?>(NavKey.HASHED_DATA.name)
+                val hashedData =
+                    backStackEntry.savedStateHandle.get<String?>(NavKey.HASHED_DATA.name)
                 LaunchedEffect(hashedData) {
                     hashedData?.let {
                         confirmViewModel.onEvent(
@@ -454,7 +455,10 @@ fun AppScreen(
                             }
 
                             is VerifyTransactionEkycEffect.BackToConfirm -> {
-                                previousEntry.savedStateHandle.set<String>(NavKey.HASHED_DATA.name, it.hashedData)
+                                previousEntry.savedStateHandle.set<String>(
+                                    NavKey.HASHED_DATA.name,
+                                    it.hashedData
+                                )
                                 navController.popBackStack()
                             }
 
@@ -710,13 +714,6 @@ fun AppScreen(
                     }
                 )
             }
-            //todo done
-            depositGraph(
-                navController = navController,
-                onShowSnackBar = onShowSnackBar
-            )
-
-
             composable(route = Screens.CreateBill.name) { backStackEntry ->
                 val createBillViewModel: CreateBillViewModel = hiltViewModel()
                 val uiState by createBillViewModel.uiState.collectAsState()
@@ -726,6 +723,7 @@ fun AppScreen(
                             CreateBillEffect.NavigateBack -> {
                                 navController.popBackStack()
                             }
+
                             is CreateBillEffect.NavigateToBillDetail -> {
                                 billDetailViewModel.init(bill = effect.bill)
                                 navController.navigate(Screens.BillDetail.name) {
@@ -733,6 +731,7 @@ fun AppScreen(
                                     popUpTo(Screens.Home.name)
                                 }
                             }
+
                             is CreateBillEffect.ShowSnackBar -> {
                                 snackBarInstance = effect.snackBar
                             }
@@ -745,6 +744,14 @@ fun AppScreen(
                     onEvent = createBillViewModel::onEvent,
                 )
             }
+
+            //todo done
+            depositGraph(
+                navController = navController,
+                onShowSnackBar = onShowSnackBar
+            )
+
+
             composable(route = Screens.BillHistory.name) { backStackEntry ->
                 val uiState by billHistoryViewModel.uiState.collectAsState()
                 val bills = billHistoryViewModel.billPager.collectAsLazyPagingItems()

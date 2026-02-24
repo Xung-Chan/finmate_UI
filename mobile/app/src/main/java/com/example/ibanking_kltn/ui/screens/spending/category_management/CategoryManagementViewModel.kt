@@ -4,8 +4,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.repositories.SpendingRepository
+import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.dtos.definitions.CategoryIcon
 import com.example.ibanking_kltn.dtos.requests.DefinedSpendingCategoryRequest
+import com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse
+import com.example.ibanking_kltn.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.toHexString
@@ -22,29 +25,48 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class CategoryManagementViewModel @Inject constructor(
-    private val spendingRepository: SpendingRepository
-) : ViewModel() {
+    private val spendingRepository: SpendingRepository,
+    private val transactionRepository: TransactionRepository,
+
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(CategoryManagementUiState())
     val uiState: StateFlow<CategoryManagementUiState> = _uiState.asStateFlow()
     private val _uiEffect = MutableSharedFlow<CategoryManagementEffect>()
     val uiEffect = _uiEffect.asSharedFlow()
 
     init {
-        retryInitCategories()
-
+        retryInit()
     }
 
     fun onEvent(event: CategoryManagementEvent) {
         when (event) {
-            CategoryManagementEvent.RetryInitCategories -> retryInitCategories()
+            CategoryManagementEvent.RetryInitCategories -> retryInit()
             CategoryManagementEvent.AddDefinedCategory -> addNewCategory()
             CategoryManagementEvent.UpdateDefinedCategory -> updateCategory()
             CategoryManagementEvent.ResetForm -> resetForm()
+            CategoryManagementEvent.ShowBottomSheet -> _uiState.update { it.copy(isShowBottomSheet = true) }
+            CategoryManagementEvent.HideBottomSheet -> _uiState.update {
+                it.copy(
+                    isShowBottomSheet = false,
+                    errorMessage = null
+                )
+            }
+
             is CategoryManagementEvent.DeleteDefinedCategory -> deleteCategory(event.categoryId)
             is CategoryManagementEvent.OpenEditDialog -> openEditDialog(event.category)
             is CategoryManagementEvent.ChangeCategoryColor -> changeCategoryColor(event.color)
             is CategoryManagementEvent.ChangeCategoryName -> changeCategoryName(event.name)
             is CategoryManagementEvent.ChangeSelectedIcon -> changeSelectedIcon(event.icon)
+            is CategoryManagementEvent.ExpenseTypeChange -> changeExpenseType(event.expenseType)
+        }
+    }
+
+
+    private fun changeExpenseType(type: ExpenseType) {
+        _uiState.update {
+            it.copy(
+                selectedExpenseType = type
+            )
         }
     }
 
@@ -55,6 +77,7 @@ class CategoryManagementViewModel @Inject constructor(
             )
         }
     }
+
     private fun changeCategoryColor(color: String) {
         _uiState.update {
             it.copy(
@@ -62,6 +85,7 @@ class CategoryManagementViewModel @Inject constructor(
             )
         }
     }
+
     private fun changeSelectedIcon(icon: CategoryIcon) {
         _uiState.update {
             it.copy(
@@ -77,12 +101,15 @@ class CategoryManagementViewModel @Inject constructor(
                 categoryId = "",
                 categoryName = "",
                 color = Color.Black.toHexString(),
-                selectedIcon = CategoryIcon.UNKNOWN
+                selectedIcon = CategoryIcon.UNKNOWN,
+                isShowBottomSheet = true,
+                errorMessage = null,
+                selectedExpenseType = null
             )
         }
     }
 
-    private fun retryInitCategories() {
+    private fun retryInit() {
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -90,50 +117,73 @@ class CategoryManagementViewModel @Inject constructor(
                 )
             }
             val categories = spendingRepository.getAllDefinedSpendingCategories()
-            when (categories) {
-                is ApiResult.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            screenState = CategoryManagementState.INIT_FAILED
-                        )
-                    }
-                    _uiEffect.emit(
-                        CategoryManagementEffect.ShowSnackBar(
-                            SnackBarUiState(
-                                message = categories.message, type = SnackBarType.ERROR
-                            )
-                        )
+            val expenseTypes = transactionRepository.getAllExpenseType()
+
+            if (expenseTypes is ApiResult.Error) {
+                _uiState.update {
+                    it.copy(
+                        screenState = CategoryManagementState.INIT_FAILED
                     )
                 }
-
-                is ApiResult.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            definedCategories = categories.data,
-                            screenState = CategoryManagementState.NONE
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-
-    private fun addNewCategory() {
-        viewModelScope.launch {
-
-            if (
-                uiState.value.categoryName.isBlank()
-            ) {
                 _uiEffect.emit(
                     CategoryManagementEffect.ShowSnackBar(
                         SnackBarUiState(
-                            message = "Please fill all the fields", type = SnackBarType.ERROR
+                            message = expenseTypes.message, type = SnackBarType.ERROR
                         )
                     )
                 )
                 return@launch
             }
+
+            if (categories is ApiResult.Error) {
+                _uiState.update {
+                    it.copy(
+                        screenState = CategoryManagementState.INIT_FAILED
+                    )
+                }
+                _uiEffect.emit(
+                    CategoryManagementEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = categories.message, type = SnackBarType.ERROR
+                        )
+                    )
+                )
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    definedCategories = (categories as ApiResult.Success).data,
+                    allExpenseTypeResponse = (expenseTypes as ApiResult.Success).data,
+                    screenState = CategoryManagementState.NONE
+                )
+            }
+        }
+    }
+
+    private fun checkValidInput(): Boolean {
+        if (uiState.value.categoryName.isBlank()) {
+            _uiState.update { it.copy(errorMessage = "Tên danh mục không thể trống") }
+            return false
+        }
+        if (uiState.value.selectedExpenseType == null) {
+            _uiState.update { it.copy(errorMessage = "Phân loại không thể trống") }
+            return false
+        }
+        if (uiState.value.selectedIcon == CategoryIcon.UNKNOWN) {
+            _uiState.update { it.copy(errorMessage = "Vui lòng chọn một icon") }
+            return false
+        }
+        return true
+    }
+
+    private fun addNewCategory() {
+        viewModelScope.launch {
+            if (!checkValidInput()) {
+                return@launch
+            }
+
+
             _uiState.update {
                 it.copy(
                     screenState = CategoryManagementState.LOADING
@@ -141,8 +191,7 @@ class CategoryManagementViewModel @Inject constructor(
             }
             val request = DefinedSpendingCategoryRequest(
                 code = uiState.value.selectedIcon.code,
-                //todo
-                systemCategoryId = null,
+                systemCategoryId = uiState.value.selectedExpenseType?.id,
                 name = uiState.value.categoryName,
                 icon = uiState.value.selectedIcon.code,
                 textColor = uiState.value.color,
@@ -151,7 +200,7 @@ class CategoryManagementViewModel @Inject constructor(
             val result = spendingRepository.createDefinedSpendingCategories(
                 request = request
             )
-            when(result){
+            when (result) {
                 is ApiResult.Error -> {
                     _uiState.update {
                         it.copy(
@@ -166,11 +215,14 @@ class CategoryManagementViewModel @Inject constructor(
                         )
                     )
                 }
+
                 is ApiResult.Success -> {
                     _uiState.update {
                         it.copy(
                             screenState = CategoryManagementState.NONE,
-                            definedCategories = it.definedCategories + result.data
+                            definedCategories = it.definedCategories + result.data,
+                            isShowBottomSheet = false,
+                            errorMessage = null,
                         )
                     }
                 }
@@ -178,40 +230,37 @@ class CategoryManagementViewModel @Inject constructor(
         }
     }
 
-    private fun openEditDialog(category: com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse) {
+    private fun openEditDialog(category: DefinedSpendingCategoryResponse) {
         _uiState.update {
             it.copy(
                 isEditMode = true,
                 categoryId = category.id,
                 categoryName = category.name,
-                color = category.textColor ?: Color.Black.toHexString(),
-                selectedIcon = CategoryIcon.fromCode(category.icon)
+                color = category.textColor,
+                selectedIcon = CategoryIcon.fromCode(category.icon),
+                selectedExpenseType = uiState.value.allExpenseTypeResponse.firstOrNull { expenseType ->
+                    expenseType.tag == category.systemCategoryCode
+                },
+                isShowBottomSheet = true
             )
         }
     }
 
     private fun updateCategory() {
         viewModelScope.launch {
-            if (uiState.value.categoryName.isBlank()) {
-                _uiEffect.emit(
-                    CategoryManagementEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng điền đầy đủ thông tin",
-                            type = SnackBarType.ERROR
-                        )
-                    )
-                )
+            if (!checkValidInput()) {
                 return@launch
             }
+
 
             _uiState.update {
                 it.copy(screenState = CategoryManagementState.LOADING)
             }
 
             val request = DefinedSpendingCategoryRequest(
-                id= uiState.value.categoryId,
+                id = uiState.value.categoryId,
                 code = uiState.value.selectedIcon.code,
-                systemCategoryId = null,
+                systemCategoryId = uiState.value.selectedExpenseType?.id,
                 name = uiState.value.categoryName,
                 icon = uiState.value.selectedIcon.code,
                 textColor = uiState.value.color,
@@ -234,15 +283,11 @@ class CategoryManagementViewModel @Inject constructor(
                         )
                     )
                 }
+
                 is ApiResult.Success -> {
                     val updatedCategories = uiState.value.definedCategories.map { category ->
-                        if (category.id == uiState.value.categoryId) {
-                            result.data
-                        } else {
-                            category
-                        }
+                        if (category.id == uiState.value.categoryId) result.data else category
                     }
-
                     _uiState.update {
                         it.copy(
                             screenState = CategoryManagementState.NONE,
@@ -251,7 +296,9 @@ class CategoryManagementViewModel @Inject constructor(
                             categoryId = "",
                             categoryName = "",
                             color = Color.Black.toHexString(),
-                            selectedIcon = CategoryIcon.UNKNOWN
+                            selectedIcon = CategoryIcon.UNKNOWN,
+                            isShowBottomSheet = false,
+                            errorMessage = null
                         )
                     }
                     _uiEffect.emit(
@@ -289,6 +336,7 @@ class CategoryManagementViewModel @Inject constructor(
                         )
                     )
                 }
+
                 is ApiResult.Success -> {
                     val updatedCategories = uiState.value.definedCategories.filter {
                         it.id != categoryId

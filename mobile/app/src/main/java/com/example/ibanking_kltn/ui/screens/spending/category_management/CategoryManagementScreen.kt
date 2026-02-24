@@ -61,6 +61,7 @@ import com.example.ibanking_kltn.ui.theme.Gray2
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
+import com.example.ibanking_kltn.utils.CustomDropdownField
 import com.example.ibanking_kltn.utils.CustomTextField
 import com.example.ibanking_kltn.utils.LoadingScaffold
 import com.example.ibanking_kltn.utils.RetryCompose
@@ -80,9 +81,7 @@ fun CategoryManagement(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    var isShowBottomSheet by remember {
-        mutableStateOf(false)
-    }
+    val isShowBottomSheet = uiState.isShowBottomSheet
     var showDeleteDialog by remember {
         mutableStateOf(false)
     }
@@ -121,7 +120,6 @@ fun CategoryManagement(
                     onClick = {
                         // Reset form for new category
                         onEvent(CategoryManagementEvent.ResetForm)
-                        isShowBottomSheet = true
                     },
                     containerColor = Blue3,
                     contentColor = White1,
@@ -239,7 +237,6 @@ fun CategoryManagement(
                                                             category
                                                         )
                                                     )
-                                                    isShowBottomSheet = true
                                                 }
                                             )
                                         ) {
@@ -284,7 +281,7 @@ fun CategoryManagement(
         if (isShowBottomSheet) {
             ModalBottomSheet(
                 containerColor = White3,
-                onDismissRequest = { isShowBottomSheet = false },
+                onDismissRequest = { onEvent(CategoryManagementEvent.HideBottomSheet) },
                 sheetState = sheetState
             ) {
                 Column(
@@ -344,6 +341,34 @@ fun CategoryManagement(
                                 )
                             },
                         )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+                            Text(
+                                text = "Chọn phân loại",
+                                style = AppTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = Gray1
+                            )
+                            CustomDropdownField(
+                                modifier = Modifier.fillMaxWidth(),
+                                options = uiState.allExpenseTypeResponse,
+                                onOptionSelected = {
+                                    onEvent(CategoryManagementEvent.ExpenseTypeChange(it))
+                                },
+                                optionsComposable = {
+                                    Text(
+                                        text = it.name,
+                                        style = AppTypography.bodySmall,
+                                        color = Black1
+                                    )
+                                },
+                                selectedOption = uiState.selectedExpenseType?.name ?: "",
+                                placeholder = "Phân loại"
+                            )
+                        }
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth(),
@@ -496,6 +521,33 @@ fun CategoryManagement(
                             }
                         }
 
+                        // Error message
+                        if (uiState.errorMessage != null) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = Red1.copy(alpha = 0.1f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.error),
+                                    contentDescription = null,
+                                    tint = Red1,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    text = uiState.errorMessage,
+                                    style = AppTypography.bodySmall,
+                                    color = Red1
+                                )
+                            }
+                        }
+
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -511,7 +563,6 @@ fun CategoryManagement(
                                         } else {
                                             onEvent(CategoryManagementEvent.AddDefinedCategory)
                                         }
-                                        isShowBottomSheet = false
                                     }
                                 )
                                 .padding(vertical = 10.dp),
