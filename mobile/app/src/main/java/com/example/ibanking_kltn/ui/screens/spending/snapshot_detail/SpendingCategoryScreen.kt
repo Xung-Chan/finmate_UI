@@ -57,6 +57,7 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
+import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -79,9 +80,7 @@ fun SpendingCategory(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    var isShowBottomSheet by remember {
-        mutableStateOf(false)
-    }
+    val isShowBottomSheet = uiState.isShowCategoryIconBottomSheet
     var categoryToDelete by remember {
         mutableStateOf<String?>(null)
     }
@@ -338,7 +337,7 @@ fun SpendingCategory(
                             .customClick(
                                 shape = CircleShape,
                                 onClick = {
-                                    isShowBottomSheet = true
+                                    onEvent(SpendingDetailEvent.ShowCategoryIconBottomSheet)
                                 }
                             ),
                         contentAlignment = Alignment.Center
@@ -395,6 +394,31 @@ fun SpendingCategory(
                             )
                         },
                     )
+                    if (uiState.errorMessage != null) {
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = Red1.copy(alpha = 0.1f),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.error),
+                                contentDescription = null,
+                                tint = Red1,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = uiState.errorMessage,
+                                style = AppTypography.bodySmall,
+                                color = Red1
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -431,7 +455,7 @@ fun SpendingCategory(
                             .customClick(
                                 shape = CircleShape,
                                 onClick = {
-                                    isShowBottomSheet = true
+                                    onEvent(SpendingDetailEvent.ShowCategoryIconBottomSheet)
                                 }
                             ),
                         contentAlignment = Alignment.Center
@@ -488,13 +512,38 @@ fun SpendingCategory(
                             )
                         },
                     )
+                    if (uiState.errorMessage != null) {
+                        androidx.compose.foundation.layout.Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = Red1.copy(alpha = 0.1f),
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                                )
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.error),
+                                contentDescription = null,
+                                tint = Red1,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = uiState.errorMessage,
+                                style = AppTypography.bodySmall,
+                                color = Red1
+                            )
+                        }
+                    }
                 }
             }
         }
         if (isShowBottomSheet) {
             ModalBottomSheet(
                 containerColor = White3,
-                onDismissRequest = { isShowBottomSheet = false },
+                onDismissRequest = { onEvent(SpendingDetailEvent.HideCategoryIconBottomSheet) },
                 sheetState = sheetState
             ) {
                 Column(
@@ -549,7 +598,7 @@ fun SpendingCategory(
                                                     color = category.textColor
                                                 )
                                             )
-                                            isShowBottomSheet = false
+                                            onEvent(SpendingDetailEvent.HideCategoryIconBottomSheet)
                                         }
                                     )
                                     .padding(vertical = 8.dp),

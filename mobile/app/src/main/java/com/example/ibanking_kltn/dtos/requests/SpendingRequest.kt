@@ -17,7 +17,6 @@ data class SpendingCategorySnapshotRequest(
 )
 
 data class SpendingRecordRequest(
-    val username: String? = null,
     val transactionId: UUID,
     val spendingRecordType: SpendingRecordType,
     val categoryCode: String

@@ -33,14 +33,24 @@ data class SpendingDetailUiState(
     // Category Management
     val isShowAddCategoryDialog: Boolean = false,
     val isShowEditCategoryDialog: Boolean = false,
+    val isShowCategoryIconBottomSheet: Boolean = false,
     val categoryId: String = "",
     val selectedIconCode: String = "",
     val selectedIconColor: String = "#000000",
     val categoryBudget: BigDecimal = BigDecimal.ZERO,
     val categoryBudgetName: String = "",
     val editingCategoryCode: String? = null,
+    val errorMessage: String? = null,
 
     val definedCategories: List<DefinedSpendingCategoryResponse> = listOf(),
 
-    val analyzeResponse : SpendingAnalyzeResponse? = null,
+    val analyzeResponse: SpendingAnalyzeResponse? = null,
+
+    // Record reclassification
+    val isShowReclassifyBottomSheet: Boolean = false,
+    val reclassifyingRecord: com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse? = null,
+
+    // Delete defined transaction
+    val isShowDeleteRecordDialog: Boolean = false,
+    val deletingRecordId: String? = null,
 )

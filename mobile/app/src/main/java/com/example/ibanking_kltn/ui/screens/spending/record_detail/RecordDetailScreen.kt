@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -33,15 +32,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
 import com.example.ibanking_kltn.R
+import com.example.ibanking_kltn.dtos.definitions.CategoryIcon
 import com.example.ibanking_kltn.dtos.definitions.SpendingRecordType
 import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
 import com.example.ibanking_kltn.ui.theme.AppTypography
@@ -49,14 +47,13 @@ import com.example.ibanking_kltn.ui.theme.Black1
 import com.example.ibanking_kltn.ui.theme.Blue3
 import com.example.ibanking_kltn.ui.theme.Gray1
 import com.example.ibanking_kltn.ui.theme.Gray2
-import com.example.ibanking_kltn.ui.theme.Green1
-import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
 import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
+import com.example.ibanking_kltn.utils.toColorFromHex
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -66,6 +63,7 @@ fun RecordDetailScreen(
     record: SpendingRecordResponse,
     onBackClick: () -> Unit
 ) {
+    val color = record.categoryBackgroundColor?.toColorFromHex() ?: Gray1
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,11 +112,8 @@ fun RecordDetailScreen(
                         spotColor = Black1.copy(alpha = 0.1f)
                     ),
                 colors = CardDefaults.cardColors(
-                    containerColor = when (record.recordType) {
-                        SpendingRecordType.INCOME -> Green2.copy(alpha = 0.1f)
-                        SpendingRecordType.EXPENSE -> Red3.copy(alpha = 0.1f)
-                        null -> Gray2.copy(alpha = 0.1f)
-                    }
+                    containerColor =  Red3.copy(alpha = 0.1f)
+
                 ),
                 shape = RoundedCornerShape(20.dp)
             ) {
@@ -134,66 +129,30 @@ fun RecordDetailScreen(
                         modifier = Modifier
                             .size(64.dp)
                             .background(
-                                color = when (record.recordType) {
-                                    SpendingRecordType.INCOME -> Green1.copy(alpha = 0.2f)
-                                    SpendingRecordType.EXPENSE -> Red1.copy(alpha = 0.2f)
-                                    null -> Gray1.copy(alpha = 0.2f)
-                                },
+                                color =Red1.copy(alpha = 0.2f),
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = when (record.recordType) {
-                                SpendingRecordType.INCOME -> Icons.Default.ArrowDownward
-                                SpendingRecordType.EXPENSE -> Icons.Default.ArrowUpward
-                                null -> Icons.Default.ArrowUpward
-                            },
+                            imageVector = Icons.Default.ArrowUpward
+                                ,
                             contentDescription = null,
-                            tint = when (record.recordType) {
-                                SpendingRecordType.INCOME -> Green1
-                                SpendingRecordType.EXPENSE -> Red1
-                                null -> Gray1
-                            },
+                            tint = Red1
+                              ,
                             modifier = Modifier.size(36.dp)
                         )
                     }
 
-                    // Record Type Text
-                    Text(
-                        text = when (record.recordType) {
-                            SpendingRecordType.INCOME -> "Khoản thu"
-                            SpendingRecordType.EXPENSE -> "Khoản chi"
-                            null -> "Không xác định"
-                        },
-                        style = AppTypography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = when (record.recordType) {
-                            SpendingRecordType.INCOME -> Green1
-                            SpendingRecordType.EXPENSE -> Red1
-                            null -> Gray1
-                        }
-                    )
 
                     // Amount
                     Text(
-                        text = "${
-                            when (record.recordType) {
-                                SpendingRecordType.INCOME -> "+"
-                                SpendingRecordType.EXPENSE -> "-"
-                                null -> ""
-                            }
-                        }${formatterVND(record.amount.toLong())} VND",
+                        text = "-${formatterVND(record.amount.toLong())} VND",
                         style = AppTypography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 32.sp
                         ),
-                        color = when (record.recordType) {
-                            SpendingRecordType.INCOME -> Green1
-                            SpendingRecordType.EXPENSE -> Red1
-                            null -> Black1
-                        }
+                        color = Red1
                     )
                 }
             }
@@ -241,21 +200,18 @@ fun RecordDetailScreen(
                             // Category Icon
                             Box(
                                 modifier = Modifier
-                                    .size(48.dp)
                                     .background(
-                                        color = try {
-                                            Color(record.categoryBackgroundColor?.toColorInt() ?: 0xFF3629B7.toInt())
-                                        } catch (_: Exception) {
-                                            Blue3.copy(alpha = 0.1f)
-                                        },
-                                        shape = RoundedCornerShape(12.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
+                                        color = color.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .padding(5.dp)
+
                             ) {
-                                Text(
-                                    text = record.categoryIcon ?: "📦",
-                                    style = AppTypography.titleLarge,
-                                    fontSize = 24.sp
+                                Icon(
+                                    painter = painterResource(CategoryIcon.fromCode(record.categoryCode).resId),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp),
+                                    tint = color
                                 )
                             }
 
@@ -432,7 +388,7 @@ fun RecordDetailScreenPreview() {
             description = "Thanh toán tiền điện tháng 2/2026",
             destinationAccountName = "Công ty Điện lực Hà Nội",
             destinationAccountNumber = "0123456789",
-            recordType = SpendingRecordType.EXPENSE,
+            recordType = SpendingRecordType.EXTERNAL,
             categoryCode = "UTIL",
             categoryName = "Tiện ích",
             categoryIcon = "⚡",

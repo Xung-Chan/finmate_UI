@@ -31,7 +31,10 @@ enum class CategoryIcon(
     UNKNOWN("unknown", R.drawable.unknown);
 
     companion object {
-        fun fromCode(code: String): CategoryIcon =
-            entries.firstOrNull { it.code == code } ?: UNKNOWN
+        fun fromCode(code: String?): CategoryIcon {
+            if (code == null) return UNKNOWN
+            return entries.firstOrNull { it.code == code } ?: UNKNOWN
+
+        }
     }
 }

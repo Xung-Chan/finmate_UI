@@ -246,4 +246,12 @@ class TransactionRepository @Inject constructor(
         )
     }
 
+    suspend fun deleteDefinedTransaction(
+        definedTransactionId: String
+    ): ApiResult<Unit> {
+        return safeApiCall(
+            apiCall = { api.deleteDefinedTransaction(definedTransactionId) }
+        )
+    }
+
 }

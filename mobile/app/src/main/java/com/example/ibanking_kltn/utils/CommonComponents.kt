@@ -3606,7 +3606,6 @@ fun CustomPieChart(
                                 5.dp,
                                 Alignment.CenterHorizontally
                             ),
-                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier

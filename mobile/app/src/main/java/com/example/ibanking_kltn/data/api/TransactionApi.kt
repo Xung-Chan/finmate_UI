@@ -17,6 +17,7 @@ import com.example.ibanking_kltn.dtos.responses.TransactionResponse
 import com.example.ibanking_kltn.dtos.responses.TrendStatisticResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -82,6 +83,11 @@ interface TransactionApi {
     suspend fun defineTransaction(
        @Body request : DefineTransactionRequest
     ): Response<TransactionHistoryResponse>
+
+    @DELETE("/api/transactions/defined")
+    suspend fun deleteDefinedTransaction(
+       @Query("definedTransactionId") definedTransactionId: String
+    ): Response<Unit>
 
 
 

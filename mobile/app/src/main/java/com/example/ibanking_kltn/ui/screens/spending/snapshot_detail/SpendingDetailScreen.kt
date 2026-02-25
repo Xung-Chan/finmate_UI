@@ -14,25 +14,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +78,7 @@ import com.example.ibanking_kltn.ui.theme.Green1
 import com.example.ibanking_kltn.ui.theme.Green2
 import com.example.ibanking_kltn.ui.theme.Green3
 import com.example.ibanking_kltn.ui.theme.Orange1
+import com.example.ibanking_kltn.ui.theme.Red1
 import com.example.ibanking_kltn.ui.theme.Red3
 import com.example.ibanking_kltn.ui.theme.White1
 import com.example.ibanking_kltn.ui.theme.White3
@@ -555,6 +563,7 @@ fun SpendingSnapshotDetail(
                                 SpendingDetailTab.HISTORY -> TransactionHistory(
                                     uiState = uiState,
                                     records = records,
+                                    onEvent = onEvent,
                                     onRecordClick = onRecordClick
                                 )
 
@@ -955,17 +964,29 @@ private fun Overview(
         }
 
         ChartType.PIE -> {
+            var currentBudget = 0.0
+            val pies = uiState.spendingSnapshot.spendingCategories
+                .map { category ->
+                    currentBudget += category.budgetAmount.toDouble()
+                    Pie(
+                        label = category.categoryName,
+                        data = category.budgetAmount.toDouble(),
+                        color = category.textColor.toColorFromHex()
+                    )
 
+                }
+                .toMutableList()
+            val remainingBudget = uiState.spendingSnapshot.budgetAmount.toDouble() - currentBudget
+            pies.add(
+                Pie(
+                    label = "Chưa phân loại",
+                    data = if (remainingBudget > 0) remainingBudget else 0.0,
+                    color = colorFromLabel("Chưa phân loại")
+                )
+
+            )
             CustomPieChart(
-                data = uiState.spendingSnapshot.spendingCategories
-                    .map { category ->
-                        Pie(
-                            label = category.categoryName,
-                            data = category.budgetAmount.toDouble(),
-                            color = category.textColor.toColorFromHex()
-                        )
-
-                    },
+                data = pies,
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -1012,7 +1033,7 @@ private fun Overview(
                                     Box(
                                         modifier = Modifier
                                             .background(
-                                                color =color.copy(alpha = 0.2f),
+                                                color = color.copy(alpha = 0.2f),
                                                 shape = RoundedCornerShape(10.dp)
                                             )
                                             .padding(5.dp)
@@ -1065,6 +1086,66 @@ private fun Overview(
                             }
                         }
 
+                    }
+                    val color = colorFromLabel(
+                        "Chưa phân loại"
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            10.dp
+                        ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(15.dp)
+                                .background(
+                                    color = color,
+                                    shape = RoundedCornerShape(3.dp)
+                                )
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            color = color.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .padding(5.dp)
+
+                                ) {
+                                    Icon(
+                                        painter = painterResource(CategoryIcon.UNKNOWN.resId),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp),
+                                        tint = color
+                                    )
+                                }
+                                Text(
+                                    text = "Chưa phân loại",
+                                    style = AppTypography.bodyMedium,
+                                    color = Black1
+                                )
+                                Text(
+                                    text = formatterVND(
+                                        remainingBudget.toLong()
+                                    ),
+                                    style = AppTypography.bodyMedium,
+                                    color = Black1,
+                                    modifier = Modifier.weight(
+                                        1f
+                                    ),
+                                    textAlign = TextAlign.End
+                                )
+                            }
+
+                        }
                     }
 
                 }
@@ -1314,9 +1395,11 @@ private fun TransactionHistorySkeleton() {
 private fun TransactionHistory(
     records: LazyPagingItems<SpendingRecordResponse>,
     uiState: SpendingDetailUiState,
+    onEvent: (SpendingDetailEvent) -> Unit = {},
     onRecordClick: (SpendingRecordResponse) -> Unit = {}
 ) {
     val refreshState = rememberPullToRefreshState()
+    val reclassifySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (
         uiState.spendingSnapshot == null
     ) {
@@ -1363,12 +1446,12 @@ private fun TransactionHistory(
                     .verticalScroll(rememberScrollState())
                     .padding(vertical = 10.dp),
             ) {
-                if( records.itemCount == 0){
+                if (records.itemCount == 0) {
                     Text(
                         text = "Chưa có giao dịch chi tiêu nào",
                         style = AppTypography.bodyMedium,
                         color = Gray1,
-                        modifier = Modifier.padding(top=20.dp)
+                        modifier = Modifier.padding(top = 20.dp)
                     )
                 }
                 for (i in 0 until records.itemCount) {
@@ -1391,7 +1474,8 @@ private fun TransactionHistory(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = record.description,
@@ -1408,27 +1492,55 @@ private fun TransactionHistory(
                                 style = AppTypography.bodySmall,
                                 color = Gray1
                             )
+                            if (record.recordType == SpendingRecordType.EXTERNAL) {
+
+                                IconButton(
+                                    onClick = {
+                                        record.transactionId?.let {
+                                            onEvent(SpendingDetailEvent.ShowDeleteRecordDialog(it))
+                                        }
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.trash),
+                                        contentDescription = "Delete",
+                                        tint = Red1,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             if (record.categoryName != null && record.categoryIcon != null) {
-
                                 Row(
                                     modifier = Modifier
                                         .background(
-                                            color = record.categoryTextColor?.toColorFromHex()?.copy(alpha = 0.2f)?:colorFromLabel("Không xác định").copy(alpha = 0.2f),
+                                            color = record.categoryTextColor?.toColorFromHex()
+                                                ?.copy(alpha = 0.2f)
+                                                ?: colorFromLabel("Chưa phân loại").copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .customClick(
+                                            onClick = {
+                                                onEvent(
+                                                    SpendingDetailEvent.ShowReclassifyBottomSheet(
+                                                        record
+                                                    )
+                                                )
+                                            },
                                             shape = RoundedCornerShape(10.dp)
                                         )
                                         .padding(5.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        5.dp
-                                    )
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         painter = painterResource(id = CategoryIcon.fromCode(record.categoryIcon).resId),
                                         contentDescription = null,
-                                        tint = record.categoryTextColor?.toColorFromHex()?: Black1,
+                                        tint = record.categoryTextColor?.toColorFromHex() ?: Black1,
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
@@ -1438,12 +1550,26 @@ private fun TransactionHistory(
                                     )
                                 }
                             } else {
-                                val color = colorFromLabel("Không xác định")
+                                val color = colorFromLabel("Chưa phân loại")
                                 Row(
-                                    modifier = Modifier.background(
-                                        color = color.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(10.dp)
-                                    )
+                                    modifier = Modifier
+                                        .background(
+                                            color = color.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .customClick(
+                                            onClick = {
+                                                onEvent(
+                                                    SpendingDetailEvent.ShowReclassifyBottomSheet(
+                                                        record
+                                                    )
+                                                )
+                                            },
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                        .padding(5.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         painter = painterResource(R.drawable.unknown),
@@ -1452,7 +1578,7 @@ private fun TransactionHistory(
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
-                                        text = "Không xác định",
+                                        text = "Chưa phân loại",
                                         style = AppTypography.labelMedium,
                                         color = Black1
                                     )
@@ -1471,7 +1597,7 @@ private fun TransactionHistory(
                         }
                     }
                 }
-                when (val state = records.loadState.append) {
+                when (records.loadState.append) {
                     is LoadState.NotLoading -> Unit
                     is LoadState.Loading -> {
 
@@ -1486,6 +1612,157 @@ private fun TransactionHistory(
                 }
             }
         }
+    }
+
+    // Reclassify bottom sheet
+    if (uiState.isShowReclassifyBottomSheet) {
+        ModalBottomSheet(
+            containerColor = White3,
+            onDismissRequest = { onEvent(SpendingDetailEvent.HideReclassifyBottomSheet) },
+            sheetState = reclassifySheetState
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = "Phân loại giao dịch",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Black1
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(Gray1.copy(alpha = 0.2f))
+                )
+                if (uiState.reclassifyingRecord != null) {
+                    Text(
+                        text = uiState.reclassifyingRecord.description,
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = Black1,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "-" + formatterVND(uiState.reclassifyingRecord.amount.toLong()),
+                        style = AppTypography.bodySmall,
+                        color = Gray1
+                    )
+                }
+                Text(
+                    text = "Chọn danh mục",
+                    style = AppTypography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = Gray1
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                ) {
+                    items(items = uiState.definedCategories) { category ->
+                        val iconRes = CategoryIcon.fromCode(category.icon).resId
+                        val isSelected = uiState.reclassifyingRecord?.categoryCode == category.code
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .customClick(
+                                    shape = RoundedCornerShape(12.dp),
+                                    onClick = {
+                                        onEvent(SpendingDetailEvent.ReclassifyRecord(category.code))
+                                    }
+                                )
+                                .padding(vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .then(
+                                        if (isSelected) Modifier.border(
+                                            width = 2.dp,
+                                            color = category.textColor.toColorFromHex(),
+                                            shape = RoundedCornerShape(12.dp)
+                                        ) else Modifier
+                                    )
+                                    .background(
+                                        color = category.textColor.toColorFromHex()
+                                            .copy(alpha = if (isSelected) 0.25f else 0.15f),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = iconRes),
+                                    contentDescription = null,
+                                    tint = category.textColor.toColorFromHex(),
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                            Text(
+                                text = category.name,
+                                style = AppTypography.labelSmall,
+                                color = Black1,
+                                maxLines = 2,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Delete confirmation dialog
+    if (uiState.isShowDeleteRecordDialog) {
+        AlertDialog(
+            containerColor = White1,
+            onDismissRequest = { onEvent(SpendingDetailEvent.HideDeleteRecordDialog) },
+            title = {
+                Text(
+                    text = "Xác nhận xóa",
+                    style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = Black1
+                )
+            },
+            text = {
+                Text(
+                    text = "Bạn có chắc chắn muốn xóa giao dịch này không?",
+                    style = AppTypography.bodyMedium,
+                    color = Black1
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { onEvent(SpendingDetailEvent.ConfirmDeleteDefinedTransaction) }
+                ) {
+                    Text(
+                        text = "Xóa",
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = Red1
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { onEvent(SpendingDetailEvent.HideDeleteRecordDialog) }
+                ) {
+                    Text(
+                        text = "Hủy",
+                        style = AppTypography.bodyMedium,
+                        color = Gray1
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -1506,7 +1783,7 @@ fun SpendingFundDetailPreview() {
                 description = "Thanh toán tiền điện",
                 destinationAccountName = "EVN HCMC",
                 destinationAccountNumber = "19001001",
-                recordType = SpendingRecordType.EXPENSE,
+                recordType = SpendingRecordType.EXTERNAL,
                 categoryCode = "UTIL",
                 categoryName = "Tiện ích",
                 categoryIcon = R.drawable.airplane_service.toString(),
@@ -1577,8 +1854,7 @@ fun SpendingFundDetailPreview() {
                         usedAmount = BigDecimal(3500000),
                         categoryId = "cat_005"
                     ),
-                )
-                ,
+                ),
             ),
             selectedTab = SpendingDetailTab.OVERVIEW
         ),

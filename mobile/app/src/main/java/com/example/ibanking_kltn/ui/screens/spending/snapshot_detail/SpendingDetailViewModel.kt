@@ -8,8 +8,10 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.example.ibanking_kltn.data.repositories.AiRepository
 import com.example.ibanking_kltn.data.repositories.SpendingRepository
+import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.dtos.definitions.NavKey
 import com.example.ibanking_kltn.dtos.requests.SpendingCategorySnapshotRequest
+import com.example.ibanking_kltn.dtos.requests.SpendingRecordRequest
 import com.example.ibanking_kltn.ui.paging_sources.SpendingHistoryPagingSource
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.utils.SnackBarType
@@ -33,6 +35,7 @@ import java.math.BigDecimal
 @HiltViewModel
 class SpendingDetailViewModel @Inject constructor(
     private val spendingRepository: SpendingRepository,
+    private val transactionRepository: TransactionRepository,
     private val aiRepository: AiRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -88,6 +91,17 @@ class SpendingDetailViewModel @Inject constructor(
             SpendingDetailEvent.UpdateSpendingCategory -> updateCategory()
             SpendingDetailEvent.ChangeVisibleAddDialog -> changeVisibleAddDialog()
             SpendingDetailEvent.ChangeVisibleEditDialog -> changeVisibleEditDialog()
+            SpendingDetailEvent.ShowCategoryIconBottomSheet -> _uiState.update {
+                it.copy(
+                    isShowCategoryIconBottomSheet = true
+                )
+            }
+
+            SpendingDetailEvent.HideCategoryIconBottomSheet -> _uiState.update {
+                it.copy(
+                    isShowCategoryIconBottomSheet = false
+                )
+            }
 
             is SpendingDetailEvent.ShowEditDialog -> showEditDialog(event.categoryCode)
             is SpendingDetailEvent.ChangeCategoryBudget -> changeCategoryBudget(event.categoryBudget)
@@ -100,6 +114,24 @@ class SpendingDetailViewModel @Inject constructor(
             is SpendingDetailEvent.ChangeCategoryName -> changeCategoryName(event.categoryName)
             is SpendingDetailEvent.DeleteSpendingCategory -> deleteCategory(event.categoryCode)
             SpendingDetailEvent.Analyze -> analyze()
+
+            is SpendingDetailEvent.ShowReclassifyBottomSheet -> _uiState.update {
+                it.copy(isShowReclassifyBottomSheet = true, reclassifyingRecord = event.record)
+            }
+
+            SpendingDetailEvent.HideReclassifyBottomSheet -> _uiState.update {
+                it.copy(isShowReclassifyBottomSheet = false, reclassifyingRecord = null)
+            }
+
+            is SpendingDetailEvent.ReclassifyRecord -> reclassifyRecord(event.categoryCode)
+
+            is SpendingDetailEvent.ShowDeleteRecordDialog -> _uiState.update {
+                it.copy(isShowDeleteRecordDialog = true, deletingRecordId = event.recordId)
+            }
+            SpendingDetailEvent.HideDeleteRecordDialog -> _uiState.update {
+                it.copy(isShowDeleteRecordDialog = false, deletingRecordId = null)
+            }
+            SpendingDetailEvent.ConfirmDeleteDefinedTransaction -> deleteDefinedTransaction()
         }
     }
 
@@ -257,47 +289,20 @@ class SpendingDetailViewModel @Inject constructor(
 
     private fun addCategory() {
         if (uiState.value.categoryId.isEmpty()) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng chọn biểu tượng cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng chọn biểu tượng cho danh mục") }
             return
         }
         if (uiState.value.categoryBudgetName.isEmpty()) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng nhập tên cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng nhập tên cho danh mục") }
             return
         }
         if (uiState.value.categoryBudget <= BigDecimal.ZERO) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng nhập ngân sách cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng nhập ngân sách cho danh mục") }
             return
         }
         viewModelScope.launch {
             _uiState.update {
-                it.copy(screenState = SpendingDetailState.LOADING)
+                it.copy(screenState = SpendingDetailState.LOADING, errorMessage = null)
             }
 
 
@@ -314,14 +319,12 @@ class SpendingDetailViewModel @Inject constructor(
 
             when (result) {
                 is ApiResult.Error -> {
-                    _uiEffect.emit(
-                        SpendingDetailEffect.ShowSnackBar(
-                            SnackBarUiState(
-                                message = result.message,
-                                type = SnackBarType.ERROR
-                            )
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingDetailState.NONE,
+                            errorMessage = result.message
                         )
-                    )
+                    }
                 }
 
                 is ApiResult.Success -> {
@@ -339,65 +342,35 @@ class SpendingDetailViewModel @Inject constructor(
                             isShowAddCategoryDialog = false,
                             categoryId = "",
                             categoryBudget = BigDecimal.ZERO,
-                            categoryBudgetName = ""
+                            categoryBudgetName = "",
+                            errorMessage = null,
+                            screenState = SpendingDetailState.NONE
                         )
                     }
                     // Reload data
                     retryLoadData(forceReload = true)
                 }
             }
-
-            _uiState.update {
-                it.copy(screenState = SpendingDetailState.NONE)
-            }
         }
     }
 
     private fun updateCategory() {
         if (uiState.value.categoryId.isEmpty()) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng chọn biểu tượng cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng chọn biểu tượng cho danh mục") }
             return
         }
         if (uiState.value.categoryBudgetName.isEmpty()) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng nhập tên cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng nhập tên cho danh mục") }
             return
         }
         if (uiState.value.categoryBudget <= BigDecimal.ZERO) {
-            viewModelScope.launch {
-                _uiEffect.emit(
-                    SpendingDetailEffect.ShowSnackBar(
-                        SnackBarUiState(
-                            message = "Vui lòng nhập ngân sách cho danh mục",
-                            type = SnackBarType.INFO
-                        )
-                    )
-                )
-            }
+            _uiState.update { it.copy(errorMessage = "Vui lòng nhập ngân sách cho danh mục") }
             return
         }
         viewModelScope.launch {
             _uiState.update {
-                it.copy(screenState = SpendingDetailState.LOADING)
+                it.copy(screenState = SpendingDetailState.LOADING, errorMessage = null)
             }
-
 
             val request = SpendingCategorySnapshotRequest(
                 categoryId = uiState.value.categoryId,
@@ -412,14 +385,12 @@ class SpendingDetailViewModel @Inject constructor(
 
             when (result) {
                 is ApiResult.Error -> {
-                    _uiEffect.emit(
-                        SpendingDetailEffect.ShowSnackBar(
-                            SnackBarUiState(
-                                message = result.message,
-                                type = SnackBarType.ERROR
-                            )
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingDetailState.NONE,
+                            errorMessage = result.message
                         )
-                    )
+                    }
                 }
 
                 is ApiResult.Success -> {
@@ -438,16 +409,14 @@ class SpendingDetailViewModel @Inject constructor(
                             editingCategoryCode = null,
                             categoryId = "",
                             categoryBudget = BigDecimal.ZERO,
-                            categoryBudgetName = ""
+                            categoryBudgetName = "",
+                            errorMessage = null,
+                            screenState = SpendingDetailState.NONE
                         )
                     }
                     // Reload data
                     retryLoadData(forceReload = true)
                 }
-            }
-
-            _uiState.update {
-                it.copy(screenState = SpendingDetailState.NONE)
             }
         }
     }
@@ -558,7 +527,8 @@ class SpendingDetailViewModel @Inject constructor(
                 categoryBudget = BigDecimal.ZERO,
                 categoryBudgetName = "",
                 selectedIconCode = "",
-                selectedIconColor = "#000000"
+                selectedIconColor = "#000000",
+                errorMessage = null
             )
         }
     }
@@ -570,8 +540,100 @@ class SpendingDetailViewModel @Inject constructor(
                 editingCategoryCode = null,
                 categoryId = "",
                 categoryBudget = BigDecimal.ZERO,
-                categoryBudgetName = ""
+                categoryBudgetName = "",
+                errorMessage = null
             )
+        }
+    }
+
+    private fun reclassifyRecord(categoryCode: String) {
+        viewModelScope.launch {
+            val record = uiState.value.reclassifyingRecord ?: return@launch
+            val transactionId = record.transactionId ?: return@launch
+            val recordType = record.recordType ?: return@launch
+
+            _uiState.update { it.copy(screenState = SpendingDetailState.LOADING) }
+
+            val request = SpendingRecordRequest(
+                transactionId = java.util.UUID.fromString(transactionId),
+                spendingRecordType = recordType,
+                categoryCode = categoryCode
+            )
+
+            val result = spendingRepository.createOrUpdateRecord(request)
+
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(screenState = SpendingDetailState.NONE) }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingDetailState.NONE,
+                            isShowReclassifyBottomSheet = false,
+                            reclassifyingRecord = null
+                        )
+                    }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = "Phân loại giao dịch thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun deleteDefinedTransaction() {
+        val recordId = uiState.value.deletingRecordId ?: return
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    screenState = SpendingDetailState.LOADING,
+                    isShowDeleteRecordDialog = false,
+                    deletingRecordId = null
+                )
+            }
+
+            val result = transactionRepository.deleteDefinedTransaction(recordId)
+
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(screenState = SpendingDetailState.NONE) }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiState.update { it.copy(screenState = SpendingDetailState.NONE) }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = "Xóa giao dịch thành công",
+                                type = SnackBarType.SUCCESS
+                            )
+                        )
+                    )
+                }
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
+import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 
 
@@ -14,12 +15,24 @@ sealed class SpendingDetailEvent {
     object AddSpendingCategory : SpendingDetailEvent()
     object UpdateSpendingCategory : SpendingDetailEvent()
     object Analyze : SpendingDetailEvent()
+    object ShowCategoryIconBottomSheet : SpendingDetailEvent()
+    object HideCategoryIconBottomSheet : SpendingDetailEvent()
     data class DeleteSpendingCategory(val categoryCode: String) : SpendingDetailEvent()
     data class ShowEditDialog(val categoryCode: String) : SpendingDetailEvent()
     data class ChangeCategoryName(val categoryName: String) : SpendingDetailEvent()
     data class ChangeCategoryBudget(val categoryBudget: String) : SpendingDetailEvent()
     data class ChangeCategoryIcon(val id: String, val code: String, val color: String) :
         SpendingDetailEvent()
+
+    // Record reclassification
+    data class ShowReclassifyBottomSheet(val record: SpendingRecordResponse) : SpendingDetailEvent()
+    object HideReclassifyBottomSheet : SpendingDetailEvent()
+    data class ReclassifyRecord(val categoryCode: String) : SpendingDetailEvent()
+
+    // Delete defined transaction (EXTERNAL)
+    data class ShowDeleteRecordDialog(val recordId: String) : SpendingDetailEvent()
+    object HideDeleteRecordDialog : SpendingDetailEvent()
+    object ConfirmDeleteDefinedTransaction : SpendingDetailEvent()
 }
 
 sealed class SpendingDetailEffect {
