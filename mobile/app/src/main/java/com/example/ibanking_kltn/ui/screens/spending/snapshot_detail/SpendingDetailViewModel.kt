@@ -31,6 +31,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import java.util.UUID
 
 @HiltViewModel
 class SpendingDetailViewModel @Inject constructor(
@@ -83,6 +84,7 @@ class SpendingDetailViewModel @Inject constructor(
     fun onEvent(event: SpendingDetailEvent) {
         when (event) {
             SpendingDetailEvent.RetryLoadData -> retryLoadData()
+            SpendingDetailEvent.RefreshSnapshot -> refreshSnapshot()
             SpendingDetailEvent.ChangeChartType -> changeChartType()
             SpendingDetailEvent.ChangeTab -> changeTab()
             SpendingDetailEvent.AddTransaction -> navigateToAddTransaction()
@@ -107,7 +109,7 @@ class SpendingDetailViewModel @Inject constructor(
             is SpendingDetailEvent.ChangeCategoryBudget -> changeCategoryBudget(event.categoryBudget)
             is SpendingDetailEvent.ChangeCategoryIcon -> changeCategoryIcon(
                 id = event.id,
-                code = event.code,
+                icon = event.icon,
                 color = event.color
             )
 
@@ -128,9 +130,11 @@ class SpendingDetailViewModel @Inject constructor(
             is SpendingDetailEvent.ShowDeleteRecordDialog -> _uiState.update {
                 it.copy(isShowDeleteRecordDialog = true, deletingRecordId = event.recordId)
             }
+
             SpendingDetailEvent.HideDeleteRecordDialog -> _uiState.update {
                 it.copy(isShowDeleteRecordDialog = false, deletingRecordId = null)
             }
+
             SpendingDetailEvent.ConfirmDeleteDefinedTransaction -> deleteDefinedTransaction()
         }
     }
@@ -177,6 +181,84 @@ class SpendingDetailViewModel @Inject constructor(
                 }
             }
         }
+        if (uiState.value.definedCategories.isEmpty()) {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        screenState = SpendingDetailState.INIT
+                    )
+                }
+                val apiResult = spendingRepository.getAllDefinedSpendingCategories()
+                when (apiResult) {
+                    is ApiResult.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                screenState = SpendingDetailState.INIT_FAILED
+                            )
+                        }
+                        _uiEffect.emit(
+                            SpendingDetailEffect.ShowSnackBar(
+                                SnackBarUiState(
+                                    message = apiResult.message, type = SnackBarType.ERROR
+                                )
+                            )
+                        )
+                    }
+
+                    is ApiResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                definedCategories = apiResult.data,
+                                screenState = SpendingDetailState.NONE
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun refreshSnapshot(
+    ) {
+
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    screenState = SpendingDetailState.LOADING
+                )
+            }
+            val snapshot = spendingRepository.getDetailSpendingSnapshot(
+                snapshotId = uiState.value.snapshotId!!
+            )
+            when (snapshot) {
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = SpendingDetailState.NONE
+                        )
+                    }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = snapshot.message, type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            spendingSnapshot = snapshot.data,
+                            screenState = SpendingDetailState.NONE
+                        )
+                    }
+                }
+            }
+        }
+
         if (uiState.value.definedCategories.isEmpty()) {
             viewModelScope.launch {
                 _uiState.update {
@@ -477,7 +559,7 @@ class SpendingDetailViewModel @Inject constructor(
                     categoryId = category.categoryId,
                     categoryBudget = category.budgetAmount,
                     categoryBudgetName = category.categoryName,
-                    selectedIconCode = category.categoryCode,
+                    selectedIcon = category.categoryIcon,
                     selectedIconColor = category.textColor
 
                 )
@@ -509,11 +591,11 @@ class SpendingDetailViewModel @Inject constructor(
 
     }
 
-    private fun changeCategoryIcon(id: String, code: String, color: String) {
+    private fun changeCategoryIcon(id: String, icon: String, color: String) {
         _uiState.update {
             it.copy(
                 categoryId = id,
-                selectedIconCode = code,
+                selectedIcon = icon,
                 selectedIconColor = color
             )
         }
@@ -526,7 +608,7 @@ class SpendingDetailViewModel @Inject constructor(
                 categoryId = "",
                 categoryBudget = BigDecimal.ZERO,
                 categoryBudgetName = "",
-                selectedIconCode = "",
+                selectedIcon = "",
                 selectedIconColor = "#000000",
                 errorMessage = null
             )
@@ -547,6 +629,47 @@ class SpendingDetailViewModel @Inject constructor(
     }
 
     private fun reclassifyRecord(categoryCode: String) {
+        if (categoryCode.isEmpty() ) {
+            viewModelScope.launch {
+                val record = uiState.value.reclassifyingRecord ?: return@launch
+                val transactionId = record.transactionId ?: return@launch
+                val recordType = record.recordType ?: return@launch
+                _uiState.update { it.copy(screenState = SpendingDetailState.LOADING) }
+
+                val result = spendingRepository.deleteRecord(
+                    transactionId = transactionId,
+                    spendingRecordType = recordType
+                )
+                when (result) {
+                    is ApiResult.Error -> {
+                        _uiEffect.emit(
+                            SpendingDetailEffect.ShowSnackBar(
+                                SnackBarUiState(
+                                    message = result.message,
+                                    type = SnackBarType.ERROR
+                                )
+                            )
+                        )
+                    }
+
+                    is ApiResult.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                screenState = SpendingDetailState.NONE,
+                                isShowReclassifyBottomSheet = false,
+                                reclassifyingRecord = null
+                            )
+                        }
+                        _uiEffect.emit(
+                            SpendingDetailEffect.ReclassifyRecordSuccess
+                        )
+                    }
+                }
+
+            }
+            return
+        }
+
         viewModelScope.launch {
             val record = uiState.value.reclassifyingRecord ?: return@launch
             val transactionId = record.transactionId ?: return@launch
@@ -555,7 +678,7 @@ class SpendingDetailViewModel @Inject constructor(
             _uiState.update { it.copy(screenState = SpendingDetailState.LOADING) }
 
             val request = SpendingRecordRequest(
-                transactionId = java.util.UUID.fromString(transactionId),
+                transactionId = UUID.fromString(transactionId),
                 spendingRecordType = recordType,
                 categoryCode = categoryCode
             )
@@ -584,12 +707,7 @@ class SpendingDetailViewModel @Inject constructor(
                         )
                     }
                     _uiEffect.emit(
-                        SpendingDetailEffect.ShowSnackBar(
-                            SnackBarUiState(
-                                message = "Phân loại giao dịch thành công",
-                                type = SnackBarType.SUCCESS
-                            )
-                        )
+                        SpendingDetailEffect.ReclassifyRecordSuccess
                     )
                 }
             }

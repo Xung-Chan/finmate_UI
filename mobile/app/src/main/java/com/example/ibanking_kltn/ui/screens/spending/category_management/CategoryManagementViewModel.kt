@@ -189,8 +189,9 @@ class CategoryManagementViewModel @Inject constructor(
                     screenState = CategoryManagementState.LOADING
                 )
             }
+            val randomKey = System.currentTimeMillis().toString()
             val request = DefinedSpendingCategoryRequest(
-                code = uiState.value.selectedIcon.code,
+                code = "${uiState.value.selectedIcon.code}_${randomKey}",
                 systemCategoryId = uiState.value.selectedExpenseType?.id,
                 name = uiState.value.categoryName,
                 icon = uiState.value.selectedIcon.code,
@@ -256,7 +257,6 @@ class CategoryManagementViewModel @Inject constructor(
             _uiState.update {
                 it.copy(screenState = CategoryManagementState.LOADING)
             }
-
             val request = DefinedSpendingCategoryRequest(
                 id = uiState.value.categoryId,
                 code = uiState.value.selectedIcon.code,

@@ -2,6 +2,7 @@ package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
 import com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingAnalyzeResponse
+import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingSnapshotDetailResponse
 import java.math.BigDecimal
 
@@ -35,7 +36,7 @@ data class SpendingDetailUiState(
     val isShowEditCategoryDialog: Boolean = false,
     val isShowCategoryIconBottomSheet: Boolean = false,
     val categoryId: String = "",
-    val selectedIconCode: String = "",
+    val selectedIcon: String = "",
     val selectedIconColor: String = "#000000",
     val categoryBudget: BigDecimal = BigDecimal.ZERO,
     val categoryBudgetName: String = "",
@@ -48,7 +49,7 @@ data class SpendingDetailUiState(
 
     // Record reclassification
     val isShowReclassifyBottomSheet: Boolean = false,
-    val reclassifyingRecord: com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse? = null,
+    val reclassifyingRecord: SpendingRecordResponse? = null,
 
     // Delete defined transaction
     val isShowDeleteRecordDialog: Boolean = false,

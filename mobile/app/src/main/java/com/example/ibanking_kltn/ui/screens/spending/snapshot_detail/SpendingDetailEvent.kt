@@ -8,6 +8,7 @@ sealed class SpendingDetailEvent {
     object ChangeChartType : SpendingDetailEvent()
     object ChangeTab : SpendingDetailEvent()
     object RetryLoadData : SpendingDetailEvent()
+    object RefreshSnapshot : SpendingDetailEvent()
     object AddTransaction : SpendingDetailEvent()
     object ViewCategories : SpendingDetailEvent()
     object ChangeVisibleAddDialog : SpendingDetailEvent()
@@ -17,11 +18,12 @@ sealed class SpendingDetailEvent {
     object Analyze : SpendingDetailEvent()
     object ShowCategoryIconBottomSheet : SpendingDetailEvent()
     object HideCategoryIconBottomSheet : SpendingDetailEvent()
+
     data class DeleteSpendingCategory(val categoryCode: String) : SpendingDetailEvent()
     data class ShowEditDialog(val categoryCode: String) : SpendingDetailEvent()
     data class ChangeCategoryName(val categoryName: String) : SpendingDetailEvent()
     data class ChangeCategoryBudget(val categoryBudget: String) : SpendingDetailEvent()
-    data class ChangeCategoryIcon(val id: String, val code: String, val color: String) :
+    data class ChangeCategoryIcon(val id: String, val icon: String, val color: String) :
         SpendingDetailEvent()
 
     // Record reclassification
@@ -37,6 +39,7 @@ sealed class SpendingDetailEvent {
 
 sealed class SpendingDetailEffect {
     data class ShowSnackBar(val snackBar: SnackBarUiState) : SpendingDetailEffect()
+    object ReclassifyRecordSuccess : SpendingDetailEffect()
     object NavigateToAddTransaction : SpendingDetailEffect()
     object NavigateToCategory : SpendingDetailEffect()
 }

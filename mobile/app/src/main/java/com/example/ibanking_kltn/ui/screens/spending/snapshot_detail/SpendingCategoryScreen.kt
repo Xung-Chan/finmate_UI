@@ -325,7 +325,7 @@ fun SpendingCategory(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
 
                 ) {
-                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIconCode).resId
+                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIcon).resId
                     val color = uiState.selectedIconColor.toColorFromHex()
                     Box(
                         modifier = Modifier
@@ -443,7 +443,7 @@ fun SpendingCategory(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
 
                 ) {
-                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIconCode).resId
+                    val selectedIconRes = CategoryIcon.fromCode(uiState.selectedIcon).resId
                     val color = uiState.selectedIconColor.toColorFromHex()
                     Box(
                         modifier = Modifier
@@ -594,7 +594,7 @@ fun SpendingCategory(
                                             onEvent(
                                                 SpendingDetailEvent.ChangeCategoryIcon(
                                                     id = category.id,
-                                                    code = category.code,
+                                                    icon = category.icon,
                                                     color = category.textColor
                                                 )
                                             )

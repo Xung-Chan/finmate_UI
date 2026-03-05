@@ -92,6 +92,7 @@ import com.example.ibanking_kltn.utils.formatterDateTimeString
 import com.example.ibanking_kltn.utils.formatterVND
 import com.example.ibanking_kltn.utils.shimmerEffect
 import com.example.ibanking_kltn.utils.toColorFromHex
+import com.example.ibanking_kltn.utils.toHexString
 import ir.ehsannarmani.compose_charts.models.Bars
 import ir.ehsannarmani.compose_charts.models.Pie
 import kotlinx.coroutines.flow.flowOf
@@ -528,7 +529,7 @@ fun SpendingSnapshotDetail(
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
-                                        text = "Đã dùng",
+                                        text = "Đã phân bổ",
                                         style = AppTypography.labelMedium,
                                         color = Gray1
                                     )
@@ -1666,16 +1667,29 @@ private fun TransactionHistory(
                         .fillMaxWidth()
                         .height(300.dp)
                 ) {
-                    items(items = uiState.definedCategories) { category ->
-                        val iconRes = CategoryIcon.fromCode(category.icon).resId
-                        val isSelected = uiState.reclassifyingRecord?.categoryCode == category.code
+                    val categories =uiState.spendingSnapshot.spendingCategories.toMutableList()
+                    categories.add(
+                        SpendingCategoryDetailResponse(
+                            categoryId = "uncategorized",
+                            categoryName = "Chưa phân loại",
+                            categoryCode = "",
+                            categoryIcon = CategoryIcon.UNKNOWN.code,
+                            textColor = colorFromLabel("Chưa phân loại").toHexString(),
+                            backgroundColor = colorFromLabel("Chưa phân loại").copy(alpha = 0.2f).toHexString(),
+                            budgetAmount = BigDecimal.ZERO,
+                            usedAmount = BigDecimal.ZERO
+                        )
+                    )
+                    items(items = categories) { category ->
+                        val iconRes = CategoryIcon.fromCode(category.categoryIcon).resId
+                        val isSelected = uiState.reclassifyingRecord?.categoryCode == category.categoryCode
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .customClick(
                                     shape = RoundedCornerShape(12.dp),
                                     onClick = {
-                                        onEvent(SpendingDetailEvent.ReclassifyRecord(category.code))
+                                        onEvent(SpendingDetailEvent.ReclassifyRecord(category.categoryCode))
                                     }
                                 )
                                 .padding(vertical = 8.dp),
@@ -1707,7 +1721,7 @@ private fun TransactionHistory(
                                 )
                             }
                             Text(
-                                text = category.name,
+                                text = category.categoryName,
                                 style = AppTypography.labelSmall,
                                 color = Black1,
                                 maxLines = 2,

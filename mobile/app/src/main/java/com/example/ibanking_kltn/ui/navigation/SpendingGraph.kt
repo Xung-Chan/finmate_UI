@@ -20,12 +20,14 @@ import com.example.ibanking_kltn.ui.screens.spending.category_management.Categor
 import com.example.ibanking_kltn.ui.screens.spending.category_management.CategoryManagementViewModel
 import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingCategory
 import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingDetailEffect
+import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingDetailEvent
 import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingDetailViewModel
 import com.example.ibanking_kltn.ui.screens.spending.snapshot_detail.SpendingSnapshotDetail
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagement
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementEffect
 import com.example.ibanking_kltn.ui.screens.spending.spending_management.SpendingManagementViewModel
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
+import com.example.ibanking_kltn.utils.SnackBarType
 
 fun NavGraphBuilder.spendingGraph(
     navController: NavController,
@@ -84,6 +86,18 @@ fun NavGraphBuilder.spendingGraph(
                         }
 
                         is SpendingDetailEffect.ShowSnackBar -> onShowSnackBar(effect.snackBar)
+                        SpendingDetailEffect.ReclassifyRecordSuccess -> {
+                            onShowSnackBar(
+                                SnackBarUiState(
+                                    message = "Phân loại lại giao dịch thành công",
+                                    type = SnackBarType.SUCCESS
+                                )
+                            )
+                            records.refresh()
+                            spendingDetailVM.onEvent(
+                                SpendingDetailEvent.RefreshSnapshot
+                            )
+                        }
                     }
                 }
             }
@@ -117,6 +131,10 @@ fun NavGraphBuilder.spendingGraph(
                         SpendingDetailEffect.NavigateToCategory -> {
                             // no-op
                         }
+
+                        SpendingDetailEffect.ReclassifyRecordSuccess -> {
+                            // no-op
+                         }
                     }
                 }
             }

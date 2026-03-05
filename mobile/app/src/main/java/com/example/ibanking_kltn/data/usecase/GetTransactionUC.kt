@@ -14,7 +14,7 @@ class GetTransactionUC @Inject constructor(
         transactionId: String
     ): ApiResult<TransactionHistoryResponse> {
         var message = ""
-        repeat(5) {
+        repeat(10) {
             val apiResult = transactionRepository.getTransactionStatus(
                 transactionId = transactionId
             )
