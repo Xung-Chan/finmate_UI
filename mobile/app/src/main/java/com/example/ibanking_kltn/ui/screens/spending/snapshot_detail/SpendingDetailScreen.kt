@@ -1010,8 +1010,16 @@ private fun Overview(
                         val color = category.textColor.toColorFromHex()
                         val percentage =
                             category.usedAmount.toFloat() / category.budgetAmount.toFloat()
+                        val isOverBudget = category.usedAmount > category.budgetAmount
+
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .then(
+                                    if (isOverBudget) Modifier.background(
+                                        color = Red3.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(5.dp)
+                                    ).padding(5.dp) else Modifier
+                                ),
                             horizontalArrangement = Arrangement.spacedBy(
                                 10.dp
                             ),
@@ -1068,19 +1076,22 @@ private fun Overview(
                                     modifier = Modifier.fillMaxWidth(),
                                     progress = percentage
                                 )
+
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth()
+
+                                    ,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
                                         text = "${(percentage * 100).toInt()}% đã sử dụng",
                                         style = AppTypography.labelSmall,
-                                        color = Gray1
+                                        color = if(isOverBudget ) Red3 else Gray1
                                     )
                                     Text(
                                         text = "Còn lại ${formatterVND((category.budgetAmount - category.usedAmount).toLong())} đ",
                                         style = AppTypography.labelSmall,
-                                        color = Gray1
+                                        color = if(isOverBudget ) Red3 else Gray1
                                     )
                                 }
 

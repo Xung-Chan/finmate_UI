@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -110,21 +114,42 @@ fun SpendingCategory(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = {
-                        onEvent(
-                            SpendingDetailEvent.ChangeVisibleAddDialog
-                        )
-                    },
-                    containerColor = Blue3,
-                    contentColor = White1,
-                    shape = CircleShape
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.add_regular),
-                        contentDescription = null,
-                        modifier = Modifier.size(25.dp),
-                    )
+                    // Recommend FAB
+                    FloatingActionButton(
+                        onClick = {
+                            onEvent(SpendingDetailEvent.ShowRecommendInputDialog)
+                        },
+                        containerColor = White1,
+                        contentColor = Blue3,
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ai),
+                            contentDescription = "Recommend",
+                            modifier = Modifier.size(25.dp),
+                        )
+                    }
+                    // Add FAB
+                    FloatingActionButton(
+                        onClick = {
+                            onEvent(
+                                SpendingDetailEvent.ChangeVisibleAddDialog
+                            )
+                        },
+                        containerColor = Blue3,
+                        contentColor = White1,
+                        shape = CircleShape
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.add_regular),
+                            contentDescription = null,
+                            modifier = Modifier.size(25.dp),
+                        )
+                    }
                 }
             },
             modifier = Modifier.systemBarsPadding(),
@@ -167,8 +192,10 @@ fun SpendingCategory(
                 uiState.spendingSnapshot.spendingCategories.forEach { category ->
                     val budget = category.budgetAmount.toFloat()
                     val used = category.usedAmount.toFloat()
-                    val percentUsed = if (budget > 0f) (used / budget).coerceIn(0f, 1f) else 0f
-                    val percentLabel = "${(percentUsed * 100).toInt()}%"
+                    val isOverBudget = used > budget && budget > 0f
+                    val percentRaw = if (budget > 0f) (used / budget) else 0f
+                    val percentUsed = percentRaw.coerceIn(0f, 1f)
+                    val percentLabel = "${(percentRaw * 100).toInt()}%"
 
                     val iconRes = CategoryIcon.fromCode(category.categoryIcon).resId
                     val color = category.textColor.toColorFromHex()
@@ -178,10 +205,16 @@ fun SpendingCategory(
                             .shadow(
                                 elevation = 30.dp,
                                 shape = RoundedCornerShape(12.dp),
-                                ambientColor = Black1.copy(alpha = 0.2f),
-                                spotColor = Black1.copy(alpha = 0.2f)
+                                ambientColor = if (isOverBudget) Red3.copy(alpha = 0.25f) else Black1.copy(alpha = 0.2f),
+                                spotColor = if (isOverBudget) Red3.copy(alpha = 0.25f) else Black1.copy(alpha = 0.2f)
                             )
-                            .background(color = White1, shape = RoundedCornerShape(12.dp))
+                            .background(
+                                color = if (isOverBudget) Red3.copy(alpha = 0.04f) else White1,
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                            .then(
+                                if (isOverBudget) Modifier.padding(start = 4.dp) else Modifier
+                            )
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -231,7 +264,7 @@ fun SpendingCategory(
                                     style = AppTypography.labelMedium.copy(
                                         fontWeight = FontWeight.SemiBold
                                     ),
-                                    color = if (percentUsed > 0.8f) Red3 else Blue3
+                                    color = if (isOverBudget || percentRaw > 0.8f) Red3 else Blue3
                                 )
                             }
 
@@ -255,10 +288,38 @@ fun SpendingCategory(
                                         .fillMaxWidth(percentUsed)
                                         .height(8.dp)
                                         .background(
-                                            color = color,
+                                            color = if (isOverBudget) Red3 else color,
                                             shape = RoundedCornerShape(4.dp)
                                         )
                                 )
+                            }
+
+                            // Over-budget warning chip
+                            if (isOverBudget) {
+                                Row(
+                                    modifier = Modifier
+                                        .background(
+                                            color = Red3.copy(alpha = 0.1f),
+                                            shape = RoundedCornerShape(6.dp)
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = Red3,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Text(
+                                        text = "Vượt ngân sách ${formatterVND((category.usedAmount - category.budgetAmount).toLong())}đ",
+                                        style = AppTypography.labelSmall.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                        color = Red3
+                                    )
+                                }
                             }
                         }
 
@@ -675,6 +736,186 @@ fun SpendingCategory(
                         style = AppTypography.bodyMedium,
                         color = Gray1,
                         textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+
+        // Recommend input dialog
+        if (uiState.isShowRecommendInputDialog) {
+            CustomConfirmDialog(
+                dismissText = "Hủy",
+                confirmText = "Tiếp tục",
+                onDismiss = {
+                    onEvent(SpendingDetailEvent.HideRecommendInputDialog)
+                },
+                onConfirm = {
+                    onEvent(SpendingDetailEvent.SubmitRecommend)
+                },
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Gợi ý danh mục bằng AI",
+                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = Black1
+                    )
+                    Text(
+                        text = "Nhập yêu cầu của bạn để AI gợi ý danh mục phù hợp",
+                        style = AppTypography.bodySmall,
+                        color = Gray1,
+                        textAlign = TextAlign.Center
+                    )
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = uiState.recommendRequirement,
+                        keyboardOptions = KeyboardOptions(
+                            imeAction = ImeAction.Done,
+                            keyboardType = KeyboardType.Text
+                        ),
+                        onValueChange = {
+                            onEvent(SpendingDetailEvent.ChangeRecommendRequirement(it))
+                        },
+                        placeholder = {
+                            Text(
+                                "Ví dụ: Tôi muốn ngân sách ăn uống 30%...",
+                                style = AppTypography.bodySmall,
+                                color = Gray2
+                            )
+                        },
+                    )
+                }
+            }
+        }
+
+        // AI Recommend result dialog
+        if (uiState.isShowRecommendResultDialog) {
+            CustomConfirmDialog(
+                dismissText = "Hủy",
+                confirmText = "Áp dụng",
+                onDismiss = {
+                    onEvent(SpendingDetailEvent.HideRecommendResultDialog)
+                },
+                onConfirm = {
+                    onEvent(SpendingDetailEvent.ApplyRecommend)
+                },
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Gợi ý cho bạn",
+                        style = AppTypography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = Black1
+                    )
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(260.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(uiState.recommendResult) { category ->
+                            val definedCategory = uiState.definedCategories.find { it.id == category.id }
+                            val iconRes = CategoryIcon.fromCode(definedCategory?.icon ?: "").resId
+                            val color = (definedCategory?.textColor ?: "#2196F3").toColorFromHex()
+                            val budgetLong = category.budgetAmount
+                                .replace(",", "")
+                                .replace(".", "")
+                                .toLongOrNull() ?: 0L
+                            val totalBudget = uiState.spendingSnapshot?.budgetAmount?.toLong() ?: 1L
+                            val percent = if (totalBudget > 0L) ((budgetLong.toFloat() / totalBudget.toFloat()) * 100).toInt() else 0
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(
+                                        elevation = 4.dp,
+                                        shape = RoundedCornerShape(12.dp),
+                                        ambientColor = Black1.copy(alpha = 0.1f),
+                                        spotColor = Black1.copy(alpha = 0.1f)
+                                    )
+                                    .background(White1, RoundedCornerShape(12.dp))
+                                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                // Icon
+                                Box(
+                                    modifier = Modifier
+                                        .size(44.dp)
+                                        .background(
+                                            color = color.copy(alpha = 0.15f),
+                                            shape = RoundedCornerShape(10.dp)
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        painter = painterResource(iconRes),
+                                        contentDescription = null,
+                                        tint = color,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                // Info
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = category.name,
+                                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                        color = Black1
+                                    )
+                                    Text(
+                                        text = "${formatterVND(budgetLong)}đ",
+                                        style = AppTypography.labelMedium,
+                                        color = Gray1
+                                    )
+                                }
+                                // Percent badge
+                                Row(
+                                    modifier = Modifier
+                                        .background(
+                                            color = Blue3.copy(alpha = 0.08f),
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "$percent%",
+                                        style = AppTypography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = Blue3
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Recommending loading overlay
+        if (uiState.isRecommending) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Black1.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator(color = White1)
+                    Text(
+                        text = "AI đang phân tích...",
+                        style = AppTypography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = White1
                     )
                 }
             }

@@ -4,8 +4,10 @@ import android.content.Context
 import android.net.Uri
 import com.example.ibanking_kltn.data.api.AiApi
 import com.example.ibanking_kltn.data.exception.safeApiCall
+import com.example.ibanking_kltn.dtos.requests.RecommendSpendingRequest
 import com.example.ibanking_kltn.dtos.responses.AnalyzeResponse
 import com.example.ibanking_kltn.dtos.responses.ExtractTransactionResponse
+import com.example.ibanking_kltn.dtos.responses.RecommendSpendingResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingAnalyzeResponse
 import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
@@ -71,4 +73,20 @@ class AiRepository @Inject constructor(
         }
 
     }
+
+
+    suspend fun recommendSpending(
+        request: RecommendSpendingRequest
+    ): ApiResult<RecommendSpendingResponse> {
+        return safeApiCall(
+            apiCall = {
+                aiApi.recommendSpending(
+                    request = request
+                )
+            }
+        )
+
+    }
+
+
 }

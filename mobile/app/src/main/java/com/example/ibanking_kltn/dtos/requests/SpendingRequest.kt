@@ -31,3 +31,8 @@ data class DefinedSpendingCategoryRequest(
     val textColor: String,
     val backgroundColor: String
 )
+
+data class RecommendSpendingRequest(
+    val requirement: String,
+    val snapshotId: String
+)

@@ -63,3 +63,16 @@ data class SpendingCategoryDetailResponse(
     val budgetAmount: BigDecimal,
     val usedAmount: BigDecimal
 )
+data class RecommendSpendingResponse(
+    val data: List<CategoryDetailPayload>,
+    val message: String,
+    val success: Boolean
+)
+
+data class CategoryDetailPayload(
+    val budgetAmount: String,
+    val code: String,
+    val id: String,
+    val name: String,
+    val systemTag: String
+)

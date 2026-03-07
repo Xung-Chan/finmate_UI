@@ -10,6 +10,7 @@ import com.example.ibanking_kltn.data.repositories.AiRepository
 import com.example.ibanking_kltn.data.repositories.SpendingRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
 import com.example.ibanking_kltn.dtos.definitions.NavKey
+import com.example.ibanking_kltn.dtos.requests.RecommendSpendingRequest
 import com.example.ibanking_kltn.dtos.requests.SpendingCategorySnapshotRequest
 import com.example.ibanking_kltn.dtos.requests.SpendingRecordRequest
 import com.example.ibanking_kltn.ui.paging_sources.SpendingHistoryPagingSource
@@ -136,6 +137,26 @@ class SpendingDetailViewModel @Inject constructor(
             }
 
             SpendingDetailEvent.ConfirmDeleteDefinedTransaction -> deleteDefinedTransaction()
+
+            SpendingDetailEvent.ShowRecommendInputDialog -> _uiState.update {
+                it.copy(isShowRecommendInputDialog = true, recommendRequirement = "")
+            }
+
+            SpendingDetailEvent.HideRecommendInputDialog -> _uiState.update {
+                it.copy(isShowRecommendInputDialog = false, recommendRequirement = "")
+            }
+
+            is SpendingDetailEvent.ChangeRecommendRequirement -> _uiState.update {
+                it.copy(recommendRequirement = event.requirement)
+            }
+
+            SpendingDetailEvent.SubmitRecommend -> recommendSpending()
+
+            SpendingDetailEvent.ApplyRecommend -> applyRecommend()
+
+            SpendingDetailEvent.HideRecommendResultDialog -> _uiState.update {
+                it.copy(isShowRecommendResultDialog = false, recommendResult = emptyList())
+            }
         }
     }
 
@@ -752,6 +773,101 @@ class SpendingDetailViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    private fun recommendSpending() {
+        val requirement = uiState.value.recommendRequirement.trim()
+        if (requirement.isEmpty()) return
+        val snapshotId = uiState.value.snapshotId ?: return
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isRecommending = true,
+                    isShowRecommendInputDialog = false
+                )
+            }
+            val result = aiRepository.recommendSpending(
+                request = RecommendSpendingRequest(
+                    requirement = requirement,
+                    snapshotId = snapshotId
+                )
+            )
+            when (result) {
+                is ApiResult.Error -> {
+                    _uiState.update { it.copy(isRecommending = false) }
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                }
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isRecommending = false,
+                            recommendResult = result.data.data,
+                            isShowRecommendResultDialog = true
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyRecommend() {
+        val categories = uiState.value.recommendResult
+        val snapshotId = uiState.value.snapshotId ?: return
+        if (categories.isEmpty()) return
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isShowRecommendResultDialog = false,
+                    recommendResult = emptyList(),
+                    screenState = SpendingDetailState.LOADING
+                )
+            }
+            var hasError = false
+            for (category in categories) {
+                val budgetAmount = category.budgetAmount.replace(",", "").replace(".", "").toBigDecimalOrNull()
+                    ?: continue
+                val request = SpendingCategorySnapshotRequest(
+                    categoryId = category.id,
+                    budgetAmount = budgetAmount,
+                    budgetName = category.name
+                )
+                val result = spendingRepository.upsertSpendingCategoryDetail(
+                    snapshotId = snapshotId,
+                    request = request
+                )
+                if (result is ApiResult.Error) {
+                    hasError = true
+                    _uiEffect.emit(
+                        SpendingDetailEffect.ShowSnackBar(
+                            SnackBarUiState(
+                                message = result.message,
+                                type = SnackBarType.ERROR
+                            )
+                        )
+                    )
+                    break
+                }
+            }
+            if (!hasError) {
+                _uiEffect.emit(
+                    SpendingDetailEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Áp dụng gợi ý thành công",
+                            type = SnackBarType.SUCCESS
+                        )
+                    )
+                )
+                retryLoadData(forceReload = true)
+            }
+            _uiState.update { it.copy(screenState = SpendingDetailState.NONE) }
         }
     }
 

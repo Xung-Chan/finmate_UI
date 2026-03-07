@@ -1,5 +1,6 @@
 package com.example.ibanking_kltn.ui.screens.spending.snapshot_detail
 
+import com.example.ibanking_kltn.dtos.responses.CategoryDetailPayload
 import com.example.ibanking_kltn.dtos.responses.DefinedSpendingCategoryResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingAnalyzeResponse
 import com.example.ibanking_kltn.dtos.responses.SpendingRecordResponse
@@ -54,4 +55,11 @@ data class SpendingDetailUiState(
     // Delete defined transaction
     val isShowDeleteRecordDialog: Boolean = false,
     val deletingRecordId: String? = null,
+
+    // Recommend spending
+    val isShowRecommendInputDialog: Boolean = false,
+    val isShowRecommendResultDialog: Boolean = false,
+    val recommendRequirement: String = "",
+    val recommendResult: List<CategoryDetailPayload> = emptyList(),
+    val isRecommending: Boolean = false,
 )

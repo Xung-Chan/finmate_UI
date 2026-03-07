@@ -35,8 +35,16 @@ sealed class SpendingDetailEvent {
     data class ShowDeleteRecordDialog(val recordId: String) : SpendingDetailEvent()
     object HideDeleteRecordDialog : SpendingDetailEvent()
     object ConfirmDeleteDefinedTransaction : SpendingDetailEvent()
-}
 
+    // Recommend spending
+    object ShowRecommendInputDialog : SpendingDetailEvent()
+    object HideRecommendInputDialog : SpendingDetailEvent()
+    data class ChangeRecommendRequirement(val requirement: String) : SpendingDetailEvent()
+    object SubmitRecommend : SpendingDetailEvent()
+    object ApplyRecommend : SpendingDetailEvent()
+    object HideRecommendResultDialog : SpendingDetailEvent()
+
+}
 sealed class SpendingDetailEffect {
     data class ShowSnackBar(val snackBar: SnackBarUiState) : SpendingDetailEffect()
     object ReclassifyRecordSuccess : SpendingDetailEffect()

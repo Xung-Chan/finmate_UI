@@ -2328,7 +2328,9 @@ fun CustomDatePicker(
                 Box(
                     modifier = Modifier
                         .background(
-                            color = if (mode == DatePickerMode.MONTH_PICKER) Blue1 else Blue1.copy(alpha = 0.08f),
+                            color = if (mode == DatePickerMode.MONTH_PICKER) Blue1 else Blue1.copy(
+                                alpha = 0.08f
+                            ),
                             shape = RoundedCornerShape(8.dp)
                         )
                         .clickable(
@@ -2351,7 +2353,9 @@ fun CustomDatePicker(
                 Box(
                     modifier = Modifier
                         .background(
-                            color = if (mode == DatePickerMode.YEAR_PICKER) Blue1 else Blue1.copy(alpha = 0.08f),
+                            color = if (mode == DatePickerMode.YEAR_PICKER) Blue1 else Blue1.copy(
+                                alpha = 0.08f
+                            ),
                             shape = RoundedCornerShape(8.dp)
                         )
                         .clickable(
@@ -2403,7 +2407,9 @@ fun CustomDatePicker(
                         modifier = Modifier
                             .aspectRatio(1.8f)
                             .background(
-                                color = if (isSelected) Blue1 else if (year == today.year) Blue1.copy(alpha = 0.08f) else Color.Transparent,
+                                color = if (isSelected) Blue1 else if (year == today.year) Blue1.copy(
+                                    alpha = 0.08f
+                                ) else Color.Transparent,
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .then(
@@ -2415,8 +2421,14 @@ fun CustomDatePicker(
                                         .let { ym ->
                                             // giữ tháng trong phạm vi
                                             when {
-                                                ym.isBefore(minDate.withDayOfMonth(1)) -> minDate.withDayOfMonth(1)
-                                                ym.isAfter(maxDate.withDayOfMonth(1)) -> maxDate.withDayOfMonth(1)
+                                                ym.isBefore(minDate.withDayOfMonth(1)) -> minDate.withDayOfMonth(
+                                                    1
+                                                )
+
+                                                ym.isAfter(maxDate.withDayOfMonth(1)) -> maxDate.withDayOfMonth(
+                                                    1
+                                                )
+
                                                 else -> ym
                                             }
                                         }
@@ -2463,7 +2475,9 @@ fun CustomDatePicker(
                         modifier = Modifier
                             .height(44.dp)
                             .background(
-                                color = if (isSelected) Blue1 else if (isCurrentMonth) Blue1.copy(alpha = 0.08f) else Color.Transparent,
+                                color = if (isSelected) Blue1 else if (isCurrentMonth) Blue1.copy(
+                                    alpha = 0.08f
+                                ) else Color.Transparent,
                                 shape = RoundedCornerShape(8.dp)
                             )
                             .then(
@@ -2533,7 +2547,11 @@ fun CustomDatePicker(
                                     .padding(2.dp)
                                     .then(
                                         if (isSelected) Modifier.background(Blue1, CircleShape)
-                                        else if (isToday && isEnabled) Modifier.border(1.5.dp, Blue1, CircleShape)
+                                        else if (isToday && isEnabled) Modifier.border(
+                                            1.5.dp,
+                                            Blue1,
+                                            CircleShape
+                                        )
                                         else Modifier
                                     )
                                     .then(
@@ -3195,7 +3213,7 @@ fun ProgressBarWithLabel(
                     .padding(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = "$percentage%",
+                    text = "${(progress * 100).toInt()}%",
                     style = AppTypography.bodySmall,
                     color = labelTextColor,
                 )
