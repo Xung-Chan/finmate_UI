@@ -398,7 +398,7 @@ fun BillDetailPreview() {
                 billStatus = BillStatus.ACTIVE,
                 description = "Thanh toán dịch vụ Internet tháng 12",
                 metadata = mapOf("orderId" to "ORD-123456"),
-                qrIdentifier = "01KCNM2ZWMGEFHK4QJFBSC6K7Z",
+                qrIdentifier = "01KKGNZPCNA4J2CVHQ5G7T09A8",
                 walletNumber = "0987654321"
             )
         ),

@@ -395,7 +395,7 @@ fun PayLaterScreen(
                                     title = "Ngày đến hạn",
                                     trailing = {
                                         Text(
-                                            text = uiState.payLaterInfo.nextDueDate,
+                                            text = uiState.payLaterInfo.nextDueDate?:"-",
                                             style = AppTypography.bodyMedium,
                                             color = it,
                                             textAlign = TextAlign.End

@@ -114,9 +114,9 @@ fun SpendingCategory(
                 )
             },
             floatingActionButton = {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Recommend FAB
                     FloatingActionButton(

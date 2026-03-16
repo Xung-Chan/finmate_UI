@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.usecase.GetTransactionUC
 import com.example.ibanking_kltn.dtos.definitions.NavKey
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
+import com.example.ibanking_kltn.ui.uistates.StateType
 import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -37,6 +39,11 @@ class TransactionResultViewModel @Inject constructor(
                 )
                 return@launch
             }
+            _uiState.update {
+                it.copy(
+                    initState = StateType.LOADING
+                )
+            }
             val result = getTransactionUC(transactionId = transactionId)
             when (result) {
                 is ApiResult.Error -> {
@@ -48,15 +55,23 @@ class TransactionResultViewModel @Inject constructor(
                             )
                         )
                     )
+                    _uiState.update {
+                        it.copy(
+                            initState = StateType.FAILED(result.message)
+                        )
+                    }
                 }
 
                 is ApiResult.Success -> {
                     val transaction = result.data
-                    _uiState.value = TransactionResultUiState(
-                        service = transaction.transactionType.serviceName,
-                        amount = transaction.amount.toLong(),
-                        status =transaction.status
-                    )
+                    _uiState.update {
+                        TransactionResultUiState(
+                            initState = StateType.SUCCESS,
+                            service = transaction.transactionType.serviceName,
+                            amount = transaction.amount.toLong(),
+                            status =transaction.status
+                        )
+                    }
                 }
             }
         }

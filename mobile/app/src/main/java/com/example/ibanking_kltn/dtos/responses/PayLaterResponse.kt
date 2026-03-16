@@ -13,7 +13,7 @@ data class PayLaterResponse(
     val id: String,
     val interestRate: Double,
     val nextBillingDate: String,
-    val nextDueDate: String,
+    val nextDueDate: String?=null,
     val payLaterAccountNumber: String,
     val status: PayLaterAccountStatus,
     val usedCredit: Double,

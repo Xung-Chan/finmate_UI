@@ -1,6 +1,7 @@
 package com.example.ibanking_kltn.data.usecase
 
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
+import com.example.ibanking_kltn.dtos.definitions.TransactionStatus
 import com.example.ibanking_kltn.dtos.responses.TransactionHistoryResponse
 import com.example.ibanking_soa.data.utils.ApiResult
 import jakarta.inject.Inject
@@ -20,7 +21,11 @@ class GetTransactionUC @Inject constructor(
             )
             when (apiResult) {
                 is ApiResult.Success -> {
-                    return apiResult
+                    if(apiResult.data.status != TransactionStatus.COMPLETED){
+                        message = "Transaction is still processing. Please wait..."
+                    } else {
+                        return apiResult
+                    }
                 }
 
                 is ApiResult.Error -> {
