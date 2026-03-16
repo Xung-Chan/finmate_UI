@@ -9,5 +9,6 @@ data class WalletVerificationRequest(
     val representativeIdType: String,
     val representativeIdNumber: String,
     val contactEmail: String,
-    val contactPhone: String
+    val contactPhone: String,
+    val fullObjectKey:String
 )

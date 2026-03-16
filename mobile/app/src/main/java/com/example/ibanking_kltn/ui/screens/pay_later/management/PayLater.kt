@@ -81,6 +81,7 @@ fun PayLaterScreen(
     onUnlockPaylater: () -> Unit,
     onNavigateToApplicationHistory: () -> Unit,
     onNavigateToBillingCycleHistory: () -> Unit,
+    onNavigateToAdjustLimit: () -> Unit,
     onRetry: () -> Unit,
 ) {
     val scrollState = rememberScrollState(0)
@@ -593,6 +594,32 @@ fun PayLaterScreen(
                             }
                             if (uiState.payLaterInfo.status != PayLaterAccountStatus.PENDING) {
                                 InformationLine(
+                                    title = "Yêu cầu tăng hạn mức",
+                                    color = Black1,
+                                    leading = {
+                                        Icon(
+                                            painter = painterResource(R.drawable.money_increase),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp),
+                                            tint = it
+                                        )
+                                    },
+                                    trailing = {
+                                        Icon(
+
+                                            imageVector = Icons.Default.ArrowForwardIos,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(25.dp), tint = it
+
+                                        )
+                                    },
+                                    enable = true,
+                                    onClick = {
+                                        onNavigateToAdjustLimit()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                InformationLine(
                                     title = "Thanh toán nợ dư",
                                     color = Black1,
                                     leading = {
@@ -805,6 +832,7 @@ fun PayLaterPreview() {
         onLockPaylater = {},
         onUnlockPaylater = { },
         onNavigateToApplicationHistory = {},
-        onNavigateToBillingCycleHistory = {}
+        onNavigateToBillingCycleHistory = {},
+        onNavigateToAdjustLimit = {}
     )
 }

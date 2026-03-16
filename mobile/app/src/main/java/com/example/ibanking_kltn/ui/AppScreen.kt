@@ -906,6 +906,10 @@ fun AppScreen(
                     },
                     onNavigateToBillingCycleHistory = {
                         navController.navigate(Screens.BillingCycle.name)
+                    },
+                    onNavigateToAdjustLimit = {
+                        payLaterApplicationViewModel.init(type = PayLaterApplicationType.LIMIT_ADJUSTMENT)
+                        navController.navigate(Screens.PayLaterApplication.name)
                     }
 
                 )

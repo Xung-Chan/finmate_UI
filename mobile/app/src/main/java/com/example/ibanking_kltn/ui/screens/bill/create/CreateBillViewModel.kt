@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.ibanking_kltn.data.repositories.BillRepository
 import com.example.ibanking_kltn.data.repositories.TransactionRepository
+import com.example.ibanking_kltn.data.session.UserSession
 import com.example.ibanking_kltn.dtos.requests.CreateBillRequest
 import com.example.ibanking_kltn.dtos.responses.ExpenseType
 import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
@@ -28,7 +29,9 @@ import java.time.LocalTime
 class CreateBillViewModel @Inject constructor(
     private val transactionRepository: TransactionRepository,
     private val billRepository: BillRepository,
-) : ViewModel() {
+    private val userSession: UserSession,
+
+    ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateBillUiState())
     val uiState: StateFlow<CreateBillUiState> = _uiState.asStateFlow()
 
@@ -37,6 +40,16 @@ class CreateBillViewModel @Inject constructor(
 
     init {
         loadExpenseType()
+        viewModelScope.launch {
+
+            userSession.user.collect { user ->
+                _uiState.update {
+                    it.copy(
+                        verified =  user?.wallet?.verified?:false
+                    )
+                }
+            }
+        }
     }
 
 
@@ -81,6 +94,19 @@ class CreateBillViewModel @Inject constructor(
     }
 
     private fun onContinueClick() {
+        if(!uiState.value.verified){
+            viewModelScope.launch {
+                _uiEffect.emit(
+                    CreateBillEffect.ShowSnackBar(
+                        SnackBarUiState(
+                            message = "Vui lòng xác thực ví của bạn để sử dụng tính năng này",
+                            type = SnackBarType.WARNING
+                        )
+                    )
+                )
+            }
+            return
+        }
         _uiState.update { it.copy(screenState = StateType.LOADING) }
         viewModelScope.launch {
             val request = CreateBillRequest(

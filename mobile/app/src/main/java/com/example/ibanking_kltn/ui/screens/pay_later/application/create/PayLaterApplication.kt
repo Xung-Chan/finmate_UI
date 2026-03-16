@@ -214,8 +214,8 @@ fun PayLaterApplicationScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         value = uiState.reason ?: "",
                                         keyboardOptions = KeyboardOptions(
-                                            imeAction = ImeAction.Next,
-                                            keyboardType = KeyboardType.Number
+                                            imeAction = ImeAction.Done,
+                                            keyboardType = KeyboardType.Text
                                         ),
                                         enable = true,
                                         onValueChange = {

@@ -4,10 +4,15 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ibanking_kltn.dtos.requests.WalletVerificationRequest
 import com.example.ibanking_kltn.data.repositories.WalletRepository
+import com.example.ibanking_kltn.data.usecase.UploadFileUC
+import com.example.ibanking_kltn.dtos.definitions.PresignedFileType
+import com.example.ibanking_kltn.dtos.requests.WalletVerificationRequest
+import com.example.ibanking_kltn.ui.uistates.SnackBarUiState
 import com.example.ibanking_kltn.ui.uistates.StateType
+import com.example.ibanking_kltn.utils.SnackBarType
 import com.example.ibanking_kltn.utils.getFileInfo
+import com.example.ibanking_soa.data.utils.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
@@ -23,6 +28,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class CreateVerificationRequestViewModel @Inject constructor(
     private val walletRepository: WalletRepository,
+    private val uploadFileUC: UploadFileUC,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CreateVerificationRequestUiState())
@@ -89,6 +95,27 @@ class CreateVerificationRequestViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
+            val uploadResponse = uploadFileUC(
+                fileType = PresignedFileType.DOCUMENT,
+                uri = _uiState.value.documents.map { it.uri }[0]
+            )
+            if (uploadResponse is ApiResult.Error) {
+                _uiState.update {
+                    it.copy(
+                        screenState = StateType.FAILED(message = uploadResponse.message),
+                    )
+                }
+                _uiEffect.emit(
+                    CreateVerificationEffect.ShowSnackBar(
+                        snackBar = SnackBarUiState(
+                            message = uploadResponse.message,
+                            type = SnackBarType.ERROR
+                        )
+                    )
+                )
+                return@launch
+            }
+            uploadResponse as ApiResult.Success
 
             val request = WalletVerificationRequest(
                 invoiceDisplayName = _uiState.value.invoiceDisplayName,
@@ -99,11 +126,12 @@ class CreateVerificationRequestViewModel @Inject constructor(
                 representativeIdType = _uiState.value.representativeIdType,
                 representativeIdNumber = _uiState.value.representativeIdNumber,
                 contactEmail = _uiState.value.contactEmail,
-                contactPhone = _uiState.value.contactPhone
+                contactPhone = _uiState.value.contactPhone,
+                fullObjectKey = uploadResponse.data.objectKey
             )
             val apiResult = walletRepository.createWalletVerification(
                 request,
-                _uiState.value.documents.map { it.uri }
+//                _uiState.value.documents.map { it.uri }
             )
             //todo
 //            when (apiResult) {

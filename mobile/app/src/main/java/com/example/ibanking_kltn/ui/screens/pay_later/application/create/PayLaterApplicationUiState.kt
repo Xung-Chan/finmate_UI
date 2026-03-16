@@ -8,6 +8,6 @@ data class PayLaterApplicationUiState(
 
     val applicationType: PayLaterApplicationType = PayLaterApplicationType.ACTIVATION,
     val requestLimit: Long = 10000000L,
-    val reason: String? = null
+    val reason: String? = ""
 
 )

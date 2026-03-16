@@ -8,15 +8,15 @@ data class CreateVerificationRequestUiState(
 
     val documents: List<FileInfo> = emptyList(),
 
-    val invoiceDisplayName: String = "",
-    val businessName: String = "",
-    val businessCode: String = "",
-    val businessAddress: String = "",
-    val representativeName: String = "",
-    val representativeIdType: String = "",
-    val representativeIdNumber: String = "",
-    val contactEmail: String = "",
-    val contactPhone: String = "",
+    val invoiceDisplayName: String = "Cty TNHH",
+    val businessName: String = "Cty TNHH",
+    val businessCode: String = "012345678912",
+    val businessAddress: String = "Quận 7",
+    val representativeName: String = "Duy Truong",
+    val representativeIdType: String = "CCCD",
+    val representativeIdNumber: String = "086204006206",
+    val contactEmail: String = "nmdtruong18032004@gmail.com",
+    val contactPhone: String = "0396371201",
 
     ) {
     val isConfirmEnabled: Boolean

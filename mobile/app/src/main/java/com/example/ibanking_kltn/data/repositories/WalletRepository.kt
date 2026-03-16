@@ -1,20 +1,15 @@
 package com.example.ibanking_kltn.data.repositories
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import com.example.ibanking_kltn.data.api.WalletApi
+import com.example.ibanking_kltn.data.exception.safeApiCall
 import com.example.ibanking_kltn.dtos.requests.WalletVerificationRequest
 import com.example.ibanking_kltn.dtos.responses.WalletResponse
 import com.example.ibanking_kltn.dtos.responses.WalletVerificationResponse
-import com.example.ibanking_kltn.data.exception.safeApiCall
-import com.example.ibanking_kltn.utils.createMultipartFromUri
 import com.example.ibanking_soa.data.utils.ApiResult
-import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import jakarta.inject.Inject
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody.Companion.toRequestBody
 
 class WalletRepository @Inject constructor(
     private val walletApi: WalletApi,
@@ -62,27 +57,28 @@ class WalletRepository @Inject constructor(
     }
 
     suspend fun createWalletVerification(
-        request: WalletVerificationRequest,
-        documentUris: List<Uri>
+        request: WalletVerificationRequest
+//        documentUris: List<Uri>
     ): ApiResult<WalletVerificationResponse> {
 
         try {
-            val gson = Gson()
-            val jsonString = gson.toJson(request)
-            val dataRequestBody = jsonString.toRequestBody("application/json".toMediaTypeOrNull())
-            val documentParts = documentUris.mapIndexed { index, uri ->
-                createMultipartFromUri(
-                    uri = uri,
-                    partName = "documents",
-                    context = context
-                )
-            }
+//            val gson = Gson()
+//            val jsonString = gson.toJson(request)
+//            val dataRequestBody = jsonString.toRequestBody("application/json".toMediaTypeOrNull())
+//            val documentParts = documentUris.mapIndexed { index, uri ->
+//                createMultipartFromUri(
+//                    uri = uri,
+//                    partName = "documents",
+//                    context = context
+//                )
+//            }
 
            return safeApiCall(
                apiCall = {
                    walletApi.createVerificationRequest(
-                       data = dataRequestBody,
-                       documents = documentParts
+//                       data = dataRequestBody,
+//                       documents = documentParts
+                       request = request
                    )
                }
            )

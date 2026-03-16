@@ -14,5 +14,6 @@ data class CreateBillUiState(
 
     val amount: Long = 0L,
     val description: String = "",
-    val expiryDate: LocalDate = LocalDate.now()
+    val expiryDate: LocalDate = LocalDate.now(),
+    val verified: Boolean = false,
 )

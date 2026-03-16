@@ -204,6 +204,49 @@ class PayLaterViewModel @Inject constructor(
 
 
         }
+    }
+
+    fun adjustLimitRequest(
+        requestedCreditLimit: Long,
+        reason: String,
+        onSuccess: () -> Unit,
+        onError: (message: String) -> Unit
+    ) {
+        _uiState.update {
+            it.copy(
+                screenState = StateType.LOADING
+            )
+        }
+        viewModelScope.launch {
+            val request = PayLaterApplicationRequest(
+                type = PayLaterApplicationType.LIMIT_ADJUSTMENT.name,
+                requestedCreditLimit = requestedCreditLimit,
+                reason = reason
+            )
+            val apiResult = payLaterRepository.submitApplication(request=request)
+            when (apiResult) {
+                is ApiResult.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.SUCCESS,
+                        )
+                    }
+                    onSuccess()
+                    return@launch
+                }
+
+                is ApiResult.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            screenState = StateType.FAILED(apiResult.message)
+                        )
+                    }
+                    onError(apiResult.message)
+                }
+            }
+
+
+        }
 
     }
 
